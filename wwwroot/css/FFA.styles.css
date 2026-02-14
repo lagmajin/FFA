@@ -61,3 +61,76 @@ footer nav a {
 footer nav a:hover {
     color: #007bff;
 }
+
+/* Home page styles */
+.home-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: #f9f9f9;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.home-title {
+    color: #333;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.start-section {
+    text-align: center;
+}
+
+.start-button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    font-size: 1.2rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.start-button:hover {
+    background-color: #218838;
+}
+
+.game-section {
+    text-align: center;
+}
+
+.game-message {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    color: #555;
+}
+
+.input-group {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.game-input {
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 300px;
+}
+
+.submit-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.submit-button:hover {
+    background-color: #0056b3;
+}
