@@ -1,0 +1,53 @@
+@page "/register"
+
+<PageTitle>キャラクター登録</PageTitle>
+
+@using System.ComponentModel.DataAnnotations
+
+<h2>キャラクター登録</h2>
+
+<EditForm Model="registerModel" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div>
+        <label for="username">ユーザー名:</label>
+        <InputText id="username" @bind-Value="registerModel.Username" />
+    </div>
+
+    <div>
+        <label for="password">パスワード:</label>
+        <InputText id="password" type="password" @bind-Value="registerModel.Password" />
+    </div>
+
+    <div>
+        <label for="confirmPassword">パスワード確認:</label>
+        <InputText id="confirmPassword" type="password" @bind-Value="registerModel.ConfirmPassword" />
+    </div>
+
+    <button type="submit">登録</button>
+</EditForm>
+
+@code {
+    private RegisterModel registerModel = new();
+
+    private void HandleValidSubmit()
+    {
+        // 登録ロジック（仮）
+        Console.WriteLine($"Registered: {registerModel.Username}");
+    }
+
+    public class RegisterModel
+    {
+        [Required]
+        public string Username { get; set; } = "";
+
+        [Required]
+        [MinLength(6)]
+        public string Password { get; set; } = "";
+
+        [Required]
+        [Compare("Password")]
+        public string ConfirmPassword { get; set; } = "";
+    }
+}

@@ -1,0 +1,53 @@
+﻿@page "/"
+
+<PageTitle>CGI風ゲーム</PageTitle>
+
+<h1>CGI風ゲーム</h1>
+
+<p>シンプルなテキストベースのゲームへようこそ！</p>
+
+@if (!gameStarted)
+{
+    <button @onclick="StartGame">ゲームスタート</button>
+}
+else
+{
+    <div>
+        <p>@currentMessage</p>
+        <input @bind="userInput" @onkeydown="HandleKeyDown" />
+        <button @onclick="SubmitInput">送信</button>
+    </div>
+}
+
+@code {
+    private bool gameStarted = false;
+    private string currentMessage = "ゲームを開始しました。何をしますか？";
+    private string userInput = "";
+
+    private void StartGame()
+    {
+        gameStarted = true;
+    }
+
+    private void SubmitInput()
+    {
+        // シンプルなロジック、例えば入力に応じてメッセージ変更
+        if (userInput.ToLower() == "hello")
+        {
+            currentMessage = "こんにちは！";
+        }
+        else
+        {
+            currentMessage = $"あなたは '{userInput}' と言いました。";
+        }
+        userInput = "";
+    }
+
+    private void HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            SubmitInput();
+        }
+    }
+}

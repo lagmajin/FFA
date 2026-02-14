@@ -1,0 +1,29 @@
+﻿@inherits LayoutComponentBase
+
+<header>
+    <div class="header-content">
+        <h1>FFA</h1>
+        <nav class="right-nav">
+            <NavLink href="/register">キャラクター登録</NavLink>
+            <NavLink href="/login">ログイン</NavLink>
+        </nav>
+    </div>
+</header>
+
+<main>
+    @Body
+</main>
+
+<footer>
+    <nav>
+        <NavLink href="/guide">ガイド</NavLink>
+        <NavLink href="/about">About</NavLink>
+        <NavLink href="/contact">Contact</NavLink>
+    </nav>
+</footer>
+
+<div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">🗙</span>
+</div>
