@@ -3,36 +3,194 @@
 
 @inject NavigationManager Navigation
 @inject Services.UserService UserService
+@inject Services.CountryService CountryService
+@inject Services.TownService TownService
 
-<h1>街</h1>
+<PageTitle>街</PageTitle>
 
 <div class="town-container">
-    <div class="town-center">
-        <h2>町の広場</h2>
-        <p>ここでは買い物や情報交換ができます。</p>
-        
-        <div class="shop-section">
-            <h3>商店</h3>
-            <div class="town-actions">
-                <button class="action-button" @onclick="GoToWeaponShop">武器屋</button>
-                <button class="action-button" @onclick="GoToArmorShop">防具屋</button>
-                <button class="action-button" @onclick="GoToAccessoryShop">装飾品屋</button>
-                <button class="action-button" @onclick="GoToConsumablesShop">消耗品屋</button>
-            </div>
+    <h1 class="town-title">@CurrentTown?.Name</h1>
+    <p class="town-description">@CurrentTown?.Description</p>
+    
+    <div class="town-info">
+        <div class="town-type">
+            <span class="type-badge @CurrentTown?.Type">@GetTownTypeName(CurrentTown?.Type)</span>
         </div>
-        
-        <div class="other-section">
-            <h3>その他</h3>
-            <div class="town-actions">
-                <button class="action-button" @onclick="GoToInn">宿屋</button>
-                <button class="action-button" @onclick="GoToBank">銀行</button>
-                <button class="action-button" @onclick="GoBack">ダッシュボード</button>
-            </div>
+        <div class="town-details">
+            <span>人口: @CurrentTown?.Population</span>
+            <span>繁栄度: @CurrentTown?.Prosperity/100</span>
+            @if (CurrentTown?.CountryName != null)
+            {
+                <span>所属国: @CurrentTown.CountryName</span>
+            }
         </div>
     </div>
+
+    @if (CurrentTown != null)
+    {
+        <div class="town-content">
+            <div class="frame facilities-section">
+                <div class="frame-header">
+                    <h3>施設</h3>
+                </div>
+                <div class="frame-body">
+                    <div class="facilities-list">
+                        @foreach (var facility in CurrentTown.Facilities)
+                        {
+                            <div class="facility-item">@facility</div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="frame events-section">
+                <div class="frame-header">
+                    <h3>イベント</h3>
+                </div>
+                <div class="frame-body">
+                    <div class="events-list">
+                        @foreach (var ev in CurrentTown.Events)
+                        {
+                            <div class="event-item">@ev</div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="frame actions-section">
+                <div class="frame-header">
+                    <h3>アクション</h3>
+                </div>
+                <div class="frame-body">
+                    <div class="town-actions">
+                        @if (CurrentTown.HasSpecialShop)
+                        {
+                            <button class="action-button special" @onclick="GoToSpecialShop">
+                                特殊商店 (@CurrentTown.SpecialShopType)
+                            </button>
+                        }
+                        
+                        <div class="basic-shops">
+                            <button class="action-button" @onclick="GoToWeaponShop">武器屋</button>
+                            <button class="action-button" @onclick="GoToArmorShop">防具屋</button>
+                            <button class="action-button" @onclick="GoToAccessoryShop">装飾品屋</button>
+                            <button class="action-button" @onclick="GoToConsumablesShop">消耗品屋</button>
+                        </div>
+                        
+                        <div class="other-actions">
+                            <button class="action-button" @onclick="GoToInn">宿屋</button>
+                            <button class="action-button" @onclick="GoToBank">銀行</button>
+                            <button class="action-button" @onclick="GoBack">ダッシュボード</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (OtherTowns.Count > 0)
+    {
+        <div class="frame other-towns-section">
+            <div class="frame-header">
+                <h3>他の街</h3>
+            </div>
+            <div class="frame-body">
+                <div class="other-towns-list">
+                    @foreach (var town in OtherTowns)
+                    {
+                        <div class="other-town-card" @onclick="() => GoToTown(town.Id)">
+                            <h4>@town.Name</h4>
+                            <p>@GetTownTypeName(town.Type)</p>
+                            <p class="population">人口: @town.Population</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
 </div>
 
 @code {
+    private User? currentUser;
+    private Models.Country? currentCountry;
+    private Models.Town? CurrentTown { get; set; }
+    private List<Models.Town> OtherTowns { get; set; } = new List<Models.Town>();
+
+    protected override void OnInitialized()
+    {
+        var users = UserService.GetAllUsers().ToList();
+        currentUser = users.FirstOrDefault();
+        
+        if (currentUser?.CountryId != null)
+        {
+            currentCountry = CountryService.GetCountryById(currentUser.CountryId.Value);
+            var towns = TownService.GetTownsByCountryId(currentUser.CountryId.Value);
+            
+            // デフォルトで首都を表示
+            CurrentTown = towns.FirstOrDefault(t => t.Type == "capital") ?? towns.FirstOrDefault();
+            
+            // 他の街を取得
+            OtherTowns = towns.Where(t => t.Id != CurrentTown?.Id).ToList();
+        }
+        else
+        {
+            // 国に所属していない場合は中立の都を表示
+            var neutralCountry = CountryService.GetAllCountries().FirstOrDefault(c => c.Name == "中立之城");
+            if (neutralCountry != null)
+            {
+                CurrentTown = neutralCountry.Towns.FirstOrDefault(t => t.Type == "capital");
+                OtherTowns = neutralCountry.Towns.Where(t => t.Id != CurrentTown?.Id).ToList();
+            }
+        }
+    }
+
+    private string GetTownTypeName(string? type)
+    {
+        return type switch
+        {
+            "capital" => "首都",
+            "village" => "田舎",
+            "town" => "一般街",
+            _ => "街"
+        };
+    }
+
+    private void GoToSpecialShop()
+    {
+        if (CurrentTown == null) return;
+        
+        switch (CurrentTown.SpecialShopType)
+        {
+            case "武器":
+                GoToWeaponShop();
+                break;
+            case "防具":
+                GoToArmorShop();
+                break;
+            case "装飾品":
+                GoToAccessoryShop();
+                break;
+            case "消耗品":
+                GoToConsumablesShop();
+                break;
+            case "特殊":
+                GoToShop();
+                break;
+        }
+    }
+
+    private void GoToTown(int townId)
+    {
+        var town = TownService.GetTownById(townId);
+        if (town != null)
+        {
+            CurrentTown = town;
+            OtherTowns = TownService.GetTownsByCountryId(town.CountryId)
+                .Where(t => t.Id != townId)
+                .ToList();
+        }
+    }
+
     private void GoToShop() => Navigation.NavigateTo("/shop");
     private void GoToInn() => Navigation.NavigateTo("/inn");
     private void GoToBank() => Navigation.NavigateTo("/bank");

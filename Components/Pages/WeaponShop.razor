@@ -22,6 +22,7 @@ else
             {
                 <div class="shop-item">
                     <div class="shop-item-name">@w.Name</div>
+                    <div>タイプ: @GetWeaponTypeName(w.Type)</div>
                     <div>攻撃: @w.Attack</div>
                     <div>価格: @w.Price ギル</div>
                     <button class="action-button" @onclick="() => BuyWeapon(w)">購入 / 装備</button>
@@ -35,14 +36,41 @@ else
     private bool isAuth = false;
     private string? username;
 
-    private record WeaponForSale(string Name, int Attack, int Price);
+    private record WeaponForSale(string Name, int Attack, int Price, WeaponType Type);
 
     private List<WeaponForSale> weapons = new()
     {
-        new WeaponForSale("こんぼう", 6, 100),
-        new WeaponForSale("鉄の剣", 10, 300),
-        new WeaponForSale("大剣", 18, 900),
-        new WeaponForSale("短剣", 8, 200),
+        // 棍棒
+        new WeaponForSale("こんぼう", 6, 100, WeaponType.Club),
+        new WeaponForSale("鉄の棍棒", 12, 400, WeaponType.Club),
+        // 短剣
+        new WeaponForSale("短剣", 8, 200, WeaponType.Dagger),
+        new WeaponForSale("鋼の短剣", 14, 500, WeaponType.Dagger),
+        // 剣
+        new WeaponForSale("鉄の剣", 10, 300, WeaponType.Sword),
+        new WeaponForSale("鋼の剣", 16, 700, WeaponType.Sword),
+        new WeaponForSale("大剣", 18, 900, WeaponType.Sword),
+        new WeaponForSale("精鋼の剣", 22, 1500, WeaponType.Sword),
+        // 刀
+        new WeaponForSale("短刀", 9, 350, WeaponType.Katana),
+        new WeaponForSale("打刀", 15, 800, WeaponType.Katana),
+        new WeaponForSale("太刀", 20, 1200, WeaponType.Katana),
+        // 斧
+        new WeaponForSale("鉄の斧", 14, 500, WeaponType.Axe),
+        new WeaponForSale("鋼の斧", 20, 1000, WeaponType.Axe),
+        new WeaponForSale("巨斧", 25, 1800, WeaponType.Axe),
+        // 槍
+        new WeaponForSale("鉄の槍", 13, 450, WeaponType.Spear),
+        new WeaponForSale("鋼の槍", 19, 950, WeaponType.Spear),
+        new WeaponForSale("長槍", 23, 1600, WeaponType.Spear),
+        // 弓
+        new WeaponForSale("木の弓", 7, 250, WeaponType.Bow),
+        new WeaponForSale("鉄の弓", 11, 600, WeaponType.Bow),
+        new WeaponForSale("長弓", 15, 1100, WeaponType.Bow),
+        // 杖
+        new WeaponForSale("木の杖", 5, 200, WeaponType.Staff),
+        new WeaponForSale("魔法の杖", 9, 700, WeaponType.Staff),
+        new WeaponForSale("精霊の杖", 13, 1400, WeaponType.Staff),
     };
 
     protected override async Task OnInitializedAsync()
@@ -51,6 +79,22 @@ else
         var user = state.User;
         isAuth = user?.Identity?.IsAuthenticated ?? false;
         username = user?.Identity?.Name;
+    }
+
+    private string GetWeaponTypeName(WeaponType type)
+    {
+        return type switch
+        {
+            WeaponType.Sword => "剣",
+            WeaponType.Axe => "斧",
+            WeaponType.Spear => "槍",
+            WeaponType.Katana => "刀",
+            WeaponType.Dagger => "短剣",
+            WeaponType.Club => "棍棒",
+            WeaponType.Bow => "弓",
+            WeaponType.Staff => "杖",
+            _ => "その他"
+        };
     }
 
     private void BuyWeapon(WeaponForSale w)
@@ -64,7 +108,7 @@ else
             return;
         }
         u.Gil -= w.Price;
-        u.EquippedWeapon = new Weapon { Name = w.Name, Attack = w.Attack };
+        u.EquippedWeapon = new Weapon { Name = w.Name, Attack = w.Attack, Type = w.Type };
         UserService.UpdateUser(u);
         Navigation.NavigateTo("/town");
     }

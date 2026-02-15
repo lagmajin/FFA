@@ -17,6 +17,8 @@ builder.Services.AddScoped<GuildService>();
 builder.Services.AddScoped<DungeonService>();
 builder.Services.AddScoped<QuestService>();
 builder.Services.AddScoped<CountryService>();
+builder.Services.AddScoped<TownService>();
+builder.Services.AddScoped<MapService>();
 builder.Services.AddScoped<FieldService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<TimeWeatherService>();

@@ -1,11 +1,42 @@
-/* FFA.styles.css */
+/* FFA.styles.css - ゲームらしい落ち着いたデザイン */
 
+:root {
+    --primary-color: #4a5568;
+    --primary-hover: #2d3748;
+    --secondary-color: #718096;
+    --success-color: #48bb78;
+    --danger-color: #f56565;
+    --warning-color: #ed8936;
+    --info-color: #4299e1;
+    --light-color: #f7fafc;
+    --dark-color: #1a202c;
+    --border-color: #e2e8f0;
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* 全体的なリセットと基本スタイル */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f7fafc;
+    color: #2d3748;
+    line-height: 1.6;
+}
+
+/* ヘッダースタイル */
 header {
-    background-color: #f8f9fa;
-    padding: 1rem;
+    background-color: #1a202c;
+    padding: 1rem 2rem;
     display: flex;
     align-items: center;
-    border-bottom: 1px solid #dee2e6;
+    border-bottom: 1px solid #2d3748;
+    box-shadow: var(--shadow);
 }
 
 .header-content {
@@ -18,7 +49,8 @@ header {
 .header-content h1 {
     margin: 0;
     font-size: 1.5rem;
-    color: #007bff;
+    color: #ffffff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .right-nav {
@@ -29,45 +61,54 @@ header {
 
 .right-nav a {
     text-decoration: none;
-    color: #007bff;
+    color: #a0aec0;
     padding: 0.5rem 1rem;
-    border: 1px solid #007bff;
+    border: 1px solid #4a5568;
     border-radius: 0.25rem;
-    transition: background-color 0.2s;
+    transition: all 0.2s;
+    background-color: #2d3748;
 }
 
 /* Style for header buttons that should look like links */
 .link-button {
     background: none;
     border: none;
-    color: #007bff;
+    color: #a0aec0;
     padding: 0.5rem 1rem;
     border-radius: 0.25rem;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: all 0.2s;
     font: inherit;
+    background-color: #2d3748;
+    border: 1px solid #4a5568;
 }
 
 .link-button:hover {
-    background-color: #007bff;
+    background-color: #4a5568;
     color: white;
+    border-color: #4a5568;
 }
 
 .right-nav a:hover {
-    background-color: #007bff;
+    background-color: #4a5568;
     color: white;
+    border-color: #4a5568;
 }
 
+/* メインコンテンツスタイル */
 main {
     padding: 2rem;
     min-height: 60vh;
+    background-color: #f7fafc;
 }
 
+/* フッタースタイル */
 footer {
-    background-color: #f8f9fa;
+    background-color: #1a202c;
     padding: 1rem;
     text-align: center;
     position: relative;
+    border-top: 1px solid #2d3748;
 }
 
 footer nav {
@@ -78,21 +119,22 @@ footer nav {
 
 footer nav a {
     text-decoration: none;
-    color: #6c757d;
+    color: #718096;
     padding: 0.5rem;
+    transition: color 0.2s;
 }
 
 footer nav a:hover {
-    color: #007bff;
+    color: #a0aec0;
 }
 
-/* Footer separator line (common design) */
+/* Footer separator line */
 footer::before {
     content: "";
     display: block;
     width: 100%;
     height: 3px;
-    background-color: #000;
+    background-color: #2d3748;
     position: absolute;
     top: 0;
     left: 0;
@@ -102,10 +144,11 @@ footer::before {
 .home-container {
     max-width: 800px;
     margin: 0 auto;
-    background-color: #f9f9f9;
+    background-color: #ffffff;
     padding: 2rem;
     border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    box-shadow: var(--shadow);
+    border: 1px solid #e2e8f0;
 }
 
 /* Champion section styles */
@@ -115,17 +158,19 @@ footer::before {
 }
 
 .champion-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
     border-radius: 12px;
     padding: 1.5rem;
     color: white;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid #4a5568;
 }
 
 .champion-card h3 {
     margin: 0 0 1rem 0;
     font-size: 1.25rem;
     text-align: center;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .champion-info {
@@ -137,12 +182,13 @@ footer::before {
 .champion-avatar {
     width: 80px;
     height: 80px;
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.1);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
 .avatar-placeholder {
@@ -161,147 +207,91 @@ footer::before {
 
 .champion-title {
     font-size: 0.9rem;
-    opacity: 0.9;
+    opacity: 0.8;
     margin: 0 0 0.5rem 0;
 }
 
 .champion-stats {
     font-size: 0.85rem;
-    opacity: 0.8;
+    opacity: 0.7;
     margin: 0;
 }
 
-.home-left {
-    flex: 1;
-}
-
-.home-right {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    margin-left: 2rem;
-}
-
-.home-right a {
-    text-decoration: none;
-    color: #007bff;
-    padding: 0.5rem 1rem;
-    border: 1px solid #007bff;
-    border-radius: 0.25rem;
-    transition: background-color 0.2s;
-}
-
-.home-right a:hover {
-    background-color: #007bff;
-    color: white;
-}
-
-.home-title {
-    color: #333;
-    text-align: center;
-    margin-bottom: 2rem;
-}
-
-/* Home header with navigation */
-.home-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-    padding: 1rem;
-    background-color: #f8f9fa;
-    border-radius: 8px;
-    border-bottom: 1px solid #dee2e6;
-}
-
-.home-header-title {
-    margin: 0;
-    font-size: 2rem;
-    color: #007bff;
-    flex: 1;
-}
-
-.home-header-nav {
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-}
-
-.home-header-link {
-    text-decoration: none;
-    color: #007bff;
-    border: 1px solid #007bff;
-    padding: 0.5rem 1rem;
-    border-radius: 0.25rem;
-    transition: all 0.2s;
-    display: inline-block;
-}
-
-.home-header-link:hover {
-    background-color: #007bff;
-    color: white;
-}
-
-.home-header-btn {
-    background-color: #28a745;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 0.25rem;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    font-size: 1rem;
-}
-
-.home-header-btn:hover {
-    background-color: #218838;
-}
-
-.start-section {
-    text-align: center;
-}
-
-.center-actions {
-    display:flex;
-    gap:1rem;
-    justify-content:center;
-    margin:1.5rem 0;
-}
-
+/* Action button styles */
 .action-button {
-    background-color:#007bff;
-    color:#fff;
-    border:none;
-    padding:0.75rem 1.25rem;
-    border-radius:6px;
-    cursor:pointer;
-    font-size:1rem;
-}
-.action-button:hover { background-color:#0056b3 }
-
-.town-container { max-width:800px; margin:0 auto; padding:1.5rem; }
-.town-center { text-align:center; padding:1.5rem; border-radius:8px; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.06);} 
-.town-actions { display:flex; gap:1rem; justify-content:center; margin-top:1rem; }
-
-.job-change-container { max-width:900px; margin:0 auto; }
-.job-options { display:flex; gap:1rem; flex-wrap:wrap; justify-content:center; margin-top:1rem; }
-.job-card { border:1px solid #e0e0e0; padding:1rem; border-radius:8px; width:180px; text-align:center; }
-
-.start-button {
-    background-color: #28a745;
-    color: white;
+    background-color: #4a5568;
+    color: #fff;
     border: none;
-    padding: 1rem 2rem;
-    font-size: 1.2rem;
-    border-radius: 5px;
+    padding: 0.75rem 1.25rem;
+    border-radius: 6px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    font-size: 1rem;
+    transition: all 0.2s;
+    border: 1px solid #4a5568;
 }
 
-.start-button:hover {
-    background-color: #218838;
+.action-button:hover {
+    background-color: #2d3748;
+    border-color: #2d3748;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow);
 }
 
+/* Town container styles */
+.town-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 1.5rem;
+}
+
+.town-center {
+    text-align: center;
+    padding: 1.5rem;
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: var(--shadow);
+    border: 1px solid #e2e8f0;
+}
+
+.town-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+/* Job change styles */
+.job-change-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.job-options {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.job-card {
+    border: 1px solid #e2e8f0;
+    padding: 1rem;
+    border-radius: 8px;
+    width: 180px;
+    text-align: center;
+    background-color: #ffffff;
+    box-shadow: var(--shadow);
+    transition: all 0.2s;
+}
+
+.job-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+    border-color: #4a5568;
+}
+
+/* Game section styles */
 .game-section {
     text-align: center;
 }
@@ -309,7 +299,7 @@ footer::before {
 .game-message {
     font-size: 1.1rem;
     margin-bottom: 1rem;
-    color: #555;
+    color: #4a5568;
 }
 
 .input-group {
@@ -321,23 +311,27 @@ footer::before {
 .game-input {
     padding: 0.5rem;
     font-size: 1rem;
-    border: 1px solid #ccc;
+    border: 1px solid #e2e8f0;
     border-radius: 4px;
     width: 300px;
+    background-color: #ffffff;
+    color: #2d3748;
 }
 
 .submit-button {
-    background-color: #007bff;
+    background-color: #4a5568;
     color: white;
     border: none;
     padding: 0.5rem 1rem;
     border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: all 0.2s;
+    border: 1px solid #4a5568;
 }
 
 .submit-button:hover {
-    background-color: #0056b3;
+    background-color: #2d3748;
+    border-color: #2d3748;
 }
 
 /* Section separator line utility */
@@ -352,25 +346,26 @@ footer::before {
     display: block;
     width: 100%;
     height: 3px;
-    background-color: #000;
+    background-color: #e2e8f0;
     position: absolute;
     bottom: -1rem;
     left: 0;
 }
 
-/* Move Blazor error UI to top-right and make it less intrusive */
+/* Blazor error UI */
 #blazor-error-ui {
     position: fixed !important;
     top: 1rem !important;
     right: 1rem !important;
     bottom: auto !important;
     left: auto !important;
-    background: rgba(0,0,0,0.8) !important;
+    background: rgba(0, 0, 0, 0.8) !important;
     color: #fff !important;
     padding: 0.5rem 1rem !important;
     border-radius: 6px !important;
     z-index: 10000 !important;
     font-size: 0.9rem !important;
+    border: 1px solid #4a5568;
 }
 
 #blazor-error-ui .reload,
@@ -382,847 +377,38 @@ footer::before {
 
 /* Collapse the default verbose text to a single line on small screens */
 @media (max-width: 600px) {
-    #blazor-error-ui { font-size: 0.8rem !important; padding: 0.4rem 0.6rem !important; }
+    #blazor-error-ui {
+        font-size: 0.8rem !important;
+        padding: 0.4rem 0.6rem !important;
+    }
 }
 
-/* Skill Tree Styles */
-.skill-tree-container {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 1.5rem;
-}
-
-.skill-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 2px solid #e0e0e0;
-}
-
-.skill-header h3 {
-    margin: 0;
-    color: #333;
-}
-
-.skill-points {
-    background-color: #f8f9fa;
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    border: 1px solid #dee2e6;
-}
-
-.points-label {
-    font-weight: bold;
-    color: #6c757d;
-}
-
-.points-value {
-    font-size: 1.25rem;
-    font-weight: bold;
-    color: #007bff;
-    margin-left: 0.5rem;
-}
-
-.skill-info-panel {
-    background-color: #f9f9f9;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 1.25rem;
-    margin-bottom: 1.5rem;
-    min-height: 150px;
-}
-
-.skill-details {
-    animation: fadeIn 0.2s ease-in;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-5px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.skill-details-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 0.75rem;
-}
-
-.skill-details-header h4 {
-    margin: 0;
-    font-size: 1.25rem;
-    color: #333;
-}
-
-.skill-icon {
-    font-size: 2rem;
-}
-
-.skill-tier {
-    font-size: 0.85rem;
-    color: #6c757d;
-    background-color: #e9ecef;
-    padding: 0.2rem 0.5rem;
-    border-radius: 4px;
-}
-
-.skill-description {
-    color: #555;
-    margin-bottom: 0.75rem;
-    font-size: 0.95rem;
-}
-
-.skill-stats {
-    display: flex;
-    gap: 1.5rem;
-    margin-bottom: 0.75rem;
-    font-size: 0.9rem;
-}
-
-.effect-type {
-    color: #28a745;
-    font-weight: bold;
-}
-
-.current-level {
-    color: #6c757d;
-}
-
-.skill-requirements {
-    font-size: 0.85rem;
-    color: #6c757d;
-    margin-bottom: 1rem;
-}
-
-.skill-requirements p {
-    margin: 0.25rem 0;
-}
-
-.learn-button {
-    background-color: #28a745;
-    color: white;
-    border: none;
-    padding: 0.6rem 1.25rem;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.2s;
-}
-
-.learn-button:hover {
-    background-color: #218838;
-}
-
-.maxed-badge {
-    background-color: #6c757d;
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    font-weight: bold;
-}
-
-.locked-badge {
-    color: #dc3545;
-    font-weight: bold;
-}
-
-.skill-details-placeholder {
-    text-align: center;
-    color: #6c757d;
-    padding: 2rem;
-}
-
-.skill-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-
-.job-skill-section {
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    padding: 1rem;
-    border: 1px solid #e0e0e0;
-}
-
-.job-title {
-    margin: 0 0 0.75rem 0;
-    color: #333;
-    font-size: 1.1rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid #e0e0e0;
-}
-
-.skills-row {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-    padding: 0.5rem;
-}
-
-.skill-node {
-    width: 80px;
-    height: 90px;
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s;
-    position: relative;
-    border: 2px solid transparent;
-}
-
-.skill-node-base {
-    background-color: #e9ecef;
-    opacity: 0.6;
-}
-
-.skill-node.locked {
-    background-color: #e9ecef;
-    opacity: 0.5;
-}
-
-.skill-node.learnable {
-    background-color: #d4edda;
-    border-color: #28a745;
-    opacity: 1;
-    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
-}
-
-.skill-node.learnable:hover {
-    transform: scale(1.05);
-    background-color: #c3e6cb;
-}
-
-.skill-node.learned {
-    background-color: #cce5ff;
-    border-color: #007bff;
-    opacity: 1;
-}
-
-.skill-node.learned:hover {
-    transform: scale(1.05);
-    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
-}
-
-.skill-node.maxed {
-    background-color: #fff3cd;
-    border-color: #ffc107;
-    opacity: 1;
-}
-
-.skill-node-icon {
-    font-size: 1.75rem;
-    margin-bottom: 0.25rem;
-}
-
-.skill-node-level {
-    font-size: 0.75rem;
-    font-weight: bold;
-    color: #333;
-}
-
-.connector-line {
-    position: absolute;
-    width: 20px;
-    height: 2px;
-    background-color: #ccc;
-    right: -20px;
-    top: 50%;
-}
-
-.connector-line.connected {
-    background-color: #28a745;
-}
-
-/* Item Rarity Styles */
-.item-rarity {
-    display: inline-block;
-    padding: 0.2rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: bold;
-    text-transform: uppercase;
-}
-
-.item-rarity.common {
-    background-color: #f5f5f5;
-    color: #616161;
-    border: 1px solid #bdbdbd;
-}
-
-.item-rarity.uncommon {
-    background-color: #e8f5e9;
-    color: #2e7d32;
-    border: 1px solid #81c784;
-}
-
-.item-rarity.rare {
-    background-color: #e3f2fd;
-    color: #1565c0;
-    border: 1px solid #64b5f6;
-}
-
-.item-rarity.epic {
-    background-color: #f3e5f5;
-    color: #7b1fa2;
-    border: 1px solid #ba68c8;
-}
-
-.item-rarity.legendary {
-    background-color: #fff3e0;
-    color: #e65100;
-    border: 1px solid #ffb74d;
-}
-
-.item-rarity.mythic {
-    background-color: #ffebee;
-    color: #c62828;
-    border: 1px solid #ef5350;
-}
-
-.item-rarity.unique {
-    background-color: #fffde7;
-    color: #f57f17;
-    border: 1px solid #ffd54f;
-}
-
-/* Item Card with Rarity */
-.item-card {
-    border-radius: 8px;
-    padding: 0.75rem;
-    margin: 0.5rem;
-    transition: all 0.2s ease;
-    border: 2px solid transparent;
-}
-
-.item-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.item-card.common {
-    background-color: #fafafa;
-    border-color: #e0e0e0;
-}
-
-.item-card.uncommon {
-    background-color: #f1f8e9;
-    border-color: #a5d6a7;
-}
-
-.item-card.rare {
-    background-color: #e3f2fd;
-    border-color: #90caf9;
-}
-
-.item-card.epic {
-    background-color: #f3e5f5;
-    border-color: #ce93d8;
-}
-
-.item-card.legendary {
-    background-color: #fff8e1;
-    border-color: #ffcc80;
-    box-shadow: 0 0 8px rgba(255, 152, 0, 0.3);
-}
-
-.item-card.mythic {
-    background-color: #ffebee;
-    border-color: #ef9a9a;
-    box-shadow: 0 0 10px rgba(244, 67, 54, 0.4);
-}
-
-.item-card.unique {
-    background-color: #fffde7;
-    border-color: #ffe082;
-    box-shadow: 0 0 12px rgba(255, 213, 0, 0.5);
-}
-
-/* Inventory Grid with Rarity */
-.inventory-slot {
-    width: 60px;
-    height: 60px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0.25rem;
-    border: 2px solid #e0e0e0;
-    cursor: pointer;
-    transition: all 0.2s;
-    position: relative;
-}
-
-.inventory-slot:hover {
-    transform: scale(1.05);
-    z-index: 1;
-}
-
-.inventory-slot.common { background-color: #fafafa; }
-.inventory-slot.uncommon { background-color: #e8f5e9; border-color: #81c784; }
-.inventory-slot.rare { background-color: #e3f2fd; border-color: #64b5f6; }
-.inventory-slot.epic { background-color: #f3e5f5; border-color: #ba68c8; }
-.inventory-slot.legendary { background-color: #fff3e0; border-color: #ffb74d; box-shadow: 0 0 6px rgba(255, 152, 0, 0.3); }
-.inventory-slot.mythic { background-color: #ffebee; border-color: #ef5350; box-shadow: 0 0 8px rgba(244, 67, 54, 0.4); }
-.inventory-slot.unique { background-color: #fffde7; border-color: #ffd54f; box-shadow: 0 0 10px rgba(255, 213, 0, 0.5); }
-
-/* Tooltip with Rarity Info */
-.rarity-indicator {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    position: absolute;
-    top: 4px;
-    right: 4px;
-}
-
-.rarity-indicator.common { background-color: #9e9e9e; }
-.rarity-indicator.uncommon { background-color: #4caf50; }
-.rarity-indicator.rare { background-color: #2196f3; }
-.rarity-indicator.epic { background-color: #9c27b0; }
-.rarity-indicator.legendary { background-color: #ff9800; }
-.rarity-indicator.mythic { background-color: #f44336; }
-.rarity-indicator.unique { background-color: #ffd700; }
-
-/* Shop Item with Rarity */
-.shop-item {
-    display: flex;
-    align-items: center;
-    padding: 1rem;
-    border-radius: 8px;
-    margin-bottom: 0.75rem;
-    background-color: white;
-    border: 1px solid #e0e0e0;
-    transition: all 0.2s;
-}
-
-.shop-item:hover {
-    border-color: #007bff;
-    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
-}
-
-.shop-item-rarity-badge {
-    width: 12px;
-    height: 12px;
-    border-radius: 2px;
-    margin-right: 0.75rem;
-}
-
-.shop-item-rarity-badge.common { background-color: #9e9e9e; }
-.shop-item-rarity-badge.uncommon { background-color: #4caf50; }
-.shop-item-rarity-badge.rare { background-color: #2196f3; }
-.shop-item-rarity-badge.epic { background-color: #9c27b0; }
-.shop-item-rarity-badge.legendary { background-color: #ff9800; box-shadow: 0 0 4px rgba(255, 152, 0, 0.5); }
-.shop-item-rarity-badge.mythic { background-color: #f44336; box-shadow: 0 0 6px rgba(244, 67, 54, 0.5); }
-.shop-item-rarity-badge.unique { background-color: #ffd700; box-shadow: 0 0 6px rgba(255, 213, 0, 0.6); }
-
-/* Daily Reward Styles */
-.daily-reward-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 1.5rem;
-}
-
-.daily-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 2px solid #e0e0e0;
-}
-
-.daily-header h2 {
-    margin: 0;
-    color: #333;
-}
-
-.daily-stats {
-    display: flex;
-    gap: 2rem;
-}
-
-.stat-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.25rem;
-}
-
-.stat-label {
-    font-size: 0.85rem;
-    color: #6c757d;
-}
-
-.stat-value {
-    font-size: 1.25rem;
-    font-weight: bold;
-    color: #007bff;
-}
-
-.auth-warning {
-    background-color: #fff3cd;
-    border: 1px solid #ffc107;
-    border-radius: 8px;
-    padding: 1.5rem;
-    text-align: center;
-    color: #856404;
-}
-
-.claimed-message {
-    background-color: #d4edda;
-    border: 1px solid #c3e6cb;
-    border-radius: 12px;
-    padding: 2rem;
-    text-align: center;
-    color: #155724;
-    margin-bottom: 2rem;
-}
-
-.claimed-icon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-}
-
-.claimed-message h3 {
-    margin: 0 0 0.5rem 0;
-    font-size: 1.5rem;
-}
-
-.claimed-message p {
-    margin: 0;
-    font-size: 0.95rem;
-    opacity: 0.8;
-}
-
-.claim-section {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 2rem;
-}
-
-.claim-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 12px;
-    padding: 2rem;
-    text-align: center;
-    color: white;
-    max-width: 400px;
-    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
-}
-
-.claim-icon {
-    font-size: 4rem;
-    margin-bottom: 1rem;
-}
-
-.claim-card h3 {
-    margin: 0 0 0.5rem 0;
-    font-size: 1.5rem;
-}
-
-.claim-description {
-    margin: 0 0 1.5rem 0;
-    opacity: 0.9;
-    font-size: 0.95rem;
-}
-
-.claim-button {
-    background-color: #ffd700;
-    color: #856404;
-    border: none;
-    padding: 1rem 2rem;
-    border-radius: 8px;
-    font-size: 1.1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin: 0 auto;
-}
-
-.claim-button:hover {
-    background-color: #ffc107;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 213, 0, 0.4);
-}
-
-.button-icon {
-    font-size: 1.5rem;
-}
-
-.streak-rewards {
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-    border: 1px solid #e0e0e0;
-}
-
-.streak-rewards h3 {
-    margin: 0 0 1rem 0;
-    color: #333;
-}
-
-.streak-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-}
-
-.streak-card {
-    background-color: white;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 1rem;
-    text-align: center;
-    transition: all 0.2s;
-    position: relative;
-}
-
-.streak-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.streak-card.achieved {
-    background-color: #d4edda;
-    border-color: #28a745;
-}
-
-.streak-card.next {
-    background-color: #fff3cd;
-    border-color: #ffc107;
-}
-
-.streak-card.locked {
-    background-color: #f8f9fa;
-    border-color: #dee2e6;
-    opacity: 0.6;
-}
-
-.streak-day {
-    font-size: 1.25rem;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 0.5rem;
-}
-
-.streak-reward {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-}
-
-.reward-icon {
-    font-size: 1.5rem;
-}
-
-.reward-text {
-    font-size: 0.85rem;
-    color: #6c757d;
-}
-
-.achieved-badge {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    font-size: 1.5rem;
-}
-
-.next-badge {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    font-size: 1.5rem;
-}
-
-.locked-badge {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    font-size: 1.5rem;
-}
-
-.daily-calendar {
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-    border: 1px solid #e0e0e0;
-}
-
-.daily-calendar h3 {
-    margin: 0 0 1rem 0;
-    color: #333;
-}
-
-.calendar-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 0.75rem;
-}
-
-.calendar-day {
-    background-color: white;
-    border: 1px solid #e0e0e0;
-    border-radius: 6px;
-    padding: 0.75rem;
-    text-align: center;
-    transition: all 0.2s;
-    position: relative;
-}
-
-.calendar-day:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.calendar-day.claimed {
-    background-color: #e3f2fd;
-    border-color: #2196f3;
-}
-
-.calendar-day.today {
-    background-color: #fff3cd;
-    border-color: #ffc107;
-    box-shadow: 0 0 8px rgba(255, 193, 7, 0.3);
-}
-
-.calendar-day.locked {
-    background-color: #f8f9fa;
-    border-color: #dee2e6;
-    opacity: 0.6;
-}
-
-.day-number {
-    font-size: 0.85rem;
-    color: #6c757d;
-    margin-bottom: 0.25rem;
-}
-
-.day-reward {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-}
-
-.day-icon {
-    font-size: 1.25rem;
-}
-
-.day-amount {
-    font-size: 0.8rem;
-    color: #333;
-    font-weight: bold;
-}
-
-.special-badge {
-    position: absolute;
-    top: 4px;
-    right: 4px;
-    font-size: 1.25rem;
-}
-
-.activity-log {
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    padding: 1.5rem;
-    border: 1px solid #e0e0e0;
-}
-
-.activity-log h3 {
-    margin: 0 0 1rem 0;
-    color: #333;
-}
-
-.log-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.log-item {
-    background-color: white;
-    border: 1px solid #e0e0e0;
-    border-radius: 6px;
-    padding: 0.75rem 1rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: all 0.2s;
-}
-
-.log-item:hover {
-    border-color: #007bff;
-    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.1);
-}
-
-.log-date {
-    font-size: 0.85rem;
-    color: #6c757d;
-    min-width: 60px;
-}
-
-.log-description {
-    flex: 1;
-    color: #333;
-    margin: 0 1rem;
-}
-
-.log-points {
-    font-size: 0.85rem;
-    font-weight: bold;
-    color: #28a745;
-}
-
-/* Responsive Design */
+/* Responsive design */
 @media (max-width: 768px) {
-    .daily-reward-container {
+    header {
         padding: 1rem;
     }
-
-    .daily-header {
+    
+    main {
+        padding: 1rem;
+    }
+    
+    .home-container {
+        padding: 1.5rem;
+    }
+    
+    .champion-info {
         flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
+        text-align: center;
     }
-
-    .daily-stats {
+    
+    .right-nav {
         flex-direction: column;
-        gap: 1rem;
-        width: 100%;
-    }
-
-    .stat-item {
-        flex-direction: row;
-        justify-content: space-between;
-        width: 100%;
-    }
-
-    .calendar-grid {
-        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
         gap: 0.5rem;
     }
-
-    .calendar-day {
-        padding: 0.5rem;
-    }
-
-    .day-amount {
-        font-size: 0.7rem;
-    }
-
-    .log-item {
+    
+    .header-content {
         flex-direction: column;
-        align-items: flex-start;
-        gap: 0.25rem;
+        gap: 1rem;
     }
 }

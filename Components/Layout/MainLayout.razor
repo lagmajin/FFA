@@ -16,13 +16,12 @@
             {
                 <AuthorizeView>
                     <Authorized>
-                        <NavLink href="/dashboard">ダッシュボード</NavLink>
                         <NavLink href="/status">ステータス</NavLink>
-                        <NavLink href="/abilities">アビリティ</NavLink>
-                        <button type="button" class="link-button" @onclick="SignOut">ログアウト</button>
+                        <NavLink href="/map">マップ</NavLink>
                         <NavLink href="/quests">クエスト</NavLink>
                         <NavLink href="/daily">デイリーボーナス</NavLink>
                         <NavLink href="/sky-arena">天空闘技場</NavLink>
+                        <NavLink href="#" class="nav-link" @onclick="SignOut">ログアウト</NavLink>
                     </Authorized>
                     <NotAuthorized>
                         <NavLink href="/login">ログイン</NavLink>
@@ -44,7 +43,7 @@
             <div class="error-container" style="padding: 2rem; text-align: center; margin: 2rem;">
                 <h1>エラーが発生しました</h1>
                 <p>問題が発生しました。ダッシュボードに戻って再度お試しください。</p>
-                <a href="/dashboard" class="action-button">ダッシュボードへ</a>
+                <a href="/status" class="action-button">ステータスへ</a>
             </div>
         </ErrorContent>
     </ErrorBoundary>

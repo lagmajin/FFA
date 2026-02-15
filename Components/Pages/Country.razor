@@ -8,7 +8,7 @@
 
 <div class="country-container">
     <h1 class="country-title">国を選択する</h1>
-    <p class="country-desc">お気に入りの国を選んで 소속되어ください。一度選んだ国は変更できません。</p>
+    <p class="country-desc">お気に入りの国を選んで所属してください。一度選んだ国は変更できません。</p>
 
     <div class="country-list">
         @foreach (var country in countries)
@@ -16,8 +16,20 @@
             <div class="country-card" @onclick="() => SelectCountry(country.Id)">
                 <h2>@country.Name</h2>
                 <p>@country.Description</p>
+                
+                <div class="country-towns">
+                    <div class="capital-info">
+                        <h4>首都: @country.CapitalName</h4>
+                        <p>@country.CapitalDescription</p>
+                    </div>
+                    <div class="village-info">
+                        <h4>田舎: @country.VillageName</h4>
+                        <p>@country.VillageDescription</p>
+                    </div>
+                </div>
+                
                 <div class="country-bonus">
-                    <span>Bonus: +@country.BonusStat @country.BonusType</span>
+                    <span>Bonus: +@country.BonusStat @GetBonusTypeName(country.BonusType)</span>
                 </div>
             </div>
         }
@@ -28,6 +40,17 @@
         <div class="current-country">
             <h2>現在の所属国: @currentCountry?.Name</h2>
             <p>@currentCountry?.Description</p>
+            
+            <div class="country-towns">
+                <div class="capital-info">
+                    <h4>首都: @currentCountry?.CapitalName</h4>
+                    <p>@currentCountry?.CapitalDescription</p>
+                </div>
+                <div class="village-info">
+                    <h4>田舎: @currentCountry?.VillageName</h4>
+                    <p>@currentCountry?.VillageDescription</p>
+                </div>
+            </div>
         </div>
     }
 </div>
@@ -50,11 +73,24 @@
         }
     }
 
+    private string GetBonusTypeName(string type)
+    {
+        return type switch
+        {
+            "attack" => "攻撃力",
+            "defense" => "防御力",
+            "hp" => "HP上限",
+            "speed" => "素早さ",
+            "all" => "全ステータス",
+            _ => type
+        };
+    }
+
     private void SelectCountry(int countryId)
     {
         if (currentUser == null) return;
         
-        // すでに国选了择则不能更改
+        // すでに国を選択している場合は変更できない
         if (currentUser.CountryId != null)
         {
             return;
@@ -66,7 +102,7 @@
         
         currentCountry = CountryService.GetCountryById(countryId);
         
-        // 主页に戻る
+        // ホームに戻る
         Navigation.NavigateTo("/");
     }
 }
