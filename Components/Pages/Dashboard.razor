@@ -5,6 +5,7 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @inject KarmaService Karma
 @inject TimeWeatherService TimeWeather
+@inject UserService UserService
 @inject AuthenticationStateProvider AuthStateProvider
 @inject IJSRuntime JS
 @inject NavigationManager Navigation
@@ -23,6 +24,8 @@ else
         <p>Gil: @gil</p>
         <p>OldCoin: @oldcoin</p>
         <p>Job: @job</p>
+        <p>Level: @level</p>
+        <p>STR: @status.Str DEX: @status.Dex INT: @status.Int VIT: @status.Vit</p>
     </div>
     <div>
         <p>World Time: @timeStr (@TimeWeather.Phase)</p>
@@ -42,6 +45,8 @@ else
     private int gil = 0;
     private int oldcoin = 0;
     private string job = "";
+    private int level = 1;
+    private PlayerStatus status = new PlayerStatus();
     private DotNetObjectReference<Dashboard>? objRef;
     private IJSObjectReference? moduleRef;
 
@@ -58,6 +63,11 @@ else
             gil = int.TryParse(user.FindFirst("Gil")?.Value, out var g) ? g : 0;
             oldcoin = int.TryParse(user.FindFirst("OldCoin")?.Value, out var o) ? o : 0;
             job = user.FindFirst("Job")?.Value ?? "";
+            level = int.TryParse(user.FindFirst("Level")?.Value, out var lv) ? lv : 1;
+            // try to read status from DB instead of claims
+            var u = UserService.GetByUsername(username);
+            if (u?.Status != null) status = u.Status;
+            if (u != null) level = u.Level;
         }
     }
 

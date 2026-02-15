@@ -108,6 +108,69 @@ footer::before {
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
+/* Champion section styles */
+.champion-section {
+    max-width: 800px;
+    margin: 0 auto 1.5rem auto;
+}
+
+.champion-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    padding: 1.5rem;
+    color: white;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.champion-card h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.25rem;
+    text-align: center;
+}
+
+.champion-info {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.champion-avatar {
+    width: 80px;
+    height: 80px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.avatar-placeholder {
+    font-size: 2.5rem;
+}
+
+.champion-details {
+    flex: 1;
+}
+
+.champion-name {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin: 0 0 0.25rem 0;
+}
+
+.champion-title {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    margin: 0 0 0.5rem 0;
+}
+
+.champion-stats {
+    font-size: 0.85rem;
+    opacity: 0.8;
+    margin: 0;
+}
+
 .home-left {
     flex: 1;
 }

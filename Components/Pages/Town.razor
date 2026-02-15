@@ -10,10 +10,24 @@
     <div class="town-center">
         <h2>町の広場</h2>
         <p>ここでは買い物や情報交換ができます。</p>
-        <div class="town-actions">
-            <button class="action-button" @onclick="GoToWeaponShop">武器屋へ</button>
-            <button class="action-button" @onclick="GoToInn">宿屋へ</button>
-            <button class="action-button" @onclick="GoBack">戻る</button>
+        
+        <div class="shop-section">
+            <h3>商店</h3>
+            <div class="town-actions">
+                <button class="action-button" @onclick="GoToWeaponShop">武器屋</button>
+                <button class="action-button" @onclick="GoToArmorShop">防具屋</button>
+                <button class="action-button" @onclick="GoToAccessoryShop">装飾品屋</button>
+                <button class="action-button" @onclick="GoToConsumablesShop">消耗品屋</button>
+            </div>
+        </div>
+        
+        <div class="other-section">
+            <h3>その他</h3>
+            <div class="town-actions">
+                <button class="action-button" @onclick="GoToInn">宿屋</button>
+                <button class="action-button" @onclick="GoToBank">銀行</button>
+                <button class="action-button" @onclick="GoBack">ダッシュボード</button>
+            </div>
         </div>
     </div>
 </div>
@@ -21,6 +35,10 @@
 @code {
     private void GoToShop() => Navigation.NavigateTo("/shop");
     private void GoToInn() => Navigation.NavigateTo("/inn");
+    private void GoToBank() => Navigation.NavigateTo("/bank");
     private void GoBack() => Navigation.NavigateTo("/dashboard");
     private void GoToWeaponShop() => Navigation.NavigateTo("/weapon-shop");
+    private void GoToArmorShop() => Navigation.NavigateTo("/armor-shop");
+    private void GoToAccessoryShop() => Navigation.NavigateTo("/accessory-shop");
+    private void GoToConsumablesShop() => Navigation.NavigateTo("/consumables-shop");
 }

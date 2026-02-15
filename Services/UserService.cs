@@ -133,6 +133,25 @@ public class UserService
         return user.Exp;
     }
 
+    // Level-up check and grant status points
+    public void AddExpAndHandleLevel(string username, int amount)
+    {
+        using var db = new LiteDatabase(_databasePath);
+        var users = db.GetCollection<User>("users");
+        var user = users.FindOne(u => u.Username == username);
+        if (user == null) return;
+
+        user.Exp += amount;
+        while (user.Exp >= user.ExpToNext)
+        {
+            user.Exp -= user.ExpToNext;
+            user.Level++;
+            user.Status.PointsAvailable += 5; // grant 5 points per level
+            user.ExpToNext = (int)(user.ExpToNext * 1.2);
+        }
+        users.Update(user);
+    }
+
     public bool DeleteUser(string username)
     {
         using var db = new LiteDatabase(_databasePath);
@@ -201,6 +220,34 @@ public class UserService
         }
 
         users.Update(user);
+    }
+
+    // Sell item from inventory (returns sell price, which is typically half of purchase price)
+    public int SellItem(string username, string itemName, int quantity = 1)
+    {
+        using var db = new LiteDatabase(_databasePath);
+        var users = db.GetCollection<User>("users");
+        var user = users.FindOne(u => u.Username == username);
+        if (user == null) return 0;
+
+        var item = user.Inventory.FirstOrDefault(i => i.Name == itemName);
+        if (item == null || item.Quantity < quantity) return 0;
+
+        // Calculate sell price (half of the original price by default)
+        int sellPrice = (item.Price / 2) * quantity;
+        
+        // Remove item from inventory
+        item.Quantity -= quantity;
+        if (item.Quantity <= 0)
+        {
+            user.Inventory.Remove(item);
+        }
+
+        // Add gil to user
+        user.Gil += sellPrice;
+        users.Update(user);
+
+        return sellPrice;
     }
 
     private string HashPassword(string password)

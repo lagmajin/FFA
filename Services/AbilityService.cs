@@ -28,6 +28,8 @@ public class AbilityService
             user.Abilities.Add(_abilities.First(a => a.Name == "Heal"));
         if (!user.Abilities.Any(a => a.Name == "Power Strike"))
             user.Abilities.Add(_abilities.First(a => a.Name == "Power Strike"));
+        // ensure status exists
+        if (user.Status == null) user.Status = new PlayerStatus();
     }
 
     public bool CanUse(string username, string abilityId)

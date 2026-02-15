@@ -17,6 +17,7 @@
                 <AuthorizeView>
                     <Authorized>
                         <NavLink href="/dashboard">ダッシュボード</NavLink>
+                        <NavLink href="/status">ステータス</NavLink>
                         <NavLink href="/abilities">アビリティ</NavLink>
                         <button type="button" class="link-button" @onclick="SignOut">ログアウト</button>
                         <NavLink href="/quests">クエスト</NavLink>
@@ -34,7 +35,18 @@
 </header>
 
 <main>
-    @Body
+    <ErrorBoundary>
+        <ChildContent>
+            @Body
+        </ChildContent>
+        <ErrorContent>
+            <div class="error-container" style="padding: 2rem; text-align: center; margin: 2rem;">
+                <h1>エラーが発生しました</h1>
+                <p>問題が発生しました。ダッシュボードに戻って再度お試しください。</p>
+                <a href="/dashboard" class="action-button">ダッシュボードへ</a>
+            </div>
+        </ErrorContent>
+    </ErrorBoundary>
 </main>
 
 <footer>

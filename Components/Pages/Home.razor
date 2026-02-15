@@ -5,6 +5,23 @@
 
 <PageTitle>CGI風ゲーム</PageTitle>
 
+@* TODO: 現在のチャンピオン表示機能を実装する *@
+<div class="champion-section">
+    <div class="champion-card">
+        <h3>🏆 現在のチャンピオン</h3>
+        <div class="champion-info">
+            <div class="champion-avatar">
+                <span class="avatar-placeholder">👑</span>
+            </div>
+            <div class="champion-details">
+                <p class="champion-name">--</p>
+                <p class="champion-title">チャンピオンが決定するまでお待ちください</p>
+                <p class="champion-stats">勝利数: -- | 連続勝利: --</p>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="home-container">
     @if (!string.IsNullOrEmpty(gilQuery) || !string.IsNullOrEmpty(oldCoinQuery) || !string.IsNullOrEmpty(jobQuery))
     {

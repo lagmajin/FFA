@@ -19,7 +19,7 @@ else
         <p>現在の職業: <strong>@currentJob</strong></p>
         <p>転職費用: @changeCost ギル</p>
         <div class="job-options">
-            @foreach (var j in Enum.GetValues<Job>())
+        @foreach (var j in Enum.GetValues<Job>())
             {
                 <div class="job-card">
                     <h3>@j</h3>
@@ -29,7 +29,7 @@ else
                     }
                     else
                     {
-                        <button class="action-button" @onclick="() => ChangeTo(j)">転職する</button>
+                        <button class="action-button" @onclick="() => ChangeTo((Job)j)">転職する</button>
                     }
                 </div>
             }
@@ -62,6 +62,13 @@ else
         var ok = UserService.ChangeJob(username, j, changeCost);
         if (ok)
         {
+            // grant a few status points on job change
+            var u = UserService.GetByUsername(username);
+            if (u != null)
+            {
+                u.Status.PointsAvailable += 3;
+                UserService.UpdateUser(u);
+            }
             Navigation.NavigateTo("/dashboard");
         }
         else

@@ -52,8 +52,6 @@ if (!app.Environment.IsDevelopment())
 }
 else
 {
-
-    app.UseDeveloperExceptionPage();
     // In development capture exceptions to expose details in UI
     var devEx = app.Services.GetRequiredService<DeveloperExceptionService>();
     app.Use(async (context, next) =>
@@ -68,6 +66,7 @@ else
             throw;
         }
     });
+    app.UseDeveloperExceptionPage();
 }
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 app.UseHttpsRedirection();

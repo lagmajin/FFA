@@ -40,4 +40,9 @@ public class User
 
     // Abilities (active skills)
     public List<Ability> Abilities { get; set; } = new();
+    
+    // Status and leveling
+    public PlayerStatus Status { get; set; } = new PlayerStatus();
+    public int Level { get; set; } = 1;
+    public int ExpToNext { get; set; } = 100;
 }
