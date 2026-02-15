@@ -7,73 +7,206 @@
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager Navigation
 
-<h1>転職</h1>
+<link href="/css/job-change.css" rel="stylesheet" />
 
-@if (!isAuth)
-{
-    <p>ログインしてください。</p>
-}
-else
-{
-    <div class="job-change-container">
-        <p>現在の職業: <strong>@currentJob</strong></p>
-        <p>転職費用: @changeCost ギル</p>
-        <div class="job-options">
-        @foreach (var j in Enum.GetValues<Job>())
-            {
-                <div class="job-card">
-                    <h3>@j</h3>
-                    @if (j.ToString() == currentJob)
-                    {
-                        <div>現在の職業です</div>
-                    }
-                    else
-                    {
-                        <button class="action-button" @onclick="() => ChangeTo((Job)j)">転職する</button>
-                    }
-                </div>
-            }
-        </div>
+<div class="job-change-container">
+    <div class="job-change-header">
+        <h1>職業転換</h1>
+        <p>職業を変更して新たな冒険を始めましょう！</p>
     </div>
-}
+
+    @if (!isAuth)
+    {
+        <div class="auth-warning">
+            <p>🔐 ログインして職業転換を行ってください</p>
+        </div>
+    }
+    else
+    {
+        <div class="job-info-section">
+            <div class="current-job-card">
+                <h2>現在の職業</h2>
+                <div class="job-preview">
+                    <div class="job-icon" style="color: @currentJobInfo.Color">
+                        @currentJobInfo.Icon
+                    </div>
+                    <div class="job-details">
+                        <h3>@currentJobInfo.Name</h3>
+                        <p class="job-role">@currentJobInfo.Role</p>
+                        <p class="job-description">@currentJobInfo.Description</p>
+                        <div class="job-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">STR</span>
+                                <span class="stat-value">@user.Status.Str</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">DEX</span>
+                                <span class="stat-value">@user.Status.Dex</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">INT</span>
+                                <span class="stat-value">@user.Status.Int</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">VIT</span>
+                                <span class="stat-value">@user.Status.Vit</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="job-change-cost">
+                <p>転職費用: <strong>@changeCost ギル</strong></p>
+                <p>所持ギル: <strong>@user.Gil ギル</strong></p>
+                @if (user.Gil < changeCost)
+                {
+                    <div class="insufficient-funds">
+                        <p>⚠️ ギルが不足しています</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="job-options">
+            <h2>転職可能な職業</h2>
+            <div class="job-grid">
+                @foreach (var jobInfo in allJobs)
+                {
+                    var isCurrentJob = jobInfo.Job.ToString() == currentJob;
+                    var canAfford = user.Gil >= changeCost;
+
+                    <div class="job-card @(isCurrentJob ? "current" : "")">
+                        <div class="job-card-header">
+                            <div class="job-icon" style="color: @jobInfo.Color">
+                                @jobInfo.Icon
+                            </div>
+                            <div class="job-header-content">
+                                <h3>@jobInfo.Name</h3>
+                                <p class="job-role">@jobInfo.Role</p>
+                            </div>
+                        </div>
+
+                        <p class="job-description">@jobInfo.Description</p>
+
+                        <div class="job-bonus">
+                            <h4>職業ボーナス</h4>
+                            <div class="bonus-stats">
+                                @if (jobInfo.BonusStatus.Str > 0)
+                                {
+                                    <div class="stat-item">
+                                        <span class="stat-label">STR</span>
+                                        <span class="stat-value">+@jobInfo.BonusStatus.Str</span>
+                                    </div>
+                                }
+                                @if (jobInfo.BonusStatus.Dex > 0)
+                                {
+                                    <div class="stat-item">
+                                        <span class="stat-label">DEX</span>
+                                        <span class="stat-value">+@jobInfo.BonusStatus.Dex</span>
+                                    </div>
+                                }
+                                @if (jobInfo.BonusStatus.Int > 0)
+                                {
+                                    <div class="stat-item">
+                                        <span class="stat-label">INT</span>
+                                        <span class="stat-value">+@jobInfo.BonusStatus.Int</span>
+                                    </div>
+                                }
+                                @if (jobInfo.BonusStatus.Vit > 0)
+                                {
+                                    <div class="stat-item">
+                                        <span class="stat-label">VIT</span>
+                                        <span class="stat-value">+@jobInfo.BonusStatus.Vit</span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="job-weapon">
+                            <p>使用武器: <strong>@jobInfo.WeaponType</strong></p>
+                        </div>
+
+                        <div class="job-skills">
+                            <h4>得意技能</h4>
+                            <div class="skill-list">
+                                @foreach (var skill in jobInfo.Skills)
+                                {
+                                    <span class="skill-tag">@skill</span>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="job-action">
+                            @if (isCurrentJob)
+                            {
+                                <div class="current-job-indicator">
+                                    <span>現在の職業です</span>
+                                </div>
+                            }
+                            else
+                            {
+                                <button class="change-button @(canAfford ? "enabled" : "disabled")" 
+                                        @onclick="() => ChangeTo(jobInfo.Job)"
+                                        disabled="@(canAfford == false)">
+                                    <span class="button-icon">✨</span>
+                                    職業転換
+                                </button>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
 
 @code {
     private bool isAuth = false;
     private string? username;
     private string currentJob = "None";
+    private JobInfo currentJobInfo = new();
+    private User? user;
     private int changeCost = 500;
+    private List<JobInfo> allJobs = new();
 
     protected override async Task OnInitializedAsync()
     {
         var state = await AuthStateProvider.GetAuthenticationStateAsync();
-        var user = state.User;
-        isAuth = user?.Identity?.IsAuthenticated ?? false;
-        username = user?.Identity?.Name;
+        var authUser = state.User;
+        isAuth = authUser?.Identity?.IsAuthenticated ?? false;
+        username = authUser?.Identity?.Name;
+        allJobs = JobDatabase.GetAllJobs();
+        
         if (isAuth && username != null)
         {
-            var u = UserService.GetByUsername(username);
-            currentJob = u?.Job.ToString() ?? "None";
+            user = UserService.GetByUsername(username);
+            if (user != null)
+            {
+                currentJob = user.Job.ToString();
+                currentJobInfo = JobDatabase.GetJobInfo(user.Job);
+            }
         }
     }
 
-    private void ChangeTo(Job j)
+    private void ChangeTo(Job newJob)
     {
-        if (string.IsNullOrEmpty(username)) return;
-        var ok = UserService.ChangeJob(username, j, changeCost);
-        if (ok)
+        try
         {
-            // grant a few status points on job change
-            var u = UserService.GetByUsername(username);
-            if (u != null)
+            if (string.IsNullOrEmpty(username) || user == null) return;
+            
+            var ok = UserService.ChangeJob(username, newJob, changeCost);
+            if (ok)
             {
-                u.Status.PointsAvailable += 3;
-                UserService.UpdateUser(u);
+                // 転職時にステータスポイントを付与
+                user.Status.PointsAvailable += 3;
+                UserService.UpdateUser(user);
+                Navigation.NavigateTo("/dashboard");
             }
-            Navigation.NavigateTo("/dashboard");
         }
-        else
+        catch (Exception ex)
         {
-            // insufficient funds or error
+            Console.WriteLine($"JobChange.ChangeTo 例外: {ex.Message} - {ex.StackTrace}");
         }
     }
 }

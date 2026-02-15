@@ -384,3 +384,845 @@ footer::before {
 @media (max-width: 600px) {
     #blazor-error-ui { font-size: 0.8rem !important; padding: 0.4rem 0.6rem !important; }
 }
+
+/* Skill Tree Styles */
+.skill-tree-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 1.5rem;
+}
+
+.skill-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.skill-header h3 {
+    margin: 0;
+    color: #333;
+}
+
+.skill-points {
+    background-color: #f8f9fa;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.points-label {
+    font-weight: bold;
+    color: #6c757d;
+}
+
+.points-value {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #007bff;
+    margin-left: 0.5rem;
+}
+
+.skill-info-panel {
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    min-height: 150px;
+}
+
+.skill-details {
+    animation: fadeIn 0.2s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.skill-details-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.skill-details-header h4 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #333;
+}
+
+.skill-icon {
+    font-size: 2rem;
+}
+
+.skill-tier {
+    font-size: 0.85rem;
+    color: #6c757d;
+    background-color: #e9ecef;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+}
+
+.skill-description {
+    color: #555;
+    margin-bottom: 0.75rem;
+    font-size: 0.95rem;
+}
+
+.skill-stats {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+}
+
+.effect-type {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.current-level {
+    color: #6c757d;
+}
+
+.skill-requirements {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-bottom: 1rem;
+}
+
+.skill-requirements p {
+    margin: 0.25rem 0;
+}
+
+.learn-button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.25rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+.learn-button:hover {
+    background-color: #218838;
+}
+
+.maxed-badge {
+    background-color: #6c757d;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.locked-badge {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.skill-details-placeholder {
+    text-align: center;
+    color: #6c757d;
+    padding: 2rem;
+}
+
+.skill-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.job-skill-section {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 1rem;
+    border: 1px solid #e0e0e0;
+}
+
+.job-title {
+    margin: 0 0 0.75rem 0;
+    color: #333;
+    font-size: 1.1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.skills-row {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding: 0.5rem;
+}
+
+.skill-node {
+    width: 80px;
+    height: 90px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    border: 2px solid transparent;
+}
+
+.skill-node-base {
+    background-color: #e9ecef;
+    opacity: 0.6;
+}
+
+.skill-node.locked {
+    background-color: #e9ecef;
+    opacity: 0.5;
+}
+
+.skill-node.learnable {
+    background-color: #d4edda;
+    border-color: #28a745;
+    opacity: 1;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+.skill-node.learnable:hover {
+    transform: scale(1.05);
+    background-color: #c3e6cb;
+}
+
+.skill-node.learned {
+    background-color: #cce5ff;
+    border-color: #007bff;
+    opacity: 1;
+}
+
+.skill-node.learned:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+}
+
+.skill-node.maxed {
+    background-color: #fff3cd;
+    border-color: #ffc107;
+    opacity: 1;
+}
+
+.skill-node-icon {
+    font-size: 1.75rem;
+    margin-bottom: 0.25rem;
+}
+
+.skill-node-level {
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.connector-line {
+    position: absolute;
+    width: 20px;
+    height: 2px;
+    background-color: #ccc;
+    right: -20px;
+    top: 50%;
+}
+
+.connector-line.connected {
+    background-color: #28a745;
+}
+
+/* Item Rarity Styles */
+.item-rarity {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.item-rarity.common {
+    background-color: #f5f5f5;
+    color: #616161;
+    border: 1px solid #bdbdbd;
+}
+
+.item-rarity.uncommon {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #81c784;
+}
+
+.item-rarity.rare {
+    background-color: #e3f2fd;
+    color: #1565c0;
+    border: 1px solid #64b5f6;
+}
+
+.item-rarity.epic {
+    background-color: #f3e5f5;
+    color: #7b1fa2;
+    border: 1px solid #ba68c8;
+}
+
+.item-rarity.legendary {
+    background-color: #fff3e0;
+    color: #e65100;
+    border: 1px solid #ffb74d;
+}
+
+.item-rarity.mythic {
+    background-color: #ffebee;
+    color: #c62828;
+    border: 1px solid #ef5350;
+}
+
+.item-rarity.unique {
+    background-color: #fffde7;
+    color: #f57f17;
+    border: 1px solid #ffd54f;
+}
+
+/* Item Card with Rarity */
+.item-card {
+    border-radius: 8px;
+    padding: 0.75rem;
+    margin: 0.5rem;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+}
+
+.item-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.item-card.common {
+    background-color: #fafafa;
+    border-color: #e0e0e0;
+}
+
+.item-card.uncommon {
+    background-color: #f1f8e9;
+    border-color: #a5d6a7;
+}
+
+.item-card.rare {
+    background-color: #e3f2fd;
+    border-color: #90caf9;
+}
+
+.item-card.epic {
+    background-color: #f3e5f5;
+    border-color: #ce93d8;
+}
+
+.item-card.legendary {
+    background-color: #fff8e1;
+    border-color: #ffcc80;
+    box-shadow: 0 0 8px rgba(255, 152, 0, 0.3);
+}
+
+.item-card.mythic {
+    background-color: #ffebee;
+    border-color: #ef9a9a;
+    box-shadow: 0 0 10px rgba(244, 67, 54, 0.4);
+}
+
+.item-card.unique {
+    background-color: #fffde7;
+    border-color: #ffe082;
+    box-shadow: 0 0 12px rgba(255, 213, 0, 0.5);
+}
+
+/* Inventory Grid with Rarity */
+.inventory-slot {
+    width: 60px;
+    height: 60px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0.25rem;
+    border: 2px solid #e0e0e0;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.inventory-slot:hover {
+    transform: scale(1.05);
+    z-index: 1;
+}
+
+.inventory-slot.common { background-color: #fafafa; }
+.inventory-slot.uncommon { background-color: #e8f5e9; border-color: #81c784; }
+.inventory-slot.rare { background-color: #e3f2fd; border-color: #64b5f6; }
+.inventory-slot.epic { background-color: #f3e5f5; border-color: #ba68c8; }
+.inventory-slot.legendary { background-color: #fff3e0; border-color: #ffb74d; box-shadow: 0 0 6px rgba(255, 152, 0, 0.3); }
+.inventory-slot.mythic { background-color: #ffebee; border-color: #ef5350; box-shadow: 0 0 8px rgba(244, 67, 54, 0.4); }
+.inventory-slot.unique { background-color: #fffde7; border-color: #ffd54f; box-shadow: 0 0 10px rgba(255, 213, 0, 0.5); }
+
+/* Tooltip with Rarity Info */
+.rarity-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    position: absolute;
+    top: 4px;
+    right: 4px;
+}
+
+.rarity-indicator.common { background-color: #9e9e9e; }
+.rarity-indicator.uncommon { background-color: #4caf50; }
+.rarity-indicator.rare { background-color: #2196f3; }
+.rarity-indicator.epic { background-color: #9c27b0; }
+.rarity-indicator.legendary { background-color: #ff9800; }
+.rarity-indicator.mythic { background-color: #f44336; }
+.rarity-indicator.unique { background-color: #ffd700; }
+
+/* Shop Item with Rarity */
+.shop-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    transition: all 0.2s;
+}
+
+.shop-item:hover {
+    border-color: #007bff;
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
+}
+
+.shop-item-rarity-badge {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    margin-right: 0.75rem;
+}
+
+.shop-item-rarity-badge.common { background-color: #9e9e9e; }
+.shop-item-rarity-badge.uncommon { background-color: #4caf50; }
+.shop-item-rarity-badge.rare { background-color: #2196f3; }
+.shop-item-rarity-badge.epic { background-color: #9c27b0; }
+.shop-item-rarity-badge.legendary { background-color: #ff9800; box-shadow: 0 0 4px rgba(255, 152, 0, 0.5); }
+.shop-item-rarity-badge.mythic { background-color: #f44336; box-shadow: 0 0 6px rgba(244, 67, 54, 0.5); }
+.shop-item-rarity-badge.unique { background-color: #ffd700; box-shadow: 0 0 6px rgba(255, 213, 0, 0.6); }
+
+/* Daily Reward Styles */
+.daily-reward-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.5rem;
+}
+
+.daily-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.daily-header h2 {
+    margin: 0;
+    color: #333;
+}
+
+.daily-stats {
+    display: flex;
+    gap: 2rem;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.stat-value {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #007bff;
+}
+
+.auth-warning {
+    background-color: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+    color: #856404;
+}
+
+.claimed-message {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    color: #155724;
+    margin-bottom: 2rem;
+}
+
+.claimed-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.claimed-message h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.5rem;
+}
+
+.claimed-message p {
+    margin: 0;
+    font-size: 0.95rem;
+    opacity: 0.8;
+}
+
+.claim-section {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+.claim-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    color: white;
+    max-width: 400px;
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+}
+
+.claim-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.claim-card h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.5rem;
+}
+
+.claim-description {
+    margin: 0 0 1.5rem 0;
+    opacity: 0.9;
+    font-size: 0.95rem;
+}
+
+.claim-button {
+    background-color: #ffd700;
+    color: #856404;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 auto;
+}
+
+.claim-button:hover {
+    background-color: #ffc107;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 213, 0, 0.4);
+}
+
+.button-icon {
+    font-size: 1.5rem;
+}
+
+.streak-rewards {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border: 1px solid #e0e0e0;
+}
+
+.streak-rewards h3 {
+    margin: 0 0 1rem 0;
+    color: #333;
+}
+
+.streak-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.streak-card {
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.streak-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.streak-card.achieved {
+    background-color: #d4edda;
+    border-color: #28a745;
+}
+
+.streak-card.next {
+    background-color: #fff3cd;
+    border-color: #ffc107;
+}
+
+.streak-card.locked {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+    opacity: 0.6;
+}
+
+.streak-day {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.streak-reward {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.reward-icon {
+    font-size: 1.5rem;
+}
+
+.reward-text {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.achieved-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 1.5rem;
+}
+
+.next-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 1.5rem;
+}
+
+.locked-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 1.5rem;
+}
+
+.daily-calendar {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border: 1px solid #e0e0e0;
+}
+
+.daily-calendar h3 {
+    margin: 0 0 1rem 0;
+    color: #333;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 0.75rem;
+}
+
+.calendar-day {
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.calendar-day:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.calendar-day.claimed {
+    background-color: #e3f2fd;
+    border-color: #2196f3;
+}
+
+.calendar-day.today {
+    background-color: #fff3cd;
+    border-color: #ffc107;
+    box-shadow: 0 0 8px rgba(255, 193, 7, 0.3);
+}
+
+.calendar-day.locked {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+    opacity: 0.6;
+}
+
+.day-number {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-bottom: 0.25rem;
+}
+
+.day-reward {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.day-icon {
+    font-size: 1.25rem;
+}
+
+.day-amount {
+    font-size: 0.8rem;
+    color: #333;
+    font-weight: bold;
+}
+
+.special-badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    font-size: 1.25rem;
+}
+
+.activity-log {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 1.5rem;
+    border: 1px solid #e0e0e0;
+}
+
+.activity-log h3 {
+    margin: 0 0 1rem 0;
+    color: #333;
+}
+
+.log-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.log-item {
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s;
+}
+
+.log-item:hover {
+    border-color: #007bff;
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.1);
+}
+
+.log-date {
+    font-size: 0.85rem;
+    color: #6c757d;
+    min-width: 60px;
+}
+
+.log-description {
+    flex: 1;
+    color: #333;
+    margin: 0 1rem;
+}
+
+.log-points {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #28a745;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .daily-reward-container {
+        padding: 1rem;
+    }
+
+    .daily-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .daily-stats {
+        flex-direction: column;
+        gap: 1rem;
+        width: 100%;
+    }
+
+    .stat-item {
+        flex-direction: row;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .calendar-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 0.5rem;
+    }
+
+    .calendar-day {
+        padding: 0.5rem;
+    }
+
+    .day-amount {
+        font-size: 0.7rem;
+    }
+
+    .log-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+}

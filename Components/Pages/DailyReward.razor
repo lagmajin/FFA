@@ -3,34 +3,148 @@
 
 @using FFA.Services
 @using Microsoft.AspNetCore.Components.Authorization
+@using FFA.Models
 @inject DailyRewardService Daily
 @inject UserService UserService
 @inject AuthenticationStateProvider AuthStateProvider
 
-<h2>デイリーボーナス</h2>
-
-@if (!isAuth)
-{
-    <p>ログインしてください。</p>
-}
-else
-{
-    <div>
-        @if (claimed)
+<div class="daily-reward-container">
+    <div class="daily-header">
+        <h2>🌅 デイリーボーナス</h2>
+        @if (userLog != null)
         {
-            <p>本日の報酬は既に受け取り済みです。</p>
-        }
-        else
-        {
-            <button @onclick="Claim">報酬を受け取る</button>
+            <div class="daily-stats">
+        <div class="stat-item">
+                    <span class="stat-label">連続ログイン</span>
+                    <span class="stat-value">@userLog.ConsecutiveDays 日</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">累計ログイン</span>
+                    <span class="stat-value">@userLog.TotalLoginDays 日</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">報酬受取</span>
+                    <span class="stat-value">@userLog.TotalClaims 回</span>
+                </div>
+            </div>
         }
     </div>
-}
+
+    @if (!isAuth)
+    {
+        <div class="auth-warning">
+            <p>🔐 ログインしてデイリーボーナスを受け取ってください</p>
+        </div>
+    }
+    else
+    {
+        <div class="daily-content">
+            @if (claimed)
+            {
+                <div class="claimed-message">
+                    <div class="claimed-icon">✅</div>
+                    <h3>本日の報酬は受け取り済みです!</h3>
+                    <p>明日もまたお楽しみに!</p>
+                </div>
+            }
+            else
+            {
+                <div class="claim-section">
+                    <div class="claim-card">
+                        <div class="claim-icon">🎁</div>
+                        <h3>本日の報酬を受け取りましょう!</h3>
+                        <p class="claim-description">連続ログインで特別な報酬を獲得できます!</p>
+                        <button class="claim-button" @onclick="Claim">
+                            <span class="button-icon">💰</span>
+                            報酬を受け取る
+                        </button>
+                    </div>
+                </div>
+            }
+
+            <!-- 連続ログイン報酬 -->
+            <div class="streak-rewards">
+                <h3>🔥 連続ログイン報酬</h3>
+                <div class="streak-grid">
+                    @foreach (var reward in streakRewards)
+                    {
+                        var isAchieved = userLog != null && userLog.ConsecutiveDays >= reward.DaysRequired;
+                        var isNext = userLog != null && reward.DaysRequired - userLog.ConsecutiveDays <= 7 && reward.DaysRequired > userLog.ConsecutiveDays;
+
+                        <div class="streak-card @(isAchieved ? "achieved" : (isNext ? "next" : "locked"))">
+                            <div class="streak-day">@reward.DaysRequired 日</div>
+                            <div class="streak-reward">
+                                <span class="reward-icon">@reward.Icon</span>
+                                <span class="reward-text">@reward.Description</span>
+                            </div>
+                            @if (isAchieved)
+                            {
+                                <span class="achieved-badge">🏆</span>
+                            }
+                            else if (isNext)
+                            {
+                                <span class="next-badge">⏰</span>
+                            }
+                            else
+                            {
+                                <span class="locked-badge">🔒</span>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- デイリー報酬カレンダー -->
+            <div class="daily-calendar">
+                <h3>📅 デイリーカレンダー</h3>
+                <div class="calendar-grid">
+                    @foreach (var reward in dailyRewards)
+                    {
+                        var dayIndex = reward.DayNumber;
+                        var isClaimed = reward.DayNumber <= (userLog?.TotalClaims ?? 0);
+                        var isToday = reward.DayNumber == ((userLog?.TotalClaims ?? 0) + 1);
+
+                        <div class="calendar-day @(isClaimed ? "claimed" : (isToday && !claimed ? "today" : "locked"))">
+                            <div class="day-number">@dayIndex 日</div>
+                            <div class="day-reward">
+                                <span class="day-icon">@reward.Icon</span>
+                                <span class="day-amount">@reward.Description</span>
+                            </div>
+                            @if (reward.IsSpecial)
+                            {
+                                <span class="special-badge">💎</span>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- アクティビティログ -->
+            <div class="activity-log">
+                <h3>📝 最近のアクティビティ</h3>
+                <div class="log-list">
+                    @foreach (var log in activityLogs.OrderByDescending(x => x.Date))
+                    {
+                        <div class="log-item">
+                            <div class="log-date">@log.Date.ToString("MM/dd")</div>
+                            <div class="log-description">@log.Description</div>
+                            <div class="log-points">+@log.PointsEarned pt</div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
 
 @code {
     private bool isAuth = false;
     private bool claimed = false;
     private string? username;
+    private UserDailyLog? userLog;
+    private List<DailyRewardDefinition> dailyRewards = new();
+    private List<LoginStreakReward> streakRewards = new();
+    private List<DailyActivityLog> activityLogs = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -38,19 +152,34 @@ else
         var u = st.User;
         isAuth = u.Identity?.IsAuthenticated ?? false;
         username = u.Identity?.Name;
+        
+        dailyRewards = Daily.GetDailyRewards();
+        streakRewards = Daily.GetStreakRewards();
+        
         if (isAuth && username != null)
         {
+            userLog = Daily.GetUserDailyLog(username);
             claimed = Daily.HasClaimed(username);
+            activityLogs = Daily.GetActivityLogs(username, 7);
         }
     }
 
     private void Claim()
     {
-        if (username == null) return;
-        if (Daily.Claim(username, out var gil))
+        try
         {
-            UserService.AdjustGil(username, gil);
-            claimed = true;
+            if (username == null) return;
+            if (Daily.Claim(username, out var gil, out var rewardType))
+            {
+                UserService.AdjustGil(username, gil);
+                claimed = true;
+                userLog = Daily.GetUserDailyLog(username);
+                activityLogs = Daily.GetActivityLogs(username, 7);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"DailyReward.Claim 例外: {ex.Message} - {ex.StackTrace}");
         }
     }
 }
