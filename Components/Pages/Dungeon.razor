@@ -1,0 +1,260 @@
+@page "/dungeon"
+@rendermode InteractiveServer
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+@inject Services.UserService UserService
+@inject Services.DungeonService DungeonService
+@inject Services.QuestService QuestService
+
+<PageTitle>ダンジョン</PageTitle>
+
+<div class="dungeon-container">
+    <h1 class="dungeon-title">ダンジョン</h1>
+
+    @if (battleLog.Count > 0)
+    {
+        <div class="battle-log">
+            @foreach (var log in battleLog)
+            {
+                <p class="@log.Class">@log.Message</p>
+            }
+        </div>
+    }
+
+    @if (currentEnemy != null)
+    {
+        <div class="enemy-section">
+            <h2>敵: @currentEnemy.Name</h2>
+            <div class="enemy-hp-bar">
+                <div class="hp-fill" style="width: @enemyHpPercent%"></div>
+            </div>
+            <p>HP: @currentEnemy.HP / @currentEnemy.MaxHP</p>
+            <p>攻撃力: @currentEnemy.Attack | 防御力: @currentEnemy.Defense</p>
+        </div>
+
+        <div class="player-section">
+            <h2>プレイヤー (@currentUser?.Username)</h2>
+            <div class="player-hp-bar">
+                <div class="hp-fill" style="width: @playerHpPercent%"></div>
+            </div>
+            <p>HP: @currentUser?.HP / @currentUser?.MaxHP</p>
+            <p>職業: @currentUser?.Job | 経験値: @currentUser?.Exp</p>
+            <p>攻撃力: @CalculatePlayerAttack()</p>
+        </div>
+    }
+
+    @if (battleState == BattleState.Idle)
+    {
+        <div class="action-section">
+            <button class="action-button" @onclick="StartBattle">ダンジョンに入る</button>
+        </div>
+    }
+    else if (battleState == BattleState.Victory)
+    {
+        <div class="result-section victory">
+            <h2>🎉 勝利！</h2>
+            <p>獲得経験値: +@gainedExp</p>
+            <p>獲得ギル: +@gainedGil</p>
+            @if (!string.IsNullOrEmpty(gainedDrop))
+            {
+                <p class="drop-item">ドロップ: @gainedDrop を獲得！</p>
+            }
+            <button class="action-button" @onclick="ReturnToHome">返回主页</button>
+        </div>
+    }
+    else if (battleState == BattleState.Defeat)
+    {
+        <div class="result-section defeat">
+            <h2>💀 敗北...</h2>
+            <p>経験値を少し失った...</p>
+            <button class="action-button" @onclick="Respawn">リスポーン</button>
+        </div>
+    }
+</div>
+
+@code {
+    private User? currentUser;
+    private Enemy? currentEnemy;
+    private List<BattleLogEntry> battleLog = new();
+    
+    private int gainedExp = 0;
+    private int gainedGil = 0;
+    private string gainedDrop = "";
+    
+    private BattleState battleState = BattleState.Idle;
+    
+    private int enemyHpPercent => currentEnemy != null ? (currentEnemy.HP * 100 / currentEnemy.MaxHP) : 0;
+    private int playerHpPercent => currentUser != null ? (currentUser.HP * 100 / currentUser.MaxHP) : 100;
+
+    protected override void OnInitialized()
+    {
+        // セッションからユーザー情報を取得（簡略化のため最初のユーザー使用）
+        var users = UserService.GetAllUsers().ToList();
+        currentUser = users.FirstOrDefault();
+        
+        if (currentUser == null)
+        {
+            // テスト用：ユーザーがいない場合は作成
+            currentUser = new User 
+            { 
+                Username = "Guest", 
+                Gil = 1000,
+                HP = 100,
+                MaxHP = 100
+            };
+        }
+    }
+
+    private async Task StartBattle()
+    {
+        if (currentUser == null) return;
+        
+        battleLog.Clear();
+        battleState = BattleState.Battling;
+        gainedExp = 0;
+        gainedGil = 0;
+        gainedDrop = "";
+        
+        // 敵生成
+        var playerLevel = currentUser.Exp / 100 + 1;
+        currentEnemy = DungeonService.GenerateRandomEnemy(playerLevel);
+        
+        AddLog("system", $"ダンジョンで {currentEnemy.Name} に遭遇した！");
+        
+        // 自動ターン制戦闘開始
+        await Task.Delay(1000);
+        await BattleLoop();
+    }
+
+    private async Task BattleLoop()
+    {
+        while (battleState == BattleState.Battling && currentEnemy != null && currentUser != null)
+        {
+            // プレイヤー攻撃
+            var playerDamage = DungeonService.CalculatePlayerDamage(currentUser);
+            currentEnemy.HP -= playerDamage;
+            AddLog("player", $"あなたの攻撃！ {currentEnemy.Name} に {playerDamage} ダメージ！");
+            
+            if (currentEnemy.HP <= 0)
+            {
+                await Victory();
+                break;
+            }
+            
+            await Task.Delay(800);
+            
+            // 敵攻撃
+            var enemyDamage = DungeonService.CalculateEnemyDamage(currentEnemy, currentUser);
+            currentUser.HP -= enemyDamage;
+            AddLog("enemy", $"{currentEnemy.Name} の攻撃！ {enemyDamage} ダメージを受けた！");
+            
+            if (currentUser.HP <= 0)
+            {
+                await Defeat();
+                break;
+            }
+            
+            await Task.Delay(800);
+            
+            StateHasChanged();
+        }
+    }
+
+    private async Task Victory()
+    {
+        if (currentUser == null || currentEnemy == null) return;
+        
+        battleState = BattleState.Victory;
+        
+        gainedExp = DungeonService.CalculateExp(currentEnemy);
+        gainedGil = DungeonService.CalculateGil(currentEnemy);
+        var drop = DungeonService.RollDrop(currentEnemy);
+        
+        currentUser.Exp += gainedExp;
+        currentUser.Gil += gainedGil;
+        
+        // クエスト進捗更新（討伐）
+        QuestService.UpdateProgress(currentUser, enemyName: currentEnemy.Name);
+        
+        // ドロップアイテムをインベントリに追加
+        if (!string.IsNullOrEmpty(drop))
+        {
+            gainedDrop = drop;
+            var existingItem = currentUser.Inventory.FirstOrDefault(i => i.Name == drop);
+            if (existingItem != null)
+            {
+                existingItem.Quantity++;
+            }
+            else
+            {
+                currentUser.Inventory.Add(new InventoryItem { Name = drop, Quantity = 1 });
+            }
+            AddLog("system", $"★ ドロップ: {drop} を獲得！");
+        }
+        
+        AddLog("system", $"✿ {currentEnemy.Name} を倒した！");
+        AddLog("system", $"経験値 +{gainedExp} | ギル +{gainedGil}");
+        
+        UserService.UpdateUser(currentUser);
+    }
+
+    private async Task Defeat()
+    {
+        if (currentUser == null) return;
+        
+        battleState = BattleState.Defeat;
+        
+        // 経験値少し失う
+        var expLoss = 10;
+        currentUser.Exp = Math.Max(0, currentUser.Exp - expLoss);
+        
+        AddLog("system", $"💀 倒れた... {expLoss} 経験値失った");
+        
+        UserService.UpdateUser(currentUser);
+    }
+
+    private void Respawn()
+    {
+        if (currentUser == null) return;
+        
+        currentUser.HP = currentUser.MaxHP;
+        battleState = BattleState.Idle;
+        battleLog.Clear();
+        currentEnemy = null;
+    }
+
+    private void ReturnToHome()
+    {
+        Navigation.NavigateTo("/");
+    }
+
+    private int CalculatePlayerAttack()
+    {
+        if (currentUser == null) return 0;
+        return DungeonService.CalculatePlayerDamage(currentUser);
+    }
+
+    private void AddLog(string className, string message)
+    {
+        battleLog.Add(new BattleLogEntry { Class = className, Message = message });
+        // ログが多すぎないように
+        if (battleLog.Count > 20)
+        {
+            battleLog.RemoveAt(0);
+        }
+    }
+
+    enum BattleState
+    {
+        Idle,
+        Battling,
+        Victory,
+        Defeat
+    }
+
+    class BattleLogEntry
+    {
+        public string Class { get; set; } = "";
+        public string Message { get; set; } = "";
+    }
+}

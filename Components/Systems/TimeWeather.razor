@@ -1,0 +1,54 @@
+@using FFA.Services
+@inject TimeWeatherService TWService
+@inject IJSRuntime JS
+
+<div class="timeweather @TWService.Phase.ToString().ToLower()">
+    <div class="tw-time">@FormatTime(TWService.TimeOfDay)</div>
+    <div class="tw-phase">@TWService.Phase</div>
+    <div class="tw-weather">@TWService.Weather</div>
+</div>
+
+@code {
+    private string FormatTime(double t)
+    {
+        int hh = (int)Math.Floor(t);
+        int mm = (int)Math.Floor((t - hh) * 60);
+        return $"{hh:D2}:{mm:D2}";
+    }
+}
+
+@code {
+    private DotNetObjectReference<TimeWeather>? objRef;
+    private IJSObjectReference? moduleRef;
+
+    [JSInvokable]
+    public Task OnWorldUpdated(string json)
+    {
+        // simply trigger re-render
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            objRef = DotNetObjectReference.Create(this);
+            moduleRef = await JS.InvokeAsync<IJSObjectReference>("import", "/js/worldhub.js");
+            await moduleRef.InvokeVoidAsync("start", objRef);
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (moduleRef != null)
+        {
+            await moduleRef.InvokeVoidAsync("stop");
+            await moduleRef.DisposeAsync();
+        }
+        if (objRef != null)
+        {
+            objRef.Dispose();
+        }
+    }
+}

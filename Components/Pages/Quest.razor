@@ -1,0 +1,106 @@
+@page "/quest"
+@rendermode InteractiveServer
+@inject NavigationManager Navigation
+@inject Services.UserService UserService
+@inject Services.QuestService QuestService
+
+<PageTitle>クエスト</PageTitle>
+
+<div class="quest-container">
+    <h1 class="quest-title">クエスト</h1>
+
+    @if (currentUser?.CurrentQuest == null)
+    {
+        <div class="quest-available">
+            <p>新しいクエストを受けられます</p>
+            <button class="quest-button" @onclick="AcceptQuest">クエストを受ける</button>
+        </div>
+    }
+    else
+    {
+        <div class="quest-status">
+            <h2>現在のクエスト</h2>
+            <div class="quest-card">
+                <h3>@currentUser.CurrentQuest.Name</h3>
+                <p>@currentUser.CurrentQuest.Description</p>
+                
+                <div class="quest-progress">
+                    @if (currentUser.CurrentQuest.Type == QuestType.Slay)
+                    {
+                        <p>目標: @currentUser.CurrentQuest.Target を倒す</p>
+                    }
+                    else
+                    {
+                        <p>目標: @currentUser.CurrentQuest.Target を収集</p>
+                    }
+                    <p>進捗: @currentUser.CurrentQuest.CurrentCount / @currentUser.CurrentQuest.TargetCount</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: @progressPercent%"></div>
+                    </div>
+                </div>
+
+                <div class="quest-reward">
+                    <p>報酬: @currentUser.CurrentQuest.RewardGil ギル | @currentUser.CurrentQuest.RewardExp 経験値</p>
+                </div>
+
+                @if (currentUser.CurrentQuest.IsCompleted)
+                {
+                    <div class="quest-complete">
+                        <p class="complete-text">🎉 クエスト完了！</p>
+                        <button class="claim-button" @onclick="ClaimReward">報酬を受け取る</button>
+                    </div>
+                }
+                else
+                {
+                    <p class="quest-hint">ダンジョンで目標を達成してください</p>
+                }
+            </div>
+        </div>
+    }
+
+    <div class="back-section">
+        <button class="back-button" @onclick="GoBack">戻る</button>
+    </div>
+</div>
+
+@code {
+    private User? currentUser;
+    private int progressPercent = 0;
+
+    protected override void OnInitialized()
+    {
+        var users = UserService.GetAllUsers().ToList();
+        currentUser = users.FirstOrDefault();
+        UpdateProgress();
+    }
+
+    private void AcceptQuest()
+    {
+        if (currentUser == null) return;
+        
+        currentUser.CurrentQuest = QuestService.GenerateRandomQuest();
+        UserService.UpdateUser(currentUser);
+        UpdateProgress();
+    }
+
+    private void ClaimReward()
+    {
+        if (currentUser == null) return;
+        
+        QuestService.ClaimReward(currentUser);
+        UserService.UpdateUser(currentUser);
+    }
+
+    private void UpdateProgress()
+    {
+        if (currentUser?.CurrentQuest != null && currentUser.CurrentQuest.TargetCount > 0)
+        {
+            progressPercent = currentUser.CurrentQuest.CurrentCount * 100 / currentUser.CurrentQuest.TargetCount;
+        }
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/");
+    }
+}

@@ -1,0 +1,50 @@
+@page "/admin"
+@rendermode InteractiveServer
+
+@using FFA.Services
+@using Microsoft.AspNetCore.Components.Authorization
+@inject UserService UserService
+@inject KarmaService Karma
+@inject AuthenticationStateProvider AuthStateProvider
+
+<h2>Admin</h2>
+
+@if (!isAdmin)
+{
+    <p>管理者専用ページです。</p>
+}
+else
+{
+    <div>
+        <h3>Users</h3>
+        <ul>
+            @foreach (var u in users)
+            {
+                <li>@u.Username - <button @onclick="() => DeleteUser(u.Username)">Delete</button> - Karma: @Karma.GetKarma(u.Username)</li>
+            }
+        </ul>
+    </div>
+}
+
+@code {
+    private bool isAdmin = false;
+    private List<FFA.Models.User> users = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = state.User;
+        isAdmin = user.IsInRole("Admin");
+        if (isAdmin)
+        {
+            users = UserService.GetAllUsers().ToList();
+        }
+    }
+
+    private void DeleteUser(string username)
+    {
+        if (!isAdmin) return;
+        UserService.DeleteUser(username);
+        users = UserService.GetAllUsers().ToList();
+    }
+}

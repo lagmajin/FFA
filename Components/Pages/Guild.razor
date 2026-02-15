@@ -1,0 +1,158 @@
+@page "/guild"
+@rendermode InteractiveServer
+@inject NavigationManager Navigation
+@inject Services.UserService UserService
+@inject Services.GuildService GuildService
+
+<PageTitle>ギルド</PageTitle>
+
+<div class="guild-container">
+    <h1 class="guild-title">ギルド</h1>
+
+    @if (currentUser?.GuildId == null)
+    {
+        @if (!showCreate)
+        {
+            <div class="guild-list-section">
+                <h2>ギルド一覧</h2>
+                @if (guilds.Count == 0)
+                {
+                    <p class="no-guilds">ギルドがありません</p>
+                }
+                else
+                {
+                    <div class="guild-list">
+                        @foreach (var guild in guilds)
+                        {
+                            <div class="guild-card">
+                                <h3>@guild.Name</h3>
+                                <p>@guild.Description</p>
+                                <p>リーダー: @guild.LeaderName</p>
+                                <p>メンバー: @guild.MemberCount 人 | 経験値: @guild.TotalExp</p>
+                                <button class="join-button" @onclick="() => JoinGuild(guild.Id)">参加する</button>
+                            </div>
+                        }
+                    </div>
+                }
+                
+                <div class="action-section">
+                    <button class="create-button" @onclick="ShowCreateForm">ギルドを作成する</button>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="create-form">
+                <h2>ギルド作成</h2>
+                <div class="form-group">
+                    <label>ギルド名</label>
+                    <input @bind="newGuildName" placeholder="ギルド名" />
+                </div>
+                <div class="form-group">
+                    <label>説明</label>
+                    <input @bind="newGuildDesc" placeholder="ギルドの説明" />
+                </div>
+                <div class="button-group">
+                    <button class="submit-button" @onclick="CreateGuild">作成</button>
+                    <button class="cancel-button" @onclick="CancelCreate">キャンセル</button>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="my-guild">
+            <h2>マイギルド</h2>
+            <div class="guild-info">
+                <h3>@currentGuild?.Name</h3>
+                <p>@currentGuild?.Description</p>
+                <p>リーダー: @currentGuild?.LeaderName</p>
+                <p>メンバー: @currentGuild?.MemberCount 人</p>
+                <p>ギルド経験値: @currentGuild?.TotalExp</p>
+                <p>作成日: @currentGuild?.CreatedAt.ToString("yyyy/MM/dd")</p>
+            </div>
+            
+            <div class="guild-actions">
+                <button class="leave-button" @onclick="LeaveGuild">脱退する</button>
+            </div>
+        </div>
+    }
+
+    <div class="back-section">
+        <button class="back-button" @onclick="GoBack">戻る</button>
+    </div>
+</div>
+
+@code {
+    private User? currentUser;
+    private Models.Guild? currentGuild;
+    private List<Models.Guild> guilds = new();
+    private bool showCreate = false;
+    private string newGuildName = "";
+    private string newGuildDesc = "";
+
+    protected override void OnInitialized()
+    {
+        var users = UserService.GetAllUsers().ToList();
+        currentUser = users.FirstOrDefault();
+        
+        guilds = GuildService.GetAllGuilds();
+        
+        if (currentUser != null)
+        {
+            currentGuild = GuildService.GetUserGuild(currentUser);
+        }
+    }
+
+    private void ShowCreateForm()
+    {
+        showCreate = true;
+    }
+
+    private void CancelCreate()
+    {
+        showCreate = false;
+        newGuildName = "";
+        newGuildDesc = "";
+    }
+
+    private void CreateGuild()
+    {
+        if (currentUser == null || string.IsNullOrWhiteSpace(newGuildName)) return;
+        
+        var guild = GuildService.CreateGuild(newGuildName, newGuildDesc, currentUser.Username);
+        currentUser.GuildId = guild.Id;
+        UserService.UpdateUser(currentUser);
+        
+        currentGuild = guild;
+        showCreate = false;
+        newGuildName = "";
+        newGuildDesc = "";
+    }
+
+    private void JoinGuild(int guildId)
+    {
+        if (currentUser == null) return;
+        
+        GuildService.JoinGuild(currentUser, guildId);
+        UserService.UpdateUser(currentUser);
+        
+        currentGuild = GuildService.GetUserGuild(currentUser);
+    }
+
+    private void LeaveGuild()
+    {
+        if (currentUser == null) return;
+        
+        GuildService.LeaveGuild(currentUser);
+        UserService.UpdateUser(currentUser);
+        
+        currentGuild = null;
+        guilds = GuildService.GetAllGuilds();
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/");
+    }
+}

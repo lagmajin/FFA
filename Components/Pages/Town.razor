@@ -1,0 +1,26 @@
+@page "/town"
+@rendermode InteractiveServer
+
+@inject NavigationManager Navigation
+@inject Services.UserService UserService
+
+<h1>街</h1>
+
+<div class="town-container">
+    <div class="town-center">
+        <h2>町の広場</h2>
+        <p>ここでは買い物や情報交換ができます。</p>
+        <div class="town-actions">
+            <button class="action-button" @onclick="GoToWeaponShop">武器屋へ</button>
+            <button class="action-button" @onclick="GoToInn">宿屋へ</button>
+            <button class="action-button" @onclick="GoBack">戻る</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    private void GoToShop() => Navigation.NavigateTo("/shop");
+    private void GoToInn() => Navigation.NavigateTo("/inn");
+    private void GoBack() => Navigation.NavigateTo("/dashboard");
+    private void GoToWeaponShop() => Navigation.NavigateTo("/weapon-shop");
+}

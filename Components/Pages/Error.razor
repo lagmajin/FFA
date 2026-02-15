@@ -11,6 +11,14 @@
     <p>
         <strong>Request ID:</strong> <code>@RequestId</code>
     </p>
+
+@inject FFA.Services.DeveloperExceptionService DevEx
+
+@if (DevEx.Get() is Exception ex)
+{
+    <h4>Exception Details (stored)</h4>
+    <pre style="white-space:pre-wrap; max-width:90%; overflow:auto;">@ex.ToString()</pre>
+}
 }
 
 <h3>Development Mode</h3>

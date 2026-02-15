@@ -1,0 +1,56 @@
+@page "/daily"
+@rendermode InteractiveServer
+
+@using FFA.Services
+@using Microsoft.AspNetCore.Components.Authorization
+@inject DailyRewardService Daily
+@inject UserService UserService
+@inject AuthenticationStateProvider AuthStateProvider
+
+<h2>デイリーボーナス</h2>
+
+@if (!isAuth)
+{
+    <p>ログインしてください。</p>
+}
+else
+{
+    <div>
+        @if (claimed)
+        {
+            <p>本日の報酬は既に受け取り済みです。</p>
+        }
+        else
+        {
+            <button @onclick="Claim">報酬を受け取る</button>
+        }
+    </div>
+}
+
+@code {
+    private bool isAuth = false;
+    private bool claimed = false;
+    private string? username;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var st = await AuthStateProvider.GetAuthenticationStateAsync();
+        var u = st.User;
+        isAuth = u.Identity?.IsAuthenticated ?? false;
+        username = u.Identity?.Name;
+        if (isAuth && username != null)
+        {
+            claimed = Daily.HasClaimed(username);
+        }
+    }
+
+    private void Claim()
+    {
+        if (username == null) return;
+        if (Daily.Claim(username, out var gil))
+        {
+            UserService.AdjustGil(username, gil);
+            claimed = true;
+        }
+    }
+}

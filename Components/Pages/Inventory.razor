@@ -1,0 +1,88 @@
+@page "/inventory"
+@rendermode InteractiveServer
+
+<PageTitle>インベントリ</PageTitle>
+
+@using FFA.Services
+@using FFA.Models
+@inject UserService UserService
+
+<h2>インベントリ</h2>
+
+<p>ログイン済みユーザーのインベントリを表示します（デモではdemoユーザー）。</p>
+
+@if (user == null)
+{
+    <p>ユーザーが見つかりません。</p>
+}
+else
+{
+    <p>ユーザー: @user.Username</p>
+    <p>所持金: @user.Gil ギル</p>
+    <p>HP: @user.HP / @user.MaxHP</p>
+
+    <h3>装備</h3>
+    <p>武器: @user.EquippedWeapon?.Name</p>
+    <p>防具: @user.EquippedArmor?.Name</p>
+    <p>アクセサリ: @user.EquippedAccessory?.Name</p>
+
+    <h3>インベントリ</h3>
+    <ul>
+        @foreach (var it in user.Inventory)
+        {
+            <li>
+                @it.Name x @it.Quantity
+                <button @onclick="() => UseItem(it)">使う</button>
+                <button @onclick="() => EquipItem(it)">装備</button>
+                <button @onclick="() => SellItem(it)">売る (@it.Price ギル)</button>
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    private User? user;
+
+    protected override void OnInitialized()
+    {
+        user = UserService.GetByUsername("demo");
+    }
+
+    private void UseItem(InventoryItem it)
+    {
+        if (it.Name == "ポーション")
+        {
+            user!.HP = Math.Min(user.MaxHP, user.HP + 50);
+            it.Quantity -= 1;
+        }
+        if (it.Quantity <= 0)
+            user.Inventory.Remove(it);
+        UserService.UpdateUser(user!);
+    }
+
+    private void EquipItem(InventoryItem it)
+    {
+        // simple: if name contains weapon keywords equip as weapon, otherwise armor
+        if (it.Name.Contains("剣") || it.Name.Contains("こんぼう") || it.Name.Contains("Staff") || it.Name.Contains("Wand"))
+        {
+            user!.EquippedWeapon = new Weapon { Name = it.Name, Attack = 5 };
+        }
+        else
+        {
+            user!.EquippedArmor = new Armor { Name = it.Name, Defense = 3 };
+        }
+        it.Quantity -= 1;
+        if (it.Quantity <= 0)
+            user.Inventory.Remove(it);
+        UserService.UpdateUser(user!);
+    }
+
+    private void SellItem(InventoryItem it)
+    {
+        user!.Gil += it.Price;
+        it.Quantity -= 1;
+        if (it.Quantity <= 0)
+            user.Inventory.Remove(it);
+        UserService.UpdateUser(user!);
+    }
+}

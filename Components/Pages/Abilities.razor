@@ -1,0 +1,85 @@
+@page "/abilities"
+@rendermode InteractiveServer
+
+@using FFA.Models
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AbilityService AbilityService
+@inject UserService UserService
+@inject AuthenticationStateProvider AuthStateProvider
+
+<h1>アビリティ</h1>
+
+@if (!isAuth)
+{
+    <p>ログインしてください。</p>
+}
+else
+{
+    <div class="abilities">
+        <h2>所持アビリティ</h2>
+        @if (user != null && user.Abilities.Any())
+        {
+            <div class="ability-list">
+                @foreach (var a in user.Abilities)
+                {
+                    <div class="ability-card">
+                        <div class="ability-name">@a.Name</div>
+                        <div class="ability-desc">@a.Description</div>
+                        <div>クールダウン: @a.CooldownSeconds 秒</div>
+                        <button class="action-button" @onclick="() => Use(a.Id)">使う</button>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p>アビリティがありません。</p>
+        }
+
+        <h3>習得可能</h3>
+        <div class="ability-shop">
+            @foreach (var def in AbilityService.GetAllAbilities())
+            {
+                <div class="ability-card">
+                    <div class="ability-name">@def.Name</div>
+                    <div class="ability-desc">@def.Description</div>
+                    <button class="action-button" @onclick="() => Learn(def.Id)">習得</button>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private bool isAuth = false;
+    private User? user;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        var u = state.User;
+        isAuth = u?.Identity?.IsAuthenticated ?? false;
+        var username = u?.Identity?.Name;
+        if (isAuth && username != null)
+        {
+            user = UserService.GetByUsername(username);
+        }
+    }
+
+    private void Use(string id)
+    {
+        if (user == null) return;
+        var res = AbilityService.UseAbility(user, id);
+        UserService.UpdateUser(user);
+    }
+
+    private void Learn(string id)
+    {
+        if (user == null) return;
+        var def = AbilityService.GetById(id);
+        if (def == null) return;
+        if (user.Abilities.Any(a => a.Id == def.Id)) return;
+        user.Abilities.Add(def);
+        UserService.UpdateUser(user);
+    }
+}

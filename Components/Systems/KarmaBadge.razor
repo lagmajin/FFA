@@ -1,0 +1,92 @@
+@using FFA.Services
+@using FFA.Models
+@using Microsoft.AspNetCore.Components.Authorization
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
+
+<div class="karma-badge">
+    <div>Karma: @karma</div>
+    <div>
+        <button @onclick="() => Adjust(-1)" disabled="@(!isAuthenticated)">-1</button>
+        <button @onclick="() => Adjust(1)" disabled="@(!isAuthenticated)">+1</button>
+    </div>
+    @if (!isAuthenticated)
+    {
+        <div class="small">Login to change karma</div>
+    }
+</div>
+
+@code {
+    private int karma = 0;
+    private bool isAuthenticated = false;
+    private string? username;
+    private DotNetObjectReference<KarmaBadge>? objRef;
+    private IJSObjectReference? moduleRef;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = state.User;
+        isAuthenticated = user?.Identity?.IsAuthenticated ?? false;
+        username = user?.Identity?.Name;
+        await LoadKarma();
+    }
+
+    private async Task LoadKarma()
+    {
+        try
+        {
+            var res = await JS.InvokeAsync<int?>("fetchGet", Navigation.ToAbsoluteUri("/karma").ToString());
+            if (res.HasValue) karma = res.Value;
+        }
+        catch { }
+    }
+
+    private async Task Adjust(int delta)
+    {
+        if (!isAuthenticated || string.IsNullOrEmpty(username)) return;
+        var payload = new KarmaAdjustRequest { Username = username, Delta = delta };
+        var res = await JS.InvokeAsync<int?>("fetchPostJson", Navigation.ToAbsoluteUri("/karma/adjust").ToString(), payload);
+        if (res.HasValue) karma = res.Value;
+    }
+
+    [JSInvokable]
+    public Task OnKarmaUpdated(string json)
+    {
+        // payload contains username and value
+        try
+        {
+            var doc = System.Text.Json.JsonDocument.Parse(json);
+            var name = doc.RootElement.GetProperty("username").GetString();
+            var val = doc.RootElement.GetProperty("value").GetInt32();
+            if (name == username) karma = val;
+            StateHasChanged();
+        }
+        catch { }
+        return Task.CompletedTask;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            objRef = DotNetObjectReference.Create(this);
+            moduleRef = await JS.InvokeAsync<IJSObjectReference>("import", "/js/worldhub.js");
+            await moduleRef.InvokeVoidAsync("start", objRef);
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (moduleRef != null)
+        {
+            await moduleRef.InvokeVoidAsync("stop");
+            await moduleRef.DisposeAsync();
+        }
+        if (objRef != null)
+        {
+            objRef.Dispose();
+        }
+    }
+}

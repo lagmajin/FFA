@@ -1,0 +1,32 @@
+@page "/inn"
+@rendermode InteractiveServer
+
+<PageTitle>宿屋</PageTitle>
+
+@using FFA.Services
+@inject UserService UserService
+
+<h2>宿屋</h2>
+
+<p>宿屋で休むとHPが全回復します（デモ）。</p>
+
+<button @onclick="Rest">休む（100ギル）</button>
+
+@code {
+    private void Rest()
+    {
+        var username = "demo";
+        var user = UserService.GetByUsername(username);
+        if (user == null) return;
+
+        if (user.Gil < 100)
+        {
+            Console.WriteLine("所持金不足");
+            return;
+        }
+
+        user.Gil -= 100;
+        user.HP = user.MaxHP;
+        UserService.UpdateUser(user);
+    }
+}

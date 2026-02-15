@@ -1,0 +1,72 @@
+@page "/job-change"
+@rendermode InteractiveServer
+
+@using FFA.Models
+@using Microsoft.AspNetCore.Components.Authorization
+@inject Services.UserService UserService
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Navigation
+
+<h1>転職</h1>
+
+@if (!isAuth)
+{
+    <p>ログインしてください。</p>
+}
+else
+{
+    <div class="job-change-container">
+        <p>現在の職業: <strong>@currentJob</strong></p>
+        <p>転職費用: @changeCost ギル</p>
+        <div class="job-options">
+            @foreach (var j in Enum.GetValues<Job>())
+            {
+                <div class="job-card">
+                    <h3>@j</h3>
+                    @if (j.ToString() == currentJob)
+                    {
+                        <div>現在の職業です</div>
+                    }
+                    else
+                    {
+                        <button class="action-button" @onclick="() => ChangeTo(j)">転職する</button>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private bool isAuth = false;
+    private string? username;
+    private string currentJob = "None";
+    private int changeCost = 500;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = state.User;
+        isAuth = user?.Identity?.IsAuthenticated ?? false;
+        username = user?.Identity?.Name;
+        if (isAuth && username != null)
+        {
+            var u = UserService.GetByUsername(username);
+            currentJob = u?.Job.ToString() ?? "None";
+        }
+    }
+
+    private void ChangeTo(Job j)
+    {
+        if (string.IsNullOrEmpty(username)) return;
+        var ok = UserService.ChangeJob(username, j, changeCost);
+        if (ok)
+        {
+            Navigation.NavigateTo("/dashboard");
+        }
+        else
+        {
+            // insufficient funds or error
+        }
+    }
+}

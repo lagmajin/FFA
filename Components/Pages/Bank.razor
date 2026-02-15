@@ -1,0 +1,106 @@
+@page "/bank"
+@rendermode InteractiveServer
+@inject NavigationManager Navigation
+@inject Services.UserService UserService
+
+<PageTitle>銀行</PageTitle>
+
+<div class="bank-container">
+    <h1 class="bank-title">銀行</h1>
+    <p class="bank-desc">ギルを預けたり引き上げたりできます。</p>
+
+    @if (currentUser != null)
+    {
+        <div class="balance-section">
+            <div class="balance-card">
+                <h2>手持</h2>
+                <p class="gil-amount">@currentUser.Gil ギル</p>
+            </div>
+            <div class="balance-card">
+                <h2>銀行</h2>
+                <p class="gil-amount">@currentUser.BankedGil ギル</p>
+            </div>
+        </div>
+
+        <div class="transaction-section">
+            <h2>預け入れ</h2>
+            <div class="input-group">
+                <input type="number" @bind="depositAmount" placeholder="金額" min="1" />
+                <button class="action-button" @onclick="Deposit">預ける</button>
+            </div>
+            <p class="hint">手持: @currentUser.Gil ギル</p>
+        </div>
+
+        <div class="transaction-section">
+            <h2>引き出し</h2>
+            <div class="input-group">
+                <input type="number" @bind="withdrawAmount" placeholder="金額" min="1" />
+                <button class="action-button" @onclick="Withdraw">引き出す</button>
+            </div>
+            <p class="hint">銀行: @currentUser.BankedGil ギル</p>
+        </div>
+
+        @if (!string.IsNullOrEmpty(message))
+        {
+            <div class="message">@message</div>
+        }
+    }
+
+    <div class="back-section">
+        <button class="back-button" @onclick="GoBack">戻る</button>
+    </div>
+</div>
+
+@code {
+    private User? currentUser;
+    private int depositAmount = 0;
+    private int withdrawAmount = 0;
+    private string message = "";
+
+    protected override void OnInitialized()
+    {
+        var users = UserService.GetAllUsers().ToList();
+        currentUser = users.FirstOrDefault();
+    }
+
+    private void Deposit()
+    {
+        if (currentUser == null || depositAmount <= 0) return;
+
+        if (depositAmount > currentUser.Gil)
+        {
+            message = "手持的金ルが足りません";
+            return;
+        }
+
+        currentUser.Gil -= depositAmount;
+        currentUser.BankedGil += depositAmount;
+        UserService.UpdateUser(currentUser);
+        
+        message = $"{depositAmount} ギルを預けました";
+        depositAmount = 0;
+    }
+
+    private void Withdraw()
+    {
+        if (currentUser == null || withdrawAmount <= 0) return;
+
+        if (withdrawAmount > currentUser.BankedGil)
+        {
+            message = "銀行の金が足りません";
+            return;
+        }
+
+        currentUser.BankedGil -= withdrawAmount;
+        currentUser.Gil += withdrawAmount;
+        UserService.UpdateUser(currentUser);
+        
+        message = $"{withdrawAmount} ギルを引き出しました";
+        withdrawAmount = 0;
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/");
+    }
+}

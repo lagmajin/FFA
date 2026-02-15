@@ -1,0 +1,71 @@
+@page "/weapon-shop"
+@rendermode InteractiveServer
+
+@using FFA.Models
+@using Microsoft.AspNetCore.Components.Authorization
+@inject Services.UserService UserService
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Navigation
+
+<h1>武器屋</h1>
+
+@if (!isAuth)
+{
+    <p>ログインしてください。</p>
+}
+else
+{
+    <div class="shop-container">
+        <h2>購入可能な武器</h2>
+        <div class="shop-list">
+            @foreach (var w in weapons)
+            {
+                <div class="shop-item">
+                    <div class="shop-item-name">@w.Name</div>
+                    <div>攻撃: @w.Attack</div>
+                    <div>価格: @w.Price ギル</div>
+                    <button class="action-button" @onclick="() => BuyWeapon(w)">購入 / 装備</button>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private bool isAuth = false;
+    private string? username;
+
+    private record WeaponForSale(string Name, int Attack, int Price);
+
+    private List<WeaponForSale> weapons = new()
+    {
+        new WeaponForSale("こんぼう", 6, 100),
+        new WeaponForSale("鉄の剣", 10, 300),
+        new WeaponForSale("大剣", 18, 900),
+        new WeaponForSale("短剣", 8, 200),
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = state.User;
+        isAuth = user?.Identity?.IsAuthenticated ?? false;
+        username = user?.Identity?.Name;
+    }
+
+    private void BuyWeapon(WeaponForSale w)
+    {
+        if (!isAuth || string.IsNullOrEmpty(username)) return;
+        var u = UserService.GetByUsername(username);
+        if (u == null) return;
+        if (u.Gil < w.Price)
+        {
+            // 不足
+            return;
+        }
+        u.Gil -= w.Price;
+        u.EquippedWeapon = new Weapon { Name = w.Name, Attack = w.Attack };
+        UserService.UpdateUser(u);
+        Navigation.NavigateTo("/town");
+    }
+}

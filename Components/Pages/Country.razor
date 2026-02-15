@@ -1,0 +1,72 @@
+@page "/country"
+@rendermode InteractiveServer
+@inject NavigationManager Navigation
+@inject Services.UserService UserService
+@inject Services.CountryService CountryService
+
+<PageTitle>国選択</PageTitle>
+
+<div class="country-container">
+    <h1 class="country-title">国を選択する</h1>
+    <p class="country-desc">お気に入りの国を選んで 소속되어ください。一度選んだ国は変更できません。</p>
+
+    <div class="country-list">
+        @foreach (var country in countries)
+        {
+            <div class="country-card" @onclick="() => SelectCountry(country.Id)">
+                <h2>@country.Name</h2>
+                <p>@country.Description</p>
+                <div class="country-bonus">
+                    <span>Bonus: +@country.BonusStat @country.BonusType</span>
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (currentUser?.CountryId != null)
+    {
+        <div class="current-country">
+            <h2>現在の所属国: @currentCountry?.Name</h2>
+            <p>@currentCountry?.Description</p>
+        </div>
+    }
+</div>
+
+@code {
+    private User? currentUser;
+    private Models.Country? currentCountry;
+    private List<Models.Country> countries = new();
+
+    protected override void OnInitialized()
+    {
+        countries = CountryService.GetAllCountries();
+        
+        var users = UserService.GetAllUsers().ToList();
+        currentUser = users.FirstOrDefault();
+        
+        if (currentUser?.CountryId != null)
+        {
+            currentCountry = CountryService.GetCountryById(currentUser.CountryId.Value);
+        }
+    }
+
+    private void SelectCountry(int countryId)
+    {
+        if (currentUser == null) return;
+        
+        // すでに国选了择则不能更改
+        if (currentUser.CountryId != null)
+        {
+            return;
+        }
+
+        currentUser.CountryId = countryId;
+        CountryService.ApplyCountryBonus(currentUser);
+        UserService.UpdateUser(currentUser);
+        
+        currentCountry = CountryService.GetCountryById(countryId);
+        
+        // 主页に戻る
+        Navigation.NavigateTo("/");
+    }
+}

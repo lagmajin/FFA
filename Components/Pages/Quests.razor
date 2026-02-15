@@ -1,0 +1,76 @@
+@page "/quests"
+@rendermode InteractiveServer
+
+@using FFA.Services
+@using FFA.Models
+@using Microsoft.AspNetCore.Components.Authorization
+@inject QuestService QuestService
+@inject UserService UserService
+@inject AuthenticationStateProvider AuthStateProvider
+
+<h2>クエスト</h2>
+
+@if (!isAuth)
+{
+    <p>ログインしてください。</p>
+}
+else
+{
+    <div>
+        @if (userQuest == null)
+        {
+            <p>現在受注中のクエストはありません。</p>
+            <button @onclick="GetRandomQuest">受注クエストを取得</button>
+        }
+        else
+        {
+            <h3>@userQuest.Name</h3>
+            <p>@userQuest.Description</p>
+            <p>進行: @userQuest.CurrentCount / @userQuest.TargetCount</p>
+            @if (userQuest.IsCompleted)
+            {
+                <button @onclick="Claim">報酬受取</button>
+            }
+        }
+    </div>
+}
+
+@code {
+    private bool isAuth = false;
+    private string? username;
+    private Models.Quest? userQuest;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var st = await AuthStateProvider.GetAuthenticationStateAsync();
+        var u = st.User;
+        isAuth = u.Identity?.IsAuthenticated ?? false;
+        username = u.Identity?.Name;
+        if (isAuth && username != null)
+        {
+            var usr = UserService.GetByUsername(username);
+            userQuest = usr?.CurrentQuest;
+        }
+    }
+
+    private void GetRandomQuest()
+    {
+        if (username == null) return;
+        var q = QuestService.GenerateRandomQuest();
+        var usr = UserService.GetByUsername(username);
+        if (usr == null) return;
+        usr.CurrentQuest = q;
+        UserService.UpdateUser(usr);
+        userQuest = usr.CurrentQuest;
+    }
+
+    private void Claim()
+    {
+        if (username == null) return;
+        var usr = UserService.GetByUsername(username);
+        if (usr == null) return;
+        QuestService.ClaimReward(usr);
+        UserService.UpdateUser(usr);
+        userQuest = usr.CurrentQuest;
+    }
+}

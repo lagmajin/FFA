@@ -1,0 +1,50 @@
+@page "/shop"
+@rendermode InteractiveServer
+
+<PageTitle>ショップ</PageTitle>
+
+@using FFA.Services
+@using FFA.Models
+@inject UserService UserService
+
+<h2>ショップ</h2>
+
+<p>デモ用ショップ。アイテムを購入すると所持金が減り、インベントリに追加されます。</p>
+
+<ul>
+    @foreach (var item in shopItems)
+    {
+        <li>
+            @item.Name - @item.Price ギル
+            <button @onclick="() => BuyItem(item)">購入</button>
+        </li>
+    }
+</ul>
+
+@code {
+    private List<InventoryItem> shopItems = new()
+    {
+        new InventoryItem { Name = "ポーション", Price = 50 },
+        new InventoryItem { Name = "エーテル", Price = 200 },
+        new InventoryItem { Name = "鉄の剣", Price = 500 }
+    };
+
+    private void BuyItem(InventoryItem item)
+    {
+        // simple demo: use a fixed username for now
+        var username = "demo";
+        var user = UserService.GetByUsername(username);
+        if (user == null) return;
+
+        if (user.Gil < item.Price)
+        {
+            Console.WriteLine("所持金不足");
+            return;
+        }
+
+        user.Gil -= item.Price;
+        UserService.UpdateUser(user);
+
+        UserService.AddItemToUser(username, new InventoryItem { Name = item.Name, Quantity = 1, Price = item.Price });
+    }
+}

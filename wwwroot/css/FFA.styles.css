@@ -4,9 +4,15 @@ header {
     background-color: #f8f9fa;
     padding: 1rem;
     display: flex;
-    justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid #dee2e6;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    justify-content: space-between;
 }
 
 .header-content h1 {
@@ -18,6 +24,7 @@ header {
 .right-nav {
     display: flex;
     gap: 1rem;
+    margin-left: auto;
 }
 
 .right-nav a {
@@ -27,6 +34,23 @@ header {
     border: 1px solid #007bff;
     border-radius: 0.25rem;
     transition: background-color 0.2s;
+}
+
+/* Style for header buttons that should look like links */
+.link-button {
+    background: none;
+    border: none;
+    color: #007bff;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font: inherit;
+}
+
+.link-button:hover {
+    background-color: #007bff;
+    color: white;
 }
 
 .right-nav a:hover {
@@ -43,7 +67,7 @@ footer {
     background-color: #f8f9fa;
     padding: 1rem;
     text-align: center;
-    border-top: 1px solid #dee2e6;
+    position: relative;
 }
 
 footer nav {
@@ -62,6 +86,18 @@ footer nav a:hover {
     color: #007bff;
 }
 
+/* Footer separator line (common design) */
+footer::before {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 3px;
+    background-color: #000;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
 /* Home page styles */
 .home-container {
     max-width: 800px;
@@ -72,15 +108,121 @@ footer nav a:hover {
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
+.home-left {
+    flex: 1;
+}
+
+.home-right {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-left: 2rem;
+}
+
+.home-right a {
+    text-decoration: none;
+    color: #007bff;
+    padding: 0.5rem 1rem;
+    border: 1px solid #007bff;
+    border-radius: 0.25rem;
+    transition: background-color 0.2s;
+}
+
+.home-right a:hover {
+    background-color: #007bff;
+    color: white;
+}
+
 .home-title {
     color: #333;
     text-align: center;
     margin-bottom: 2rem;
 }
 
+/* Home header with navigation */
+.home-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.home-header-title {
+    margin: 0;
+    font-size: 2rem;
+    color: #007bff;
+    flex: 1;
+}
+
+.home-header-nav {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.home-header-link {
+    text-decoration: none;
+    color: #007bff;
+    border: 1px solid #007bff;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    transition: all 0.2s;
+    display: inline-block;
+}
+
+.home-header-link:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+.home-header-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-size: 1rem;
+}
+
+.home-header-btn:hover {
+    background-color: #218838;
+}
+
 .start-section {
     text-align: center;
 }
+
+.center-actions {
+    display:flex;
+    gap:1rem;
+    justify-content:center;
+    margin:1.5rem 0;
+}
+
+.action-button {
+    background-color:#007bff;
+    color:#fff;
+    border:none;
+    padding:0.75rem 1.25rem;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:1rem;
+}
+.action-button:hover { background-color:#0056b3 }
+
+.town-container { max-width:800px; margin:0 auto; padding:1.5rem; }
+.town-center { text-align:center; padding:1.5rem; border-radius:8px; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.06);} 
+.town-actions { display:flex; gap:1rem; justify-content:center; margin-top:1rem; }
+
+.job-change-container { max-width:900px; margin:0 auto; }
+.job-options { display:flex; gap:1rem; flex-wrap:wrap; justify-content:center; margin-top:1rem; }
+.job-card { border:1px solid #e0e0e0; padding:1rem; border-radius:8px; width:180px; text-align:center; }
 
 .start-button {
     background-color: #28a745;
@@ -133,4 +275,49 @@ footer nav a:hover {
 
 .submit-button:hover {
     background-color: #0056b3;
+}
+
+/* Section separator line utility */
+.section-with-line {
+    position: relative;
+    padding-top: 1rem;
+    margin-bottom: 2rem;
+}
+
+.section-with-line::after {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 3px;
+    background-color: #000;
+    position: absolute;
+    bottom: -1rem;
+    left: 0;
+}
+
+/* Move Blazor error UI to top-right and make it less intrusive */
+#blazor-error-ui {
+    position: fixed !important;
+    top: 1rem !important;
+    right: 1rem !important;
+    bottom: auto !important;
+    left: auto !important;
+    background: rgba(0,0,0,0.8) !important;
+    color: #fff !important;
+    padding: 0.5rem 1rem !important;
+    border-radius: 6px !important;
+    z-index: 10000 !important;
+    font-size: 0.9rem !important;
+}
+
+#blazor-error-ui .reload,
+#blazor-error-ui .dismiss {
+    color: #fff !important;
+    text-decoration: underline !important;
+    margin-left: 0.5rem !important;
+}
+
+/* Collapse the default verbose text to a single line on small screens */
+@media (max-width: 600px) {
+    #blazor-error-ui { font-size: 0.8rem !important; padding: 0.4rem 0.6rem !important; }
 }

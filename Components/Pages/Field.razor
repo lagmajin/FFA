@@ -1,0 +1,275 @@
+@page "/field"
+@rendermode InteractiveServer
+@inject NavigationManager Navigation
+@inject Services.UserService UserService
+@inject Services.FieldService FieldService
+@inject Services.DungeonService DungeonService
+@inject Services.QuestService QuestService
+
+<PageTitle>野宿・冒険</PageTitle>
+
+<div class="field-container">
+    <h1 class="field-title">冒険の旅</h1>
+
+    @if (currentField == null)
+    {
+        <div class="field-list">
+            <h2>行ける場所</h2>
+            @foreach (var field in fields)
+            {
+                <div class="field-card" @onclick="() => GoToField(field.Id)">
+                    <h3>@field.Name</h3>
+                    <p>@field.Description</p>
+                    <div class="field-info">
+                        <span>難易度: @field.Difficulty</span>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="field-status">
+            <h2>@currentField.Name</h2>
+            <p>@currentField.Description</p>
+            
+            @if (!inBattle)
+            {
+                <div class="action-buttons">
+                    <button class="action-button" @onclick="SearchEnemy">敵を探す</button>
+                    <button class="back-button" @onclick="LeaveField">戻る</button>
+                </div>
+            }
+        </div>
+
+        @if (inBattle && currentEnemy != null)
+        {
+            <div class="battle-section">
+                <div class="enemy-info">
+                    <h3>敵: @currentEnemy.Name</h3>
+                    <div class="hp-bar">
+                        <div class="hp-fill" style="width: @enemyHpPercent%"></div>
+                    </div>
+                    <p>HP: @currentEnemy.HP / @currentEnemy.MaxHP</p>
+                </div>
+
+                <div class="player-info">
+                    <p>プレイヤー: @currentUser?.Username</p>
+                    <div class="hp-bar">
+                        <div class="hp-fill" style="width: @playerHpPercent%"></div>
+                    </div>
+                    <p>HP: @currentUser?.HP / @currentUser?.MaxHP</p>
+                </div>
+
+                @if (battleLog.Count > 0)
+                {
+                    <div class="battle-log">
+                        @foreach (var log in battleLog)
+                        {
+                            <p>@log</p>
+                        }
+                    </div>
+                }
+
+                @if (battleState == "victory")
+                {
+                    <div class="result victory">
+                        <p>勝利！</p>
+                        <p>経験値 +@gainedExp | ギル +@gainedGil</p>
+                        @if (!string.IsNullOrEmpty(gainedDrop))
+                        {
+                            <p>ドロップ: @gainedDrop</p>
+                        }
+                        <button class="action-button" @onclick="ContinueSearch">続きを поискать</button>
+                        <button class="back-button" @onclick="LeaveField">戻る</button>
+                    </div>
+                }
+                else if (battleState == "defeat")
+                {
+                    <div class="result defeat">
+                        <p>敗北...</p>
+                        <button class="back-button" @onclick="Respawn">リスポーン</button>
+                    </div>
+                }
+            </div>
+        }
+    }
+</div>
+
+@code {
+    private User? currentUser;
+    private Models.Field? currentField;
+    private Enemy? currentEnemy;
+    private List<Models.Field> fields = new();
+    private List<string> battleLog = new();
+    
+    private bool inBattle = false;
+    private string battleState = "";
+    private int gainedExp = 0;
+    private int gainedGil = 0;
+    private string gainedDrop = "";
+    
+    private int enemyHpPercent => currentEnemy != null ? (currentEnemy.HP * 100 / currentEnemy.MaxHP) : 0;
+    private int playerHpPercent => currentUser != null ? (currentUser.HP * 100 / currentUser.MaxHP) : 100;
+
+    protected override void OnInitialized()
+    {
+        fields = FieldService.GetAllFields();
+        var users = UserService.GetAllUsers().ToList();
+        currentUser = users.FirstOrDefault();
+    }
+
+    private void GoToField(int fieldId)
+    {
+        currentField = FieldService.GetFieldById(fieldId);
+        inBattle = false;
+        currentEnemy = null;
+        battleLog.Clear();
+    }
+
+    private void LeaveField()
+    {
+        currentField = null;
+        inBattle = false;
+        currentEnemy = null;
+        battleLog.Clear();
+    }
+
+    private void SearchEnemy()
+    {
+        if (currentField == null || currentUser == null) return;
+        
+        inBattle = true;
+        battleState = "";
+        battleLog.Clear();
+        
+        // ランダム敵生成
+        var random = new Random();
+        var enemyName = currentField.Enemies[random.Next(currentField.Enemies.Length)];
+        
+        // 基本的敌数据
+        var baseHp = 20 + currentField.Difficulty * 10;
+        var baseAtk = 5 + currentField.Difficulty * 3;
+        
+        currentEnemy = new Enemy
+        {
+            Name = enemyName,
+            HP = baseHp,
+            MaxHP = baseHp,
+            Attack = baseAtk,
+            Defense = currentField.Difficulty,
+            Exp = 10 * currentField.Difficulty,
+            Gil = 5 * currentField.Difficulty,
+            DropItem = currentField.Drops[random.Next(currentField.Drops.Length)],
+            DropRate = 20 + currentField.Difficulty * 5
+        };
+        
+        battleLog.Add($"{currentField.Name}で {enemyName} が現れた！");
+        
+        // 自动开始战斗
+        _ = BattleLoop();
+    }
+
+    private async Task BattleLoop()
+    {
+        while (inBattle && currentEnemy != null && currentUser != null && string.IsNullOrEmpty(battleState))
+        {
+            // 玩家攻击
+            var playerDamage = DungeonService.CalculatePlayerDamage(currentUser);
+            currentEnemy.HP -= playerDamage;
+            battleLog.Add($"あなたの攻撃！ {currentEnemy.Name} に {playerDamage} ダメージ！");
+            
+            if (currentEnemy.HP <= 0)
+            {
+                await Victory();
+                break;
+            }
+            
+            await Task.Delay(800);
+            
+            // 敌人攻击
+            var enemyDamage = DungeonService.CalculateEnemyDamage(currentEnemy, currentUser);
+            currentUser.HP -= enemyDamage;
+            battleLog.Add($"{currentEnemy.Name} の攻撃！ {enemyDamage} ダメージ！");
+            
+            if (currentUser.HP <= 0)
+            {
+                await Defeat();
+                break;
+            }
+            
+            await Task.Delay(800);
+            StateHasChanged();
+        }
+    }
+
+    private async Task Victory()
+    {
+        if (currentUser == null || currentEnemy == null) return;
+        
+        battleState = "victory";
+        gainedExp = currentEnemy.Exp;
+        gainedGil = currentEnemy.Gil;
+        
+        currentUser.Exp += gainedExp;
+        currentUser.Gil += gainedGil;
+        
+        // クエスト進捗更新
+        QuestService.UpdateProgress(currentUser, enemyName: currentEnemy.Name);
+        
+        // ドロップ
+        var random = new Random();
+        if (random.Next(100) < currentEnemy.DropRate)
+        {
+            gainedDrop = currentEnemy.DropItem;
+            var existingItem = currentUser.Inventory.FirstOrDefault(i => i.Name == gainedDrop);
+            if (existingItem != null)
+            {
+                existingItem.Quantity++;
+            }
+            else
+            {
+                currentUser.Inventory.Add(new InventoryItem { Name = gainedDrop, Quantity = 1 });
+            }
+            battleLog.Add($"★ ドロップ: {gainedDrop} を獲得！");
+        }
+        
+        battleLog.Add($"✿ {currentEnemy.Name} を倒した！");
+        battleLog.Add($"経験値 +{gainedExp} | ギル +{gainedGil}");
+        
+        UserService.UpdateUser(currentUser);
+    }
+
+    private async Task Defeat()
+    {
+        if (currentUser == null) return;
+        
+        battleState = "defeat";
+        
+        var expLoss = 10;
+        currentUser.Exp = Math.Max(0, currentUser.Exp - expLoss);
+        
+        battleLog.Add($"💀 倒れた... {expLoss} 経験値失った");
+        
+        UserService.UpdateUser(currentUser);
+    }
+
+    private void ContinueSearch()
+    {
+        battleState = "";
+        inBattle = false;
+        currentEnemy = null;
+        battleLog.Clear();
+    }
+
+    private void Respawn()
+    {
+        if (currentUser == null) return;
+        
+        currentUser.HP = currentUser.MaxHP;
+        battleState = "";
+        inBattle = false;
+        currentEnemy = null;
+        battleLog.Clear();
+    }
+}

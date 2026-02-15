@@ -1,0 +1,113 @@
+@page "/dashboard"
+@rendermode InteractiveServer
+
+@using FFA.Services
+@using Microsoft.AspNetCore.Components.Authorization
+@inject KarmaService Karma
+@inject TimeWeatherService TimeWeather
+@inject AuthenticationStateProvider AuthStateProvider
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
+
+<h2>ダッシュボード</h2>
+
+@if (!isAuth)
+{
+    <p>ログインしてください。</p>
+}
+else
+{
+    <div>
+        <p>ユーザー: @username</p>
+        <p>Karma: @karma</p>
+        <p>Gil: @gil</p>
+        <p>OldCoin: @oldcoin</p>
+        <p>Job: @job</p>
+    </div>
+    <div>
+        <p>World Time: @timeStr (@TimeWeather.Phase)</p>
+        <p>Weather: @TimeWeather.Weather</p>
+    </div>
+
+    <div class="center-actions">
+        <button type="button" class="action-button" @onclick="GoToTown">街へ</button>
+        <button type="button" class="action-button" @onclick="GoToField">フィールドへ</button>
+    </div>
+}
+
+@code {
+    private bool isAuth = false;
+    private string? username;
+    private int karma = 0;
+    private int gil = 0;
+    private int oldcoin = 0;
+    private string job = "";
+    private DotNetObjectReference<Dashboard>? objRef;
+    private IJSObjectReference? moduleRef;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = state.User;
+        isAuth = user?.Identity?.IsAuthenticated ?? false;
+        username = user?.Identity?.Name;
+        if (isAuth && username != null)
+        {
+            karma = Karma.GetKarma(username);
+            // try to read claims for gil/oldcoin/job
+            gil = int.TryParse(user.FindFirst("Gil")?.Value, out var g) ? g : 0;
+            oldcoin = int.TryParse(user.FindFirst("OldCoin")?.Value, out var o) ? o : 0;
+            job = user.FindFirst("Job")?.Value ?? "";
+        }
+    }
+
+    private string timeStr => FormatTime(TimeWeather.TimeOfDay);
+
+    private string FormatTime(double t)
+    {
+        int hh = (int)Math.Floor(t);
+        int mm = (int)Math.Floor((t - hh) * 60);
+        return $"{hh:D2}:{mm:D2}";
+    }
+    
+    [JSInvokable]
+    public Task OnWorldUpdated(string json)
+    {
+        // refresh simple values
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            objRef = DotNetObjectReference.Create(this);
+            moduleRef = await JS.InvokeAsync<IJSObjectReference>("import", "/js/worldhub.js");
+            await moduleRef.InvokeVoidAsync("start", objRef);
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (moduleRef != null)
+        {
+            await moduleRef.InvokeVoidAsync("stop");
+            await moduleRef.DisposeAsync();
+        }
+        if (objRef != null)
+        {
+            objRef.Dispose();
+        }
+    }
+
+    private void GoToTown()
+    {
+        Navigation.NavigateTo("/town");
+    }
+
+    private void GoToField()
+    {
+        Navigation.NavigateTo("/field");
+    }
+}

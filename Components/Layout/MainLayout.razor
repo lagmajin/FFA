@@ -1,11 +1,34 @@
-﻿@inherits LayoutComponentBase
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@inherits LayoutComponentBase
+@inject NavigationManager NavManager
 
 <header>
     <div class="header-content">
-        <h1>FFA</h1>
+        <h1>FFA World</h1>
         <nav class="right-nav">
-            <NavLink href="/register">キャラクター登録</NavLink>
-            <NavLink href="/login">ログイン</NavLink>
+            @if (IsHomePage())
+            {
+                <NavLink href="/login">ログイン</NavLink>
+                <NavLink href="/register">新規登録</NavLink>
+                <NavLink href="/">テストプレイ</NavLink>
+            }
+            else
+            {
+                <AuthorizeView>
+                    <Authorized>
+                        <NavLink href="/dashboard">ダッシュボード</NavLink>
+                        <NavLink href="/abilities">アビリティ</NavLink>
+                        <button type="button" class="link-button" @onclick="SignOut">ログアウト</button>
+                        <NavLink href="/quests">クエスト</NavLink>
+                        <NavLink href="/daily">デイリーボーナス</NavLink>
+                    </Authorized>
+                    <NotAuthorized>
+                        <NavLink href="/login">ログイン</NavLink>
+                        <NavLink href="/register">新規登録</NavLink>
+                        <NavLink href="/">テストプレイ</NavLink>
+                    </NotAuthorized>
+                </AuthorizeView>
+            }
         </nav>
     </div>
 </header>
@@ -26,4 +49,69 @@
     An unhandled error has occurred.
     <a href="." class="reload">Reload</a>
     <span class="dismiss">🗙</span>
+    <pre id="blazor-error-details" style="white-space: pre-wrap; display: none; max-width: 30rem; overflow:auto;"> </pre>
 </div>
+
+<script src="/js/auth.js"></script>
+<link href="/css/timeweather.css" rel="stylesheet" />
+<component type="typeof(Components.Systems.TimeWeather)" render-mode="InteractiveServer" />
+<component type="typeof(Components.Systems.KarmaBadge)" render-mode="InteractiveServer" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+<script type="module" src="/js/worldhub.js"></script>
+<script>
+    (function () {
+        try {
+            const ui = document.getElementById('blazor-error-ui');
+            const details = document.getElementById('blazor-error-details');
+            if (!ui || !details) return;
+
+            function show(msg) {
+                details.textContent = msg;
+                details.style.display = 'block';
+                ui.style.display = 'block';
+            }
+
+            window.addEventListener('error', function (e) {
+                try {
+                    const info = (e && e.error && e.error.stack) ? e.error.stack : (e && e.message) || String(e);
+                    show('Error: ' + info);
+                } catch (ex) { /* swallow */ }
+            });
+
+            window.addEventListener('unhandledrejection', function (e) {
+                try {
+                    const reason = e && e.reason ? e.reason : 'unknown';
+                    const text = (reason && reason.stack) ? reason.stack : (reason && reason.message) ? reason.message : String(reason);
+                    show('UnhandledRejection: ' + text);
+                } catch (ex) { /* swallow */ }
+            });
+
+            const reload = ui.querySelector('.reload');
+            if (reload) reload.addEventListener('click', function (ev) { ev.preventDefault(); location.reload(); });
+            const dismiss = ui.querySelector('.dismiss');
+            if (dismiss) dismiss.addEventListener('click', function () { ui.style.display = 'none'; details.style.display = 'none'; });
+        } catch (err) {
+            console.error(err);
+        }
+    })();
+</script>
+
+@code {
+    [Inject] private IJSRuntime JS { get; set; }
+    [Inject] private NavigationManager Navigation { get; set; }
+
+    private bool IsHomePage()
+    {
+        var uri = new Uri(NavManager.Uri);
+        return uri.AbsolutePath == "/";
+    }
+
+    private async Task SignOut()
+    {
+        var ok = await JS.InvokeAsync<bool>("fetchSignOut", Navigation.ToAbsoluteUri("/signout").ToString());
+        if (ok)
+        {
+            Navigation.NavigateTo("/login", true);
+        }
+    }
+}

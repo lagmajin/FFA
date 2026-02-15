@@ -1,53 +1,135 @@
 @page "/register"
+@rendermode InteractiveServer
 
 <PageTitle>キャラクター登録</PageTitle>
 
 @using System.ComponentModel.DataAnnotations
+@using FFA.Services
+@using FFA.Models
+
+@inject UserService UserService
+@inject NavigationManager Navigation
 
 <h2>キャラクター登録</h2>
 
-<EditForm Model="registerModel" OnValidSubmit="HandleValidSubmit">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+<div class="section-with-line">
+    @if (registrationSuccess)
+    {
+        <p>登録が完了しました！ 職業: @registeredJob。あなたの初期所持金: @registeredGil ギル、旧貨幣: @registeredOldCoin 枚、プレミア通貨: @registeredPremium。</p>
+        <p>装備: 武器 - @registeredWeapon、防具 - @registeredArmor、アクセサリー - @registeredAccessory。<a href="/">ホームに戻る</a></p>
+    }
+    else
+    {
+        <EditForm Model="registerModel" OnValidSubmit="HandleValidSubmit" FormName="register">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
 
-    <div>
-        <label for="username">ユーザー名:</label>
-        <InputText id="username" @bind-Value="registerModel.Username" />
-    </div>
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <p style="color: red;">@errorMessage</p>
+            }
 
-    <div>
-        <label for="password">パスワード:</label>
-        <InputText id="password" type="password" @bind-Value="registerModel.Password" />
-    </div>
+            <div>
+                <label for="username">ユーザー名:</label>
+                <InputText id="username" @bind-Value="registerModel.Username" />
+            </div>
 
-    <div>
-        <label for="confirmPassword">パスワード確認:</label>
-        <InputText id="confirmPassword" type="password" @bind-Value="registerModel.ConfirmPassword" />
-    </div>
+            <div>
+                <label for="job">職業:</label>
+                <InputSelect id="job" @bind-Value="registerModel.Job">
+                    <option value="Warrior">戦士</option>
+                    <option value="Monk">モンク</option>
+                    <option value="WhiteMage">白魔道士</option>
+                    <option value="BlackMage">黒魔道士</option>
+                </InputSelect>
+            </div>
 
-    <button type="submit">登録</button>
-</EditForm>
+            <div>
+                <label for="password">パスワード:</label>
+                <InputText id="password" type="password" @bind-Value="registerModel.Password" />
+            </div>
+
+            <div>
+                <label for="confirmPassword">パスワード確認:</label>
+                <InputText id="confirmPassword" type="password" @bind-Value="registerModel.ConfirmPassword" />
+            </div>
+
+            <button type="submit" disabled="@isSubmitting">@(isSubmitting ? "登録中..." : "登録")</button>
+        </EditForm>
+    }
+</div>
 
 @code {
     private RegisterModel registerModel = new();
+    private bool registrationSuccess = false;
+    private string errorMessage = "";
+    private int registeredGil = 0;
+    private int registeredOldCoin = 0;
+    private Models.Job registeredJob = Models.Job.Warrior;
+    private string registeredWeapon = string.Empty;
+    private string registeredArmor = string.Empty;
+    private string registeredAccessory = string.Empty;
+    private int registeredPremium = 0;
 
-    private void HandleValidSubmit()
+    private bool isSubmitting = false;
+
+    private async Task HandleValidSubmit()
     {
-        // 登録ロジック（仮）
-        Console.WriteLine($"Registered: {registerModel.Username}");
+        if (isSubmitting)
+        {
+            return; // already submitting
+        }
+
+        isSubmitting = true;
+        errorMessage = "";
+
+        try
+        {
+            if (registerModel.Password != registerModel.ConfirmPassword)
+            {
+                errorMessage = "パスワードが一致しません。";
+                return;
+            }
+
+            // registration (synchronous service) executed while isSubmitting is true to prevent double submit
+            var success = UserService.Register(registerModel.Username, registerModel.Password, registerModel.Job);
+            if (success)
+            {
+                registrationSuccess = true;
+                var user = UserService.Login(registerModel.Username, registerModel.Password);
+                registeredGil = user?.Gil ?? 0;
+                registeredOldCoin = user?.OldCoin ?? 0;
+                registeredJob = user?.Job ?? Models.Job.Warrior;
+                registeredWeapon = user?.EquippedWeapon?.Name ?? string.Empty;
+                registeredArmor = user?.EquippedArmor?.Name ?? string.Empty;
+                registeredAccessory = user?.EquippedAccessory?.Name ?? string.Empty;
+            registeredPremium = user?.Premium ?? 0;
+            }
+            else
+            {
+                errorMessage = "ユーザー名が既に存在します。";
+            }
+        }
+        finally
+        {
+            isSubmitting = false;
+            await Task.Yield();
+        }
     }
 
     public class RegisterModel
     {
-        [Required]
+        [Required(ErrorMessage = "ユーザー名は必須です。")]
         public string Username { get; set; } = "";
 
-        [Required]
-        [MinLength(6)]
+        public Models.Job Job { get; set; } = Models.Job.Warrior;
+
+        [Required(ErrorMessage = "パスワードは必須です。")]
+        [MinLength(6, ErrorMessage = "パスワードは最低6文字必要です。")]
         public string Password { get; set; } = "";
 
-        [Required]
-        [Compare("Password")]
+        [Required(ErrorMessage = "パスワード確認は必須です。")]
+        [Compare("Password", ErrorMessage = "パスワードと確認が一致しません。")]
         public string ConfirmPassword { get; set; } = "";
     }
 }

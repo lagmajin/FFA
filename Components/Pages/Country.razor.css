@@ -1,0 +1,85 @@
+.country-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Courier New', monospace;
+    background-color: #1a1a2e;
+    color: #eee;
+    min-height: 100vh;
+}
+
+.country-title {
+    text-align: center;
+    color: #ffd700;
+    text-shadow: 2px 2px #000;
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+
+.country-desc {
+    text-align: center;
+    color: #aaa;
+    margin-bottom: 30px;
+}
+
+.country-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.country-card {
+    background: linear-gradient(180deg, #16213e, #0f0f1a);
+    border: 2px solid #3a3a5a;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.country-card:hover {
+    border-color: #ffd700;
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(255, 215, 0, 0.3);
+}
+
+.country-card h2 {
+    color: #4ade80;
+    margin-bottom: 10px;
+    font-size: 1.3em;
+}
+
+.country-card p {
+    color: #bbb;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 15px;
+}
+
+.country-bonus {
+    background-color: #1a1a2e;
+    padding: 8px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.country-bonus span {
+    color: #fbbf24;
+    font-weight: bold;
+}
+
+.current-country {
+    background: linear-gradient(180deg, #1a2e1a, #0f1a0f);
+    border: 2px solid #22c55e;
+    padding: 20px;
+    text-align: center;
+}
+
+.current-country h2 {
+    color: #22c55e;
+    margin-bottom: 10px;
+}
+
+.current-country p {
+    color: #aaa;
+}

@@ -1,9 +1,15 @@
 ﻿@page "/"
+@rendermode InteractiveServer
+@inject NavigationManager Navigation
+@inject Services.UserService UserService
 
 <PageTitle>CGI風ゲーム</PageTitle>
 
 <div class="home-container">
-    <h1 class="home-title">CGI風ゲーム</h1>
+    @if (!string.IsNullOrEmpty(gilQuery) || !string.IsNullOrEmpty(oldCoinQuery) || !string.IsNullOrEmpty(jobQuery))
+    {
+        <p>所持金: @gilQuery ギル 旧貨幣: @oldCoinQuery 枚 プレミア: @premiumQuery 職業: @jobQuery</p>
+    }
 
     @if (!gameStarted)
     {
@@ -28,6 +34,31 @@
     private bool gameStarted = false;
     private string currentMessage = "ゲームを開始しました。何をしますか？";
     private string userInput = "";
+    private string gilQuery = string.Empty;
+    private string oldCoinQuery = string.Empty;
+    private string premiumQuery = string.Empty;
+    private string jobQuery = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+        if (Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query).TryGetValue("gil", out var value))
+        {
+            gilQuery = value;
+        }
+        if (Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query).TryGetValue("oldcoin", out var oc))
+        {
+            oldCoinQuery = oc;
+        }
+        if (Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query).TryGetValue("premium", out var pv))
+        {
+            premiumQuery = pv;
+        }
+        if (Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query).TryGetValue("job", out var jv))
+        {
+            jobQuery = jv;
+        }
+    }
 
     private void StartGame()
     {

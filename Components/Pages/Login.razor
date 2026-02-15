@@ -1,35 +1,80 @@
 @page "/login"
+@rendermode InteractiveServer
 
 <PageTitle>ログイン</PageTitle>
 
 @using System.ComponentModel.DataAnnotations
+@using FFA.Services
+@using FFA.Models
+
+@inject UserService UserService
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
 
 <h2>ログイン</h2>
 
-<EditForm Model="loginModel" OnValidSubmit="HandleValidSubmit">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+@if (loginSuccess)
+{
+    <p>ログイン成功！ リダイレクト中...</p>
+}
+else
+{
+    <EditForm Model="loginModel" OnValidSubmit="HandleValidSubmit" FormName="login">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
 
-    <div>
-        <label for="username">ユーザー名:</label>
-        <InputText id="username" @bind-Value="loginModel.Username" />
-    </div>
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <p style="color: red;">@errorMessage</p>
+        }
 
-    <div>
-        <label for="password">パスワード:</label>
-        <InputText id="password" type="password" @bind-Value="loginModel.Password" />
-    </div>
+        <div>
+            <label for="username">ユーザー名:</label>
+            <InputText id="username" @bind-Value="loginModel.Username" />
+        </div>
 
-    <button type="submit">ログイン</button>
-</EditForm>
+        <div>
+            <label for="password">パスワード:</label>
+            <InputText id="password" type="password" @bind-Value="loginModel.Password" />
+        </div>
+
+            <button type="submit">ログイン</button>
+    </EditForm>
+}
+
 
 @code {
     private LoginModel loginModel = new();
+    private bool loginSuccess = false;
+    private string errorMessage = "";
 
-    private void HandleValidSubmit()
+    private async Task HandleValidSubmit()
     {
-        // ログインロジック（仮）
-        Console.WriteLine($"Logged in: {loginModel.Username}");
+        var user = UserService.Login(loginModel.Username, loginModel.Password);
+        if (user != null)
+        {
+            loginSuccess = true;
+            // ログイン成功時の処理（セッションなど）
+            await SignInUser(user);
+            // include premium in redirect if needed
+            Navigation.NavigateTo($"/dashboard");
+        }
+        else
+        {
+            errorMessage = "ユーザー名またはパスワードが間違っています。";
+        }
+    }
+
+    private async Task SignInUser(Models.User user)
+    {
+        // Post from the browser so the Set-Cookie sent by /signin is stored in the user's browser
+        var payload = new { Username = user.Username, Password = loginModel.Password };
+        var absoluteUri = Navigation.ToAbsoluteUri("/signin").ToString();
+        var ok = await JS.InvokeAsync<bool>("fetchSignIn", absoluteUri, payload);
+        if (!ok)
+        {
+            Console.WriteLine("Sign-in failed");
+        }
     }
 
     public class LoginModel
