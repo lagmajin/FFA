@@ -5,6 +5,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using FFA.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.FluentUI.AspNetCore.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,12 +13,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+builder.Services.AddFluentUIComponents();
+
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<GuildService>();
 builder.Services.AddScoped<DungeonService>();
 builder.Services.AddScoped<QuestService>();
 builder.Services.AddScoped<CountryService>();
 builder.Services.AddScoped<TownService>();
+builder.Services.AddScoped<MapService>();
 builder.Services.AddScoped<MapService>();
 builder.Services.AddScoped<FieldService>();
 builder.Services.AddHttpContextAccessor();
@@ -51,6 +55,7 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
+    app.UseHttpsRedirection();
 }
 else
 {
@@ -71,7 +76,6 @@ else
     app.UseDeveloperExceptionPage();
 }
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
-app.UseHttpsRedirection();
 
 app.UseAntiforgery();
 
