@@ -151,6 +151,21 @@ else
     private void ShowSellModal()
     {
         showSellModal = true;
+        selectedItem = null;
+        listingPrice = 0;
+    }
+
+    private void OnItemSelected(ChangeEventArgs e)
+    {
+        var itemIdStr = e.Value?.ToString();
+        if (!string.IsNullOrEmpty(itemIdStr) && int.TryParse(itemIdStr, out var itemId))
+        {
+            selectedItem = user?.Inventory.FirstOrDefault(i => i.Id == itemId);
+        }
+        else
+        {
+            selectedItem = null;
+        }
     }
 
     private void HideSellModal()

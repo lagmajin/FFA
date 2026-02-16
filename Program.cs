@@ -25,6 +25,8 @@ builder.Services.AddScoped<TownService>();
 builder.Services.AddScoped<MapService>();
 builder.Services.AddScoped<MapService>();
 builder.Services.AddScoped<FieldService>();
+builder.Services.AddScoped<MarketService>();
+builder.Services.AddScoped<RankingService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<TimeWeatherService>();
 builder.Services.AddSingleton<KarmaService>();
@@ -35,14 +37,20 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     {
         options.LoginPath = "/login";
         options.Cookie.Name = "FFA.Auth";
-        options.Cookie.SameSite = SameSiteMode.Strict;
-        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.Cookie.SameSite = builder.Environment.IsDevelopment() 
+            ? SameSiteMode.Lax 
+            : SameSiteMode.Strict;
+        options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+            ? CookieSecurePolicy.SameAsRequest
+            : CookieSecurePolicy.Always;
         options.Cookie.HttpOnly = true;
     });
 builder.Services.AddAuthorization();
 builder.Services.AddAntiforgery(options =>
 {
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+        ? CookieSecurePolicy.SameAsRequest
+        : CookieSecurePolicy.Always;
     options.Cookie.SameSite = builder.Environment.IsDevelopment() 
         ? SameSiteMode.Lax 
         : SameSiteMode.Strict;

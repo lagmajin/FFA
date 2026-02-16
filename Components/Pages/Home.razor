@@ -3,6 +3,7 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @inject NavigationManager Navigation
 @inject Services.UserService UserService
+@inject Services.RankingService RankingService
 @inject IJSRuntime JSRuntime
 @inject AuthenticationStateProvider AuthStateProvider
 
@@ -12,6 +13,34 @@
     <div style="text-align:center;">
         <h1 style="font-size:2.2rem; margin:0; letter-spacing:2px;">FFA — CGI風オンラインRPG</h1>
         <div style="margin-top:6px; color:#666;">古き良きテキスト式インターフェース風トップページ</div>
+    </div>
+
+    @* Champion & Stats Section *@
+    <div style="margin-top:18px; background:#fff; padding:14px; border:1px solid #ddd;">
+        <div style="display:flex; gap:16px;">
+            <div style="flex:1; background:#ffffee; padding:12px; border:1px solid #e0e0a0; border-radius:6px;">
+                <h3 style="margin:0 0 8px 0;">🏆 現在のチャンピオン</h3>
+                @if (champion != null)
+                {
+                    <div style="font-size:1.1rem;">
+                        <strong>@champion.Username</strong> @if (champion.Username == "CPU_Champion") { <em>(CPU)</em> }
+                    </div>
+                    <div style="margin-top:4px; color:#555;">レベル @champion.Level | 所持金 @champion.Gil ギル</div>
+                    <div style="margin-top:4px; color:#555;">職業: @champion.Job</div>
+                }
+                else
+                {
+                    <div style="color:#999;">チャンピオン不在（天空闘技場で挑戦しよう！）</div>
+                }
+            </div>
+
+            <div style="width:240px; background:#f0f8ff; padding:12px; border:1px solid #d0e0ff; border-radius:6px;">
+                <h4 style="margin:0 0 8px 0;">統計情報</h4>
+                <div style="margin:4px 0;">総登録冒険者: <strong>@totalUsers</strong> 人</div>
+                <div style="margin:4px 0;">ランキング登録: <strong>@rankedUsers</strong> 人</div>
+                <div style="margin:4px 0;">最高レベル: <strong>@maxLevel</strong></div>
+            </div>
+        </div>
     </div>
 
     <div style="display:flex; gap:16px; margin-top:18px;">
@@ -71,11 +100,11 @@
             <div style="display:flex; gap:12px; margin-top:12px;">
                 <div style="flex:1; background:#f7f7f7; padding:10px; border:1px solid #eee;">
                     <h4 style="margin-top:0;">今日のトピック</h4>
-                    <p style="margin:0;">・新しいダンジョンが近日実装予定。<br/>・天空闘技場のチャンピオンは定期的にリセットされます。</p>
+                    <p style="margin:0;">・新しいダンジョンが近日実装予定。<br/>・天空闘技場のチャンピオンは定期的にリセットされます。<br/>・マーケットで他の冒険者とアイテム取引ができます。</p>
                 </div>
                 <div style="width:220px; background:#f7f7f7; padding:10px; border:1px solid #eee;">
                     <h4 style="margin-top:0;">クイックリンク</h4>
-                    <p style="margin:0;"><NavLink href="/market">マーケット</NavLink><br/><NavLink href="/ranking">ランキング</NavLink></p>
+                    <p style="margin:0;"><NavLink href="/market">マーケット</NavLink><br/><NavLink href="/ranking">ランキング</NavLink><br/><NavLink href="/sky-arena">天空闘技場</NavLink></p>
                 </div>
             </div>
 
@@ -91,6 +120,10 @@
     private bool isAuth = false;
     private string? username;
     private User? currentUser;
+    private User? champion;
+    private int totalUsers = 0;
+    private int rankedUsers = 0;
+    private int maxLevel = 0;
 
     protected override async Task OnInitializedAsync()
     {
@@ -98,10 +131,24 @@
         var user = state.User;
         isAuth = user?.Identity?.IsAuthenticated ?? false;
         username = user?.Identity?.Name;
+
         if (isAuth && username != null)
         {
             currentUser = UserService.GetByUsername(username);
         }
+
+        // Load champion and stats
+        try
+        {
+            var allUsers = UserService.GetAllUsers().ToList();
+            champion = allUsers.FirstOrDefault(u => u.IsChampion);
+            totalUsers = allUsers.Count;
+
+            var ranking = RankingService.GetCurrentRanking();
+            rankedUsers = ranking.Count();
+            maxLevel = allUsers.Any() ? allUsers.Max(u => u.Level) : 0;
+        }
+        catch { }
     }
 
     private async Task TestPlay()
