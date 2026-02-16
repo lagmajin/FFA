@@ -5,6 +5,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using FFA.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.FluentUI.AspNetCore.Components;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -34,12 +35,36 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     {
         options.LoginPath = "/login";
         options.Cookie.Name = "FFA.Auth";
-        // Recommended cookie settings for same-site browsers and production
-        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.Cookie.SameSite = SameSiteMode.Strict;
         options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
         options.Cookie.HttpOnly = true;
     });
 builder.Services.AddAuthorization();
+builder.Services.AddAntiforgery(options =>
+{
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SameSite = builder.Environment.IsDevelopment() 
+        ? SameSiteMode.Lax 
+        : SameSiteMode.Strict;
+});
+// Enable HSTS with recommended production settings
+builder.Services.AddHsts(options =>
+{
+    // 1 year
+    options.MaxAge = TimeSpan.FromDays(365);
+    options.IncludeSubDomains = true;
+    options.Preload = true;
+    // Exclude common local development hosts
+    options.ExcludedHosts.Add("localhost");
+    options.ExcludedHosts.Add("127.0.0.1");
+});
+// Configure forwarded headers to correctly detect scheme/proxy information when behind a reverse proxy
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    // If your proxy is on a known network, add KnownProxies or KnownNetworks entries here to harden
+    // options.KnownProxies.Add(IPAddress.Parse("x.x.x.x"));
+});
 builder.Services.AddHttpClient();
 builder.Services.AddHostedService<BatchService>();
 builder.Services.AddHostedService<TimeWeatherHostedService>();
@@ -50,12 +75,13 @@ builder.Services.AddSingleton<AbilityService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+// HTTPS リダイレクトは環境を問わず有効化（開発でも https プロファイルを使うため）
+app.UseHttpsRedirection();
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
-    app.UseHttpsRedirection();
 }
 else
 {
@@ -77,9 +103,12 @@ else
 }
 
 // 静的ファイルの配信を有効化
+// Use forwarded headers early so the scheme is correct when using a reverse proxy
+app.UseForwardedHeaders();
+
 app.UseStaticFiles();
 
-app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
+app.UseStatusCodePagesWithReExecute("/not-found");
 
 app.UseAntiforgery();
 

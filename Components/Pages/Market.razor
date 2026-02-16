@@ -1,0 +1,199 @@
+@page "/market"
+@using Microsoft.AspNetCore.Components.Authorization
+@inject MarketService MarketService
+@inject UserService UserService
+@inject NavigationManager Navigation
+@inject Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthStateProvider
+
+<h1>マーケット</h1>
+
+@if (user == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="market-container">
+        <div class="market-actions">
+            <button class="btn btn-primary" @onclick="ShowSellModal">アイテムを出品</button>
+            <button class="btn btn-secondary" @onclick="ShowHistoryModal">取引履歴</button>
+        </div>
+
+        <div class="market-items">
+            @foreach (var item in listedItems)
+            {
+                <div class="market-item">
+                    <div class="item-info">
+                        <h3>@item.Item.Name</h3>
+                        <p>@item.Item.Type</p>
+                        <p>攻撃力: @item.Item.Attack</p>
+                        <p>防御力: @item.Item.Defense</p>
+                        <p>売り手: @item.SellerUsername</p>
+                        <p>出品日: @item.ListedAt.ToString("yyyy/MM/dd HH:mm")</p>
+                    </div>
+                    <div class="item-price">
+                        <p>価格: @item.Price.ToString("N0") ギル</p>
+                        <p>手数料: @((item.Price * 0.001).ToString("N0")) ギル</p>
+                        <p>合計: @((item.Price * 1.001).ToString("N0")) ギル</p>
+                    </div>
+                    <div class="item-actions">
+                        @if (item.SellerUsername == user.Username)
+                        {
+                            <button class="btn btn-warning" @onclick="() => CancelListing(item.Id)">出品を取り消す</button>
+                        }
+                        else if (!item.IsSold)
+                        {
+                            <button class="btn btn-success" @onclick="() => BuyItem(item.Id)">購入</button>
+                        }
+                        else
+                        {
+                            <p class="text-muted">売却済み</p>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    @* 出品モーダル *@
+    <div class="modal" tabindex="-1" style="display:@(showSellModal ? "block" : "none")">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">アイテムを出品</h5>
+                    <button type="button" class="btn-close" @onclick="HideSellModal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>選択したアイテム:</label>
+                        @if (selectedItem != null)
+                        {
+                            <p>@selectedItem.Name (@selectedItem.Type)</p>
+                        }
+                        else
+                        {
+                            <p>アイテムを選択してください</p>
+                        }
+                    </div>
+                    <div class="form-group">
+                        <label>価格設定:</label>
+                        <input type="number" @bind="listingPrice" class="form-control" placeholder="価格を入力" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="HideSellModal">キャンセル</button>
+                    <button type="button" class="btn btn-primary" @onclick="ListSelectedItem" disabled="@(selectedItem == null || listingPrice <= 0)">出品する</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* 取引履歴モーダル *@
+    <div class="modal" tabindex="-1" style="display:@(showHistoryModal ? "block" : "none")">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">取引履歴</h5>
+                    <button type="button" class="btn-close" @onclick="HideHistoryModal"></button>
+                </div>
+                <div class="modal-body">
+                    @if (transactionHistory.Any())
+                    {
+                        <div class="transaction-history">
+                            @foreach (var transaction in transactionHistory)
+                            {
+                                <div class="transaction-item">
+                                    <p>@transaction.Item.Name (@transaction.Item.Type)</p>
+                                    <p>@(transaction.SellerUsername == user.Username ? "売却" : "購入")</p>
+                                    <p>価格: @transaction.Price.ToString("N0") ギル</p>
+                                    <p>@(transaction.SellerUsername == user.Username ? "購入者" : "売却者"): @transaction.SellerUsername</p>
+                                    <p>日時: @transaction.SoldAt?.ToString("yyyy/MM/dd HH:mm")</p>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p>取引履歴はありません</p>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="HideHistoryModal">閉じる</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private User? user;
+    private List<MarketItem> listedItems = new();
+    private bool showSellModal = false;
+    private bool showHistoryModal = false;
+    private InventoryItem? selectedItem;
+    private int listingPrice = 0;
+    private List<MarketItem> transactionHistory = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        var username = state.User?.Identity?.Name;
+        if (!string.IsNullOrEmpty(username))
+        {
+            user = UserService.GetByUsername(username!);
+            if (user != null)
+            {
+                listedItems = MarketService.GetListedItems().ToList();
+            }
+        }
+    }
+
+    private void ShowSellModal()
+    {
+        showSellModal = true;
+    }
+
+    private void HideSellModal()
+    {
+        showSellModal = false;
+        selectedItem = null;
+        listingPrice = 0;
+    }
+
+    private void ShowHistoryModal()
+    {
+        showHistoryModal = true;
+        transactionHistory = MarketService.GetTransactionHistory(user!.Username).ToList();
+    }
+
+    private void HideHistoryModal()
+    {
+        showHistoryModal = false;
+    }
+
+    private void ListSelectedItem()
+    {
+        if (selectedItem != null && listingPrice > 0)
+        {
+            MarketService.ListItem(user!.Username, selectedItem, listingPrice);
+            listedItems = MarketService.GetListedItems().ToList();
+            HideSellModal();
+        }
+    }
+
+    private void BuyItem(int marketItemId)
+    {
+        if (MarketService.BuyItem(user!.Username, marketItemId))
+        {
+            listedItems = MarketService.GetListedItems().ToList();
+        }
+    }
+
+    private void CancelListing(int marketItemId)
+    {
+        if (MarketService.CancelListing(marketItemId))
+        {
+            listedItems = MarketService.GetListedItems().ToList();
+        }
+    }
+}

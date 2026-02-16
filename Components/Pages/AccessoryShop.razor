@@ -1,0 +1,117 @@
+@page "/accessory-shop"
+@rendermode InteractiveServer
+
+@using FFA.Models
+@using Microsoft.AspNetCore.Components.Authorization
+@inject Services.UserService UserService
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Navigation
+
+<h1>装饰品屋</h1>
+
+@if (!isAuth)
+{
+    <p>ログインしてください。</p>
+}
+else
+{
+    <div class="shop-container">
+        <div class="shop-header">
+            <p>手持: <strong>@currentUser?.Gil ギル</strong></p>
+        </div>
+        
+        <h2>購入可能な装饰品</h2>
+        <div class="shop-list">
+            @foreach (var a in accessories)
+            {
+                <div class="shop-item">
+                    <div class="shop-item-name">@a.Name</div>
+                    <div>効果: @a.Effect</div>
+                    <div>価格: @a.Price ギル</div>
+                    <button class="action-button" @onclick="() => BuyAccessory(a)">購入 / 装備</button>
+                </div>
+            }
+        </div>
+
+        <h2>アイテムを売却</h2>
+        <div class="sell-section">
+            @if (currentUser?.Inventory != null && currentUser.Inventory.Any())
+            {
+                <div class="inventory-list">
+                    @foreach (var item in currentUser.Inventory)
+                    {
+                        <div class="inventory-item">
+                            <span>@item.Name x @item.Quantity</span>
+                            <span>売却価格: @(item.Price / 2) ギル</span>
+                            <button class="sell-button" @onclick="() => SellItem(item)">売却</button>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p>インベントリに売却可能なアイテムがありません。</p>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private bool isAuth = false;
+    private string? username;
+    private User? currentUser;
+
+    private record AccessoryForSale(string Name, string Effect, int Price);
+
+    private List<AccessoryForSale> accessories = new()
+    {
+        new AccessoryForSale("铜のリング", "+2 筋力", 200),
+        new AccessoryForSale("银のリング", "+3 筋力", 500),
+        new AccessoryForSale("金のリング", "+5 筋力", 1200),
+        new AccessoryForSale("力の护符", "+10 筋力", 3000),
+        new AccessoryForSale("智慧のの本", "+5 知性", 1200),
+        new AccessoryForSale("敏捷の足轮", "+5 素早さ", 1200),
+        new AccessoryForSale(" HP アップ", "+20 最大HP", 800),
+        new AccessoryForSale(" MP アップ", "+20 最大MP", 800),
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = state.User;
+        isAuth = user?.Identity?.IsAuthenticated ?? false;
+        username = user?.Identity?.Name;
+        
+        if (!string.IsNullOrEmpty(username))
+        {
+            currentUser = UserService.GetByUsername(username);
+        }
+    }
+
+    private void BuyAccessory(AccessoryForSale a)
+    {
+        if (!isAuth || string.IsNullOrEmpty(username) || currentUser == null) return;
+        
+        if (currentUser.Gil < a.Price)
+        {
+            return;
+        }
+        currentUser.Gil -= a.Price;
+        currentUser.EquippedAccessory = new Accessory { Name = a.Name, Effect = a.Effect };
+        UserService.UpdateUser(currentUser);
+        StateHasChanged();
+    }
+
+    private void SellItem(InventoryItem item)
+    {
+        if (!isAuth || string.IsNullOrEmpty(username) || currentUser == null) return;
+        
+        var sellPrice = UserService.SellItem(username, item.Name, 1);
+        if (sellPrice > 0)
+        {
+            // Refresh user data
+            currentUser = UserService.GetByUsername(username);
+            StateHasChanged();
+        }
+    }
+}

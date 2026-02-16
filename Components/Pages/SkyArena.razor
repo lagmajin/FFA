@@ -1,0 +1,278 @@
+@page "/sky-arena"
+@rendermode InteractiveServer
+
+@using FFA.Models
+@using Microsoft.AspNetCore.Components.Authorization
+@inject Services.UserService UserService
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Navigation
+
+<div class="sky-arena-container">
+    <div class="sky-arena-header">
+        <h1>天空闘技場</h1>
+        <p>強敵と戦い、栄光を掴もう！</p>
+    </div>
+
+    @if (!isAuth)
+    {
+        <div class="auth-warning">
+            <p>🔐 ログインして天空闘技場に挑戦してください</p>
+        </div>
+    }
+    else
+    {
+        <div class="sky-arena-content">
+            <div class="player-info">
+                <div class="player-card">
+                    <h2>プレイヤー情報</h2>
+                    <div class="player-details">
+                        <div class="stat-item">
+                            <span class="stat-label">レベル</span>
+                            <span class="stat-value">@user.Level</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">HP</span>
+                            <span class="stat-value">@user.Status.Vit * 100</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">MP</span>
+                            <span class="stat-value">@user.Status.Int * 50</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">戦闘力</span>
+                            <span class="stat-value">@CalculateCombatPower()</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="opponent-section">
+                <h2>対戦相手</h2>
+                <div class="opponent-grid">
+                    @foreach (var opponent in opponents)
+                    {
+                        <div class="opponent-card">
+                            <div class="opponent-icon">@opponent.Icon</div>
+                            <div class="opponent-details">
+                                <h3>@opponent.Name</h3>
+                                <p class="opponent-level">レベル @opponent.Level</p>
+                                <div class="opponent-stats">
+                                    <div class="stat-item">
+                                        <span class="stat-label">HP</span>
+                                        <span class="stat-value">@opponent.HP</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">攻撃力</span>
+                                        <span class="stat-value">@opponent.Attack</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">防御力</span>
+                                        <span class="stat-value">@opponent.Defense</span>
+                                    </div>
+                                </div>
+                                <div class="opponent-reward">
+                                    <p>報酬: <strong>@opponent.RewardGil ギル</strong> + <strong>@opponent.RewardExp 経験値</strong></p>
+                                </div>
+                                <button class="battle-button" @onclick="() => Battle(opponent)">
+                                    <span class="button-icon">⚔️</span>
+                                    戦闘開始
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            @if (battleResult != null)
+            {
+                <div class="battle-result">
+                    <div class="result-icon">@(battleResult.Win ? "🎉" : "💀")</div>
+                    <h3>@(battleResult.Win ? "勝利！" : "敗北...")</h3>
+                    <p class="result-message">@battleResult.Message</p>
+                    <div class="result-reward">
+                        @if (battleResult.Win)
+                        {
+                            <p>獲得報酬: <strong>@battleResult.RewardGil ギル</strong> + <strong>@battleResult.RewardExp 経験値</strong></p>
+                        }
+                    </div>
+                    <button class="close-button" @onclick="CloseResult">
+                        <span class="button-icon">×</span>
+                        閉じる
+                    </button>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private bool isAuth = false;
+    private string? username;
+    private User? user;
+    private List<Opponent> opponents = new();
+    private BattleResult? battleResult;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        var authUser = state.User;
+        isAuth = authUser?.Identity?.IsAuthenticated ?? false;
+        username = authUser?.Identity?.Name;
+
+        if (isAuth && username != null)
+        {
+            user = UserService.GetByUsername(username);
+            GenerateOpponents();
+        }
+    }
+
+    private void GenerateOpponents()
+    {
+        opponents = new List<Opponent>
+        {
+            new Opponent
+            {
+                Name = "鋼の戦士",
+                Icon = "⚔️",
+                Level = user.Level + 1,
+                HP = 1000,
+                Attack = 100,
+                Defense = 50,
+                RewardGil = 500,
+                RewardExp = 200
+            },
+            new Opponent
+            {
+                Name = "魔導士の霊",
+                Icon = "🔮",
+                Level = user.Level + 2,
+                HP = 800,
+                Attack = 150,
+                Defense = 30,
+                RewardGil = 750,
+                RewardExp = 300
+            },
+            new Opponent
+            {
+                Name = "守護の竜",
+                Icon = "🐉",
+                Level = user.Level + 3,
+                HP = 2000,
+                Attack = 200,
+                Defense = 100,
+                RewardGil = 1500,
+                RewardExp = 500
+            },
+            new Opponent
+            {
+                Name = "暗黒騎士",
+                Icon = "⚫",
+                Level = user.Level + 4,
+                HP = 1500,
+                Attack = 180,
+                Defense = 80,
+                RewardGil = 1000,
+                RewardExp = 400
+            },
+            new Opponent
+            {
+                Name = "天空の女神",
+                Icon = "🌟",
+                Level = user.Level + 5,
+                HP = 1200,
+                Attack = 250,
+                Defense = 60,
+                RewardGil = 2000,
+                RewardExp = 600
+            }
+        };
+    }
+
+    private int CalculateCombatPower()
+    {
+        if (user == null) return 0;
+        return user.Status.Str * 10 + user.Status.Dex * 8 + user.Status.Int * 5 + user.Status.Vit * 7;
+    }
+
+    private void Battle(Opponent opponent)
+    {
+        try
+        {
+            if (user == null) return;
+
+            // 戦闘ロジック
+            var playerAttack = user.Status.Str * 10 + user.Status.Dex * 5;
+            var playerDefense = user.Status.Vit * 5;
+            var playerHP = user.Status.Vit * 100;
+
+            var opponentAttack = opponent.Attack;
+            var opponentDefense = opponent.Defense;
+            var opponentHP = opponent.HP;
+
+            // ターン制戦闘
+            var playerTurn = true;
+            while (playerHP > 0 && opponentHP > 0)
+            {
+                if (playerTurn)
+                {
+                    // プレイヤーの攻撃
+                    var damage = Math.Max(0, playerAttack - opponentDefense);
+                    opponentHP -= damage;
+                    playerTurn = false;
+                }
+                else
+                {
+                    // 敵の攻撃
+                    var damage = Math.Max(0, opponentAttack - playerDefense);
+                    playerHP -= damage;
+                    playerTurn = true;
+                }
+            }
+
+            // 戦闘結果
+            var win = playerHP > 0;
+            if (win)
+            {
+                // 報酬を与える
+                UserService.AdjustGil(username, opponent.RewardGil);
+                UserService.AddExpAndHandleLevel(username, opponent.RewardExp);
+                battleResult = new BattleResult
+                {
+                    Win = true,
+                    Message = "対戦に勝ちました！",
+                    RewardGil = opponent.RewardGil,
+                    RewardExp = opponent.RewardExp
+                };
+            }
+            else
+            {
+                battleResult = new BattleResult
+                {
+                    Win = false,
+                    Message = "対戦に敗れました。",
+                    RewardGil = 0,
+                    RewardExp = 0
+                };
+            }
+
+            // ユーザー情報を更新
+            user = UserService.GetByUsername(username);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"SkyArena.Battle 例外: {ex.Message} - {ex.StackTrace}");
+            battleResult = new BattleResult
+            {
+                Win = false,
+                Message = "戦闘中にエラーが発生しました。",
+                RewardGil = 0,
+                RewardExp = 0
+            };
+        }
+    }
+
+    private void CloseResult()
+    {
+        battleResult = null;
+    }
+}

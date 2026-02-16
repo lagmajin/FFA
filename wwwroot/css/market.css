@@ -1,0 +1,77 @@
+.market-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.market-actions {
+    margin-bottom: 20px;
+}
+
+.market-actions button {
+    margin-right: 10px;
+}
+
+.market-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.market-item {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.market-item h3 {
+    margin-top: 0;
+    color: #333;
+}
+
+.item-info {
+    margin-bottom: 15px;
+}
+
+.item-info p {
+    margin: 5px 0;
+    color: #666;
+}
+
+.item-price {
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+.item-price p {
+    margin: 3px 0;
+    color: #555;
+}
+
+.item-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.transaction-history {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.transaction-item {
+    border-bottom: 1px solid #eee;
+    padding: 10px 0;
+}
+
+.transaction-item:last-child {
+    border-bottom: none;
+}
+
+.transaction-item p {
+    margin: 3px 0;
+    color: #666;
+}

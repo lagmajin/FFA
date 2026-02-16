@@ -1,0 +1,82 @@
+/* Fluent UI スタイルのカスタマイズ */
+.home-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.champion-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.champion-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.champion-name {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.champion-title {
+    font-size: 0.9rem;
+    color: var(--neutral-foreground-rest);
+    margin: 0;
+}
+
+.champion-stats {
+    font-size: 0.8rem;
+    color: var(--neutral-foreground-subtle);
+    margin: 0;
+}
+
+.game-section {
+    text-align: center;
+    margin-top: 2rem;
+    padding: 2rem;
+    background: var(--neutral-layer-2);
+    border-radius: 12px;
+}
+
+.welcome-message {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--neutral-foreground-rest);
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--accent-foreground-rest), var(--neutral-foreground-rest));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.game-description {
+    font-size: 1.1rem;
+    color: var(--neutral-foreground-subtle);
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .home-container {
+        padding: 1rem;
+    }
+    
+    .champion-info {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .welcome-message {
+        font-size: 2rem;
+    }
+    
+    .game-section {
+        padding: 1.5rem;
+    }
+}

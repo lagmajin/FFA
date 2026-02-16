@@ -1,0 +1,339 @@
+@page "/status"
+@rendermode InteractiveServer
+
+@using FFA.Models
+@using FFA.Services
+@using Microsoft.AspNetCore.Components.Authorization
+@inject KarmaService Karma
+@inject TimeWeatherService TimeWeather
+@inject UserService UserService
+@inject AuthenticationStateProvider AuthStateProvider
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
+
+<FluentCard>
+    <FluentCardHeader>
+        <h1>ステータス</h1>
+    </FluentCardHeader>
+    
+    @if (!isAuth)
+    {
+        <p>ログインしてください。</p>
+    }
+    else
+    {
+        <div class="status-container">
+            <FluentCard>
+                <FluentCardHeader>
+                    <h3>ユーザー情報</h3>
+                </FluentCardHeader>
+                <div class="user-info">
+                    <p>ユーザー: @username</p>
+                    <p>Karma: @karma</p>
+                    <p>Gil: @gil</p>
+                    <p>OldCoin: @oldcoin</p>
+                    <p>Job: @job</p>
+                    <p>Level: @level</p>
+                    <p>STR: @status.Str DEX: @status.Dex INT: @status.Int VIT: @status.Vit AGI: @status.Agi LUK: @status.Luk</p>
+                    <p>Weapon: @status.Weapon (ATK: @status.WeaponAttack) Armor: @status.Armor (DEF: @status.ArmorDefense) Accessory: @status.Accessory (@status.AccessoryEffect)</p>
+                    <p>未割り振りポイント: @status.PointsAvailable</p>
+                </div>
+            </FluentCard>
+            
+            <FluentCard>
+                <FluentCardHeader>
+                    <h3>ステータス割り振り</h3>
+                </FluentCardHeader>
+                <div class="status-grid">
+                    <div>STR: @status.Str <FluentButton Appearance="Appearance.Outline" @onclick="() => AddPoint(nameof(status.Str))">+1</FluentButton></div>
+                    <div>DEX: @status.Dex <FluentButton Appearance="Appearance.Outline" @onclick="() => AddPoint(nameof(status.Dex))">+1</FluentButton></div>
+                    <div>INT: @status.Int <FluentButton Appearance="Appearance.Outline" @onclick="() => AddPoint(nameof(status.Int))">+1</FluentButton></div>
+                    <div>VIT: @status.Vit <FluentButton Appearance="Appearance.Outline" @onclick="() => AddPoint(nameof(status.Vit))">+1</FluentButton></div>
+                    <div>AGI: @status.Agi <FluentButton Appearance="Appearance.Outline" @onclick="() => AddPoint(nameof(status.Agi))">+1</FluentButton></div>
+                    <div>LUK: @status.Luk <FluentButton Appearance="Appearance.Outline" @onclick="() => AddPoint(nameof(status.Luk))">+1</FluentButton></div>
+                </div>
+            </FluentCard>
+
+            <FluentCard>
+                <FluentCardHeader>
+                    <h3>装備情報</h3>
+                </FluentCardHeader>
+                <div class="equipment-info">
+                    <p>Weapon: @status.Weapon</p>
+                    <p>Armor: @status.Armor</p>
+                    <p>Accessory: @status.Accessory</p>
+                </div>
+            </FluentCard>
+
+            <FluentCard>
+                <FluentCardHeader>
+                    <h3>Inventory</h3>
+                </FluentCardHeader>
+                <div class="inventory-items">
+                    @if (inventoryItems != null && inventoryItems.Any())
+                    {
+                        <div class="inventory-grid">
+                            @foreach (var item in inventoryItems)
+                            {
+                                <div class="inventory-item">
+                                    <p>@item.Name (@item.Quantity)</p>
+                                    <FluentButton Appearance="Appearance.Accent" @onclick="() => EquipItem(item)">Equip</FluentButton>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p>No items in inventory</p>
+                    }
+                </div>
+            </FluentCard>
+            
+            <FluentCard>
+                <FluentCardHeader>
+                    <h3>ワールド情報</h3>
+                </FluentCardHeader>
+                <div class="world-info">
+                    <p>World Time: @timeStr (@TimeWeather.Phase)</p>
+                    <p>Weather: @TimeWeather.Weather</p>
+                </div>
+            </FluentCard>
+            
+            <div class="center-actions">
+                <FluentButton Appearance="Appearance.Accent" @onclick="GoToTown">街へ</FluentButton>
+                <FluentButton Appearance="Appearance.Accent" @onclick="GoToMap">マップへ</FluentButton>
+            </div>
+        </div>
+    }
+</FluentCard>
+
+@code {
+    private bool isAuth = false;
+    private string? username;
+    private int karma = 0;
+    private int gil = 0;
+    private int oldcoin = 0;
+    private string job = "";
+    private int level = 1;
+    private PlayerStatus status = new PlayerStatus();
+    private DotNetObjectReference<Status>? objRef;
+    private IJSObjectReference? moduleRef;
+    private User? user;
+    private List<InventoryItem>? inventoryItems;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        var userAuth = state.User;
+        isAuth = userAuth?.Identity?.IsAuthenticated ?? false;
+        username = userAuth?.Identity?.Name;
+        if (isAuth && username != null)
+        {
+            karma = Karma.GetKarma(username);
+            gil = int.TryParse(userAuth.FindFirst("Gil")?.Value, out var g) ? g : 0;
+            oldcoin = int.TryParse(userAuth.FindFirst("OldCoin")?.Value, out var o) ? o : 0;
+            job = userAuth.FindFirst("Job")?.Value ?? "";
+            level = int.TryParse(userAuth.FindFirst("Level")?.Value, out var lv) ? lv : 1;
+            user = UserService.GetByUsername(username);
+            if (user?.Status != null) status = user.Status;
+            if (user != null) level = user.Level;
+            if (user?.Status == null && user != null) user.Status = new PlayerStatus();
+            
+            // Load inventory items
+            if (username != null)
+            {
+                inventoryItems = UserService.GetInventoryItems(username).ToList();
+            }
+        }
+    }
+
+    private string timeStr => FormatTime(TimeWeather.TimeOfDay);
+
+    private string FormatTime(double t)
+    {
+        int hh = (int)Math.Floor(t);
+        int mm = (int)Math.Floor((t - hh) * 60);
+        return $"{hh:D2}:{mm:D2}";
+    }
+    
+    [JSInvokable]
+    public Task OnWorldUpdated(string json)
+    {
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            objRef = DotNetObjectReference.Create(this);
+            moduleRef = await JS.InvokeAsync<IJSObjectReference>("import", "/js/worldhub.js");
+            await moduleRef.InvokeVoidAsync("start", objRef);
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (moduleRef != null)
+        {
+            await moduleRef.InvokeVoidAsync("stop");
+            await moduleRef.DisposeAsync();
+        }
+        if (objRef != null)
+        {
+            objRef.Dispose();
+        }
+    }
+
+private void AddPoint(string field)
+{
+    if (user == null) return;
+    if (user.Status.PointsAvailable <= 0) return;
+    switch (field)
+    {
+        case nameof(status.Str): status.Str++; break;
+        case nameof(status.Dex): status.Dex++; break;
+        case nameof(status.Int): status.Int++; break;
+        case nameof(status.Vit): status.Vit++; break;
+        case nameof(status.Agi): status.Agi++; break;
+        case nameof(status.Luk): status.Luk++; break;
+    }
+    user.Status.PointsAvailable -= 1;
+    UserService.UpdateUser(user);
+}
+
+private void EquipWeapon(Weapon weapon)
+{
+    if (user == null) return;
+    if (weapon == null) return;
+
+    // 装備条件を確認
+    if (status.Str < weapon.RequiredStr ||
+        status.Dex < weapon.RequiredDex ||
+        status.Int < weapon.RequiredInt ||
+        status.Vit < weapon.RequiredVit ||
+        status.Agi < weapon.RequiredAgi ||
+        status.Luk < weapon.RequiredLuk)
+    {
+        return; // 装備条件を満たしていない
+    }
+
+    // 装備
+    status.Weapon = weapon.Name;
+    status.WeaponAttack = weapon.Attack;
+    UserService.UpdateUser(user);
+}
+
+private void EquipArmor(Armor armor)
+{
+    if (user == null) return;
+    if (armor == null) return;
+
+    // 装備条件を確認
+    if (status.Str < armor.RequiredStr ||
+        status.Dex < armor.RequiredDex ||
+        status.Int < armor.RequiredInt ||
+        status.Vit < armor.RequiredVit ||
+        status.Agi < armor.RequiredAgi ||
+        status.Luk < armor.RequiredLuk)
+    {
+        return; // 装備条件を満たしていない
+    }
+
+    // 装備
+    status.Armor = armor.Name;
+    status.ArmorDefense = armor.Defense;
+    UserService.UpdateUser(user);
+}
+
+private void EquipAccessory(Accessory accessory)
+{
+    if (user == null) return;
+    if (accessory == null) return;
+
+    // 装備条件を確認
+    if (status.Str < accessory.RequiredStr ||
+        status.Dex < accessory.RequiredDex ||
+        status.Int < accessory.RequiredInt ||
+        status.Vit < accessory.RequiredVit ||
+        status.Agi < accessory.RequiredAgi ||
+        status.Luk < accessory.RequiredLuk)
+    {
+        return; // 装備条件を満たしていない
+    }
+
+    // 装備
+    status.Accessory = accessory.Name;
+    status.AccessoryEffect = accessory.Effect;
+    UserService.UpdateUser(user);
+}
+
+private void GoToTown()
+{
+    Navigation.NavigateTo("/town");
+}
+
+private void GoToMap()
+{
+    Navigation.NavigateTo("/map");
+}
+
+private void EquipItem(InventoryItem item)
+{
+    if (user == null) return;
+
+    switch (item.Type)
+    {
+        case "Weapon":
+            var weapon = new Weapon
+            {
+                Name = item.Name,
+                Attack = item.Attack,
+                RequiredStr = item.RequiredStr,
+                RequiredDex = item.RequiredDex,
+                RequiredInt = item.RequiredInt,
+                RequiredVit = item.RequiredVit,
+                RequiredAgi = item.RequiredAgi,
+                RequiredLuk = item.RequiredLuk
+            };
+            EquipWeapon(weapon);
+            break;
+        case "Armor":
+            var armor = new Armor
+            {
+                Name = item.Name,
+                Defense = item.Defense,
+                RequiredStr = item.RequiredStr,
+                RequiredDex = item.RequiredDex,
+                RequiredInt = item.RequiredInt,
+                RequiredVit = item.RequiredVit,
+                RequiredAgi = item.RequiredAgi,
+                RequiredLuk = item.RequiredLuk
+            };
+            EquipArmor(armor);
+            break;
+        case "Accessory":
+            var accessory = new Accessory
+            {
+                Name = item.Name,
+                Effect = item.Effect,
+                RequiredStr = item.RequiredStr,
+                RequiredDex = item.RequiredDex,
+                RequiredInt = item.RequiredInt,
+                RequiredVit = item.RequiredVit,
+                RequiredAgi = item.RequiredAgi,
+                RequiredLuk = item.RequiredLuk
+            };
+            EquipAccessory(accessory);
+            break;
+    }
+
+    // Reload inventory after equipping
+    if (username != null)
+    {
+        inventoryItems = UserService.GetInventoryItems(username).ToList();
+    }
+    StateHasChanged();
+}
+}

@@ -1,0 +1,230 @@
+.sky-arena-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: #fff;
+    min-height: 100vh;
+}
+
+.sky-arena-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.sky-arena-header h1 {
+    font-size: 3rem;
+    margin-bottom: 10px;
+    color: #ffd700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.sky-arena-header p {
+    font-size: 1.2rem;
+    color: #ccc;
+}
+
+.auth-warning {
+    text-align: center;
+    padding: 40px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    margin-bottom: 30px;
+}
+
+.auth-warning p {
+    font-size: 1.2rem;
+}
+
+.sky-arena-content {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 30px;
+}
+
+.player-info {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.player-card {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 20px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.player-card h2 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    color: #ffd700;
+}
+
+.player-details {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 5px;
+}
+
+.stat-label {
+    font-weight: bold;
+    color: #ccc;
+}
+
+.stat-value {
+    color: #ffd700;
+    font-size: 1.1rem;
+}
+
+.opponent-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.opponent-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    color: #ffd700;
+}
+
+.opponent-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.opponent-card {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 20px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.opponent-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.opponent-icon {
+    font-size: 2.5rem;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.opponent-details h3 {
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+    color: #fff;
+}
+
+.opponent-level {
+    color: #ccc;
+    margin-bottom: 15px;
+}
+
+.opponent-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 15px;
+}
+
+.opponent-reward {
+    margin-bottom: 15px;
+    color: #ffd700;
+    font-weight: bold;
+}
+
+.battle-button {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff4757 100%);
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    width: 100%;
+}
+
+.battle-button:hover {
+    background: linear-gradient(135deg, #ff4757 0%, #ff6b6b 100%);
+}
+
+.battle-result {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.9);
+    border-radius: 10px;
+    padding: 40px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    text-align: center;
+    z-index: 1000;
+    max-width: 400px;
+    width: 90%;
+}
+
+.result-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+}
+
+.battle-result h3 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    color: #ffd700;
+}
+
+.result-message {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    color: #ccc;
+}
+
+.result-reward {
+    margin-bottom: 20px;
+    color: #ffd700;
+    font-weight: bold;
+}
+
+.close-button {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.close-button:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+@media (max-width: 768px) {
+    .sky-arena-content {
+        grid-template-columns: 1fr;
+    }
+
+    .opponent-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+}

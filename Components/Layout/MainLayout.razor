@@ -72,7 +72,7 @@
     </nav>
 </footer>
 
-<div id="blazor-error-ui" data-nosnippet>
+<div id="blazor-error-ui" data-nosnippet style="display:none;">
     An unhandled error has occurred.
     <a href="." class="reload">Reload</a>
     <span class="dismiss">🗙</span>
@@ -87,20 +87,11 @@
 <script>
     (function () {
         try {
-            const ui = document.getElementById('blazor-error-ui');
-            const details = document.getElementById('blazor-error-details');
-            if (!ui || !details) return;
-
-            function show(msg) {
-                details.textContent = msg;
-                details.style.display = 'block';
-                ui.style.display = 'block';
-            }
-
+            // バナーは表示せず、コンソールにだけ記録する
             window.addEventListener('error', function (e) {
                 try {
                     const info = (e && e.error && e.error.stack) ? e.error.stack : (e && e.message) || String(e);
-                    show('Error: ' + info);
+                    console.warn('[blazor-error suppressed]', info);
                 } catch (ex) { /* swallow */ }
             });
 
@@ -108,14 +99,17 @@
                 try {
                     const reason = e && e.reason ? e.reason : 'unknown';
                     const text = (reason && reason.stack) ? reason.stack : (reason && reason.message) ? reason.message : String(reason);
-                    show('UnhandledRejection: ' + text);
+                    console.warn('[blazor-error suppressed]', text);
                 } catch (ex) { /* swallow */ }
             });
 
-            const reload = ui.querySelector('.reload');
-            if (reload) reload.addEventListener('click', function (ev) { ev.preventDefault(); location.reload(); });
-            const dismiss = ui.querySelector('.dismiss');
-            if (dismiss) dismiss.addEventListener('click', function () { ui.style.display = 'none'; details.style.display = 'none'; });
+            const ui = document.getElementById('blazor-error-ui');
+            if (ui) {
+                const dismiss = ui.querySelector('.dismiss');
+                if (dismiss) dismiss.addEventListener('click', function () { ui.style.display = 'none'; });
+                const reload = ui.querySelector('.reload');
+                if (reload) reload.addEventListener('click', function (ev) { ev.preventDefault(); location.reload(); });
+            }
         } catch (err) {
             console.error(err);
         }

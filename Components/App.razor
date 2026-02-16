@@ -18,7 +18,8 @@
         <Routes />
     </CascadingAuthenticationState>
     <ReconnectModal />
-    <script src="@Assets["_framework/blazor.web.js"]" autostart="true"></script>
+    <!-- Blazor Server script for interactive server render mode -->
+    <script src="/_framework/blazor.server.js"></script>
     <script>
         // グローバルエラーハンドリング（Blazor起動後）
         window.addEventListener('error', function(event) {
@@ -28,6 +29,25 @@
         // 未処理のPromise拒否をキャッチ
         window.addEventListener('unhandledrejection', function(event) {
             console.error('Unhandled rejection:', event.reason);
+        });
+        // ページが隠れた/閉じられたときの代替処理（unload の代替）
+        window.addEventListener('pagehide', function(event) {
+            try {
+                // ここで必要なら navigator.sendBeacon を使って簡易ログ送信を行える
+                console.log('pagehide event detected');
+            } catch (e) {
+                console.warn('pagehide handler error', e);
+            }
+        });
+
+        document.addEventListener('visibilitychange', function() {
+            try {
+                if (document.visibilityState === 'hidden') {
+                    console.log('visibilitychange: hidden');
+                }
+            } catch (e) {
+                console.warn('visibilitychange handler error', e);
+            }
         });
     </script>
 </body>

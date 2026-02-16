@@ -1,0 +1,120 @@
+@page "/consumables-shop"
+@rendermode InteractiveServer
+
+@using FFA.Models
+@using Microsoft.AspNetCore.Components.Authorization
+@inject Services.UserService UserService
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Navigation
+
+<h1>消耗品屋</h1>
+
+@if (!isAuth)
+{
+    <p>ログインしてください。</p>
+}
+else
+{
+    <div class="shop-container">
+        <div class="shop-header">
+            <p>手持: <strong>@currentUser?.Gil ギル</strong></p>
+        </div>
+        
+        <h2>購入可能な消耗品</h2>
+        <div class="shop-list">
+            @foreach (var c in consumables)
+            {
+                <div class="shop-item">
+                    <div class="shop-item-name">@c.Name</div>
+                    <div>効果: @c.Effect</div>
+                    <div>価格: @c.Price ギル</div>
+                    <button class="action-button" @onclick="() => BuyConsumable(c)">購入</button>
+                </div>
+            }
+        </div>
+
+        <h2>アイテムを売却</h2>
+        <div class="sell-section">
+            @if (currentUser?.Inventory != null && currentUser.Inventory.Any())
+            {
+                <div class="inventory-list">
+                    @foreach (var item in currentUser.Inventory)
+                    {
+                        <div class="inventory-item">
+                            <span>@item.Name x @item.Quantity</span>
+                            <span>売却価格: @(item.Price / 2) ギル</span>
+                            <button class="sell-button" @onclick="() => SellItem(item)">売却</button>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p>インベントリに売却可能なアイテムがありません。</p>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private bool isAuth = false;
+    private string? username;
+    private User? currentUser;
+
+    private record ConsumableForSale(string Name, string Effect, int Price);
+
+    private List<ConsumableForSale> consumables = new()
+    {
+        new ConsumableForSale("ポーション", "HP +30 回復", 50),
+        new ConsumableForSale("ハイポーション", "HP +80 回復", 150),
+        new ConsumableForSale("エーテル", "MP +20 回復", 100),
+        new ConsumableForSale("ハイエーテル", "MP +50 回復", 300),
+        new ConsumableForSale(" анти毒草", "毒を解く", 30),
+        new ConsumableForSale("ブーメラン", "投擲武器", 200),
+        new ConsumableForSale("エリクサー", "HP/MP 全回復", 1000),
+        new ConsumableForSale("テレポストーン", "街にテレポート", 500),
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = state.User;
+        isAuth = user?.Identity?.IsAuthenticated ?? false;
+        username = user?.Identity?.Name;
+        
+        if (!string.IsNullOrEmpty(username))
+        {
+            currentUser = UserService.GetByUsername(username);
+        }
+    }
+
+    private void BuyConsumable(ConsumableForSale c)
+    {
+        if (!isAuth || string.IsNullOrEmpty(username) || currentUser == null) return;
+        
+        if (currentUser.Gil < c.Price)
+        {
+            return;
+        }
+        currentUser.Gil -= c.Price;
+        
+        // Add item to inventory
+        UserService.AddItemToUser(username, new InventoryItem { Name = c.Name, Quantity = 1, Price = c.Price });
+        
+        currentUser = UserService.GetByUsername(username);
+        StateHasChanged();
+    }
+
+    private void SellItem(InventoryItem item)
+    {
+        if (!isAuth || string.IsNullOrEmpty(username) || currentUser == null) return;
+        
+        var sellPrice = UserService.SellItem(username, item.Name, 1);
+        if (sellPrice > 0)
+        {
+            // Refresh user data
+            currentUser = UserService.GetByUsername(username);
+            StateHasChanged();
+        }
+    }
+}

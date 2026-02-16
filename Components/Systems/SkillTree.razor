@@ -1,0 +1,224 @@
+@using FFA.Models
+@rendermode InteractiveServer
+
+<div class="skill-tree-container">
+    <div class="skill-header">
+        <h3>🎯 スキルツリー</h3>
+        <div class="skill-points">
+            <span class="points-label">使用可能SP:</span>
+            <span class="points-value">@AvailableSkillPoints</span>
+        </div>
+    </div>
+
+    <div class="skill-info-panel">
+        @if (SelectedSkill != null)
+        {
+            <div class="skill-details">
+                <div class="skill-details-header">
+                    <span class="skill-icon">@SelectedSkill.Icon</span>
+                    <div>
+                        <h4>@SelectedSkill.Name</h4>
+                        <span class="skill-tier">Tier @SelectedSkill.Tier</span>
+                    </div>
+                </div>
+                <p class="skill-description">@SelectedSkill.Description</p>
+                <div class="skill-stats">
+                    <span class="effect-type">@GetEffectText(SelectedSkill)</span>
+                    <span class="current-level">Lv.@GetUserSkillLevel(SelectedSkill.Id)/@SelectedSkill.MaxLevel</span>
+                </div>
+                <div class="skill-requirements">
+                    <p>必要条件: プレイヤーLv.@SelectedSkill.RequiredPlayerLevel</p>
+                    <p>消費SP: @SelectedSkill.SkillPointCost</p>
+                </div>
+                @if (CanLearnSkill(SelectedSkill))
+                {
+                    <button class="learn-button" @onclick="() => LearnSkill(SelectedSkill)">
+                        スキルを習得 (SP: @SelectedSkill.SkillPointCost)
+                    </button>
+                }
+                else if (GetUserSkillLevel(SelectedSkill.Id) >= SelectedSkill.MaxLevel)
+                {
+                    <span class="maxed-badge">MAX</span>
+                }
+                else
+                {
+                    <span class="locked-badge">習得条件未達成</span>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="skill-details-placeholder">
+                <p>スキルを選択すると詳細が表示されます</p>
+            </div>
+        }
+    </div>
+
+    <div class="skill-grid">
+        @foreach (var job in Enum.GetValues<Job>())
+        {
+            <div class="job-skill-section">
+                <h4 class="job-title">@GetJobName(job)</h4>
+                <div class="skills-row">
+                    @foreach (var skill in GetSkillsByJob(job).OrderBy(s => s.Tier).ThenBy(s => s.Id))
+                    {
+                        var userLevel = GetUserSkillLevel(skill.Id);
+                        var isLocked = !CanLearnSkill(skill) && userLevel == 0;
+                        var isMaxed = userLevel >= skill.MaxLevel;
+                        var isLearnable = CanLearnSkill(skill) && userLevel < skill.MaxLevel;
+
+                        <div class="skill-node @GetSkillNodeClass(skill, isLocked, isMaxed, isLearnable)"
+                             @onclick="() => SelectSkill(skill)">
+                            <div class="skill-node-icon">@skill.Icon</div>
+                            <div class="skill-node-level">Lv.@userLevel</div>
+                            @if (skill.Tier > 1)
+                            {
+                                var parentSkill = skill.ParentSkillId != null
+                                    ? AllSkills.FirstOrDefault(s => s.Id == skill.ParentSkillId)
+                                    : null;
+                                @if (parentSkill != null && GetUserSkillLevel(parentSkill.Id) > 0)
+                                {
+                                    <div class="connector-line connected"></div>
+                                }
+                                else
+                                {
+                                    <div class="connector-line"></div>
+                                }
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public int PlayerLevel { get; set; } = 1;
+    [Parameter] public int AvailableSkillPoints { get; set; } = 0;
+    [Parameter] public List<UserSkill> UserSkills { get; set; } = new();
+
+    private Skill? SelectedSkill;
+    private List<Skill> AllSkills = new();
+
+    protected override void OnInitialized()
+    {
+        // サンプルスキルデータを読み込む（実際の実装ではDBから取得）
+        LoadDefaultSkills();
+    }
+
+    private void LoadDefaultSkills()
+    {
+        AllSkills = new List<Skill>
+        {
+            // Warrior スキル
+            new() { Id = "warrior_1", Name = "基礎攻撃", Description = "基礎的な攻撃力を+5", Icon = "⚔️", RequiredJob = Job.Warrior, Tier = 1, MaxLevel = 5, SkillPointCost = 1, EffectType = SkillEffectType.AtkBonus, EffectValue = 5, RequiredPlayerLevel = 1 },
+            new() { Id = "warrior_2", Name = "防御強化", Description = "防御力を+10", Icon = "🛡️", RequiredJob = Job.Warrior, Tier = 2, MaxLevel = 5, SkillPointCost = 2, EffectType = SkillEffectType.DefBonus, EffectValue = 10, ParentSkillId = "warrior_1", RequiredPlayerLevel = 5 },
+            new() { Id = "warrior_3", Name = "HP強化", Description = "最大HP+50", Icon = "❤️", RequiredJob = Job.Warrior, Tier = 3, MaxLevel = 3, SkillPointCost = 3, EffectType = SkillEffectType.HpBonus, EffectValue = 50, ParentSkillId = "warrior_2", RequiredPlayerLevel = 10 },
+            new() { Id = "warrior_ult", Name = "戦士の怒り", Description = "30秒間攻撃力が2倍", Icon = "⚡", RequiredJob = Job.Warrior, Tier = 5, MaxLevel = 1, SkillPointCost = 5, Type = SkillType.Ultimate, ParentSkillId = "warrior_3", RequiredPlayerLevel = 20 },
+
+            // Monk スキル
+            new() { Id = "monk_1", Name = "基礎体術", Description = "素早い攻撃でクリティカル率+5%", Icon = "👊", RequiredJob = Job.Monk, Tier = 1, MaxLevel = 5, SkillPointCost = 1, EffectType = SkillEffectType.CriticalRate, EffectValue = 5, RequiredPlayerLevel = 1 },
+            new() { Id = "monk_2", Name = "回避熟練", Description = "回避率+10%", Icon = "💨", RequiredJob = Job.Monk, Tier = 2, MaxLevel = 5, SkillPointCost = 2, EffectType = SkillEffectType.Evasion, EffectValue = 10, ParentSkillId = "monk_1", RequiredPlayerLevel = 5 },
+            new() { Id = "monk_3", Name = "HP強化", Description = "最大HP+50", Icon = "❤️", RequiredJob = Job.Monk, Tier = 3, MaxLevel = 3, SkillPointCost = 3, EffectType = SkillEffectType.HpBonus, EffectValue = 50, ParentSkillId = "monk_2", RequiredPlayerLevel = 10 },
+
+            // White Mage スキル
+            new() { Id = "whitemage_1", Name = "基礎治癒", Description = "回復効果+10%", Icon = "✨", RequiredJob = Job.WhiteMage, Tier = 1, MaxLevel = 5, SkillPointCost = 1, EffectType = SkillEffectType.MpBonus, EffectValue = 10, RequiredPlayerLevel = 1 },
+            new() { Id = "whitemage_2", Name = "魔力強化", Description = "INT+5", Icon = "📘", RequiredJob = Job.WhiteMage, Tier = 2, MaxLevel = 5, SkillPointCost = 2, EffectType = SkillEffectType.IntBonus, EffectValue = 5, ParentSkillId = "whitemage_1", RequiredPlayerLevel = 5 },
+            new() { Id = "whitemage_3", Name = "EXPバフ", Description = "獲得経験値+20%", Icon = "📈", RequiredJob = Job.WhiteMage, Tier = 3, MaxLevel = 3, SkillPointCost = 3, EffectType = SkillEffectType.ExpBonus, EffectValue = 20, ParentSkillId = "whitemage_2", RequiredPlayerLevel = 10 },
+
+            // Black Mage スキル
+            new() { Id = "blackmage_1", Name = "基礎魔法", Description = "魔法攻撃力+10", Icon = "🔥", RequiredJob = Job.BlackMage, Tier = 1, MaxLevel = 5, SkillPointCost = 1, EffectType = SkillEffectType.IntBonus, EffectValue = 10, RequiredPlayerLevel = 1 },
+            new() { Id = "blackmage_2", Name = "魔力集中", Description = "MP効率+15%", Icon = "💎", RequiredJob = Job.BlackMage, Tier = 2, MaxLevel = 5, SkillPointCost = 2, EffectType = SkillEffectType.MpBonus, EffectValue = 15, ParentSkillId = "blackmage_1", RequiredPlayerLevel = 5 },
+            new() { Id = "blackmage_3", Name = "ギルバフ", Description = "入手ギル+25%", Icon = "💰", RequiredJob = Job.BlackMage, Tier = 3, MaxLevel = 3, SkillPointCost = 3, EffectType = SkillEffectType.GilBonus, EffectValue = 25, ParentSkillId = "blackmage_2", RequiredPlayerLevel = 10 },
+        };
+    }
+
+    private List<Skill> GetSkillsByJob(Job job) => AllSkills.Where(s => s.RequiredJob == job).ToList();
+
+    private int GetUserSkillLevel(string skillId)
+    {
+        var userSkill = UserSkills.FirstOrDefault(us => us.SkillId == skillId);
+        return userSkill?.CurrentLevel ?? 0;
+    }
+
+    private void SelectSkill(Skill skill)
+    {
+        SelectedSkill = skill;
+    }
+
+    private bool CanLearnSkill(Skill skill)
+    {
+        if (PlayerLevel < skill.RequiredPlayerLevel) return false;
+        if (AvailableSkillPoints < skill.SkillPointCost) return false;
+
+        var currentLevel = GetUserSkillLevel(skill.Id);
+        if (currentLevel >= skill.MaxLevel) return false;
+
+        // 前提スキルのチェック
+        if (!string.IsNullOrEmpty(skill.ParentSkillId))
+        {
+            var parentLevel = GetUserSkillLevel(skill.ParentSkillId);
+            if (parentLevel < 1) return false;
+        }
+
+        return true;
+    }
+
+    private void LearnSkill(Skill skill)
+    {
+        if (!CanLearnSkill(skill)) return;
+
+        var existingSkill = UserSkills.FirstOrDefault(us => us.SkillId == skill.Id);
+        if (existingSkill != null)
+        {
+            existingSkill.CurrentLevel++;
+        }
+        else
+        {
+            UserSkills.Add(new UserSkill { SkillId = skill.Id, CurrentLevel = 1 });
+        }
+
+        // 親コンポーネントに通知（SP消費のため）
+        StateHasChanged();
+    }
+
+    private string GetSkillNodeClass(Skill skill, bool isLocked, bool isMaxed, bool isLearnable)
+    {
+        var classes = new List<string> { "skill-node-base" };
+        if (isLocked) classes.Add("locked");
+        else if (isMaxed) classes.Add("maxed");
+        else if (isLearnable) classes.Add("learnable");
+        else classes.Add("learned");
+        return string.Join(" ", classes);
+    }
+
+    private string GetJobName(Job job) => job switch
+    {
+        Job.Warrior => "⚔️ 戦士",
+        Job.Monk => "👊 格闘家",
+        Job.WhiteMage => "✨ 白魔道士",
+        Job.BlackMage => "🔥 黒魔道士",
+        _ => job.ToString()
+    };
+
+    private string GetEffectText(Skill skill)
+    {
+        return skill.EffectType switch
+        {
+            SkillEffectType.StrBonus => $"STR +{skill.EffectValue * GetUserSkillLevel(skill.Id)}",
+            SkillEffectType.DexBonus => $"DEX +{skill.EffectValue * GetUserSkillLevel(skill.Id)}",
+            SkillEffectType.IntBonus => $"INT +{skill.EffectValue * GetUserSkillLevel(skill.Id)}",
+            SkillEffectType.VitBonus => $"VIT +{skill.EffectValue * GetUserSkillLevel(skill.Id)}",
+            SkillEffectType.HpBonus => $"HP +{skill.EffectValue * GetUserSkillLevel(skill.Id)}",
+            SkillEffectType.MpBonus => $"MP +{skill.EffectValue * GetUserSkillLevel(skill.Id)}",
+            SkillEffectType.AtkBonus => $"攻撃力 +{skill.EffectValue * GetUserSkillLevel(skill.Id)}",
+            SkillEffectType.DefBonus => $"防御力 +{skill.EffectValue * GetUserSkillLevel(skill.Id)}",
+            SkillEffectType.ExpBonus => $"経験値 +{skill.EffectValue * GetUserSkillLevel(skill.Id)}%",
+            SkillEffectType.GilBonus => $"ギル +{skill.EffectValue * GetUserSkillLevel(skill.Id)}%",
+            SkillEffectType.CriticalRate => $"クリティカル率 +{skill.EffectValue * GetUserSkillLevel(skill.Id)}%",
+            SkillEffectType.Evasion => $"回避率 +{skill.EffectValue * GetUserSkillLevel(skill.Id)}%",
+            _ => ""
+        };
+    }
+}

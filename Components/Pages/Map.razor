@@ -1,0 +1,177 @@
+@page "/map"
+@rendermode InteractiveServer
+@inject Services.MapService MapService
+@inject NavigationManager Navigation
+
+<PageTitle>マップ</PageTitle>
+
+<div class="map-container">
+    <h1>マップ</h1>
+    
+    <div class="current-location">
+        <h2>@CurrentLocation.Name</h2>
+        <p>@CurrentLocation.Description</p>
+        <div class="location-info">
+            <span class="location-type @CurrentLocation.Type">@GetLocationTypeName(CurrentLocation.Type)</span>
+            <span class="coordinates">座標: (@CurrentLocation.X, @CurrentLocation.Y)</span>
+        </div>
+    </div>
+    
+    <div class="direction-buttons">
+        <button class="direction-button" @onclick="() => Move(Direction.North)" disabled="@(CurrentLocation.Y == 0)">↑ 北</button>
+        <div class="horizontal-buttons">
+            <button class="direction-button" @onclick="() => Move(Direction.West)" disabled="@(CurrentLocation.X == 0)">← 西</button>
+            <button class="direction-button" @onclick="() => Move(Direction.East)" disabled="@(CurrentLocation.X == MapService.GetCurrentMap().Width - 1)">→ 東</button>
+        </div>
+        <button class="direction-button" @onclick="() => Move(Direction.South)" disabled="@(CurrentLocation.Y == MapService.GetCurrentMap().Height - 1)">↓ 南</button>
+    </div>
+    
+    <div class="map-preview">
+        <h3>マッププレビュー</h3>
+        <div class="map-grid">
+            @for (int y = 0; y < 5; y++)
+            {
+                <div class="map-row">
+                    @for (int x = 0; x < 5; x++)
+                    {
+                        int mapX = CurrentLocation.X - 2 + x;
+                        int mapY = CurrentLocation.Y - 2 + y;
+                        var location = MapService.GetLocation(mapX, mapY);
+                        var isCurrent = mapX == CurrentLocation.X && mapY == CurrentLocation.Y;
+                        
+                        <div class="map-cell @location.Type @(isCurrent ? "current" : "")" @onclick="() => JumpTo(mapX, mapY)">
+                            @GetCellSymbol(location.Type, isCurrent)
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+    
+    @if (CurrentLocation.Events.Count > 0)
+    {
+        <div class="location-events">
+            <h3>イベント</h3>
+            <ul>
+                @foreach (var ev in CurrentLocation.Events)
+                {
+                    <li>@ev</li>
+                }
+            </ul>
+        </div>
+    }
+    
+    <div class="actions">
+        <h3>行動</h3>
+        <div class="action-buttons">
+            @if (CurrentLocation.Type == "town")
+            {
+                <button class="action-button" @onclick="GoToTown">町に入る</button>
+            }
+            else if (CurrentLocation.Type == "dungeon")
+            {
+                <button class="action-button" @onclick="GoToDungeon">ダンジョンに入る</button>
+            }
+            else if (CurrentLocation.Type == "field")
+            {
+                <button class="action-button" @onclick="Search">探索する</button>
+            }
+            else if (CurrentLocation.Type == "forest")
+            {
+                <button class="action-button" @onclick="CutWood">木を切る</button>
+                <button class="action-button" @onclick="Hunt">狩りをする</button>
+            }
+            else if (CurrentLocation.Type == "river")
+            {
+                <button class="action-button" @onclick="Fish">魚を釣る</button>
+            }
+            
+            <button class="action-button" @onclick="GoToHome">ホームに戻る</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    private MapLocation CurrentLocation { get; set; } = new MapLocation();
+    
+    protected override void OnInitialized()
+    {
+        // 初期位置（町の広場）に設定
+        CurrentLocation = MapService.GetLocation(5, 5);
+    }
+    
+    private string GetLocationTypeName(string type)
+    {
+        return type switch
+        {
+            "town" => "町",
+            "field" => "野原",
+            "forest" => "森",
+            "mountain" => "山",
+            "river" => "川",
+            "dungeon" => "ダンジョン",
+            _ => "不明"
+        };
+    }
+    
+    private string GetCellSymbol(string type, bool isCurrent)
+    {
+        if (isCurrent) return "◎";
+        
+        return type switch
+        {
+            "town" => "🏠",
+            "field" => "🌾",
+            "forest" => "🌲",
+            "mountain" => "🏔️",
+            "river" => "💧",
+            "dungeon" => "🚪",
+            _ => "?"
+        };
+    }
+    
+    private void Move(Direction direction)
+    {
+        CurrentLocation = MapService.Move(direction, CurrentLocation.X, CurrentLocation.Y);
+    }
+    
+    private void JumpTo(int x, int y)
+    {
+        CurrentLocation = MapService.GetLocation(x, y);
+    }
+    
+    private void GoToTown()
+    {
+        Navigation.NavigateTo("/town");
+    }
+    
+    private void GoToDungeon()
+    {
+        Navigation.NavigateTo("/dungeon");
+    }
+    
+    private void Search()
+    {
+        // 探索の処理
+    }
+    
+    private void CutWood()
+    {
+        // 木を切る処理
+    }
+    
+    private void Hunt()
+    {
+        // 狩りの処理
+    }
+    
+    private void Fish()
+    {
+        // 魚を釣る処理
+    }
+    
+    private void GoToHome()
+    {
+        Navigation.NavigateTo("/");
+    }
+}

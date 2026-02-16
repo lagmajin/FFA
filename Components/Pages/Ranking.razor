@@ -1,0 +1,126 @@
+@page "/ranking"
+@using Microsoft.AspNetCore.Components.Authorization
+@inject RankingService RankingService
+@inject UserService UserService
+@inject NavigationManager Navigation
+@inject Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthStateProvider
+
+<h1>ランキング</h1>
+
+@if (rankingEntries == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="ranking-container">
+        <div class="ranking-list">
+            <h2>上位10位</h2>
+            <div class="ranking-entries">
+                @foreach (var entry in rankingEntries)
+                {
+                    <div class="ranking-entry">
+                        <div class="rank">
+                            <span class="rank-number">@entry.Rank</span>
+                            @if (entry.Rank == 1)
+                            {
+                                <i class="fas fa-crown gold"></i>
+                            }
+                            else if (entry.Rank == 2)
+                            {
+                                <i class="fas fa-crown silver"></i>
+                            }
+                            else if (entry.Rank == 3)
+                            {
+                                <i class="fas fa-crown bronze"></i>
+                            }
+                        </div>
+                        <div class="user-info">
+                            <h3>@entry.Username</h3>
+                            <p>レベル: @entry.Level</p>
+                        </div>
+                        <div class="user-stats">
+                            <p class="gil-amount">@entry.Gil.ToString("N0") ギル</p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="user-ranking">
+            <h2>あなたのランキング</h2>
+            @if (userRanking != null)
+            {
+                <div class="user-ranking-entry">
+                    <div class="rank">
+                        <span class="rank-number">@userRanking.Rank</span>
+                    </div>
+                    <div class="user-info">
+                        <h3>@userRanking.Username</h3>
+                        <p>レベル: @userRanking.Level</p>
+                    </div>
+                    <div class="user-stats">
+                        <p class="gil-amount">@userRanking.Gil.ToString("N0") ギル</p>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <p>ランキングに登録されていません</p>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private List<RankingEntry> rankingEntries = new();
+    private RankingEntry? userRanking;
+    private User? currentUser;
+    private string? currentUsername;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        currentUsername = state.User?.Identity?.Name;
+        if (!string.IsNullOrEmpty(currentUsername))
+        {
+            currentUser = UserService.GetByUsername(currentUsername!);
+        }
+        if (currentUser != null)
+        {
+            await RankingService.UpdateRankingAsync();
+            var allRankings = RankingService.GetCurrentRanking().ToList();
+
+            // ランキングに順位を追加
+            for (int i = 0; i < allRankings.Count; i++)
+            {
+                allRankings[i] = new RankingEntry
+                {
+                    Id = allRankings[i].Id,
+                    Username = allRankings[i].Username,
+                    Gil = allRankings[i].Gil,
+                    Level = allRankings[i].Level,
+                    LastUpdated = allRankings[i].LastUpdated,
+                    Rank = i + 1
+                };
+            }
+
+            rankingEntries = allRankings;
+
+            // 現在のユーザーのランキングを取得
+            var userEntry = RankingService.GetUserRanking(currentUser.Username);
+            if (userEntry != null)
+            {
+                userRanking = new RankingEntry
+                {
+                    Id = userEntry.Id,
+                    Username = userEntry.Username,
+                    Gil = userEntry.Gil,
+                    Level = userEntry.Level,
+                    LastUpdated = userEntry.LastUpdated,
+                    Rank = rankingEntries.FindIndex(e => e.Username == userEntry.Username) + 1
+                };
+            }
+        }
+    }
+}
