@@ -1,6 +1,7 @@
 @using FFA.Services
 @using FFA.Models
 @using Microsoft.AspNetCore.Components.Authorization
+@implements IAsyncDisposable
 @inject IJSRuntime JS
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthStateProvider
@@ -71,22 +72,33 @@
     {
         if (firstRender)
         {
-            objRef = DotNetObjectReference.Create(this);
-            moduleRef = await JS.InvokeAsync<IJSObjectReference>("import", "/js/worldhub.js");
-            await moduleRef.InvokeVoidAsync("start", objRef);
+            try
+            {
+                objRef = DotNetObjectReference.Create(this);
+                moduleRef = await JS.InvokeAsync<IJSObjectReference>("import", "/js/worldhub.js");
+                await moduleRef.InvokeVoidAsync("start", objRef);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"KarmaBadge OnAfterRenderAsync error: {ex.Message}");
+            }
         }
     }
 
     public async ValueTask DisposeAsync()
     {
-        if (moduleRef != null)
+        try
         {
-            await moduleRef.InvokeVoidAsync("stop");
-            await moduleRef.DisposeAsync();
+            if (moduleRef != null)
+            {
+                await moduleRef.InvokeVoidAsync("stop");
+                await moduleRef.DisposeAsync();
+            }
         }
-        if (objRef != null)
+        catch { }
+        finally
         {
-            objRef.Dispose();
+            objRef?.Dispose();
         }
     }
 }

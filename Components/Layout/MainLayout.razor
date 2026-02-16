@@ -1,4 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Web
 @inherits LayoutComponentBase
 @inject NavigationManager NavManager
 
@@ -35,15 +36,29 @@
 </header>
 
 <main>
-    <ErrorBoundary>
+    <ErrorBoundary @ref="mainErrorBoundary">
         <ChildContent>
             @Body
         </ChildContent>
-        <ErrorContent>
-            <div class="error-container" style="padding: 2rem; text-align: center; margin: 2rem;">
-                <h1>エラーが発生しました</h1>
-                <p>問題が発生しました。ダッシュボードに戻って再度お試しください。</p>
-                <a href="/status" class="action-button">ステータスへ</a>
+        <ErrorContent Context="ex">
+            <div class="error-container" style="padding: 2rem; margin: 2rem; background-color: #fee; border: 2px solid #c00; border-radius: 8px;">
+                <h2 style="color: #c00;">🚨 ページエラーが発生しました</h2>
+                <p><strong>種類:</strong> @ex.GetType().Name</p>
+                <p><strong>メッセージ:</strong> @ex.Message</p>
+                @if (ex.InnerException != null)
+                {
+                    <p><strong>内部エラー:</strong> @ex.InnerException.Message</p>
+                }
+                <details style="margin: 10px 0;">
+                    <summary style="cursor: pointer;">スタックトレース</summary>
+                    <pre style="background: #f5f5f5; padding: 10px; overflow-x: auto; font-size: 11px; white-space: pre-wrap;">@ex.StackTrace</pre>
+                </details>
+                <div style="margin-top: 15px;">
+                    <button @onclick="RecoverMain" style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;">
+                        回復を試みる
+                    </button>
+                    <a href="/status" class="action-button" style="padding: 10px 20px; background: #2196F3; color: white; text-decoration: none; border-radius: 4px;">ステータスへ</a>
+                </div>
             </div>
         </ErrorContent>
     </ErrorBoundary>
@@ -66,10 +81,9 @@
 
 <script src="/js/auth.js"></script>
 <link href="/css/timeweather.css" rel="stylesheet" />
+<script src="/js/signalr.min.js"></script>
 <component type="typeof(Components.Systems.TimeWeather)" render-mode="InteractiveServer" />
 <component type="typeof(Components.Systems.KarmaBadge)" render-mode="InteractiveServer" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
-<script type="module" src="/js/worldhub.js"></script>
 <script>
     (function () {
         try {
@@ -109,6 +123,8 @@
 </script>
 
 @code {
+    private ErrorBoundary? mainErrorBoundary;
+    
     [Inject] private IJSRuntime JS { get; set; }
     [Inject] private NavigationManager Navigation { get; set; }
 
@@ -116,6 +132,11 @@
     {
         var uri = new Uri(NavManager.Uri);
         return uri.AbsolutePath == "/";
+    }
+
+    private void RecoverMain()
+    {
+        mainErrorBoundary?.Recover();
     }
 
     private async Task SignOut()

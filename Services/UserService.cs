@@ -17,7 +17,7 @@ public class UserService
         _databasePath = Path.Combine(appDataPath, "users.db");
     }
 
-    public bool Register(string username, string password, Models.Job job = Models.Job.Warrior)
+    public bool Register(string username, string password, Models.Job job = Models.Job.Warrior, int? countryId = null)
     {
         try
         {
@@ -28,7 +28,7 @@ public class UserService
                 return false; // 既に存在
 
             var hash = HashPassword(password);
-            var user = new User { Username = username, PasswordHash = hash, Gil = 1000, OldCoin = 100, Job = job };
+            var user = new User { Username = username, PasswordHash = hash, Gil = 1000, OldCoin = 100, Job = job, CountryId = countryId };
             user.Premium = 10; // initial premium currency
 
             // Set initial weapon to こんぼう for all jobs
@@ -63,7 +63,7 @@ public class UserService
 
             // record admin log for registration
             var logs = db.GetCollection<AdminLog>("adminlogs");
-            logs.Insert(new AdminLog { Action = "Register", Detail = $"User '{username}' registered as {job}" });
+            logs.Insert(new AdminLog { Action = "Register", Detail = $"User '{username}' registered as {job}" + (countryId.HasValue ? $" in Country {countryId}" : " (no country)") });
 
             return true;
         }
@@ -288,32 +288,70 @@ public class UserService
     }
 
     // Inventory helper
-    public void AddItemToUser(string username, InventoryItem item)
+public void AddItemToUser(string username, InventoryItem item)
+{
+    try
     {
-        try
-        {
-            using var db = new LiteDatabase(_databasePath);
-            var users = db.GetCollection<User>("users");
-            var user = users.FindOne(u => u.Username == username);
-            if (user == null) return;
+        using var db = new LiteDatabase(_databasePath);
+        var users = db.GetCollection<User>("users");
+        var user = users.FindOne(u => u.Username == username);
+        if (user == null) return;
 
-            var existing = user.Inventory.FirstOrDefault(i => i.Name == item.Name);
-            if (existing != null)
-            {
-                existing.Quantity += item.Quantity;
-            }
-            else
-            {
-                user.Inventory.Add(item);
-            }
-
-            users.Update(user);
-        }
-        catch (Exception ex)
+        var existing = user.Inventory.FirstOrDefault(i => i.Name == item.Name);
+        if (existing != null)
         {
-            Console.WriteLine($"UserService.AddItemToUser 例外: {ex.Message} - {ex.StackTrace}");
+            existing.Quantity += item.Quantity;
         }
+        else
+        {
+            user.Inventory.Add(item);
+        }
+
+        users.Update(user);
     }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"UserService.AddItemToUser 例外: {ex.Message} - {ex.StackTrace}");
+    }
+}
+
+// Get user's equipped items
+public (Weapon?, Armor?, Accessory?) GetEquippedItems(string username)
+{
+    try
+    {
+        using var db = new LiteDatabase(_databasePath);
+        var users = db.GetCollection<User>("users");
+        var user = users.FindOne(u => u.Username == username);
+        if (user == null) return (null, null, null);
+
+        return (user.EquippedWeapon, user.EquippedArmor, user.EquippedAccessory);
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"UserService.GetEquippedItems 例外: {ex.Message} - {ex.StackTrace}");
+        return (null, null, null);
+    }
+}
+
+// Get user's inventory items (weapons, armors, accessories)
+public IEnumerable<InventoryItem> GetInventoryItems(string username)
+{
+    try
+    {
+        using var db = new LiteDatabase(_databasePath);
+        var users = db.GetCollection<User>("users");
+        var user = users.FindOne(u => u.Username == username);
+        if (user == null) return new List<InventoryItem>();
+
+        return user.Inventory.Where(i => i.Type == "Weapon" || i.Type == "Armor" || i.Type == "Accessory");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"UserService.GetInventoryItems 例外: {ex.Message} - {ex.StackTrace}");
+        return new List<InventoryItem>();
+    }
+}
 
     // Sell item from inventory (returns sell price, which is typically half of purchase price)
     public int SellItem(string username, string itemName, int quantity = 1)

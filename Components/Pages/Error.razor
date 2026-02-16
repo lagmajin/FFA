@@ -1,6 +1,8 @@
 ﻿@page "/Error"
 @using System.Diagnostics
 
+@inject FFA.Services.DeveloperExceptionService DevEx
+
 <PageTitle>Error</PageTitle>
 
 <h1 class="text-danger">Error.</h1>
@@ -11,14 +13,23 @@
     <p>
         <strong>Request ID:</strong> <code>@RequestId</code>
     </p>
-
-@inject FFA.Services.DeveloperExceptionService DevEx
+}
 
 @if (DevEx.Get() is Exception ex)
 {
-    <h4>Exception Details (stored)</h4>
-    <pre style="white-space:pre-wrap; max-width:90%; overflow:auto;">@ex.ToString()</pre>
-}
+    <div style="background-color: #fee; border: 2px solid #c00; border-radius: 8px; padding: 20px; margin: 20px 0;">
+        <h3 style="color: #c00;">🚨 例外の詳細</h3>
+        <p><strong>種類:</strong> @ex.GetType().FullName</p>
+        <p><strong>メッセージ:</strong> @ex.Message</p>
+        @if (ex.InnerException != null)
+        {
+            <p><strong>内部例外:</strong> @ex.InnerException.Message</p>
+        }
+        <details>
+            <summary style="cursor: pointer; font-weight: bold;">フルスタックトレース</summary>
+            <pre style="white-space: pre-wrap; max-width: 100%; overflow: auto; background: #f5f5f5; padding: 10px; font-size: 12px;">@ex.ToString()</pre>
+        </details>
+    </div>
 }
 
 <h3>Development Mode</h3>
@@ -31,6 +42,10 @@
     For local debugging, enable the <strong>Development</strong> environment by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong>
     and restarting the app.
 </p>
+
+<div style="margin-top: 20px;">
+    <a href="/" style="padding: 10px 20px; background: #2196F3; color: white; text-decoration: none; border-radius: 4px;">ホームへ戻る</a>
+</div>
 
 @code{
     [CascadingParameter]

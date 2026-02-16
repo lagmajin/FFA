@@ -1,4 +1,5 @@
 @using FFA.Services
+@implements IAsyncDisposable
 @inject TimeWeatherService TWService
 @inject IJSRuntime JS
 
@@ -9,17 +10,15 @@
 </div>
 
 @code {
+    private DotNetObjectReference<TimeWeather>? objRef;
+    private IJSObjectReference? moduleRef;
+
     private string FormatTime(double t)
     {
         int hh = (int)Math.Floor(t);
         int mm = (int)Math.Floor((t - hh) * 60);
         return $"{hh:D2}:{mm:D2}";
     }
-}
-
-@code {
-    private DotNetObjectReference<TimeWeather>? objRef;
-    private IJSObjectReference? moduleRef;
 
     [JSInvokable]
     public Task OnWorldUpdated(string json)
@@ -33,22 +32,33 @@
     {
         if (firstRender)
         {
-            objRef = DotNetObjectReference.Create(this);
-            moduleRef = await JS.InvokeAsync<IJSObjectReference>("import", "/js/worldhub.js");
-            await moduleRef.InvokeVoidAsync("start", objRef);
+            try
+            {
+                objRef = DotNetObjectReference.Create(this);
+                moduleRef = await JS.InvokeAsync<IJSObjectReference>("import", "/js/worldhub.js");
+                await moduleRef.InvokeVoidAsync("start", objRef);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"TimeWeather OnAfterRenderAsync error: {ex.Message}");
+            }
         }
     }
 
     public async ValueTask DisposeAsync()
     {
-        if (moduleRef != null)
+        try
         {
-            await moduleRef.InvokeVoidAsync("stop");
-            await moduleRef.DisposeAsync();
+            if (moduleRef != null)
+            {
+                await moduleRef.InvokeVoidAsync("stop");
+                await moduleRef.DisposeAsync();
+            }
         }
-        if (objRef != null)
+        catch { }
+        finally
         {
-            objRef.Dispose();
+            objRef?.Dispose();
         }
     }
 }

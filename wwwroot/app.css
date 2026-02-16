@@ -1,3 +1,8 @@
+/* Fluent UI Blazor Styles */
+/* FluentUI CSS - コメントアウト（404エラー回避） */
+/* @import url('_content/Microsoft.FluentUI.AspNetCore.Components/css/theming.css'); */
+/* @import url('_content/Microsoft.FluentUI.AspNetCore.Components/css/fluentui-icons.css'); */
+
 h1:focus {
     outline: none;
 }

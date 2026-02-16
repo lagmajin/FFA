@@ -1,13 +1,54 @@
-﻿<CascadingAuthenticationState>
-    <Router AppAssembly="typeof(Program).Assembly">
-        <Found Context="routeData">
-            <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
-        </Found>
-        <NotFound>
-            <PageTitle>Not Found</PageTitle>
-            <LayoutView Layout="typeof(Layout.MainLayout)">
-                <Pages.NotFound />
-            </LayoutView>
-        </NotFound>
-    </Router>
-</CascadingAuthenticationState>
+﻿﻿@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Authorization
+
+<ErrorBoundary @ref="errorBoundary">
+    <ChildContent>
+        <CascadingAuthenticationState>
+            <Router AppAssembly="typeof(Program).Assembly">
+                <Found Context="routeData">
+                    <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
+                </Found>
+                <NotFound>
+                    <PageTitle>Not Found</PageTitle>
+                    <LayoutView Layout="typeof(Layout.MainLayout)">
+                        <Pages.NotFound />
+                    </LayoutView>
+                </NotFound>
+            </Router>
+        </CascadingAuthenticationState>
+    </ChildContent>
+    <ErrorContent Context="ex">
+        <div style="padding: 40px; max-width: 800px; margin: 0 auto; font-family: sans-serif;">
+            <div style="background-color: #fee; border: 2px solid #c00; border-radius: 8px; padding: 20px;">
+                <h2 style="color: #c00; margin-top: 0;">🚨 アプリケーションエラー</h2>
+                <p><strong>種類:</strong> @ex.GetType().FullName</p>
+                <p><strong>メッセージ:</strong> @ex.Message</p>
+                @if (ex.InnerException != null)
+                {
+                    <p><strong>内部エラー:</strong> @ex.InnerException.Message</p>
+                }
+                <details style="margin-top: 10px;">
+                    <summary style="cursor: pointer; font-weight: bold;">スタックトレース</summary>
+                    <pre style="background: #f5f5f5; padding: 10px; overflow-x: auto; font-size: 12px; white-space: pre-wrap;">@ex.StackTrace</pre>
+                </details>
+                <div style="margin-top: 20px;">
+                    <button @onclick="Recover" style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;">
+                        回復を試みる
+                    </button>
+                    <a href="/" style="padding: 10px 20px; background: #2196F3; color: white; text-decoration: none; border-radius: 4px;">
+                        ホームへ戻る
+                    </a>
+                </div>
+            </div>
+        </div>
+    </ErrorContent>
+</ErrorBoundary>
+
+@code {
+    private ErrorBoundary? errorBoundary;
+
+    private void Recover()
+    {
+        errorBoundary?.Recover();
+    }
+}

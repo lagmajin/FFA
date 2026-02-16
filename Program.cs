@@ -75,6 +75,10 @@ else
     });
     app.UseDeveloperExceptionPage();
 }
+
+// 静的ファイルの配信を有効化
+app.UseStaticFiles();
+
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 
 app.UseAntiforgery();

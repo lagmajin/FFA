@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+﻿﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -18,7 +18,18 @@
         <Routes />
     </CascadingAuthenticationState>
     <ReconnectModal />
-    <script src="@Assets["_framework/blazor.web.js"]"></script>
+    <script src="@Assets["_framework/blazor.web.js"]" autostart="true"></script>
+    <script>
+        // グローバルエラーハンドリング（Blazor起動後）
+        window.addEventListener('error', function(event) {
+            console.error('Global error:', event.error);
+        });
+
+        // 未処理のPromise拒否をキャッチ
+        window.addEventListener('unhandledrejection', function(event) {
+            console.error('Unhandled rejection:', event.reason);
+        });
+    </script>
 </body>
 
 </html>

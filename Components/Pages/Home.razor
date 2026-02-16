@@ -2,38 +2,42 @@
 @rendermode InteractiveServer
 @inject NavigationManager Navigation
 @inject Services.UserService UserService
+@inject IJSRuntime JSRuntime
 
 <PageTitle>CGI風ゲーム</PageTitle>
 
-<link href="/css/home.css" rel="stylesheet" />
-
 @* TODO: 現在のチャンピオン表示機能を実装する *@
-<div class="champion-section">
-    <div class="champion-card">
+
+<FluentCard>
+    <FluentCardHeader>
         <h3>🏆 現在のチャンピオン</h3>
-        <div class="champion-info">
-            <div class="champion-avatar">
-                <span class="avatar-placeholder">👑</span>
-            </div>
-            <div class="champion-details">
-                <p class="champion-name">--</p>
-                <p class="champion-title">チャンピオンが決定するまでお待ちください</p>
-                <p class="champion-stats">勝利数: -- | 連続勝利: --</p>
-            </div>
+    </FluentCardHeader>
+    <div class="champion-info">
+        <div class="champion-avatar">
+            <FluentAvatar Initials="👑" Size="Size48" Shape="Shape.Circle"></FluentAvatar>
+        </div>
+        <div class="champion-details">
+            <p class="champion-name">--</p>
+            <p class="champion-title">チャンピオンが決定するまでお待ちください</p>
+            <p class="champion-stats">勝利数: -- | 連続勝利: --</p>
         </div>
     </div>
-</div>
+</FluentCard>
 
 <div class="home-container">
     @if (!string.IsNullOrEmpty(gilQuery) || !string.IsNullOrEmpty(oldCoinQuery) || !string.IsNullOrEmpty(jobQuery))
     {
-        <p>所持金: @gilQuery ギル 旧貨幣: @oldCoinQuery 枚 プレミア: @premiumQuery 職業: @jobQuery</p>
+<FluentBadge Appearance="Appearance.Accent">
+    所持金: @gilQuery ギル 旧貨幣: @oldCoinQuery 枚 プレミア: @premiumQuery 職業: @jobQuery
+</FluentBadge>
     }
 
     <div class="game-section">
-        <p class="welcome-message">FFAゲームへようこそ！</p>
+        <h1 class="welcome-message">FFAゲームへようこそ！</h1>
         <p class="game-description">冒険の世界で戦い、成長し、栄光を手に入れましょう！</p>
-        <button class="test-play-button" @onclick="TestPlay">テストプレイ</button>
+<FluentButton Appearance="Appearance.Accent" @onclick="TestPlay">
+    テストプレイ
+</FluentButton>
     </div>
 </div>
 

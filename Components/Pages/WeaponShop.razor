@@ -20,11 +20,12 @@ else
         <div class="shop-list">
             @foreach (var w in weapons)
             {
-                <div class="shop-item">
+<div class="shop-item">
                     <div class="shop-item-name">@w.Name</div>
                     <div>タイプ: @GetWeaponTypeName(w.Type)</div>
                     <div>攻撃: @w.Attack</div>
                     <div>価格: @w.Price ギル</div>
+                    <div>必要能力値: STR@w.RequiredStr DEX@w.RequiredDex INT@w.RequiredInt VIT@w.RequiredVit AGI@w.RequiredAgi LUK@w.RequiredLuk</div>
                     <button class="action-button" @onclick="() => BuyWeapon(w)">購入 / 装備</button>
                 </div>
             }
@@ -36,41 +37,41 @@ else
     private bool isAuth = false;
     private string? username;
 
-    private record WeaponForSale(string Name, int Attack, int Price, WeaponType Type);
+private record WeaponForSale(string Name, int Attack, int Price, WeaponType Type, int RequiredStr, int RequiredDex, int RequiredInt, int RequiredVit, int RequiredAgi, int RequiredLuk);
 
     private List<WeaponForSale> weapons = new()
     {
         // 棍棒
-        new WeaponForSale("こんぼう", 6, 100, WeaponType.Club),
-        new WeaponForSale("鉄の棍棒", 12, 400, WeaponType.Club),
+        new WeaponForSale("こんぼう", 6, 100, WeaponType.Club, 0, 0, 0, 0, 0, 0),
+        new WeaponForSale("鉄の棍棒", 12, 400, WeaponType.Club, 5, 0, 0, 0, 0, 0),
         // 短剣
-        new WeaponForSale("短剣", 8, 200, WeaponType.Dagger),
-        new WeaponForSale("鋼の短剣", 14, 500, WeaponType.Dagger),
+        new WeaponForSale("短剣", 8, 200, WeaponType.Dagger, 0, 5, 0, 0, 0, 0),
+        new WeaponForSale("鋼の短剣", 14, 500, WeaponType.Dagger, 0, 10, 0, 0, 0, 0),
         // 剣
-        new WeaponForSale("鉄の剣", 10, 300, WeaponType.Sword),
-        new WeaponForSale("鋼の剣", 16, 700, WeaponType.Sword),
-        new WeaponForSale("大剣", 18, 900, WeaponType.Sword),
-        new WeaponForSale("精鋼の剣", 22, 1500, WeaponType.Sword),
+        new WeaponForSale("鉄の剣", 10, 300, WeaponType.Sword, 5, 0, 0, 0, 0, 0),
+        new WeaponForSale("鋼の剣", 16, 700, WeaponType.Sword, 10, 0, 0, 0, 0, 0),
+        new WeaponForSale("大剣", 18, 900, WeaponType.Sword, 15, 0, 0, 0, 0, 0),
+        new WeaponForSale("精鋼の剣", 22, 1500, WeaponType.Sword, 20, 0, 0, 0, 0, 0),
         // 刀
-        new WeaponForSale("短刀", 9, 350, WeaponType.Katana),
-        new WeaponForSale("打刀", 15, 800, WeaponType.Katana),
-        new WeaponForSale("太刀", 20, 1200, WeaponType.Katana),
+        new WeaponForSale("短刀", 9, 350, WeaponType.Katana, 0, 5, 0, 0, 0, 0),
+        new WeaponForSale("打刀", 15, 800, WeaponType.Katana, 0, 10, 0, 0, 0, 0),
+        new WeaponForSale("太刀", 20, 1200, WeaponType.Katana, 0, 15, 0, 0, 0, 0),
         // 斧
-        new WeaponForSale("鉄の斧", 14, 500, WeaponType.Axe),
-        new WeaponForSale("鋼の斧", 20, 1000, WeaponType.Axe),
-        new WeaponForSale("巨斧", 25, 1800, WeaponType.Axe),
+        new WeaponForSale("鉄の斧", 14, 500, WeaponType.Axe, 10, 0, 0, 0, 0, 0),
+        new WeaponForSale("鋼の斧", 20, 1000, WeaponType.Axe, 15, 0, 0, 0, 0, 0),
+        new WeaponForSale("巨斧", 25, 1800, WeaponType.Axe, 20, 0, 0, 0, 0, 0),
         // 槍
-        new WeaponForSale("鉄の槍", 13, 450, WeaponType.Spear),
-        new WeaponForSale("鋼の槍", 19, 950, WeaponType.Spear),
-        new WeaponForSale("長槍", 23, 1600, WeaponType.Spear),
+        new WeaponForSale("鉄の槍", 13, 450, WeaponType.Spear, 5, 0, 0, 0, 0, 0),
+        new WeaponForSale("鋼の槍", 19, 950, WeaponType.Spear, 10, 0, 0, 0, 0, 0),
+        new WeaponForSale("長槍", 23, 1600, WeaponType.Spear, 15, 0, 0, 0, 0, 0),
         // 弓
-        new WeaponForSale("木の弓", 7, 250, WeaponType.Bow),
-        new WeaponForSale("鉄の弓", 11, 600, WeaponType.Bow),
-        new WeaponForSale("長弓", 15, 1100, WeaponType.Bow),
+        new WeaponForSale("木の弓", 7, 250, WeaponType.Bow, 0, 5, 0, 0, 0, 0),
+        new WeaponForSale("鉄の弓", 11, 600, WeaponType.Bow, 0, 10, 0, 0, 0, 0),
+        new WeaponForSale("長弓", 15, 1100, WeaponType.Bow, 0, 15, 0, 0, 0, 0),
         // 杖
-        new WeaponForSale("木の杖", 5, 200, WeaponType.Staff),
-        new WeaponForSale("魔法の杖", 9, 700, WeaponType.Staff),
-        new WeaponForSale("精霊の杖", 13, 1400, WeaponType.Staff),
+        new WeaponForSale("木の杖", 5, 200, WeaponType.Staff, 0, 0, 5, 0, 0, 0),
+        new WeaponForSale("魔法の杖", 9, 700, WeaponType.Staff, 0, 0, 10, 0, 0, 0),
+        new WeaponForSale("精霊の杖", 13, 1400, WeaponType.Staff, 0, 0, 15, 0, 0, 0),
     };
 
     protected override async Task OnInitializedAsync()
@@ -97,19 +98,34 @@ else
         };
     }
 
-    private void BuyWeapon(WeaponForSale w)
+private void BuyWeapon(WeaponForSale w)
+{
+    if (!isAuth || string.IsNullOrEmpty(username)) return;
+    var u = UserService.GetByUsername(username);
+    if (u == null) return;
+    if (u.Gil < w.Price)
     {
-        if (!isAuth || string.IsNullOrEmpty(username)) return;
-        var u = UserService.GetByUsername(username);
-        if (u == null) return;
-        if (u.Gil < w.Price)
-        {
-            // 不足
-            return;
-        }
-        u.Gil -= w.Price;
-        u.EquippedWeapon = new Weapon { Name = w.Name, Attack = w.Attack, Type = w.Type };
-        UserService.UpdateUser(u);
-        Navigation.NavigateTo("/town");
+        // 不足
+        return;
+    }
+    u.Gil -= w.Price;
+
+    // 装備条件を確認
+    if (u.Status.Str < w.RequiredStr ||
+        u.Status.Dex < w.RequiredDex ||
+        u.Status.Int < w.RequiredInt ||
+        u.Status.Vit < w.RequiredVit ||
+        u.Status.Agi < w.RequiredAgi ||
+        u.Status.Luk < w.RequiredLuk)
+    {
+        // 装備条件を満たしていない
+        return;
+    }
+
+    // 装備
+    u.EquippedWeapon = new Weapon { Name = w.Name, Attack = w.Attack, Type = w.Type, RequiredStr = w.RequiredStr, RequiredDex = w.RequiredDex, RequiredInt = w.RequiredInt, RequiredVit = w.RequiredVit, RequiredAgi = w.RequiredAgi, RequiredLuk = w.RequiredLuk };
+    UserService.UpdateUser(u);
+    Navigation.NavigateTo("/town");
+}
     }
 }

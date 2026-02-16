@@ -6,63 +6,153 @@
 @using System.ComponentModel.DataAnnotations
 @using FFA.Services
 @using FFA.Models
+@using Microsoft.AspNetCore.Components.Web
 
 @inject UserService UserService
+@inject CountryService CountryService
 @inject NavigationManager Navigation
 
 <h2>キャラクター登録</h2>
 
-<div class="section-with-line">
-    @if (registrationSuccess)
-    {
-        <p>登録が完了しました！ 職業: @registeredJob。あなたの初期所持金: @registeredGil ギル、旧貨幣: @registeredOldCoin 枚、プレミア通貨: @registeredPremium。</p>
-        <p>装備: 武器 - @registeredWeapon、防具 - @registeredArmor、アクセサリー - @registeredAccessory。<a href="/">ホームに戻る</a></p>
-    }
-    else
-    {
-        <EditForm Model="registerModel" OnValidSubmit="HandleValidSubmit" FormName="register">
-            <DataAnnotationsValidator />
-            <ValidationSummary />
-
-            @if (!string.IsNullOrEmpty(errorMessage))
+<ErrorBoundary @ref="errorBoundary">
+    <ChildContent>
+        <div class="section-with-line">
+            @if (!string.IsNullOrEmpty(initializationError))
             {
-                <p style="color: red;">@errorMessage</p>
+                <div style="padding: 20px; background-color: #ffcccc; border: 1px solid #ff0000; border-radius: 8px; margin-bottom: 20px;">
+                    <h3 style="color: #cc0000;">⚠️ 初期化エラー</h3>
+                    <p>@initializationError</p>
+                    <button @onclick="RetryInitialization">再試行</button>
+                </div>
             }
+            else if (registrationSuccess)
+            {
+                <p>登録が完了しました！ 職業: @registeredJob。あなたの初期所持金: @registeredGil ギル、旧貨幣: @registeredOldCoin 枚、プレミア通貨: @registeredPremium。</p>
+                <p>装備: 武器 - @registeredWeapon、防具 - @registeredArmor、アクセサリー - @registeredAccessory。<a href="/">ホームに戻る</a></p>
+            }
+            else
+            {
+                <EditForm Model="registerModel" OnValidSubmit="HandleValidSubmit" FormName="register">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
 
-            <div>
-                <label for="username">ユーザー名:</label>
-                <InputText id="username" @bind-Value="registerModel.Username" />
-            </div>
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <p style="color: red;">@errorMessage</p>
+                    }
 
-            <div>
-                <label for="job">職業:</label>
-                <InputSelect id="job" @bind-Value="registerModel.Job">
-                    <option value="Warrior">戦士</option>
-                    <option value="Monk">モンク</option>
-                    <option value="WhiteMage">白魔道士</option>
-                    <option value="BlackMage">黒魔道士</option>
-                </InputSelect>
-            </div>
+                    <div>
+                        <label for="username">ユーザー名:</label>
+                        <InputText id="username" @bind-Value="registerModel.Username" />
+                    </div>
 
-            <div>
-                <label for="password">パスワード:</label>
-                <InputText id="password" type="password" @bind-Value="registerModel.Password" />
-            </div>
+                    <div>
+                        <label for="job">職業:</label>
+                        <InputSelect id="job" @bind-Value="registerModel.Job">
+                            <option value="Warrior">戦士</option>
+                            <option value="Monk">モンク</option>
+                            <option value="WhiteMage">白魔道士</option>
+                            <option value="BlackMage">黒魔道士</option>
+                        </InputSelect>
+                    </div>
 
-            <div>
-                <label for="confirmPassword">パスワード確認:</label>
-                <InputText id="confirmPassword" type="password" @bind-Value="registerModel.ConfirmPassword" />
-            </div>
+                    <div>
+                        <label for="country">国:</label>
+                        <InputSelect id="country" @bind-Value="registerModel.CountryId">
+                            <option value="">-- 無所属 --</option>
+                            @if (availableCountries != null)
+                            {
+                                @foreach (var ctry in availableCountries)
+                                {
+                                    <option value="@ctry.Id">@ctry.Name</option>
+                                }
+                            }
+                        </InputSelect>
+                    </div>
 
-            <button type="submit" disabled="@isSubmitting">@(isSubmitting ? "登録中..." : "登録")</button>
-        </EditForm>
-    }
-</div>
+                    @if (registerModel.CountryId.HasValue && registerModel.CountryId > 0 && availableCountries != null)
+                    {
+                        var selectedCountry = GetSelectedCountrySafe();
+                        if (selectedCountry != null)
+                        {
+                            <div>
+                                <label>スタート地点:</label>
+                                <div style="margin: 10px 0;">
+                                    <strong>@selectedCountry.Name</strong>
+                                    <p>@selectedCountry.Description</p>
+                                </div>
+                                <fieldset>
+                                    <legend>選択可能な場所:</legend>
+                                    @if (selectedCountry.Towns != null)
+                                    {
+                                        @foreach (var town in selectedCountry.Towns)
+                                        {
+                                            <div style="margin: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                                                <label>
+                                                    <input type="radio" name="startingLocation" value="@town.Id" @onchange="@((ChangeEventArgs e) => OnLocationSelectedSafe(town))" />
+                                                    <strong>@town.Name</strong> (@GetTownTypeDisplay(town.Type))
+                                                </label>
+                                                <p>@town.Description</p>
+                                                <p style="color: #666; font-size: 0.9em;">
+                                                    人口: @town.Population | 繁栄度: @town.Prosperity
+                                                </p>
+                                            </div>
+                                        }
+                                    }
+                                </fieldset>
+                            </div>
+                            @if (!string.IsNullOrEmpty(selectedLocationName))
+                            {
+                                <div style="margin-top: 15px; padding: 10px; background-color: #f0f0f0; border-radius: 4px;">
+                                    <p><strong>選択中:</strong> @selectedLocationName</p>
+                                    <p><strong>現在のゲーム内時刻:</strong> @FormatGameTime(currentGameTime)</p>
+                                </div>
+                            }
+                        }
+                    }
+
+                    <div>
+                        <label for="password">パスワード:</label>
+                        <InputText id="password" type="password" @bind-Value="registerModel.Password" />
+                    </div>
+
+                    <div>
+                        <label for="confirmPassword">パスワード確認:</label>
+                        <InputText id="confirmPassword" type="password" @bind-Value="registerModel.ConfirmPassword" />
+                    </div>
+
+                    <button type="submit" disabled="@isSubmitting">@(isSubmitting ? "登録中..." : "登録")</button>
+                </EditForm>
+            }
+        </div>
+    </ChildContent>
+    <ErrorContent Context="ex">
+        <div style="padding: 20px; background-color: #ffe0e0; border: 2px solid #cc0000; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #cc0000;">🚨 エラーが発生しました</h3>
+            <p><strong>エラーの種類:</strong> @ex.GetType().Name</p>
+            <p><strong>メッセージ:</strong> @ex.Message</p>
+            @if (ex.InnerException != null)
+            {
+                <p><strong>内部エラー:</strong> @ex.InnerException.Message</p>
+            }
+            <details>
+                <summary>詳細なスタックトレース</summary>
+                <pre style="background-color: #f5f5f5; padding: 10px; overflow-x: auto; font-size: 0.8em;">@ex.StackTrace</pre>
+            </details>
+            <button @onclick="RecoverFromError" style="margin-top: 10px; padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                エラーから回復する
+            </button>
+        </div>
+    </ErrorContent>
+</ErrorBoundary>
 
 @code {
+    private ErrorBoundary? errorBoundary;
     private RegisterModel registerModel = new();
+    private List<Models.Country>? availableCountries;
     private bool registrationSuccess = false;
     private string errorMessage = "";
+    private string initializationError = "";
     private int registeredGil = 0;
     private int registeredOldCoin = 0;
     private Models.Job registeredJob = Models.Job.Warrior;
@@ -72,6 +162,100 @@
     private int registeredPremium = 0;
 
     private bool isSubmitting = false;
+    private string selectedLocationName = string.Empty;
+    private int? selectedLocationId = null;
+    private double currentGameTime = 12.0; // ゲーム内時刻（12:00からスタート）
+
+    protected override void OnInitialized()
+    {
+        try
+        {
+            initializationError = "";
+            availableCountries = CountryService?.GetAllCountries() ?? new List<Models.Country>();
+        }
+        catch (Exception ex)
+        {
+            initializationError = $"国データの読み込みに失敗しました: {ex.Message}";
+            availableCountries = new List<Models.Country>();
+            Console.WriteLine($"Register.OnInitialized エラー: {ex}");
+        }
+    }
+
+    private void RetryInitialization()
+    {
+        OnInitialized();
+        StateHasChanged();
+    }
+
+    private void RecoverFromError()
+    {
+        errorBoundary?.Recover();
+        registerModel = new RegisterModel();
+        errorMessage = "";
+        selectedLocationName = string.Empty;
+        selectedLocationId = null;
+        currentGameTime = 12.0;
+        OnInitialized();
+    }
+
+    private Models.Country? GetSelectedCountrySafe()
+    {
+        try
+        {
+            if (availableCountries == null || !registerModel.CountryId.HasValue)
+                return null;
+            return availableCountries.FirstOrDefault(c => c.Id == registerModel.CountryId);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"GetSelectedCountrySafe エラー: {ex.Message}");
+            return null;
+        }
+    }
+
+    private void OnLocationSelectedSafe(Models.Town? town)
+    {
+        try
+        {
+            if (town == null) return;
+            selectedLocationName = town.Name ?? string.Empty;
+            selectedLocationId = town.Id;
+            // ゲーム内時刻を0:00～24:00のランダムな時刻に設定
+            currentGameTime = new Random().NextDouble() * 24.0;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"場所選択中にエラーが発生しました: {ex.Message}";
+            Console.WriteLine($"OnLocationSelectedSafe エラー: {ex}");
+        }
+    }
+
+    private string GetTownTypeDisplay(string? type)
+    {
+        if (string.IsNullOrEmpty(type)) return "不明";
+        return type switch
+        {
+            "capital" => "首都",
+            "village" => "田舎",
+            "town" => "街",
+            _ => type
+        };
+    }
+
+    private string FormatGameTime(double time)
+    {
+        try
+        {
+            int hours = (int)Math.Floor(time);
+            int minutes = (int)Math.Floor((time - hours) * 60);
+            return $"{hours:D2}:{minutes:D2}";
+        }
+        catch
+        {
+            return "00:00";
+        }
+    }
 
     private async Task HandleValidSubmit()
     {
@@ -92,7 +276,7 @@
             }
 
             // registration (synchronous service) executed while isSubmitting is true to prevent double submit
-            var success = UserService.Register(registerModel.Username, registerModel.Password, registerModel.Job);
+            var success = UserService.Register(registerModel.Username, registerModel.Password, registerModel.Job, registerModel.CountryId);
             if (success)
             {
                 registrationSuccess = true;
@@ -103,12 +287,17 @@
                 registeredWeapon = user?.EquippedWeapon?.Name ?? string.Empty;
                 registeredArmor = user?.EquippedArmor?.Name ?? string.Empty;
                 registeredAccessory = user?.EquippedAccessory?.Name ?? string.Empty;
-            registeredPremium = user?.Premium ?? 0;
+                registeredPremium = user?.Premium ?? 0;
             }
             else
             {
                 errorMessage = "ユーザー名が既に存在します。";
             }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"登録処理中にエラーが発生しました: {ex.Message}";
+            Console.WriteLine($"HandleValidSubmit エラー: {ex}");
         }
         finally
         {
@@ -123,6 +312,8 @@
         public string Username { get; set; } = "";
 
         public Models.Job Job { get; set; } = Models.Job.Warrior;
+
+        public int? CountryId { get; set; } = null;
 
         [Required(ErrorMessage = "パスワードは必須です。")]
         [MinLength(6, ErrorMessage = "パスワードは最低6文字必要です。")]
