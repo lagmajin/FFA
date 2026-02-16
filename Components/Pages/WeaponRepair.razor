@@ -1,0 +1,107 @@
+@page "/weapon-repair/{weaponId:int}"
+@rendermode InteractiveServer
+
+@using FFA.Models
+@using FFA.Services
+@inject UserService UserService
+@inject WeaponService WeaponService
+@inject NavigationManager Navigation
+@inject Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProvider
+
+<h1>武器修理</h1>
+
+@if (!isAuth)
+{
+    <p>ログインしてください。</p>
+}
+else
+{
+    @if (weapon != null)
+    {
+        <div class="weapon-repair-container">
+            <h2>@weapon.Name</h2>
+            <div class="weapon-info">
+                <div>タイプ: @GetWeaponTypeName(weapon.Type)</div>
+                <div>攻撃: @weapon.Attack</div>
+                <div>現在の耐久度: @weapon.CurrentDurability / @weapon.Durability</div>
+                <div>修理費用: @weapon.RepairCost ギル</div>
+                <div>修理量: @weapon.RepairAmount 耐久度</div>
+                <div>あなたの所持金: @user.Gil ギル</div>
+            </div>
+
+            @if (repairResult != null)
+            {
+                <div class="repair-result @repairResult.Success.ToString().ToLower()">
+                    <h3>修理結果</h3>
+                    <p>@repairResult.Message</p>
+                    @if (repairResult.Success)
+                    {
+                        <div>新しい耐久度: @repairResult.NewDurability / @weapon.Durability</div>
+                    }
+                </div>
+            }
+
+            <button class="action-button" @onclick="RepairWeapon">修理する</button>
+            <button class="action-button" @onclick="NavigateBack">戻る</button>
+        </div>
+    }
+    else
+    {
+        <p>武器が見つかりません。</p>
+    }
+}
+
+@code {
+    [Parameter]
+    public int weaponId { get; set; }
+
+    private bool isAuth = false;
+    private string? username;
+    private User? user;
+    private Weapon? weapon;
+    private RepairResult? repairResult;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var authUser = state.User;
+        isAuth = authUser?.Identity?.IsAuthenticated ?? false;
+        username = authUser?.Identity?.Name;
+
+        if (isAuth && !string.IsNullOrEmpty(username))
+        {
+            user = UserService.GetByUsername(username);
+            weapon = WeaponService.GetWeaponsByUser(username).FirstOrDefault(w => w.Id == weaponId);
+        }
+    }
+
+    private string GetWeaponTypeName(WeaponType type)
+    {
+        return type switch
+        {
+            WeaponType.Sword => "剣",
+            WeaponType.Axe => "斧",
+            WeaponType.Spear => "槍",
+            WeaponType.Katana => "刀",
+            WeaponType.Dagger => "短剣",
+            WeaponType.Club => "棍棒",
+            WeaponType.Bow => "弓",
+            WeaponType.Staff => "杖",
+            _ => "その他"
+        };
+    }
+
+    private async Task RepairWeapon()
+    {
+        if (weapon == null || user == null) return;
+
+        repairResult = WeaponService.RepairWeapon(username!, weapon.Id);
+        user = UserService.GetByUsername(username!);
+        weapon = WeaponService.GetWeaponsByUser(username!).FirstOrDefault(w => w.Id == weaponId);
+    }
+
+    private void NavigateBack()
+    {
+        Navigation.NavigateTo("/weapon-management");
+    }
+}

@@ -50,39 +50,45 @@ else
 
     private void UseItem(InventoryItem it)
     {
+        if (user == null) return;
+
         if (it.Name == "ポーション")
         {
-            user!.HP = Math.Min(user.MaxHP, user.HP + 50);
+            user.HP = Math.Min(user.MaxHP, user.HP + 50);
             it.Quantity -= 1;
         }
         if (it.Quantity <= 0)
             user.Inventory.Remove(it);
-        UserService.UpdateUser(user!);
+        UserService.UpdateUser(user);
     }
 
     private void EquipItem(InventoryItem it)
     {
+        if (user == null) return;
+
         // simple: if name contains weapon keywords equip as weapon, otherwise armor
         if (it.Name.Contains("剣") || it.Name.Contains("こんぼう") || it.Name.Contains("Staff") || it.Name.Contains("Wand"))
         {
-            user!.EquippedWeapon = new Weapon { Name = it.Name, Attack = 5 };
+            user.EquippedWeapon = new Weapon { Name = it.Name, Attack = 5 };
         }
         else
         {
-            user!.EquippedArmor = new Armor { Name = it.Name, Defense = 3 };
+            user.EquippedArmor = new Armor { Name = it.Name, Defense = 3 };
         }
         it.Quantity -= 1;
         if (it.Quantity <= 0)
             user.Inventory.Remove(it);
-        UserService.UpdateUser(user!);
+        UserService.UpdateUser(user);
     }
 
     private void SellItem(InventoryItem it)
     {
-        user!.Gil += it.Price;
+        if (user == null) return;
+
+        user.Gil += it.Price;
         it.Quantity -= 1;
         if (it.Quantity <= 0)
             user.Inventory.Remove(it);
-        UserService.UpdateUser(user!);
+        UserService.UpdateUser(user);
     }
 }

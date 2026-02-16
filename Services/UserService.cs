@@ -39,19 +39,43 @@ public class UserService
             {
                 case Models.Job.Warrior:
                     user.EquippedArmor = new Armor { Name = "Leather Armor", Defense = 5 };
-                    user.EquippedAccessory = new Accessory { Name = "Iron Ring", Effect = "+1 Strength" };
+                    user.EquippedAccessory1 = new Accessory { Name = "Iron Ring", Effect = "+1 Strength" };
                     break;
                 case Models.Job.Monk:
                     user.EquippedArmor = new Armor { Name = "Cloth Robe", Defense = 3 };
-                    user.EquippedAccessory = new Accessory { Name = "Monk's Bead", Effect = "+1 Dexterity" };
+                    user.EquippedAccessory1 = new Accessory { Name = "Monk's Bead", Effect = "+1 Dexterity" };
                     break;
                 case Models.Job.WhiteMage:
                     user.EquippedArmor = new Armor { Name = "White Robe", Defense = 2 };
-                    user.EquippedAccessory = new Accessory { Name = "White Tiara", Effect = "+5% Healing" };
+                    user.EquippedAccessory1 = new Accessory { Name = "White Tiara", Effect = "+5% Healing" };
                     break;
                 case Models.Job.BlackMage:
                     user.EquippedArmor = new Armor { Name = "Black Robe", Defense = 2 };
-                    user.EquippedAccessory = new Accessory { Name = "Black Orb", Effect = "+5% Magic Damage" };
+                    user.EquippedAccessory1 = new Accessory { Name = "Black Orb", Effect = "+5% Magic Damage" };
+                    break;
+                case Models.Job.Ranger:
+                    user.EquippedArmor = new Armor { Name = "Ranger Vest", Defense = 4 };
+                    user.EquippedAccessory1 = new Accessory { Name = "Eagle Feather", Effect = "+2 Agility" };
+                    break;
+                case Models.Job.Paladin:
+                    user.EquippedArmor = new Armor { Name = "Holy Plate", Defense = 7 };
+                    user.EquippedAccessory1 = new Accessory { Name = "Sacred Amulet", Effect = "+3 Vitality" };
+                    break;
+                case Models.Job.DarkKnight:
+                    user.EquippedArmor = new Armor { Name = "Dark Armor", Defense = 6 };
+                    user.EquippedAccessory1 = new Accessory { Name = "Cursed Ring", Effect = "+2 Strength" };
+                    break;
+                case Models.Job.Bard:
+                    user.EquippedArmor = new Armor { Name = "Silk Robe", Defense = 2 };
+                    user.EquippedAccessory1 = new Accessory { Name = "Musical Charm", Effect = "+2 Intelligence" };
+                    break;
+                case Models.Job.Thief:
+                    user.EquippedArmor = new Armor { Name = "Shadow Cloth", Defense = 3 };
+                    user.EquippedAccessory1 = new Accessory { Name = "Thief's Mark", Effect = "+3 Luck" };
+                    break;
+                case Models.Job.Ninja:
+                    user.EquippedArmor = new Armor { Name = "Ninja Gi", Defense = 4 };
+                    user.EquippedAccessory1 = new Accessory { Name = "Shuriken Pouch", Effect = "+2 Dexterity" };
                     break;
             }
             users.Insert(user);
@@ -258,22 +282,22 @@ public class UserService
                 case Job.Warrior:
                     user.EquippedWeapon = new Weapon { Name = "こんぼう", Attack = 6 };
                     user.EquippedArmor = new Armor { Name = "Leather Armor", Defense = 5 };
-                    user.EquippedAccessory = new Accessory { Name = "Iron Ring", Effect = "+1 Strength" };
+                    user.EquippedAccessory1 = new Accessory { Name = "Iron Ring", Effect = "+1 Strength" };
                     break;
                 case Job.Monk:
                     user.EquippedWeapon = new Weapon { Name = "こんぼう", Attack = 6 };
                     user.EquippedArmor = new Armor { Name = "Cloth Robe", Defense = 3 };
-                    user.EquippedAccessory = new Accessory { Name = "Monk's Bead", Effect = "+1 Dexterity" };
+                    user.EquippedAccessory1 = new Accessory { Name = "Monk's Bead", Effect = "+1 Dexterity" };
                     break;
                 case Job.WhiteMage:
                     user.EquippedWeapon = new Weapon { Name = "こんぼう", Attack = 6 };
                     user.EquippedArmor = new Armor { Name = "White Robe", Defense = 2 };
-                    user.EquippedAccessory = new Accessory { Name = "White Tiara", Effect = "+5% Healing" };
+                    user.EquippedAccessory1 = new Accessory { Name = "White Tiara", Effect = "+5% Healing" };
                     break;
                 case Job.BlackMage:
                     user.EquippedWeapon = new Weapon { Name = "こんぼう", Attack = 6 };
                     user.EquippedArmor = new Armor { Name = "Black Robe", Defense = 2 };
-                    user.EquippedAccessory = new Accessory { Name = "Black Orb", Effect = "+5% Magic Damage" };
+                    user.EquippedAccessory1 = new Accessory { Name = "Black Orb", Effect = "+5% Magic Damage" };
                     break;
             }
 
@@ -325,7 +349,7 @@ public (Weapon?, Armor?, Accessory?) GetEquippedItems(string username)
         var user = users.FindOne(u => u.Username == username);
         if (user == null) return (null, null, null);
 
-        return (user.EquippedWeapon, user.EquippedArmor, user.EquippedAccessory);
+        return (user.EquippedWeapon, user.EquippedArmor, user.EquippedAccessory1);
     }
     catch (Exception ex)
     {
@@ -402,4 +426,160 @@ public IEnumerable<InventoryItem> GetInventoryItems(string username)
         var computedHash = HashPassword(password);
         return computedHash == hash;
     }
+
+    // 転生する
+    public RebirthResult Rebirth(string username)
+    {
+        try
+        {
+            using var db = new LiteDatabase(_databasePath);
+            var users = db.GetCollection<User>("users");
+            var user = users.FindOne(u => u.Username == username);
+            if (user == null)
+                return new RebirthResult { Success = false, Message = "ユーザーが見つかりません" };
+
+            if (user.Level < user.RebirthLevelRequired)
+                return new RebirthResult { Success = false, Message = $"レベル{user.RebirthLevelRequired}以上でありません" };
+
+            // 転生ボーナス計算
+            int bonusStat = user.RebirthCount * 5;
+            int bonusGil = user.RebirthCount * 1000;
+
+            // 転生処理
+            user.RebirthCount++;
+            user.TotalLevel += user.Level;
+            user.Level = 1;
+            user.Exp = 0;
+            user.ExpToNext = 100;
+            user.Gil += bonusGil;
+            user.Status.Str += bonusStat;
+            user.Status.Vit += bonusStat;
+            user.Status.Dex += bonusStat;
+            user.Status.Int += bonusStat;
+            user.Status.Agi += bonusStat;
+            user.Status.Luk += bonusStat;
+
+            // マスターシステムチェック
+            if (user.TotalLevel >= 500 && !user.IsMaster)
+            {
+                user.IsMaster = true;
+                user.MasterLevel = 1;
+            }
+
+            users.Update(user);
+
+            return new RebirthResult
+            {
+                Success = true,
+                Message = $"転生完了！累計レベル: {user.TotalLevel}, 支給ギル: {bonusGil}",
+                NewRebirthCount = user.RebirthCount,
+                BonusGil = bonusGil
+            };
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"UserService.Rebirth 例外: {ex.Message} - {ex.StackTrace}");
+            return new RebirthResult { Success = false, Message = "転生中にエラーが発生しました" };
+        }
+    }
+
+    // マスター経験値を獲得
+    public MasterExpResult AddMasterExp(string username, int exp)
+    {
+        try
+        {
+            using var db = new LiteDatabase(_databasePath);
+            var users = db.GetCollection<User>("users");
+            var user = users.FindOne(u => u.Username == username);
+            if (user == null)
+                return new MasterExpResult { Success = false, Message = "ユーザーが見つかりません" };
+
+            if (!user.IsMaster)
+                return new MasterExpResult { Success = false, Message = "マスターではありません" };
+
+            if (user.MasterLevel >= user.MaxMasterLevel)
+                return new MasterExpResult { Success = false, Message = "最大マスターレベルに達しています" };
+
+            user.MasterExp += exp;
+            bool leveledUp = false;
+
+            while (user.MasterExp >= user.MasterExpToNext && user.MasterLevel < user.MaxMasterLevel)
+            {
+                user.MasterExp -= user.MasterExpToNext;
+                user.MasterLevel++;
+                user.MasterExpToNext = (int)(user.MasterExpToNext * 1.5); // 次のレベル所需的经验值增加50%
+                
+                // マスターレベルが上がると全ステータスが上昇
+                user.Status.Str += 2;
+                user.Status.Vit += 2;
+                user.Status.Dex += 2;
+                user.Status.Int += 2;
+                user.Status.Agi += 2;
+                user.Status.Luk += 2;
+                
+                leveledUp = true;
+            }
+
+            users.Update(user);
+
+            return new MasterExpResult
+            {
+                Success = true,
+                Message = leveledUp ? $"マスターレベルアップ！Lv.{user.MasterLevel}になりました" : "マスター経験値を獲得しました",
+                NewMasterLevel = user.MasterLevel,
+                NewMasterExp = user.MasterExp,
+                LeveledUp = leveledUp
+            };
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"UserService.AddMasterExp 例外: {ex.Message} - {ex.StackTrace}");
+            return new MasterExpResult { Success = false, Message = "エラーが発生しました" };
+        }
+    }
+
+    // マスターになる
+    public bool UnlockMaster(string username)
+    {
+        try
+        {
+            using var db = new LiteDatabase(_databasePath);
+            var users = db.GetCollection<User>("users");
+            var user = users.FindOne(u => u.Username == username);
+            if (user == null) return false;
+
+            if (user.TotalLevel < 500)
+                return false;
+
+            user.IsMaster = true;
+            user.MasterLevel = 1;
+            users.Update(user);
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"UserService.UnlockMaster 例外: {ex.Message} - {ex.StackTrace}");
+            return false;
+        }
+    }
+}
+
+// 転生結果クラス
+public class RebirthResult
+{
+    public bool Success { get; set; }
+    public string Message { get; set; } = "";
+    public int NewRebirthCount { get; set; }
+    public int BonusGil { get; set; }
+}
+
+// マスター経験値結果クラス
+public class MasterExpResult
+{
+    public bool Success { get; set; }
+    public string Message { get; set; } = "";
+    public int NewMasterLevel { get; set; }
+    public int NewMasterExp { get; set; }
+    public bool LeveledUp { get; set; }
 }

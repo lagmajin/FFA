@@ -1,5 +1,6 @@
 using LiteDB;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using FFA.Models;
@@ -9,6 +10,8 @@ namespace FFA.Services;
 public class MarketService
 {
     private readonly string _databasePath;
+    // In-memory locks to prevent concurrent operations on same market item within this process
+    private static readonly ConcurrentDictionary<int, object> _locks = new();
 
     public MarketService()
     {
@@ -81,56 +84,63 @@ public class MarketService
     {
         try
         {
-            using var db = new LiteDatabase(_databasePath);
-            var marketItems = db.GetCollection<MarketItem>("marketitems");
-            var marketItem = marketItems.FindById(marketItemId);
-            if (marketItem == null || marketItem.IsSold)
-                return false;
-
-            // 購入者の情報を取得
-            var userService = new UserService();
-            var buyer = userService.GetByUsername(buyerUsername);
-            if (buyer == null)
-                return false;
-
-            // 購入価格と手数料を計算
-            int price = marketItem.Price;
-            int fee = (int)(price * 0.001); // 0.1%の手数料
-            int totalCost = price + fee;
-
-            // 購入者が十分なギルを持っているか確認
-            if (buyer.Gil < totalCost)
-                return false;
-
-            // 購入者からギルを引き、手数料を徴収
-            buyer.Gil -= totalCost;
-            userService.UpdateUser(buyer);
-
-            // 売却者にギルを加算
-            var seller = userService.GetByUsername(marketItem.SellerUsername);
-            if (seller != null)
+            var lockObj = _locks.GetOrAdd(marketItemId, _ => new object());
+            lock (lockObj)
             {
-                seller.Gil += price;
-                userService.UpdateUser(seller);
+                using var db = new LiteDatabase(_databasePath);
+                var marketItems = db.GetCollection<MarketItem>("marketitems");
+                var marketItem = marketItems.FindById(marketItemId);
+                if (marketItem == null || marketItem.IsSold)
+                    return false;
+
+                // 購入者の情報を取得
+                var userService = new UserService();
+                var buyer = userService.GetByUsername(buyerUsername);
+                if (buyer == null)
+                    return false;
+
+                // 購入価格と手数料を計算
+                int price = marketItem.Price;
+                int fee = (int)(price * 0.001); // 0.1%の手数料
+                int totalCost = price + fee;
+
+                // 購入者が十分なギルを持っているか確認
+                if (buyer.Gil < totalCost)
+                    return false;
+
+                // 購入者からギルを引き、手数料を徴収
+                buyer.Gil -= totalCost;
+                userService.UpdateUser(buyer);
+
+                // 売却者にギルを加算
+                var seller = userService.GetByUsername(marketItem.SellerUsername);
+                if (seller != null)
+                {
+                    seller.Gil += price;
+                    userService.UpdateUser(seller);
+                }
+
+                // マーケットアイテムを更新
+                marketItem.IsSold = true;
+                marketItem.BuyerUsername = buyerUsername;
+                marketItem.SoldAt = DateTime.Now;
+                marketItems.Update(marketItem);
+
+                // 購入者のインベントリにアイテムを追加
+                var itemToGive = new InventoryItem
+                {
+                    Name = marketItem.Item.Name,
+                    Type = marketItem.Item.Type,
+                    Quantity = 1,
+                    Price = marketItem.Item.Price
+                };
+                userService.AddItemToUser(buyerUsername, itemToGive);
+
+                // remove lock
+                _locks.TryRemove(marketItemId, out _);
+
+                return true;
             }
-
-            // マーケットアイテムを更新
-            marketItem.IsSold = true;
-            marketItem.BuyerUsername = buyerUsername;
-            marketItem.SoldAt = DateTime.Now;
-            marketItems.Update(marketItem);
-
-            // 購入者のインベントリにアイテムを追加
-            var itemToGive = new InventoryItem
-            {
-                Name = marketItem.Item.Name,
-                Type = marketItem.Item.Type,
-                Quantity = 1,
-                Price = marketItem.Item.Price
-            };
-            userService.AddItemToUser(buyerUsername, itemToGive);
-
-            return true;
         }
         catch (Exception ex)
         {
@@ -144,14 +154,20 @@ public class MarketService
     {
         try
         {
-            using var db = new LiteDatabase(_databasePath);
-            var marketItems = db.GetCollection<MarketItem>("marketitems");
-            var marketItem = marketItems.FindById(marketItemId);
-            if (marketItem == null || marketItem.IsSold)
-                return false;
+            var lockObj = _locks.GetOrAdd(marketItemId, _ => new object());
+            lock (lockObj)
+            {
+                using var db = new LiteDatabase(_databasePath);
+                var marketItems = db.GetCollection<MarketItem>("marketitems");
+                var marketItem = marketItems.FindById(marketItemId);
+                if (marketItem == null || marketItem.IsSold)
+                    return false;
 
-            marketItems.Delete(marketItemId);
-            return true;
+                marketItems.Delete(marketItemId);
+
+                _locks.TryRemove(marketItemId, out _);
+                return true;
+            }
         }
         catch (Exception ex)
         {

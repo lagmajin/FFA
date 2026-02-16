@@ -1,0 +1,112 @@
+@page "/weapon-enhance/{weaponId:int}"
+@rendermode InteractiveServer
+
+@using FFA.Models
+@using FFA.Services
+@inject UserService UserService
+@inject WeaponService WeaponService
+@inject NavigationManager Navigation
+@inject Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProvider
+
+<h1>武器強化</h1>
+
+@if (!isAuth)
+{
+    <p>ログインしてください。</p>
+}
+else
+{
+    @if (weapon != null)
+    {
+        <div class="weapon-enhance-container">
+            <h2>@weapon.Name</h2>
+            <div class="weapon-info">
+                <div>タイプ: @GetWeaponTypeName(weapon.Type)</div>
+                <div>攻撃: @weapon.Attack</div>
+                <div>現在の強化レベル: @weapon.EnhancementLevel / @weapon.MaxEnhancementLevel</div>
+                <div>強化成功率: @(weapon.EnhancementSuccessRate * 100)%</div>
+                @if (weapon.IsEnhancementSafe)
+                {
+                    <div>安全強化: はい</div>
+                }
+                <div>強化費用: @weapon.EnhancementCost ギル</div>
+                <div>あなたの所持金: @user.Gil ギル</div>
+            </div>
+
+            @if (enhancementResult != null)
+            {
+                <div class="enhancement-result @enhancementResult.Success.ToString().ToLower()">
+                    <h3>強化結果</h3>
+                    <p>@enhancementResult.Message</p>
+                    @if (enhancementResult.Success)
+                    {
+                        <div>新しい攻撃力: @enhancementResult.NewAttack</div>
+                        <div>新しい強化レベル: @enhancementResult.NewLevel</div>
+                    }
+                </div>
+            }
+
+            <button class="action-button" @onclick="EnhanceWeapon">強化する</button>
+            <button class="action-button" @onclick="NavigateBack">戻る</button>
+        </div>
+    }
+    else
+    {
+        <p>武器が見つかりません。</p>
+    }
+}
+
+@code {
+    [Parameter]
+    public int weaponId { get; set; }
+
+    private bool isAuth = false;
+    private string? username;
+    private User? user;
+    private Weapon? weapon;
+    private EnhancementResult? enhancementResult;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var authUser = state.User;
+        isAuth = authUser?.Identity?.IsAuthenticated ?? false;
+        username = authUser?.Identity?.Name;
+
+        if (isAuth && !string.IsNullOrEmpty(username))
+        {
+            user = UserService.GetByUsername(username);
+            weapon = WeaponService.GetWeaponsByUser(username).FirstOrDefault(w => w.Id == weaponId);
+        }
+    }
+
+    private string GetWeaponTypeName(WeaponType type)
+    {
+        return type switch
+        {
+            WeaponType.Sword => "剣",
+            WeaponType.Axe => "斧",
+            WeaponType.Spear => "槍",
+            WeaponType.Katana => "刀",
+            WeaponType.Dagger => "短剣",
+            WeaponType.Club => "棍棒",
+            WeaponType.Bow => "弓",
+            WeaponType.Staff => "杖",
+            _ => "その他"
+        };
+    }
+
+    private async Task EnhanceWeapon()
+    {
+        if (weapon == null || user == null) return;
+
+        enhancementResult = WeaponService.EnhanceWeapon(username!, weapon.Id);
+        user = UserService.GetByUsername(username!);
+        weapon = WeaponService.GetWeaponsByUser(username!).FirstOrDefault(w => w.Id == weaponId);
+    }
+
+    private void NavigateBack()
+    {
+        Navigation.NavigateTo("/weapon-management");
+    }
+}

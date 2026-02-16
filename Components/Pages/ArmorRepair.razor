@@ -1,0 +1,107 @@
+@page "/armor-repair/{armorId:int}"
+@rendermode InteractiveServer
+
+@using FFA.Models
+@using FFA.Services
+@inject UserService UserService
+@inject ArmorService ArmorService
+@inject NavigationManager Navigation
+@inject Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProvider
+
+<h1>防具修理</h1>
+
+@if (!isAuth)
+{
+    <p>ログインしてください。</p>
+}
+else
+{
+    @if (armor != null)
+    {
+        <div class="armor-repair-container">
+            <h2>@armor.Name</h2>
+            <div class="armor-info">
+                <div>タイプ: @GetArmorTypeName(armor.Type)</div>
+                <div>防御: @armor.Defense</div>
+                <div>現在の耐久度: @armor.CurrentDurability / @armor.Durability</div>
+                <div>修理費用: @armor.RepairCost ギル</div>
+                <div>修理量: @armor.RepairAmount 耐久度</div>
+                <div>あなたの所持金: @user.Gil ギル</div>
+            </div>
+
+            @if (repairResult != null)
+            {
+                <div class="repair-result @repairResult.Success.ToString().ToLower()">
+                    <h3>修理結果</h3>
+                    <p>@repairResult.Message</p>
+                    @if (repairResult.Success)
+                    {
+                        <div>新しい耐久度: @repairResult.NewDurability / @armor.Durability</div>
+                    }
+                </div>
+            }
+
+            <button class="action-button" @onclick="RepairArmor">修理する</button>
+            <button class="action-button" @onclick="NavigateBack">戻る</button>
+        </div>
+    }
+    else
+    {
+        <p>防具が見つかりません。</p>
+    }
+}
+
+@code {
+    [Parameter]
+    public int armorId { get; set; }
+
+    private bool isAuth = false;
+    private string? username;
+    private User? user;
+    private Armor? armor;
+    private RepairResult? repairResult;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var authUser = state.User;
+        isAuth = authUser?.Identity?.IsAuthenticated ?? false;
+        username = authUser?.Identity?.Name;
+
+        if (isAuth && !string.IsNullOrEmpty(username))
+        {
+            user = UserService.GetByUsername(username);
+            armor = ArmorService.GetArmorsByUser(username).FirstOrDefault(a => a.Id == armorId);
+        }
+    }
+
+    private string GetArmorTypeName(string typeStr)
+    {
+        if (Enum.TryParse<ArmorType>(typeStr, out var type))
+        {
+            return type switch
+            {
+                ArmorType.Light => "軽装",
+                ArmorType.Medium => "中装",
+                ArmorType.Heavy => "重装",
+                ArmorType.Robe => "ローブ",
+                _ => "その他"
+            };
+        }
+        return "その他";
+    }
+
+    private async Task RepairArmor()
+    {
+        if (armor == null || user == null) return;
+
+        repairResult = ArmorService.RepairArmor(username!, armor.Id);
+        user = UserService.GetByUsername(username!);
+        armor = ArmorService.GetArmorsByUser(username!).FirstOrDefault(a => a.Id == armorId);
+    }
+
+    private void NavigateBack()
+    {
+        Navigation.NavigateTo("/armor-management");
+    }
+}

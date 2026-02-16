@@ -2,35 +2,30 @@
 @using Microsoft.AspNetCore.Components.Web
 @inherits LayoutComponentBase
 @inject NavigationManager NavManager
+@implements IAsyncDisposable
 
 <header>
     <div class="header-content">
         <h1>FFA World</h1>
         <nav class="right-nav">
-            @if (IsHomePage())
-            {
-                <NavLink href="/login">ログイン</NavLink>
-                <NavLink href="/register">新規登録</NavLink>
-                <NavLink href="/">テストプレイ</NavLink>
-            }
-            else
-            {
-                <AuthorizeView>
-                    <Authorized>
-                        <NavLink href="/status">ステータス</NavLink>
-                        <NavLink href="/map">マップ</NavLink>
-                        <NavLink href="/quests">クエスト</NavLink>
-                        <NavLink href="/daily">デイリーボーナス</NavLink>
-                        <NavLink href="/sky-arena">天空闘技場</NavLink>
-                        <NavLink href="#" class="nav-link" @onclick="SignOut">ログアウト</NavLink>
-                    </Authorized>
-                    <NotAuthorized>
+            <AuthorizeView>
+                <Authorized>
+                    <a href="#" class="nav-link" @onclick="SignOut">ログアウト</a>
+                </Authorized>
+                <NotAuthorized>
+                    @if (currentIsHomePage)
+                    {
                         <NavLink href="/login">ログイン</NavLink>
                         <NavLink href="/register">新規登録</NavLink>
-                        <NavLink href="/">テストプレイ</NavLink>
-                    </NotAuthorized>
-                </AuthorizeView>
-            }
+                        <a href="#" class="nav-link" @onclick="TestPlay">テストプレイ</a>
+                    }
+                    else
+                    {
+                        <NavLink href="/login">ログイン</NavLink>
+                        <NavLink href="/register">新規登録</NavLink>
+                    }
+                </NotAuthorized>
+            </AuthorizeView>
         </nav>
     </div>
 </header>
@@ -118,14 +113,28 @@
 
 @code {
     private ErrorBoundary? mainErrorBoundary;
-    
-    [Inject] private IJSRuntime JS { get; set; }
-    [Inject] private NavigationManager Navigation { get; set; }
+    private bool currentIsHomePage = false;
 
-    private bool IsHomePage()
+    [Inject] private IJSRuntime JS { get; set; } = default!;
+    [Inject] private NavigationManager Navigation { get; set; } = default!;
+
+    protected override void OnInitialized()
     {
-        var uri = new Uri(NavManager.Uri);
-        return uri.AbsolutePath == "/";
+        base.OnInitialized();
+        UpdateIsHomePage();
+        Navigation.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        UpdateIsHomePage();
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void UpdateIsHomePage()
+    {
+        var uri = new Uri(Navigation.Uri);
+        currentIsHomePage = uri.AbsolutePath == "/";
     }
 
     private void RecoverMain()
@@ -133,12 +142,54 @@
         mainErrorBoundary?.Recover();
     }
 
-    private async Task SignOut()
+    private async Task TestPlay(MouseEventArgs e)
     {
-        var ok = await JS.InvokeAsync<bool>("fetchSignOut", Navigation.ToAbsoluteUri("/signout").ToString());
-        if (ok)
+        const string testUsername = "testplayer";
+        const string testPassword = "test123";
+
+        try
         {
-            Navigation.NavigateTo("/login", true);
+            // Ensure test user exists
+            var userService = new Services.UserService();
+            var existingUser = userService.GetByUsername(testUsername);
+            if (existingUser == null)
+            {
+                userService.Register(testUsername, testPassword, Models.Job.Warrior);
+            }
+
+            // Call signin API via JavaScript
+            var url = Navigation.ToAbsoluteUri("/signin").ToString();
+            var payload = new { Username = testUsername, Password = testPassword };
+            var ok = await JS.InvokeAsync<bool>("fetchSignIn", url, payload);
+            if (ok)
+            {
+                // Navigate to status with force reload to apply auth state
+                Navigation.NavigateTo("/status", true);
+            }
+            else
+            {
+                Console.WriteLine("テストプレイのサインインに失敗しました。");
+            }
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"TestPlay error: {ex.Message}");
+        }
+    }
+
+    private async Task SignOut(MouseEventArgs e)
+    {
+        try
+        {
+            await JS.InvokeAsync<bool>("fetchSignOut", Navigation.ToAbsoluteUri("/signout").ToString());
+        }
+        catch { }
+        // Always force full browser reload to clear SignalR circuit and auth state
+        Navigation.NavigateTo("/signout", true);
+    }
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        Navigation.LocationChanged -= OnLocationChanged;
     }
 }

@@ -14,8 +14,9 @@
 
 <body>
     @using Microsoft.AspNetCore.Components.Authorization
+    @using Microsoft.AspNetCore.Components.Web
     <CascadingAuthenticationState>
-        <Routes />
+        <Routes @rendermode="InteractiveServer" />
     </CascadingAuthenticationState>
     <ReconnectModal />
     <!-- Blazor Server script for interactive server render mode -->

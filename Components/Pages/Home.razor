@@ -1,100 +1,125 @@
 ﻿@page "/"
 @rendermode InteractiveServer
+@using Microsoft.AspNetCore.Components.Authorization
 @inject NavigationManager Navigation
 @inject Services.UserService UserService
 @inject IJSRuntime JSRuntime
+@inject AuthenticationStateProvider AuthStateProvider
 
-<PageTitle>CGI風ゲーム</PageTitle>
+<PageTitle>FFA - トップ</PageTitle>
 
-@* TODO: 現在のチャンピオン表示機能を実装する *@
-
-<FluentCard>
-    <FluentCardHeader>
-        <h3>🏆 現在のチャンピオン</h3>
-    </FluentCardHeader>
-    <div class="champion-info">
-        <div class="champion-avatar">
-            <FluentAvatar Initials="👑" Size="Size48" Shape="Shape.Circle"></FluentAvatar>
-        </div>
-        <div class="champion-details">
-            <p class="champion-name">--</p>
-            <p class="champion-title">チャンピオンが決定するまでお待ちください</p>
-            <p class="champion-stats">勝利数: -- | 連続勝利: --</p>
-        </div>
+<div style="font-family: 'MS PGothic', monospace; max-width:1024px; margin:1rem auto; background:#faf8ef; padding:18px; border:1px solid #ccc;">
+    <div style="text-align:center;">
+        <h1 style="font-size:2.2rem; margin:0; letter-spacing:2px;">FFA — CGI風オンラインRPG</h1>
+        <div style="margin-top:6px; color:#666;">古き良きテキスト式インターフェース風トップページ</div>
     </div>
-</FluentCard>
 
-<div class="home-container">
-    @if (!string.IsNullOrEmpty(gilQuery) || !string.IsNullOrEmpty(oldCoinQuery) || !string.IsNullOrEmpty(jobQuery))
-    {
-<FluentBadge Appearance="Appearance.Accent">
-    所持金: @gilQuery ギル 旧貨幣: @oldCoinQuery 枚 プレミア: @premiumQuery 職業: @jobQuery
-</FluentBadge>
-    }
+    <div style="display:flex; gap:16px; margin-top:18px;">
+        <div style="width:260px; background:#fff; padding:12px; border:1px solid #ddd;">
+            <h3 style="margin-top:0;">メニュー</h3>
+            <ul style="padding-left:1rem;">
+                @* Public / always-visible links *@
+                <li><NavLink href="/market">マーケット</NavLink></li>
+                <li><NavLink href="/sky-arena">天空闘技場</NavLink></li>
+                <li><NavLink href="/ranking">ランキング</NavLink></li>
 
-    <div class="game-section">
-        <h1 class="welcome-message">FFAゲームへようこそ！</h1>
-        <p class="game-description">冒険の世界で戦い、成長し、栄光を手に入れましょう！</p>
-<FluentButton Appearance="Appearance.Accent" @onclick="TestPlay">
-    テストプレイ
-</FluentButton>
+                @* Auth-only links: show only when logged in *@
+                @if (isAuth)
+                {
+                    <li><NavLink href="/status">ステータス</NavLink></li>
+                    <li><NavLink href="/town">街</NavLink></li>
+                    <li><NavLink href="/field">フィールド</NavLink></li>
+                    <li><NavLink href="/inventory">インベントリ</NavLink></li>
+                    <li><NavLink href="/quests">クエスト</NavLink></li>
+                }
+            </ul>
+        </div>
+
+        <div style="flex:1; background:#fff; padding:14px; border:1px solid #ddd;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+                <div style="flex:1;">
+                    <h2 style="margin:0 0 6px 0;">ようこそ、FFAの世界へ</h2>
+                    <p style="margin:0 0 8px 0; color:#444;">テキストベースの世界を探索し、装備を整え、チャンピオンを目指しましょう。</p>
+                </div>
+
+                <div style="width:300px;">
+                    @if (isAuth && currentUser != null)
+                    {
+                        <div style="background:#f5f5ff; padding:10px; border:1px solid #e0e0ff; border-radius:6px;">
+                            <h4 style="margin:0 0 6px 0;">現在の冒険者</h4>
+                            <p style="margin:4px 0;"><strong>@currentUser.Username</strong> (レベル @currentUser.Level)</p>
+                            <p style="margin:4px 0;">所持金: @currentUser.Gil ギル</p>
+                            <p style="margin:4px 0;">職業: @currentUser.Job</p>
+                            <p style="margin:4px 0;">未割り振りポイント: @currentUser.Status.PointsAvailable</p>
+                            <div style="margin-top:8px;"><NavLink href="/status">詳細を見る</NavLink></div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div style="background:#fff7f0; padding:10px; border:1px solid #ffe0c0; border-radius:6px;">
+                            <h4 style="margin:0 0 6px 0;">はじめての方へ</h4>
+                            <p style="margin:4px 0;">ログインすると冒険を開始できます。</p>
+                            <div style="margin-top:8px;"><NavLink href="/login">ログイン</NavLink> / <NavLink href="/register">新規登録</NavLink></div>
+                            <div style="margin-top:8px;"><a href="#" @onclick="TestPlay">テストプレイ</a></div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <hr />
+
+            <div style="display:flex; gap:12px; margin-top:12px;">
+                <div style="flex:1; background:#f7f7f7; padding:10px; border:1px solid #eee;">
+                    <h4 style="margin-top:0;">今日のトピック</h4>
+                    <p style="margin:0;">・新しいダンジョンが近日実装予定。<br/>・天空闘技場のチャンピオンは定期的にリセットされます。</p>
+                </div>
+                <div style="width:220px; background:#f7f7f7; padding:10px; border:1px solid #eee;">
+                    <h4 style="margin-top:0;">クイックリンク</h4>
+                    <p style="margin:0;"><NavLink href="/market">マーケット</NavLink><br/><NavLink href="/ranking">ランキング</NavLink></p>
+                </div>
+            </div>
+
+            <div style="margin-top:12px; font-size:0.95rem; color:#333;">
+                <pre style="background:#fffbe6; padding:10px; border-radius:4px; white-space:pre-wrap;">ようこそ、冒険者よ。コマンドはメニューから選択してください。
+（このページはオリジナルのCGI風インターフェースを再現したトップです）</pre>
+            </div>
+        </div>
     </div>
 </div>
 
 @code {
-    private string gilQuery = string.Empty;
-    private string oldCoinQuery = string.Empty;
-    private string premiumQuery = string.Empty;
-    private string jobQuery = string.Empty;
+    private bool isAuth = false;
+    private string? username;
+    private User? currentUser;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
-        if (Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query).TryGetValue("gil", out var value))
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = state.User;
+        isAuth = user?.Identity?.IsAuthenticated ?? false;
+        username = user?.Identity?.Name;
+        if (isAuth && username != null)
         {
-            gilQuery = value;
-        }
-        if (Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query).TryGetValue("oldcoin", out var oc))
-        {
-            oldCoinQuery = oc;
-        }
-        if (Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query).TryGetValue("premium", out var pv))
-        {
-            premiumQuery = pv;
-        }
-        if (Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query).TryGetValue("job", out var jv))
-        {
-            jobQuery = jv;
+            currentUser = UserService.GetByUsername(username);
         }
     }
 
     private async Task TestPlay()
     {
-        // テストプレイ用のアカウント名とパスワード
         const string testUsername = "testplayer";
         const string testPassword = "test123";
-
-        // 既存のテストアカウントを検索
-        var existingUser = UserService.GetByUsername(testUsername);
-        
-        if (existingUser == null)
+        try
         {
-            // テストアカウントが存在しない場合は作成
-            UserService.Register(testUsername, testPassword, Models.Job.Warrior);
+            var existingUser = UserService.GetByUsername(testUsername);
+            if (existingUser == null)
+            {
+                UserService.Register(testUsername, testPassword, Models.Job.Warrior);
+            }
+            var url = Navigation.ToAbsoluteUri("/signin").ToString();
+            var payload = new { Username = testUsername, Password = testPassword };
+            var ok = await JSRuntime.InvokeAsync<bool>("fetchSignIn", url, payload);
+            if (ok) Navigation.NavigateTo("/status", true);
         }
-
-        // テストアカウントでログイン
-        var user = UserService.Login(testUsername, testPassword);
-        
-        if (user != null)
-        {
-            // ログイン成功後、ステータスページにリダイレクト
-            Navigation.NavigateTo("/status");
-        }
-        else
-        {
-            // ログイン失敗の処理（ここでは簡易的にアラート表示）
-            Console.WriteLine("テストプレイアカウントのログインに失敗しました。");
-        }
+        catch { }
     }
 }

@@ -28,7 +28,7 @@ namespace FFA.Services
         private class KarmaEntry
         {
             public int Id { get; set; }
-            public string Username { get; set; }
+            public string Username { get; set; } = string.Empty;
             public int Value { get; set; }
         }
 

@@ -1,0 +1,90 @@
+@page "/weapon-management"
+@rendermode InteractiveServer
+
+@using FFA.Models
+@using FFA.Services
+@inject UserService UserService
+@inject WeaponService WeaponService
+@inject NavigationManager Navigation
+@inject Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProvider
+
+<h1>武器管理</h1>
+
+@if (!isAuth)
+{
+    <p>ログインしてください。</p>
+}
+else
+{
+    <div class="weapon-management-container">
+        <h2>所有武器</h2>
+        <div class="weapon-list">
+            @foreach (var w in weapons)
+            {
+                <div class="weapon-item">
+                    <div class="weapon-info">
+                        <div class="weapon-name">@w.Name</div>
+                        <div>タイプ: @GetWeaponTypeName(w.Type)</div>
+                        <div>攻撃: @w.Attack</div>
+                        <div>強化レベル: @w.EnhancementLevel / @w.MaxEnhancementLevel</div>
+                        <div>耐久度: @w.CurrentDurability / @w.Durability</div>
+                        @if (w.SpecialEffects.Any())
+                        {
+                            <div>特殊効果: @string.Join(", ", w.SpecialEffects)</div>
+                        }
+                    </div>
+<div class="weapon-actions">
+    <button class="action-button" @onclick="() => NavigateToEnhance(w.Id)">強化</button>
+    <button class="action-button" @onclick="() => NavigateToRepair(w.Id)">修理</button>
+</div>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private bool isAuth = false;
+    private string? username;
+    private List<Weapon> weapons = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = state.User;
+        isAuth = user?.Identity?.IsAuthenticated ?? false;
+        username = user?.Identity?.Name;
+
+        if (isAuth && !string.IsNullOrEmpty(username))
+        {
+            weapons = WeaponService.GetWeaponsByUser(username).ToList();
+        }
+    }
+
+    private string GetWeaponTypeName(WeaponType type)
+    {
+        return type switch
+        {
+            WeaponType.Sword => "剣",
+            WeaponType.Axe => "斧",
+            WeaponType.Spear => "槍",
+            WeaponType.Katana => "刀",
+            WeaponType.Dagger => "短剣",
+            WeaponType.Club => "棍棒",
+            WeaponType.Bow => "弓",
+            WeaponType.Staff => "杖",
+            _ => "その他"
+        };
+    }
+
+    private void NavigateToEnhance(int weaponId)
+    {
+        Navigation.NavigateTo($"/weapon-enhance/{weaponId}");
+    }
+
+    private void NavigateToRepair(int weaponId)
+    {
+        Navigation.NavigateTo($"/weapon-repair/{weaponId}");
+    }
+
+}

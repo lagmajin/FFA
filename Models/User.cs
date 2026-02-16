@@ -26,6 +26,9 @@ public class User
     // Equipped items
     public Weapon? EquippedWeapon { get; set; }
     public Armor? EquippedArmor { get; set; }
+    public Accessory? EquippedAccessory1 { get; set; }
+    public Accessory? EquippedAccessory2 { get; set; }
+    // 後方互換性のためのプロパティ
     public Accessory? EquippedAccessory { get; set; }
 
     // Hit points
@@ -45,4 +48,18 @@ public class User
     public PlayerStatus Status { get; set; } = new PlayerStatus();
     public int Level { get; set; } = 1;
     public int ExpToNext { get; set; } = 100;
+    // Whether this user is the current Sky Arena champion
+    public bool IsChampion { get; set; } = false;
+
+    // 転生システム
+    public int RebirthCount { get; set; } = 0; // 転生回数
+    public int TotalLevel { get; set; } = 1; // 累計レベル（転生時にリセットされない）
+    public int RebirthLevelRequired { get; set; } = 50; // 転生所需等级
+
+    // マスターシステム
+    public bool IsMaster { get; set; } = false; // マスターかどうか
+    public int MasterLevel { get; set; } = 0; // マスターレベル
+    public int MasterExp { get; set; } = 0; // マスター経験値
+    public int MasterExpToNext { get; set; } = 1000; // 次マスターレベル所需経験値
+    public int MaxMasterLevel { get; set; } = 10; // 最大マスターレベル
 }

@@ -180,10 +180,97 @@ app.MapPost("/signout", async (HttpContext http) =>
     return Results.Ok();
 });
 
+// GET signout for direct browser navigation (fallback)
+app.MapGet("/signout", async (HttpContext http) =>
+{
+    await http.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+    return Results.Redirect("/");
+});
+
+// Admin API: list users (sanitized)
+app.MapGet("/admin/users", (ClaimsPrincipal user, UserService userService) =>
+{
+    if (!user.IsInRole("Admin")) return Results.Unauthorized();
+    var list = userService.GetAllUsers()
+        .Select(u => new {
+            u.Username,
+            u.Level,
+            u.Gil,
+            u.IsChampion,
+            Job = u.Job.ToString()
+        })
+        .ToList();
+    return Results.Ok(list);
+});
+
+// Admin API: delete user
+app.MapPost("/admin/user/delete", async (HttpContext http, UserService userService) =>
+{
+    if (!http.User.IsInRole("Admin")) return Results.Unauthorized();
+    var body = await http.Request.ReadFromJsonAsync<Dictionary<string, string>>();
+    if (body == null || !body.TryGetValue("username", out var username) || string.IsNullOrEmpty(username))
+        return Results.BadRequest();
+    var ok = userService.DeleteUser(username);
+    return ok ? Results.Ok() : Results.NotFound();
+});
+
+// Admin API: set champion (make username the champion)
+app.MapPost("/admin/user/setchampion", async (HttpContext http, UserService userService) =>
+{
+    if (!http.User.IsInRole("Admin")) return Results.Unauthorized();
+    var body = await http.Request.ReadFromJsonAsync<Dictionary<string, string>>();
+    if (body == null || !body.TryGetValue("username", out var username) || string.IsNullOrEmpty(username))
+        return Results.BadRequest();
+
+    // clear previous champions
+    foreach (var u in userService.GetAllUsers())
+    {
+        if (u.IsChampion)
+        {
+            u.IsChampion = false;
+            userService.UpdateUser(u);
+        }
+    }
+
+    var newChampion = userService.GetByUsername(username);
+    if (newChampion == null) return Results.NotFound();
+    newChampion.IsChampion = true;
+    userService.UpdateUser(newChampion);
+    return Results.Ok();
+});
+
+// Ensure there is an initial champion (CPU) if none exists
+try
+{
+    var userService = new UserService();
+    var all = userService.GetAllUsers().ToList();
+    var existingChampion = all.FirstOrDefault(u => u.IsChampion);
+    if (existingChampion == null)
+    {
+        // create or mark a CPU champion user
+        var cpu = all.FirstOrDefault(u => u.Username == "CPU_Champion");
+        if (cpu == null)
+        {
+            userService.Register("CPU_Champion", Guid.NewGuid().ToString(), Job.Warrior);
+            cpu = userService.GetByUsername("CPU_Champion");
+        }
+        if (cpu != null)
+        {
+            cpu.IsChampion = true;
+            userService.UpdateUser(cpu);
+            Console.WriteLine("Initialized CPU_Champion as Sky Arena champion");
+        }
+    }
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Champion initialization failed: {ex.Message}");
+}
+
 app.Run();
 
 class LoginRequest
 {
-    public string Username { get; set; }
-    public string Password { get; set; }
+    public string Username { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
 }

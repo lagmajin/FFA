@@ -1,0 +1,89 @@
+@page "/armor-management"
+@rendermode InteractiveServer
+
+@using FFA.Models
+@using FFA.Services
+@inject UserService UserService
+@inject ArmorService ArmorService
+@inject NavigationManager Navigation
+@inject Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProvider
+
+<h1>防具管理</h1>
+
+@if (!isAuth)
+{
+    <p>ログインしてください。</p>
+}
+else
+{
+    <div class="armor-management-container">
+        <h2>所有防具</h2>
+        <div class="armor-list">
+            @foreach (var a in armors)
+            {
+                <div class="armor-item">
+                    <div class="armor-info">
+                        <div class="armor-name">@a.Name</div>
+                        <div>タイプ: @GetArmorTypeName(a.Type)</div>
+                        <div>防御: @a.Defense</div>
+                        <div>強化レベル: @a.EnhancementLevel / @a.MaxEnhancementLevel</div>
+                        <div>耐久度: @a.CurrentDurability / @a.Durability</div>
+                        @if (a.SpecialEffects.Any())
+                        {
+                            <div>特殊効果: @string.Join(", ", a.SpecialEffects)</div>
+                        }
+                    </div>
+                    <div class="armor-actions">
+                        <button class="action-button" @onclick="() => NavigateToEnhance(a.Id)">強化</button>
+                        <button class="action-button" @onclick="() => NavigateToRepair(a.Id)">修理</button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private bool isAuth = false;
+    private string? username;
+    private List<Armor> armors = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = state.User;
+        isAuth = user?.Identity?.IsAuthenticated ?? false;
+        username = user?.Identity?.Name;
+
+        if (isAuth && !string.IsNullOrEmpty(username))
+        {
+            armors = ArmorService.GetArmorsByUser(username).ToList();
+        }
+    }
+
+    private string GetArmorTypeName(string typeStr)
+    {
+        if (Enum.TryParse<ArmorType>(typeStr, out var type))
+        {
+            return type switch
+            {
+                ArmorType.Light => "軽装",
+                ArmorType.Medium => "中装",
+                ArmorType.Heavy => "重装",
+                ArmorType.Robe => "ローブ",
+                _ => "その他"
+            };
+        }
+        return "その他";
+    }
+
+    private void NavigateToEnhance(int armorId)
+    {
+        Navigation.NavigateTo($"/armor-enhance/{armorId}");
+    }
+
+    private void NavigateToRepair(int armorId)
+    {
+        Navigation.NavigateTo($"/armor-repair/{armorId}");
+    }
+}

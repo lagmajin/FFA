@@ -13,6 +13,13 @@
         <p>強敵と戦い、栄光を掴もう！</p>
     </div>
 
+    @if (currentChampion != null)
+    {
+        <div style="margin-bottom:10px; padding:8px; background:#fff3cd; border:1px solid #ffeeba; border-radius:6px;">
+            <strong>現チャンピオン:</strong> @currentChampion.Username (レベル @currentChampion.Level) @if (currentChampion.Username == "CPU_Champion") { <em>(CPU)</em> }
+        </div>
+    }
+
     @if (!isAuth)
     {
         <div class="auth-warning">
@@ -109,6 +116,7 @@
     private bool isAuth = false;
     private string? username;
     private User? user;
+    private User? currentChampion;
     private List<Opponent> opponents = new();
     private BattleResult? battleResult;
 
@@ -122,19 +130,29 @@
         if (isAuth && username != null)
         {
             user = UserService.GetByUsername(username);
+            // If user record not found, treat as unauthenticated in this component
+            if (user == null)
+            {
+                isAuth = false;
+                username = null;
+                return;
+            }
+
             GenerateOpponents();
+            currentChampion = UserService.GetAllUsers().FirstOrDefault(u => u.IsChampion);
         }
     }
 
     private void GenerateOpponents()
     {
+        var baseLevel = user?.Level ?? 1;
         opponents = new List<Opponent>
         {
             new Opponent
             {
                 Name = "鋼の戦士",
                 Icon = "⚔️",
-                Level = user.Level + 1,
+                Level = baseLevel + 1,
                 HP = 1000,
                 Attack = 100,
                 Defense = 50,
@@ -178,7 +196,7 @@
             {
                 Name = "天空の女神",
                 Icon = "🌟",
-                Level = user.Level + 5,
+                Level = baseLevel + 5,
                 HP = 1200,
                 Attack = 250,
                 Defense = 60,
@@ -199,6 +217,7 @@
         try
         {
             if (user == null) return;
+            if (string.IsNullOrEmpty(username)) return;
 
             // 戦闘ロジック
             var playerAttack = user.Status.Str * 10 + user.Status.Dex * 5;
@@ -243,6 +262,27 @@
                     RewardGil = opponent.RewardGil,
                     RewardExp = opponent.RewardExp
                 };
+                // Winner becomes champion
+                try
+                {
+                    var userService = new Services.UserService();
+                    // clear previous champions
+                    foreach (var u in userService.GetAllUsers())
+                    {
+                        if (u.IsChampion)
+                        {
+                            u.IsChampion = false;
+                            userService.UpdateUser(u);
+                        }
+                    }
+                    // set new champion
+                    user.IsChampion = true;
+                    userService.UpdateUser(user);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"SkyArena.SetChampion 例外: {ex.Message}");
+                }
             }
             else
             {
