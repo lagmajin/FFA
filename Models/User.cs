@@ -62,4 +62,8 @@ public class User
     public int MasterExp { get; set; } = 0; // マスター経験値
     public int MasterExpToNext { get; set; } = 1000; // 次マスターレベル所需経験値
     public int MaxMasterLevel { get; set; } = 10; // 最大マスターレベル
+
+    // スキルシステム
+    public int SkillPoints { get; set; } = 0; // スキルポイント
+    public List<UserSkill> LearnedSkills { get; set; } = new(); // 習得済みスキル
 }

@@ -81,6 +81,8 @@
                             <button class="action-button" @onclick="GoToInn">宿屋</button>
                             <button class="action-button" @onclick="GoToBank">銀行</button>
                             <button class="action-button" @onclick="GoToAccessoryManagement">装飾品管理</button>
+                            <button class="action-button" @onclick="GoToSkillTrees">スキルツリー</button>
+                            <button class="action-button" @onclick="GoToAbilities">アビリティ</button>
                             <button class="action-button" @onclick="GoBack">ダッシュボード</button>
                         </div>
                     </div>
@@ -200,5 +202,7 @@
     private void GoToArmorShop() => Navigation.NavigateTo("/armor-shop");
     private void GoToAccessoryShop() => Navigation.NavigateTo("/accessory-shop");
     private void GoToAccessoryManagement() => Navigation.NavigateTo("/accessory-management");
+    private void GoToSkillTrees() => Navigation.NavigateTo("/skill-trees");
+    private void GoToAbilities() => Navigation.NavigateTo("/abilities");
     private void GoToConsumablesShop() => Navigation.NavigateTo("/consumables-shop");
 }

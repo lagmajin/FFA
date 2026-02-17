@@ -1,5 +1,6 @@
 @using FFA.Models
 @rendermode InteractiveServer
+@using FFA.Services
 
 <div class="skill-tree-container">
     <div class="skill-header">
@@ -97,6 +98,7 @@
     [Parameter] public int PlayerLevel { get; set; } = 1;
     [Parameter] public int AvailableSkillPoints { get; set; } = 0;
     [Parameter] public List<UserSkill> UserSkills { get; set; } = new();
+    [Parameter] public EventCallback<string> OnSkillLearn { get; set; }
 
     private Skill? SelectedSkill;
     private List<Skill> AllSkills = new();
@@ -165,7 +167,7 @@
         return true;
     }
 
-    private void LearnSkill(Skill skill)
+    private async void LearnSkill(Skill skill)
     {
         if (!CanLearnSkill(skill)) return;
 
@@ -180,6 +182,11 @@
         }
 
         // 親コンポーネントに通知（SP消費のため）
+        if (OnSkillLearn.HasDelegate)
+        {
+            await OnSkillLearn.InvokeAsync(skill.Id);
+        }
+        
         StateHasChanged();
     }
 

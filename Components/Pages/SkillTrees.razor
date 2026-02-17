@@ -1,0 +1,93 @@
+@page "/skill-trees"
+@rendermode InteractiveServer
+
+@using FFA.Models
+@using FFA.Services
+@using FFA.Components.Systems
+@inject UserService UserService
+@inject SkillService SkillService
+@inject NavigationManager Navigation
+@inject Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProvider
+
+<PageTitle>スキルツリー</PageTitle>
+
+<h1>🎯 スキルツリー</h1>
+
+@if (!isAuth)
+{
+    <p>ログインしてください。</p>
+}
+else
+{
+    <div class="skill-tree-page">
+        <div class="skill-points-header">
+            <div class="skill-points-display">
+                <span class="label">使用可能スキルポイント:</span>
+                <span class="value">@user?.SkillPoints</span>
+            </div>
+            <div class="skill-info">
+                <p>レベルアップでスキルポイントを獲得できます</p>
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(message))
+        {
+            <div class="message">@message</div>
+        }
+
+        <SkillTree 
+            PlayerLevel="@(user?.Level ?? 1)" 
+            AvailableSkillPoints="@(user?.SkillPoints ?? 0)"
+            UserSkills="@(user?.LearnedSkills ?? new List<UserSkill>())"
+            OnSkillLearn="OnSkillLearn" />
+
+        <div class="actions">
+            <button class="action-button" @onclick="RefreshData">更新</button>
+            <button class="action-button" @onclick="NavigateToStatus">ステータスへ</button>
+        </div>
+    </div>
+}
+
+@code {
+    private bool isAuth = false;
+    private string? username;
+    private User? user;
+    private string message = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var authUser = state.User;
+        isAuth = authUser?.Identity?.IsAuthenticated ?? false;
+        username = authUser?.Identity?.Name;
+
+        if (isAuth && !string.IsNullOrEmpty(username))
+        {
+            user = UserService.GetByUsername(username);
+        }
+    }
+
+    private void RefreshData()
+    {
+        if (username == null) return;
+        
+        user = UserService.GetByUsername(username);
+        message = "データを更新しました";
+    }
+
+    private void NavigateToStatus()
+    {
+        Navigation.NavigateTo("/status");
+    }
+
+    private async Task OnSkillLearn(string skillId)
+    {
+        if (username == null) return;
+
+        var result = SkillService.LearnSkill(username, skillId);
+        message = result;
+        
+        // データを再読み込み
+        user = UserService.GetByUsername(username);
+    }
+}
