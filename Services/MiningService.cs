@@ -126,6 +126,10 @@ public class MiningService
             var skills = db.GetCollection<MiningSkill>("mining_skills");
             skills.Upsert(skill);
 
+            // ゲームイベントを記録
+            var eventService = new GameEventService();
+            eventService.LogMining(username, true, ore.JapaneseName);
+
             return new MiningResult
             {
                 Success = true,

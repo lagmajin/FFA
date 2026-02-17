@@ -1,0 +1,192 @@
+@page "/accessory-management"
+@rendermode InteractiveServer
+
+@using FFA.Models
+@using FFA.Services
+@inject UserService UserService
+@inject AccessoryService AccessoryService
+@inject NavigationManager Navigation
+@inject Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProvider
+
+<h1>装飾品管理</h1>
+
+@if (!isAuth)
+{
+    <p>ログインしてください。</p>
+}
+else
+{
+    <div class="accessory-management-container">
+        <!-- 装備中の装飾品 -->
+        <div class="equipped-section">
+            <h2>装着中の装飾品</h2>
+            <div class="equipped-accessories">
+                <div class="equipped-slot">
+                    <h3>スロット1</h3>
+                    @if (user?.EquippedAccessory1 != null)
+                    {
+                        <div class="equipped-item">
+                            <div class="item-name">@user.EquippedAccessory1.Name</div>
+                            <div>タイプ: @user.EquippedAccessory1.Type</div>
+                            <div>攻撃: @user.EquippedAccessory1.Attack</div>
+                            <div>防御: @user.EquippedAccessory1.Defense</div>
+                            <div>魔法: @user.EquippedAccessory1.Magic</div>
+                            <div>効果: @user.EquippedAccessory1.Effect</div>
+                            <div>強化Lv: @user.EquippedAccessory1.EnhancementLevel</div>
+                            <button class="action-button" @onclick="() => UnequipAccessory(1)">外す</button>
+                        </div>
+                    }
+                    else
+                    {
+                        <p>何も装備していません</p>
+                    }
+                </div>
+                <div class="equipped-slot">
+                    <h3>スロット2</h3>
+                    @if (user?.EquippedAccessory2 != null)
+                    {
+                        <div class="equipped-item">
+                            <div class="item-name">@user.EquippedAccessory2.Name</div>
+                            <div>タイプ: @user.EquippedAccessory2.Type</div>
+                            <div>攻撃: @user.EquippedAccessory2.Attack</div>
+                            <div>防御: @user.EquippedAccessory2.Defense</div>
+                            <div>魔法: @user.EquippedAccessory2.Magic</div>
+                            <div>効果: @user.EquippedAccessory2.Effect</div>
+                            <div>強化Lv: @user.EquippedAccessory2.EnhancementLevel</div>
+                            <button class="action-button" @onclick="() => UnequipAccessory(2)">外す</button>
+                        </div>
+                    }
+                    else
+                    {
+                        <p>何も装備していません</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- 所有する装飾品 -->
+        <h2>所有装飾品</h2>
+        @if (accessories.Any())
+        {
+            <div class="accessory-list">
+                @foreach (var a in accessories)
+                {
+                    <div class="accessory-item">
+                        <div class="accessory-info">
+                            <div class="accessory-name">@a.Name</div>
+                            <div>タイプ: @a.Type</div>
+                            <div>攻撃: @a.Attack | 防御: @a.Defense | 魔法: @a.Magic</div>
+                            <div>効果: @a.Effect</div>
+                            <div>強化レベル: @a.EnhancementLevel / @a.MaxEnhancementLevel</div>
+                            <div>耐久度: @a.CurrentDurability / @a.Durability</div>
+                            <div>レアリティ: @a.Rarity.GetName()</div>
+                        </div>
+                        <div class="accessory-actions">
+                            @if (!IsEquipped(a.Id))
+                            {
+                                <button class="action-button" @onclick="() => ShowEquipDialog(a)">装備</button>
+                            }
+                            <button class="action-button" @onclick="() => NavigateToEnhance(a.Id)">強化</button>
+                            <button class="action-button" @onclick="() => NavigateToRepair(a.Id)">修理</button>
+                            <button class="action-button sell" @onclick="() => SellAccessory(a.Id)">売却</button>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p>所有する装飾品がありません。ショップで買いましょう。</p>
+        }
+
+        @if (!string.IsNullOrEmpty(message))
+        {
+            <div class="message">@message</div>
+        }
+    </div>
+}
+
+@code {
+    private bool isAuth = false;
+    private string? username;
+    private User? user;
+    private List<Accessory> accessories = new();
+    private string message = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var authUser = state.User;
+        isAuth = authUser?.Identity?.IsAuthenticated ?? false;
+        username = authUser?.Identity?.Name;
+
+        if (isAuth && !string.IsNullOrEmpty(username))
+        {
+            user = UserService.GetByUsername(username);
+            accessories = AccessoryService.GetByOwner(username).ToList();
+        }
+    }
+
+    private bool IsEquipped(int accessoryId)
+    {
+        return (user?.EquippedAccessory1?.Id == accessoryId) || 
+               (user?.EquippedAccessory2?.Id == accessoryId);
+    }
+
+    private async Task ShowEquipDialog(Accessory accessory)
+    {
+        if (user == null) return;
+
+        // 空いているスロットを探す
+        int slot = 0;
+        if (user.EquippedAccessory1 == null)
+            slot = 1;
+        else if (user.EquippedAccessory2 == null)
+            slot = 2;
+        else
+        {
+            message = "両方のスロットが埋まっています";
+            return;
+        }
+
+        var result = AccessoryService.EquipAccessory(username!, accessory.Id, slot);
+        message = result;
+        
+        // データを再読み込み
+        user = UserService.GetByUsername(username!);
+        accessories = AccessoryService.GetByOwner(username!).ToList();
+    }
+
+    private async Task UnequipAccessory(int slot)
+    {
+        if (username == null) return;
+
+        var result = AccessoryService.UnequipAccessory(username, slot);
+        message = result;
+        
+        // データを再読み込み
+        user = UserService.GetByUsername(username);
+    }
+
+    private void NavigateToEnhance(int accessoryId)
+    {
+        Navigation.NavigateTo($"/accessory-enhance/{accessoryId}");
+    }
+
+    private void NavigateToRepair(int accessoryId)
+    {
+        Navigation.NavigateTo($"/accessory-repair/{accessoryId}");
+    }
+
+    private async Task SellAccessory(int accessoryId)
+    {
+        if (username == null) return;
+
+        var result = AccessoryService.SellAccessory(username, accessoryId);
+        message = result.Message;
+        
+        // データを再読み込み
+        user = UserService.GetByUsername(username);
+        accessories = AccessoryService.GetByOwner(username).ToList();
+    }
+}

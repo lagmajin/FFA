@@ -230,6 +230,7 @@ public class UserService
             var user = users.FindOne(u => u.Username == username);
             if (user == null) return;
 
+            int oldLevel = user.Level;
             user.Exp += amount;
             while (user.Exp >= user.ExpToNext)
             {
@@ -239,6 +240,13 @@ public class UserService
                 user.ExpToNext = (int)(user.ExpToNext * 1.2);
             }
             users.Update(user);
+
+            // レベルアップイベントを記録
+            if (user.Level > oldLevel)
+            {
+                var eventService = new GameEventService();
+                eventService.LogLevelUp(username, user.Level);
+            }
         }
         catch (Exception ex)
         {

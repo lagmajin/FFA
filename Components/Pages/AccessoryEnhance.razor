@@ -1,0 +1,103 @@
+@page "/accessory-enhance/{accessoryId:int}"
+@rendermode InteractiveServer
+
+@using FFA.Models
+@using FFA.Services
+@inject UserService UserService
+@inject AccessoryService AccessoryService
+@inject NavigationManager Navigation
+@inject Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProvider
+
+<h1>装飾品強化</h1>
+
+@if (!isAuth)
+{
+    <p>ログインしてください。</p>
+}
+else
+{
+    @if (accessory != null)
+    {
+        <div class="accessory-enhance-container">
+            <h2>@accessory.Name</h2>
+            <div class="accessory-info">
+                <div>タイプ: @accessory.Type</div>
+                <div>攻撃: @accessory.Attack</div>
+                <div>防御: @accessory.Defense</div>
+                <div>魔法: @accessory.Magic</div>
+                <div>効果: @accessory.Effect</div>
+                <div>現在の強化レベル: @accessory.EnhancementLevel / @accessory.MaxEnhancementLevel</div>
+                <div>強化成功率: @(accessory.EnhancementSuccessRate * 100 - accessory.EnhancementLevel * 5)%</div>
+                <div>強化費用: @accessory.EnhancementCost ギル</div>
+                <div>あなたの所持金: @user?.Gil ギル</div>
+            </div>
+
+            @if (enhancementResult != null)
+            {
+                <div class="enhancement-result @enhancementResult.Success.ToString().ToLower()">
+                    <h3>強化結果</h3>
+                    <p>@enhancementResult.Message</p>
+                    @if (enhancementResult.Success)
+                    {
+                        <div>新しい攻撃力: @enhancementResult.NewAttack</div>
+                        <div>新しい防御力: @enhancementResult.NewDefense</div>
+                        <div>新しい魔法力: @enhancementResult.NewMagic</div>
+                    }
+                </div>
+            }
+
+            @if (accessory.EnhancementLevel < accessory.MaxEnhancementLevel)
+            {
+                <button class="action-button" @onclick="EnhanceAccessory">強化する</button>
+            }
+            else
+            {
+                <p>これ以上強化できません</p>
+            }
+            <button class="action-button" @onclick="NavigateBack">戻る</button>
+        </div>
+    }
+    else
+    {
+        <p>装飾品が見つかりません。</p>
+    }
+}
+
+@code {
+    [Parameter]
+    public int accessoryId { get; set; }
+
+    private bool isAuth = false;
+    private string? username;
+    private User? user;
+    private Accessory? accessory;
+    private AccessoryEnhancementResult? enhancementResult;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var authUser = state.User;
+        isAuth = authUser?.Identity?.IsAuthenticated ?? false;
+        username = authUser?.Identity?.Name;
+
+        if (isAuth && !string.IsNullOrEmpty(username))
+        {
+            user = UserService.GetByUsername(username);
+            accessory = AccessoryService.GetByOwner(username).FirstOrDefault(a => a.Id == accessoryId);
+        }
+    }
+
+    private async Task EnhanceAccessory()
+    {
+        if (accessory == null || username == null) return;
+
+        enhancementResult = (AccessoryEnhancementResult)AccessoryService.EnhanceAccessory(username, accessory.Id);
+        user = UserService.GetByUsername(username);
+        accessory = AccessoryService.GetByOwner(username).FirstOrDefault(a => a.Id == accessoryId);
+    }
+
+    private void NavigateBack()
+    {
+        Navigation.NavigateTo("/accessory-management");
+    }
+}

@@ -80,6 +80,7 @@
                         <div class="other-actions">
                             <button class="action-button" @onclick="GoToInn">宿屋</button>
                             <button class="action-button" @onclick="GoToBank">銀行</button>
+                            <button class="action-button" @onclick="GoToAccessoryManagement">装飾品管理</button>
                             <button class="action-button" @onclick="GoBack">ダッシュボード</button>
                         </div>
                     </div>
@@ -198,5 +199,6 @@
     private void GoToWeaponShop() => Navigation.NavigateTo("/weapon-shop");
     private void GoToArmorShop() => Navigation.NavigateTo("/armor-shop");
     private void GoToAccessoryShop() => Navigation.NavigateTo("/accessory-shop");
+    private void GoToAccessoryManagement() => Navigation.NavigateTo("/accessory-management");
     private void GoToConsumablesShop() => Navigation.NavigateTo("/consumables-shop");
 }

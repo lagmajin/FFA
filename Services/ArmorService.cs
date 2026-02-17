@@ -17,6 +17,56 @@ public class ArmorService
         _databasePath = Path.Combine(appDataPath, "armors.db");
     }
 
+    /// <summary>
+    /// 装備による総防御力を取得
+    /// </summary>
+    public int GetTotalDefense(string username)
+    {
+        try
+        {
+            var userService = new UserService();
+            var user = userService.GetByUsername(username);
+            if (user?.EquippedArmor == null) return 0;
+            
+            int defense = user.EquippedArmor.Defense;
+            defense += user.EquippedArmor.EnhancementLevel * 2; // 強化レベルによる加成
+            
+            // レアリティによる加成
+            defense = (int)(defense * SystemIntegration.GetRarityMultiplier(user.EquippedArmor.Rarity));
+            
+            return defense;
+        }
+        catch
+        {
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// 装備による総攻撃力を取得
+    /// </summary>
+    public int GetTotalAttack(string username)
+    {
+        try
+        {
+            var userService = new UserService();
+            var user = userService.GetByUsername(username);
+            if (user?.EquippedWeapon == null) return 0;
+            
+            int attack = user.EquippedWeapon.Attack;
+            attack += user.EquippedWeapon.EnhancementLevel * 2;
+            
+            // レアリティによる加成
+            attack = (int)(attack * SystemIntegration.GetRarityMultiplier(user.EquippedWeapon.Rarity));
+            
+            return attack;
+        }
+        catch
+        {
+            return 0;
+        }
+    }
+
     // 防具を強化する
     public EnhancementResult EnhanceArmor(string username, int armorId)
     {
@@ -416,6 +466,10 @@ public class ArmorService
             user.Gil += sellPrice;
             armors.Delete(armorId);
             userService.UpdateUser(user);
+
+            // ゲームイベントを記録
+            var eventService = new GameEventService();
+            eventService.LogItemSold(username, armor.Name, sellPrice);
 
             return new SellResult
             {
