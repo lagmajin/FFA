@@ -4,6 +4,7 @@
 @using FFA.Models
 @using FFA.Services
 @using Microsoft.AspNetCore.Components.Authorization
+@using MudBlazor
 @inject KarmaService Karma
 @inject TimeWeatherService TimeWeather
 @inject UserService UserService
@@ -11,11 +12,13 @@
 @inject IJSRuntime JS
 @inject NavigationManager Navigation
 
-<FluentCard>
-    <FluentCardHeader>
-        <h1>ステータス</h1>
-    </FluentCardHeader>
-    
+<MudCard>
+    <MudCardHeader>
+        <CardHeaderContent>
+            <MudText Typo="Typo.h5">ステータス</MudText>
+        </CardHeaderContent>
+    </MudCardHeader>
+    <MudCardContent>
     @if (!isAuth)
     {
         <p>ログインしてください。</p>
@@ -23,11 +26,13 @@
     else
     {
         <div class="status-container">
-            <FluentCard>
-                <FluentCardHeader>
-                    <h3>ユーザー情報</h3>
-                </FluentCardHeader>
-                <div class="user-info">
+            <MudCard>
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6">ユーザー情報</MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
                     <p>ユーザー: @username</p>
                     <p>Karma: @karma</p>
                     <p>Gil: @gil</p>
@@ -37,39 +42,47 @@
                     <p>STR: @status.Str DEX: @status.Dex INT: @status.Int VIT: @status.Vit AGI: @status.Agi LUK: @status.Luk</p>
                     <p>Weapon: @status.Weapon (ATK: @status.WeaponAttack) Armor: @status.Armor (DEF: @status.ArmorDefense) Accessory: @status.Accessory (@status.AccessoryEffect)</p>
                     <p>未割り振りポイント: @status.PointsAvailable</p>
-                </div>
-            </FluentCard>
-            
-            <FluentCard>
-                <FluentCardHeader>
-                    <h3>ステータス割り振り</h3>
-                </FluentCardHeader>
-                <div class="status-grid">
-                    <div>STR: @status.Str <FluentButton Appearance="Appearance.Outline" @onclick="() => AddPoint(nameof(status.Str))">+1</FluentButton></div>
-                    <div>DEX: @status.Dex <FluentButton Appearance="Appearance.Outline" @onclick="() => AddPoint(nameof(status.Dex))">+1</FluentButton></div>
-                    <div>INT: @status.Int <FluentButton Appearance="Appearance.Outline" @onclick="() => AddPoint(nameof(status.Int))">+1</FluentButton></div>
-                    <div>VIT: @status.Vit <FluentButton Appearance="Appearance.Outline" @onclick="() => AddPoint(nameof(status.Vit))">+1</FluentButton></div>
-                    <div>AGI: @status.Agi <FluentButton Appearance="Appearance.Outline" @onclick="() => AddPoint(nameof(status.Agi))">+1</FluentButton></div>
-                    <div>LUK: @status.Luk <FluentButton Appearance="Appearance.Outline" @onclick="() => AddPoint(nameof(status.Luk))">+1</FluentButton></div>
-                </div>
-            </FluentCard>
+                </MudCardContent>
+            </MudCard>
 
-            <FluentCard>
-                <FluentCardHeader>
-                    <h3>装備情報</h3>
-                </FluentCardHeader>
-                <div class="equipment-info">
+            <MudCard Class="mt-4">
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6">ステータス割り振り</MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    <div class="status-grid">
+                        <div>STR: @status.Str <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="() => AddPoint(nameof(status.Str))">+1</MudButton></div>
+                        <div>DEX: @status.Dex <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="() => AddPoint(nameof(status.Dex))">+1</MudButton></div>
+                        <div>INT: @status.Int <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="() => AddPoint(nameof(status.Int))">+1</MudButton></div>
+                        <div>VIT: @status.Vit <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="() => AddPoint(nameof(status.Vit))">+1</MudButton></div>
+                        <div>AGI: @status.Agi <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="() => AddPoint(nameof(status.Agi))">+1</MudButton></div>
+                        <div>LUK: @status.Luk <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="() => AddPoint(nameof(status.Luk))">+1</MudButton></div>
+                    </div>
+                </MudCardContent>
+            </MudCard>
+
+            <MudCard Class="mt-4">
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6">装備情報</MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
                     <p>Weapon: @status.Weapon</p>
                     <p>Armor: @status.Armor</p>
                     <p>Accessory: @status.Accessory</p>
-                </div>
-            </FluentCard>
+                </MudCardContent>
+            </MudCard>
 
-            <FluentCard>
-                <FluentCardHeader>
-                    <h3>Inventory</h3>
-                </FluentCardHeader>
-                <div class="inventory-items">
+            <MudCard Class="mt-4">
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6">Inventory</MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
                     @if (inventoryItems != null && inventoryItems.Any())
                     {
                         <div class="inventory-grid">
@@ -77,7 +90,7 @@
                             {
                                 <div class="inventory-item">
                                     <p>@item.Name (@item.Quantity)</p>
-                                    <FluentButton Appearance="Appearance.Accent" @onclick="() => EquipItem(item)">Equip</FluentButton>
+                                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small" OnClick="() => EquipItem(item)">Equip</MudButton>
                                 </div>
                             }
                         </div>
@@ -86,26 +99,29 @@
                     {
                         <p>No items in inventory</p>
                     }
-                </div>
-            </FluentCard>
-            
-            <FluentCard>
-                <FluentCardHeader>
-                    <h3>ワールド情報</h3>
-                </FluentCardHeader>
-                <div class="world-info">
+                </MudCardContent>
+            </MudCard>
+
+            <MudCard Class="mt-4">
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudText Typo="Typo.h6">ワールド情報</MudText>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
                     <p>World Time: @timeStr (@TimeWeather.Phase)</p>
                     <p>Weather: @TimeWeather.Weather</p>
-                </div>
-            </FluentCard>
-            
-            <div class="center-actions">
-                <FluentButton Appearance="Appearance.Accent" @onclick="GoToTown">街へ</FluentButton>
-                <FluentButton Appearance="Appearance.Accent" @onclick="GoToMap">マップへ</FluentButton>
+                </MudCardContent>
+            </MudCard>
+
+            <div class="center-actions mt-4">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="GoToTown">街へ</MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="GoToMap">マップへ</MudButton>
             </div>
         </div>
     }
-</FluentCard>
+    </MudCardContent>
+</MudCard>
 
 @code {
     private bool isAuth = false;

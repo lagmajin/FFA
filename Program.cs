@@ -6,13 +6,10 @@ using Microsoft.AspNetCore.Authentication;
 using FFA.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.FluentUI.AspNetCore.Components;
+using MudBlazor.Services;
 
-// スキル習得リクエスト
-class LearnSkillRequest
-{
-    public int SkillId { get; set; }
-}
+// スキル習得リクエスト型
+// LearnSkillRequest moved to Models/LearnSkillRequest.cs to avoid top-level declaration ordering issues
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +17,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddFluentUIComponents();
+// MudBlazor services for UI components
+builder.Services.AddMudServices();
 
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<GuildService>();
@@ -90,6 +88,23 @@ builder.Services.AddSignalR();
 builder.Services.AddSingleton<DeveloperExceptionService>();
 builder.Services.AddSingleton<AbilityService>();
 builder.Services.AddSingleton<ChatService>();
+
+// In development bind to standard HTTPS port 443 so https://localhost resolves
+if (builder.Environment.IsDevelopment())
+{
+    try
+    {
+        builder.WebHost.ConfigureKestrel(options =>
+        {
+            // Listen on 0.0.0.0:443 or localhost:443 depending on environment
+            options.ListenLocalhost(443, listenOptions => listenOptions.UseHttps());
+        });
+    }
+    catch
+    {
+        // Ignore failures here (likely due to permissions or port in use); app will still use configured endpoints
+    }
+}
 
 var app = builder.Build();
 

@@ -9,6 +9,7 @@
     --warning-color: #ed8936;
     --info-color: #4299e1;
     --light-color: #f7fafc;
+    --content-bg: #f1f5f9; /* middle page background (calm light blue-gray) */
     --dark-color: #1a202c;
     --border-color: #e2e8f0;
     --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -24,7 +25,7 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f7fafc;
+    background-color: var(--light-color);
     color: #2d3748;
     line-height: 1.6;
 }
@@ -99,7 +100,7 @@ header {
 main {
     padding: 2rem;
     min-height: 60vh;
-    background-color: #f7fafc;
+    background-color: var(--content-bg);
 }
 
 /* フッタースタイル */
@@ -144,7 +145,7 @@ footer::before {
 .home-container {
     max-width: 800px;
     margin: 0 auto;
-    background-color: #ffffff;
+    background-color: var(--content-bg);
     padding: 2rem;
     border-radius: 8px;
     box-shadow: var(--shadow);

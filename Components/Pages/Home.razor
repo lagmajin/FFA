@@ -1,6 +1,7 @@
 ﻿@page "/"
 @rendermode InteractiveServer
 @using Microsoft.AspNetCore.Components.Authorization
+@using MudBlazor
 @inject NavigationManager Navigation
 @inject Services.UserService UserService
 @inject Services.RankingService RankingService
@@ -9,113 +10,146 @@
 
 <PageTitle>FFA - トップ</PageTitle>
 
-<div style="font-family: 'MS PGothic', monospace; max-width:1024px; margin:1rem auto; background:#faf8ef; padding:18px; border:1px solid #ccc;">
+<MudPaper Class="pa-4" Style="font-family: 'MS PGothic', monospace; max-width:1024px; margin:1rem auto; background:#faf8ef; border:1px solid #ccc;">
     <div style="text-align:center;">
-        <h1 style="font-size:2.2rem; margin:0; letter-spacing:2px;">FFA — CGI風オンラインRPG</h1>
-        <div style="margin-top:6px; color:#666;">古き良きテキスト式インターフェース風トップページ</div>
+        <MudText Typo="Typo.h4" Style="font-size:2.2rem; margin:0; letter-spacing:2px;">FFA — CGI風オンラインRPG</MudText>
+        <MudText Typo="Typo.subtitle2" Style="margin-top:6px; color:#666;">古き良きテキスト式インターフェース風トップページ</MudText>
     </div>
 
     @* Champion & Stats Section *@
-    <div style="margin-top:18px; background:#fff; padding:14px; border:1px solid #ddd;">
-        <div style="display:flex; gap:16px;">
+    <MudPaper Class="pa-3 mt-4" Style="background:#fff; border:1px solid #ddd;">
+        <div style="display:flex; align-items:center; gap:16px;">
             <div style="flex:1; background:#ffffee; padding:12px; border:1px solid #e0e0a0; border-radius:6px;">
-                <h3 style="margin:0 0 8px 0;">🏆 現在のチャンピオン</h3>
+                <MudText Typo="Typo.h6">🏆 現在のチャンピオン</MudText>
                 @if (champion != null)
                 {
                     <div style="font-size:1.1rem;">
                         <strong>@champion.Username</strong> @if (champion.Username == "CPU_Champion") { <em>(CPU)</em> }
                     </div>
-                    <div style="margin-top:4px; color:#555;">レベル @champion.Level | 所持金 @champion.Gil ギル</div>
-                    <div style="margin-top:4px; color:#555;">職業: @champion.Job</div>
+                    <MudText Typo="Typo.body2" Style="margin-top:4px; color:#555;">レベル @champion.Level | 所持金 @champion.Gil ギル</MudText>
+                    <MudText Typo="Typo.body2" Style="margin-top:4px; color:#555;">職業: @champion.Job</MudText>
                 }
                 else
                 {
-                    <div style="color:#999;">チャンピオン不在（天空闘技場で挑戦しよう！）</div>
+                    <MudText Typo="Typo.body2" Style="color:#999;">チャンピオン不在（天空闘技場で挑戦しよう！）</MudText>
                 }
             </div>
 
-            <div style="width:240px; background:#f0f8ff; padding:12px; border:1px solid #d0e0ff; border-radius:6px;">
-                <h4 style="margin:0 0 8px 0;">統計情報</h4>
-                <div style="margin:4px 0;">総登録冒険者: <strong>@totalUsers</strong> 人</div>
-                <div style="margin:4px 0;">ランキング登録: <strong>@rankedUsers</strong> 人</div>
-                <div style="margin:4px 0;">最高レベル: <strong>@maxLevel</strong></div>
-            </div>
-        </div>
-    </div>
+            <MudSpacer />
 
-    <div style="display:flex; gap:16px; margin-top:18px;">
-        <div style="width:260px; background:#fff; padding:12px; border:1px solid #ddd;">
-            <h3 style="margin-top:0;">メニュー</h3>
-            <ul style="padding-left:1rem;">
-                @* Public / always-visible links *@
-                <li><NavLink href="/market">マーケット</NavLink></li>
-                <li><NavLink href="/sky-arena">天空闘技場</NavLink></li>
-                <li><NavLink href="/ranking">ランキング</NavLink></li>
-                <li><NavLink href="/chat">チャット</NavLink></li>
-
-                @* Auth-only links: show only when logged in *@
-                @if (isAuth)
-                {
-                    <li><NavLink href="/status">ステータス</NavLink></li>
-                    <li><NavLink href="/town">街</NavLink></li>
-                    <li><NavLink href="/field">フィールド</NavLink></li>
-                    <li><NavLink href="/inventory">インベントリ</NavLink></li>
-                    <li><NavLink href="/quests">クエスト</NavLink></li>
-                }
-            </ul>
-        </div>
-
-        <div style="flex:1; background:#fff; padding:14px; border:1px solid #ddd;">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
-                <div style="flex:1;">
-                    <h2 style="margin:0 0 6px 0;">ようこそ、FFAの世界へ</h2>
-                    <p style="margin:0 0 8px 0; color:#444;">テキストベースの世界を探索し、装備を整え、チャンピオンを目指しましょう。</p>
+            <MudPaper Class="pa-2" Style="width:240px; background:#f0f8ff; border:1px solid #d0e0ff; border-radius:6px;">
+                <MudText Typo="Typo.subtitle2">統計情報</MudText>
+                <div style="margin-top:6px;">
+                    <div>総登録冒険者: <strong>@totalUsers</strong></div>
+                    <div>ランキング登録: <strong>@rankedUsers</strong></div>
+                    <div>最高レベル: <strong>@maxLevel</strong></div>
                 </div>
+            </MudPaper>
+        </div>
+    </MudPaper>
 
-                <div style="width:300px;">
-                    @if (isAuth && currentUser != null)
+    <MudGrid GutterSize="3" Class="mt-4">
+        <MudItem xs="12" md="3">
+            <MudPaper Class="pa-3" Style="border:1px solid #ddd;">
+                <MudText Typo="Typo.h6">メニュー</MudText>
+                <MudNavMenu>
+                    <MudNavLink Href="/market">マーケット</MudNavLink>
+                    <MudNavLink Href="/sky-arena">天空闘技場</MudNavLink>
+                    <MudNavLink Href="/ranking">ランキング</MudNavLink>
+                    <MudNavLink Href="/chat">チャット</MudNavLink>
+                    @if (isAuth)
                     {
-                        <div style="background:#f5f5ff; padding:10px; border:1px solid #e0e0ff; border-radius:6px;">
-                            <h4 style="margin:0 0 6px 0;">現在の冒険者</h4>
-                            <p style="margin:4px 0;"><strong>@currentUser.Username</strong> (レベル @currentUser.Level)</p>
-                            <p style="margin:4px 0;">所持金: @currentUser.Gil ギル</p>
-                            <p style="margin:4px 0;">職業: @currentUser.Job</p>
-                            <p style="margin:4px 0;">未割り振りポイント: @currentUser.Status.PointsAvailable</p>
-                            <div style="margin-top:8px;"><NavLink href="/status">詳細を見る</NavLink></div>
-                        </div>
+                        <MudNavLink Href="/status">ステータス</MudNavLink>
+                        <MudNavLink Href="/town">街</MudNavLink>
+                        <MudNavLink Href="/field">フィールド</MudNavLink>
+                        <MudNavLink Href="/inventory">インベントリ</MudNavLink>
+                        <MudNavLink Href="/quests">クエスト</MudNavLink>
                     }
-                    else
-                    {
-                        <div style="background:#fff7f0; padding:10px; border:1px solid #ffe0c0; border-radius:6px;">
-                            <h4 style="margin:0 0 6px 0;">はじめての方へ</h4>
-                            <p style="margin:4px 0;">ログインすると冒険を開始できます。</p>
-                            <div style="margin-top:8px;"><NavLink href="/login">ログイン</NavLink> / <NavLink href="/register">新規登録</NavLink></div>
-                            <div style="margin-top:8px;"><a href="#" @onclick="TestPlay">テストプレイ</a></div>
-                        </div>
-                    }
-                </div>
-            </div>
+                </MudNavMenu>
+            </MudPaper>
+        </MudItem>
 
-            <hr />
+        <MudItem xs="12" md="9">
+            <MudPaper Class="pa-4" Style="border:1px solid #ddd;">
+                <div style="display:flex; align-items:flex-start; gap:12px;">
+                    <div style="flex:1;">
+                        <MudText Typo="Typo.h5">ようこそ、FFAの世界へ</MudText>
+                        <MudText Typo="Typo.body2" Style="color:#444;">テキストベースの世界を探索し、装備を整え、チャンピオンを目指しましょう。</MudText>
+                    </div>
 
-            <div style="display:flex; gap:12px; margin-top:12px;">
-                <div style="flex:1; background:#f7f7f7; padding:10px; border:1px solid #eee;">
-                    <h4 style="margin-top:0;">今日のトピック</h4>
-                    <p style="margin:0;">・新しいダンジョンが近日実装予定。<br/>・天空闘技場のチャンピオンは定期的にリセットされます。<br/>・マーケットで他の冒険者とアイテム取引ができます。</p>
-                </div>
-                <div style="width:220px; background:#f7f7f7; padding:10px; border:1px solid #eee;">
-                    <h4 style="margin-top:0;">クイックリンク</h4>
-                    <p style="margin:0;"><NavLink href="/market">マーケット</NavLink><br/><NavLink href="/ranking">ランキング</NavLink><br/><NavLink href="/sky-arena">天空闘技場</NavLink></p>
-                </div>
-            </div>
+                    <MudSpacer />
 
-            <div style="margin-top:12px; font-size:0.95rem; color:#333;">
-                <pre style="background:#fffbe6; padding:10px; border-radius:4px; white-space:pre-wrap;">ようこそ、冒険者よ。コマンドはメニューから選択してください。
-（このページはオリジナルのCGI風インターフェースを再現したトップです）</pre>
-            </div>
-        </div>
-    </div>
-</div>
+                    <div style="width:300px;">
+                        @if (isAuth && currentUser != null)
+                        {
+                            <MudPaper Class="pa-3" Style="background:#f5f5ff; border:1px solid #e0e0ff; border-radius:6px;">
+                                <MudText Typo="Typo.subtitle1">現在の冒険者</MudText>
+                                <div style="margin-top:6px;">
+                                    <div><strong>@currentUser.Username</strong> (レベル @currentUser.Level)</div>
+                                    <div>所持金: @currentUser.Gil ギル</div>
+                                    <div>職業: @currentUser.Job</div>
+                                    <div>未割り振りポイント: @currentUser.Status.PointsAvailable</div>
+                                    <div style="margin-top:8px;"><MudNavLink Href="/status">詳細を見る</MudNavLink></div>
+                                </div>
+                            </MudPaper>
+                        }
+                        else
+                        {
+                            <MudPaper Class="pa-3" Style="background:#fff7f0; border:1px solid #ffe0c0; border-radius:6px;">
+                                <MudText Typo="Typo.subtitle1">はじめての方へ</MudText>
+                                <div style="margin-top:6px;">
+                                    <div>ログインすると冒険を開始できます。</div>
+                                    <div style="margin-top:8px;"><MudNavLink Href="/login">ログイン</MudNavLink> / <MudNavLink Href="/register">新規登録</MudNavLink></div>
+                                    <div style="margin-top:8px;"><MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="TestPlay">テストプレイ</MudButton></div>
+                                </div>
+                            </MudPaper>
+                        }
+                    </div>
+                </div>
+
+                <MudDivider Class="my-4" />
+
+                @* Top ranking table *@
+                <MudPaper Class="pa-4" Style="margin-bottom:12px;">
+                    <MudText Typo="Typo.h6">ランキング（トップ@rankedUsers）</MudText>
+                    <MudTable Items="rankingRows" Dense="true" Elevation="0">
+                        <HeaderContent>
+                            <MudTh>順位</MudTh>
+                            <MudTh>プレイヤー</MudTh>
+                            <MudTh>ギル</MudTh>
+                            <MudTh>レベル</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd>@context.Rank</MudTd>
+                            <MudTd>@context.Username</MudTd>
+                            <MudTd>@context.Gil</MudTd>
+                            <MudTd>@context.Level</MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                </MudPaper>
+
+                <MudGrid GutterSize="2">
+                    <MudItem xs="12" md="8">
+                        <MudPaper Class="pa-3" Style="background:#f7f7f7; border:1px solid #eee;">
+                            <MudText Typo="Typo.h6">今日のトピック</MudText>
+                            <MudText Typo="Typo.body2">・新しいダンジョンが近日実装予定。<br/>・天空闘技場のチャンピオンは定期的にリセットされます。<br/>・マーケットで他の冒険者とアイテム取引ができます。</MudText>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="12" md="4">
+                        <MudPaper Class="pa-3" Style="background:#f7f7f7; border:1px solid #eee;">
+                            <MudText Typo="Typo.h6">クイックリンク</MudText>
+                            <div style="margin-top:6px;"><MudNavLink Href="/market">マーケット</MudNavLink><br/><MudNavLink Href="/ranking">ランキング</MudNavLink><br/><MudNavLink Href="/sky-arena">天空闘技場</MudNavLink></div>
+                        </MudPaper>
+                    </MudItem>
+                </MudGrid>
+
+                <MudPaper Class="pa-3 mt-4" Style="background:#fffbe6;">
+                    <MudText Typo="Typo.body2">ようこそ、冒険者よ。コマンドはメニューから選択してください。（このページはオリジナルのCGI風インターフェースを再現したトップです）</MudText>
+                </MudPaper>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
 
 @code {
     private bool isAuth = false;
@@ -125,6 +159,7 @@
     private int totalUsers = 0;
     private int rankedUsers = 0;
     private int maxLevel = 0;
+    private List<RankingRow> rankingRows = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -145,12 +180,29 @@
             champion = allUsers.FirstOrDefault(u => u.IsChampion);
             totalUsers = allUsers.Count;
 
-            var ranking = RankingService.GetCurrentRanking();
+            var ranking = RankingService.GetCurrentRanking().ToList();
             rankedUsers = ranking.Count();
             maxLevel = allUsers.Any() ? allUsers.Max(u => u.Level) : 0;
+
+            // Prepare table rows
+            rankingRows = ranking.Select((r, idx) => new RankingRow
+            {
+                Rank = idx + 1,
+                Username = r.Username,
+                Gil = r.Gil,
+                Level = r.Level
+            }).ToList();
         }
         catch { }
     }
+
+public class RankingRow
+{
+    public int Rank { get; set; }
+    public string Username { get; set; } = string.Empty;
+    public int Gil { get; set; }
+    public int Level { get; set; }
+}
 
     private async Task TestPlay()
     {

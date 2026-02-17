@@ -7,7 +7,8 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": true,
-      "applicationUrl": "https://localhost:7072"
+      "applicationUrl": "https://localhost:443",
+      "launchUrl": "index.html"
     },
     "http": {
       "commandName": "Project",
@@ -17,7 +18,8 @@
         "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": ""
       },
       "dotnetRunMessages": true,
-      "applicationUrl": "https://localhost:7072"
+      "applicationUrl": "https://localhost:443",
+      "launchUrl": "index.html"
     },
     "IIS Express": {
       "commandName": "IISExpress",

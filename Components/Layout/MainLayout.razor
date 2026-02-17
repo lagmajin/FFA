@@ -1,41 +1,66 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Web
+@using MudBlazor
 @inherits LayoutComponentBase
 @inject NavigationManager NavManager
 @implements IAsyncDisposable
 
-<header>
-    <div class="header-content">
-        <h1>FFA World</h1>
-        <nav class="right-nav">
+<MudThemeProvider />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar Color="Color.Primary" Fixed="true">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+
+        <MudText Typo="Typo.h6" Class="ml-4">FFA World</MudText>
+
+        <MudSpacer />
+
+        <MudStack Row Spacing="1" AlignItems="AlignItems.Center">
             <AuthorizeView>
                 <Authorized>
-                    <a href="#" class="nav-link" @onclick="SignOut">ログアウト</a>
+                    <MudButton Variant="Variant.Text" Color="Color.Inherit" StartIcon="@Icons.Material.Filled.ExitToApp" OnClick="SignOut">ログアウト</MudButton>
+                    <MudButton Variant="Variant.Outlined" Color="Color.Secondary" StartIcon="@Icons.Material.Filled.SportsEsports" OnClick="TestPlay">テストプレイ</MudButton>
                 </Authorized>
                 <NotAuthorized>
-                    @if (currentIsHomePage)
-                    {
-                        <NavLink href="/login">ログイン</NavLink>
-                        <NavLink href="/register">新規登録</NavLink>
-                        <a href="#" class="nav-link" @onclick="TestPlay">テストプレイ</a>
-                    }
-                    else
-                    {
-                        <NavLink href="/login">ログイン</NavLink>
-                        <NavLink href="/register">新規登録</NavLink>
-                    }
+                    <MudButton Href="/register" Variant="Variant.Text" Color="Color.Inherit" StartIcon="@Icons.Material.Filled.PersonAdd">新規登録</MudButton>
+                    <MudButton Href="/login" Variant="Variant.Text" Color="Color.Inherit" StartIcon="@Icons.Material.Filled.Login">ログイン</MudButton>
+                    <MudButton Variant="Variant.Outlined" Color="Color.Secondary" StartIcon="@Icons.Material.Filled.SportsEsports" OnClick="TestPlay">テストプレイ</MudButton>
                 </NotAuthorized>
             </AuthorizeView>
-        </nav>
-    </div>
-</header>
+        </MudStack>
+    </MudAppBar>
 
-<main>
-    <ErrorBoundary @ref="mainErrorBoundary">
-        <ChildContent>
-            @Body
-        </ChildContent>
-        <ErrorContent Context="ex">
+    <MudDrawer @bind-Open="drawerOpen" Elevation="1">
+        <MudDrawerHeader>
+            <MudText Typo="Typo.h6" Style="font-weight:700;">メニュー</MudText>
+        </MudDrawerHeader>
+        <MudNavMenu>
+            <MudNavLink Href="/guide" Icon="@Icons.Material.Filled.Info">ガイド</MudNavLink>
+            <MudNavLink Href="/about" Icon="@Icons.Material.Filled.Info">About</MudNavLink>
+            <MudNavLink Href="/contact" Icon="@Icons.Material.Filled.Mail">Contact</MudNavLink>
+            <MudDivider Class="my-2" />
+            <MudNavLink Href="/" Icon="@Icons.Material.Filled.Home">ホーム</MudNavLink>
+            <MudNavLink Href="/market" Icon="@Icons.Material.Filled.Store">マーケット</MudNavLink>
+            <MudNavLink Href="/ranking" Icon="@Icons.Material.Filled.EmojiEvents">ランキング</MudNavLink>
+            <MudNavLink Href="/sky-arena" Icon="@Icons.Material.Filled.SelfImprovement">天空闘技場</MudNavLink>
+            <MudNavLink Href="/chat" Icon="@Icons.Material.Filled.Chat">チャット</MudNavLink>
+        </MudNavMenu>
+    </MudDrawer>
+
+    <MudMainContent>
+        @* MudBlazor static assets *@
+        <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
+        <script src="_content/MudBlazor/MudBlazor.min.js"></script>
+
+        <main Style="padding: 72px 20px 20px 20px;">
+            <ErrorBoundary @ref="mainErrorBoundary">
+                <ChildContent>
+                    @Body
+                </ChildContent>
+                <ErrorContent Context="ex">
             <div class="error-container" style="padding: 2rem; margin: 2rem; background-color: #fee; border: 2px solid #c00; border-radius: 8px;">
                 <h2 style="color: #c00;">🚨 ページエラーが発生しました</h2>
                 <p><strong>種類:</strong> @ex.GetType().Name</p>
@@ -57,28 +82,30 @@
             </div>
         </ErrorContent>
     </ErrorBoundary>
-</main>
+        </main>
 
-<footer>
-    <nav>
-        <NavLink href="/guide">ガイド</NavLink>
-        <NavLink href="/about">About</NavLink>
-        <NavLink href="/contact">Contact</NavLink>
-    </nav>
-</footer>
+        <footer Style="padding: 20px; text-align: center; border-top: 1px solid #eee; margin-top: 40px;">
+            <nav>
+                <NavLink href="/guide" style="margin-right: 16px;">ガイド</NavLink>
+                <NavLink href="/about" style="margin-right: 16px;">About</NavLink>
+                <NavLink href="/contact">Contact</NavLink>
+            </nav>
+        </footer>
 
-<div id="blazor-error-ui" data-nosnippet style="display:none;">
-    An unhandled error has occurred.
-    <a href="." class="reload">Reload</a>
-    <span class="dismiss">🗙</span>
-    <pre id="blazor-error-details" style="white-space: pre-wrap; display: none; max-width: 30rem; overflow:auto;"> </pre>
-</div>
+        <div id="blazor-error-ui" data-nosnippet style="display:none;">
+            An unhandled error has occurred.
+            <a href="." class="reload">Reload</a>
+            <span class="dismiss">🗙</span>
+            <pre id="blazor-error-details" style="white-space: pre-wrap; display: none; max-width: 30rem; overflow:auto;"> </pre>
+        </div>
 
-<script src="/js/auth.js"></script>
-<link href="/css/timeweather.css" rel="stylesheet" />
-<script src="/js/signalr.min.js"></script>
-<component type="typeof(Components.Systems.TimeWeather)" render-mode="InteractiveServer" />
-<component type="typeof(Components.Systems.KarmaBadge)" render-mode="InteractiveServer" />
+        <script src="/js/auth.js"></script>
+        <link href="/css/timeweather.css" rel="stylesheet" />
+        <script src="/js/signalr.min.js"></script>
+        <component type="typeof(Components.Systems.TimeWeather)" render-mode="InteractiveServer" />
+        <component type="typeof(Components.Systems.KarmaBadge)" render-mode="InteractiveServer" />
+    </MudMainContent>
+</MudLayout>
 <script>
     (function () {
         try {
@@ -114,6 +141,8 @@
 @code {
     private ErrorBoundary? mainErrorBoundary;
     private bool currentIsHomePage = false;
+    private bool isDark = false;
+    private bool drawerOpen = false;
 
     [Inject] private IJSRuntime JS { get; set; } = default!;
     [Inject] private NavigationManager Navigation { get; set; } = default!;
@@ -123,6 +152,16 @@
         base.OnInitialized();
         UpdateIsHomePage();
         Navigation.LocationChanged += OnLocationChanged;
+    }
+
+    private void DrawerToggle()
+    {
+        drawerOpen = !drawerOpen;
+    }
+
+    private void ToggleTheme()
+    {
+        isDark = !isDark;
     }
 
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
