@@ -3,6 +3,9 @@
 /* @import url('_content/Microsoft.FluentUI.AspNetCore.Components/css/theming.css'); */
 /* @import url('_content/Microsoft.FluentUI.AspNetCore.Components/css/fluentui-icons.css'); */
 
+/* Chat Styles */
+@import url('css/chat.css');
+
 h1:focus {
     outline: none;
 }

@@ -37,3 +37,34 @@
 ## ブラックマーケット
 - [Models/BlackMarket.cs](Models/BlackMarket.cs)
 - [Services/BlackMarketService.cs](Services/BlackMarketService.cs)
+
+## チャットシステム
+- [Models/ChatMessage.cs](Models/ChatMessage.cs)
+- [Services/ChatService.cs](Services/ChatService.cs)
+- [Components/Pages/Chat.razor](Components/Pages/Chat.razor)
+- [wwwroot/css/chat.css](wwwroot/css/chat.css)
+
+## ギルド拡張システム
+- [Models/Guild.cs](Models/Guild.cs) - スキル習得機能追加
+- [Services/GuildEnhancementService.cs](Services/GuildEnhancementService.cs) - 新規作成
+  - ギルドレベルシステム
+  - ギルドスキルシステム
+  - ギルド戦機能
+
+## ワールドマップシステム（2Dグリッド）
+- [Models/WorldGrid.cs](Models/WorldGrid.cs) - 新規作成
+  - グリッドベースの場所管理
+  - プレイヤ位置追跡
+- [Services/WorldService.cs](Services/WorldService.cs) - 新規作成
+  - 10x10の2Dワールド
+  - 移動システム（北/南/東/西）
+  - 敵遭遇システム
+  - 街、平原、森、湖、砂漠、雪山、火山、ダンジョン配置
+
+## スタミナシステム
+- [Models/Stamina.cs](Models/Stamina.cs) - 新規作成
+  - 7種類のスタミナタイプ（移動、戦闘、採掘、釣り、製作、ギルド戦、探索）
+- [Services/StaminaService.cs](Services/StaminaService.cs) - 新規作成
+  - 自動回復システム
+  - 日次リセット機能
+  - スタミナ使用/回復API

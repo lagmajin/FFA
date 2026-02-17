@@ -1,0 +1,215 @@
+@page "/chat"
+@rendermode InteractiveServer
+@using FFA.Models
+@using Microsoft.AspNetCore.Components.Authorization
+@inject ChatService ChatService
+@inject UserService UserService
+@inject GuildService GuildService
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
+
+<PageTitle>チャット</PageTitle>
+
+<div class="chat-container">
+    <h1 class="chat-title">チャット</h1>
+
+    @if (!isAuth)
+    {
+        <div class="auth-warning">
+            <p>ログインしてください。</p>
+        </div>
+    }
+    else
+    {
+        <div class="chat-main">
+            <!-- チャンネル選択 -->
+            <div class="channel-tabs">
+                <button class="@(currentChannel == ChatChannel.World ? "active" : "")" @onclick="() => SwitchChannel(ChatChannel.World)">
+                    世界チャット
+                </button>
+                <button class="@(currentChannel == ChatChannel.Guild ? "active" : "")" @onclick="() => SwitchChannel(ChatChannel.Guild)">
+                    ギルドチャット
+                </button>
+                <button class="@(currentChannel == ChatChannel.Whisper ? "active" : "")" @onclick="() => SwitchChannel(ChatChannel.Whisper)">
+                    個人チャット
+                </button>
+            </div>
+
+            <!-- メッセージ表示エリア -->
+            <div class="chat-messages" id="chatMessages">
+                @if (currentMessages.Any())
+                {
+                    @foreach (var msg in currentMessages)
+                    {
+                        <div class="message @GetMessageClass(msg)">
+                            <span class="timestamp">[@msg.Timestamp.ToString("HH:mm")]</span>
+                            @if (msg.Channel == ChatChannel.Whisper)
+                            {
+                                <span class="whisper-from">@(msg.Username) → @(msg.TargetUsername): </span>
+                            }
+                            else if (msg.Channel == ChatChannel.Guild)
+                            {
+                                <span class="guild-name">[@msg.GuildName] </span>
+                            }
+                            else if (msg.Channel == ChatChannel.System)
+                            {
+                                <span class="system-name">【システム】 </span>
+                            }
+                            <span class="username">@msg.Username: </span>
+                            <span class="content">@msg.Message</span>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="no-messages">メッセージはまだありません。</p>
+                }
+            </div>
+
+            <!-- メッセージ送信エリア -->
+            <div class="chat-input-area">
+                @if (currentChannel == ChatChannel.Whisper)
+                {
+                    <div class="whisper-target">
+                        <label>宛先:</label>
+                        <input @bind="whisperTarget" placeholder="ユーザー名" />
+                    </div>
+                }
+                <div class="input-row">
+                    <input @bind="messageText" 
+                           @onkeypress="HandleKeyPress"
+                           placeholder="メッセージを入力..." 
+                           class="message-input" />
+                    <button @onclick="SendMessage" class="send-button">送信</button>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="back-section">
+        <button class="back-button" @onclick="GoBack">戻る</button>
+    </div>
+</div>
+
+@code {
+    private bool isAuth = false;
+    private string? username;
+    private User? currentUser;
+    private ChatChannel currentChannel = ChatChannel.World;
+    private string messageText = "";
+    private string whisperTarget = "";
+    private List<ChatMessage> currentMessages = new();
+    private System.Timers.Timer? refreshTimer;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        var authUser = state.User;
+        isAuth = authUser?.Identity?.IsAuthenticated ?? false;
+        username = authUser?.Identity?.Name;
+
+        if (isAuth && username != null)
+        {
+            currentUser = UserService.GetByUsername(username);
+            LoadMessages();
+            
+            // 自動更新タイマー（5秒ごとに更新）
+            refreshTimer = new System.Timers.Timer(5000);
+            refreshTimer.Elapsed += (s, e) => InvokeAsync(() => {
+                LoadMessages();
+                StateHasChanged();
+            });
+            refreshTimer.Start();
+        }
+    }
+
+    private void LoadMessages()
+    {
+        currentChannel = currentChannel switch
+        {
+            ChatChannel.World => ChatChannel.World,
+            ChatChannel.Guild => ChatChannel.Guild,
+            ChatChannel.Whisper => ChatChannel.Whisper,
+            _ => ChatChannel.World
+        };
+
+        if (!isAuth || username == null) return;
+
+        currentMessages = currentChannel switch
+        {
+            ChatChannel.World => ChatService.GetWorldMessages(),
+            ChatChannel.Guild => ChatService.GetGuildMessages(),
+            ChatChannel.Whisper => ChatService.GetWhisperMessages(username),
+            _ => new List<ChatMessage>()
+        };
+    }
+
+    private void SwitchChannel(ChatChannel channel)
+    {
+        currentChannel = channel;
+        LoadMessages();
+    }
+
+    private void SendMessage()
+    {
+        if (string.IsNullOrWhiteSpace(messageText) || username == null) return;
+
+        switch (currentChannel)
+        {
+            case ChatChannel.World:
+                ChatService.SendWorldMessage(username, messageText);
+                break;
+            case ChatChannel.Guild:
+                if (currentUser?.GuildId != null)
+                {
+                    var guild = GuildService.GetUserGuild(currentUser);
+                    if (guild != null)
+                    {
+                        ChatService.SendGuildMessage(username, guild.Name, messageText);
+                    }
+                }
+                break;
+            case ChatChannel.Whisper:
+                if (!string.IsNullOrWhiteSpace(whisperTarget))
+                {
+                    ChatService.SendWhisper(username, whisperTarget, messageText);
+                }
+                break;
+        }
+
+        messageText = "";
+        LoadMessages();
+    }
+
+    private async Task HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            SendMessage();
+            await Task.CompletedTask;
+        }
+    }
+
+    private string GetMessageClass(ChatMessage msg)
+    {
+        return msg.Channel switch
+        {
+            ChatChannel.World => "world-message",
+            ChatChannel.Guild => "guild-message",
+            ChatChannel.Whisper => "whisper-message",
+            ChatChannel.System => "system-message",
+            _ => ""
+        };
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/");
+    }
+
+    public void Dispose()
+    {
+        refreshTimer?.Stop();
+        refreshTimer?.Dispose();
+    }
+}

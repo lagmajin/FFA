@@ -8,6 +8,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.FluentUI.AspNetCore.Components;
 
+// スキル習得リクエスト
+class LearnSkillRequest
+{
+    public int SkillId { get; set; }
+}
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -18,6 +24,10 @@ builder.Services.AddFluentUIComponents();
 
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<GuildService>();
+builder.Services.AddScoped<GuildEnhancementService>();
+builder.Services.AddSingleton<WorldService>();
+builder.Services.AddSingleton<StaminaService>();
+builder.Services.AddSingleton<ConsumableItemService>();
 builder.Services.AddScoped<DungeonService>();
 builder.Services.AddScoped<QuestService>();
 builder.Services.AddScoped<CountryService>();
@@ -79,6 +89,7 @@ builder.Services.AddHostedService<TimeWeatherHostedService>();
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<DeveloperExceptionService>();
 builder.Services.AddSingleton<AbilityService>();
+builder.Services.AddSingleton<ChatService>();
 
 var app = builder.Build();
 
@@ -174,6 +185,164 @@ app.MapPost("/karma/adjust", (KarmaAdjustRequest req, KarmaService karma) =>
     if (req == null || string.IsNullOrEmpty(req.Username)) return Results.BadRequest();
     var val = karma.AdjustKarma(req.Username, req.Delta);
     return Results.Ok(val);
+});
+
+// Guild Enhancement API endpoints
+app.MapGet("/guild/info", (ClaimsPrincipal user, GuildService guildService, GuildEnhancementService guildEnhancement) =>
+{
+    var username = user.Identity?.Name;
+    if (string.IsNullOrEmpty(username)) return Results.Unauthorized();
+    var userService = new UserService();
+    var userEntity = userService.GetByUsername(username);
+    if (userEntity == null || userEntity.GuildId == null) return Results.NotFound("ギルドに参加していません");
+    
+    var guild = guildService.GetUserGuild(userEntity);
+    if (guild == null) return Results.NotFound("ギルドが見つかりません");
+    
+    var info = guildEnhancement.GetGuildInfo(guild);
+    return Results.Ok(info);
+});
+
+app.MapGet("/guild/skills", (GuildEnhancementService guildEnhancement) =>
+{
+    return Results.Ok(GuildEnhancementService.GuildSkills);
+});
+
+app.MapPost("/guild/skill/learn", (LearnSkillRequest req, ClaimsPrincipal user, GuildService guildService, GuildEnhancementService guildEnhancement) =>
+{
+    var username = user.Identity?.Name;
+    if (string.IsNullOrEmpty(username)) return Results.Unauthorized();
+    var userService = new UserService();
+    var userEntity = userService.GetByUsername(username);
+    if (userEntity == null || userEntity.GuildId == null) return Results.NotFound("ギルドに参加していません");
+    
+    var guild = guildService.GetUserGuild(userEntity);
+    if (guild == null) return Results.NotFound("ギルドが見つかりません");
+    
+    var result = guildEnhancement.AddGuildSkill(guild, req.SkillId);
+    return Results.Ok(result);
+});
+
+// World/Map API endpoints
+app.MapGet("/world/map", (ClaimsPrincipal user, WorldService worldService) =>
+{
+    var username = user.Identity?.Name;
+    if (string.IsNullOrEmpty(username)) return Results.Unauthorized();
+    
+    var mapInfo = worldService.GetWorldMapInfo(username);
+    return Results.Ok(mapInfo);
+});
+
+app.MapGet("/world/surroundings", (ClaimsPrincipal user, WorldService worldService) =>
+{
+    var username = user.Identity?.Name;
+    if (string.IsNullOrEmpty(username)) return Results.Unauthorized();
+    
+    var surroundings = worldService.GetSurroundings(username);
+    return Results.Ok(surroundings);
+});
+
+app.MapGet("/world/location", (ClaimsPrincipal user, WorldService worldService) =>
+{
+    var username = user.Identity?.Name;
+    if (string.IsNullOrEmpty(username)) return Results.Unauthorized();
+    
+    var locationName = worldService.GetCurrentLocationName(username);
+    return Results.Ok(new { Location = locationName });
+});
+
+app.MapPost("/world/move/{direction}", (string direction, ClaimsPrincipal user, WorldService worldService) =>
+{
+    var username = user.Identity?.Name;
+    if (string.IsNullOrEmpty(username)) return Results.Unauthorized();
+    
+    var result = worldService.MovePlayer(username, direction);
+    return Results.Ok(result);
+});
+
+// Stamina API endpoints
+app.MapGet("/stamina", (ClaimsPrincipal user, StaminaService staminaService) =>
+{
+    var username = user.Identity?.Name;
+    if (string.IsNullOrEmpty(username)) return Results.Unauthorized();
+    
+    var info = staminaService.GetStaminaInfo(username);
+    return Results.Ok(info);
+});
+
+app.MapGet("/stamina/{type}", (string type, ClaimsPrincipal user, StaminaService staminaService) =>
+{
+    var username = user.Identity?.Name;
+    if (string.IsNullOrEmpty(username)) return Results.Unauthorized();
+    
+    if (!Enum.TryParse<FFA.Models.StaminaType>(type, true, out var staminaType))
+        return Results.BadRequest("無効なスタミナタイプです");
+    
+    var status = staminaService.GetStaminaStatus(username, staminaType);
+    return Results.Ok(status);
+});
+
+app.MapPost("/stamina/use/{type}", (string type, ClaimsPrincipal user, StaminaService staminaService) =>
+{
+    var username = user.Identity?.Name;
+    if (string.IsNullOrEmpty(username)) return Results.Unauthorized();
+    
+    if (!Enum.TryParse<FFA.Models.StaminaType>(type, true, out var staminaType))
+        return Results.BadRequest("無効なスタミナタイプです");
+    
+    var result = staminaService.UseStamina(username, staminaType);
+    return Results.Ok(result);
+});
+
+app.MapPost("/stamina/recover/{type}", (string type, ClaimsPrincipal user, StaminaService staminaService) =>
+{
+    var username = user.Identity?.Name;
+    if (string.IsNullOrEmpty(username)) return Results.Unauthorized();
+    
+    if (!Enum.TryParse<FFA.Models.StaminaType>(type, true, out var staminaType))
+        return Results.BadRequest("無効なスタミナタイプです");
+    
+    // 回復量は固定（アイテム等で使用）
+    var result = staminaService.RecoverStaminaItem(username, staminaType, 20);
+    return Results.Ok(result);
+});
+
+// ConsumableItem API endpoints
+app.MapGet("/items/consumable", (ConsumableItemService itemService) =>
+{
+    return Results.Ok(ConsumableItemService.ConsumableItems);
+});
+
+app.MapGet("/items/consumable/{id}", (int id, ConsumableItemService itemService) =>
+{
+    var item = itemService.GetItem(id);
+    if (item == null) return Results.NotFound("アイテムが見つかりません");
+    return Results.Ok(item);
+});
+
+app.MapPost("/items/use/{itemId}", (int itemId, ClaimsPrincipal user, ConsumableItemService itemService, UserService userService) =>
+{
+    var username = user.Identity?.Name;
+    if (string.IsNullOrEmpty(username)) return Results.Unauthorized();
+    
+    var userEntity = userService.GetByUsername(username);
+    if (userEntity == null) return Results.NotFound("ユーザーが見つかりません");
+    
+    var result = itemService.UseItem(userEntity, itemId);
+    if (result.Success)
+    {
+        userService.UpdateUser(userEntity);
+    }
+    return Results.Ok(result);
+});
+
+app.MapGet("/items/buffs", (ClaimsPrincipal user, ConsumableItemService itemService) =>
+{
+    var username = user.Identity?.Name;
+    if (string.IsNullOrEmpty(username)) return Results.Unauthorized();
+    
+    var buffs = itemService.GetActiveBuffs(username);
+    return Results.Ok(buffs);
 });
 
 app.MapStaticAssets();
