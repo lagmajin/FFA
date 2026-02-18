@@ -75,3 +75,25 @@
   - 成功時は希少宝石や岩の欠片をインベントリへ付与、ギル報酬の可能性あり
 - [Components/Pages/RockSmash.razor](Components/Pages/RockSmash.razor) - 新規作成
   - UI: ワンボタンで判定し結果表示（ログイン必須）
+
+## チャット国別機能
+- [Services/ChatService.cs](Services/ChatService.cs) - 国別チャットキューを追加
+- [Components/Pages/Chat.razor](Components/Pages/Chat.razor) - 国別チャットタブを追加
+
+## オークション / 国戦（未統合UI）
+- [Services/AuctionService.cs](Services/AuctionService.cs) - 新規作成（オークション基盤）
+- [Services/CountryWarService.cs](Services/CountryWarService.cs) - 新規作成（国戦基盤）
+
+## 新規スキャフォールディング
+- [Models/Companion.cs](Models/Companion.cs) - コンパニオン（ペット）モデル
+- [Services/CompanionService.cs](Services/CompanionService.cs) - コンパニオン管理サービス
+- [Models/InstanceDungeon.cs](Models/InstanceDungeon.cs) - インスタンスダンジョンモデル
+- [Services/InstanceService.cs](Services/InstanceService.cs) - インスタンス管理サービス
+ - [Models/MonsterTemplate.cs](Models/MonsterTemplate.cs) - モンスターテンプレート
+ - [Services/MonsterService.cs](Services/MonsterService.cs) - モンスター生成・テンプレ管理サービス
+ - [Models/NotoriousMonster.cs](Models/NotoriousMonster.cs) - NM (Notorious Monster) モデル
+ - [Services/NotoriousMonsterService.cs](Services/NotoriousMonsterService.cs) - NM 管理サービス（スポーン・討伐・リスポーン管理）
+
+***
+
+(注) 新しいサービスは実装済みですが、フロントエンド（UI）には未統合です。UI 統合の実装は別途指示してください。

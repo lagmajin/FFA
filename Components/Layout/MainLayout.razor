@@ -11,18 +11,17 @@
 <MudSnackbarProvider />
 
 <MudLayout>
-    <MudAppBar Color="Color.Primary" Fixed="true">
+    <MudAppBar Color="Color.Primary" Fixed="true" Style="display:flex; flex-wrap:nowrap;">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
 
-        <MudText Typo="Typo.h6" Class="ml-4">FFA World</MudText>
+        <MudText Typo="Typo.h6" Style="white-space:nowrap;">FFA World</MudText>
 
         <MudSpacer />
 
-        <MudStack Row Spacing="1" AlignItems="AlignItems.Center">
+        <div style="display:flex; align-items:center; gap:4px; flex-shrink:0; margin-left:auto;">
             <AuthorizeView>
                 <Authorized>
                     <MudButton Variant="Variant.Text" Color="Color.Inherit" StartIcon="@Icons.Material.Filled.ExitToApp" OnClick="SignOut">ログアウト</MudButton>
-                    <MudButton Variant="Variant.Outlined" Color="Color.Secondary" StartIcon="@Icons.Material.Filled.SportsEsports" OnClick="TestPlay">テストプレイ</MudButton>
                 </Authorized>
                 <NotAuthorized>
                     <MudButton Href="/register" Variant="Variant.Text" Color="Color.Inherit" StartIcon="@Icons.Material.Filled.PersonAdd">新規登録</MudButton>
@@ -30,11 +29,11 @@
                     <MudButton Variant="Variant.Outlined" Color="Color.Secondary" StartIcon="@Icons.Material.Filled.SportsEsports" OnClick="TestPlay">テストプレイ</MudButton>
                 </NotAuthorized>
             </AuthorizeView>
-        </MudStack>
+        </div>
     </MudAppBar>
 
     <MudDrawer @bind-Open="drawerOpen" Elevation="1">
-        <MudDrawerHeader>
+        <MudDrawerHeader Class="d-flex justify-start pa-0">
             <MudText Typo="Typo.h6" Style="font-weight:700;">メニュー</MudText>
         </MudDrawerHeader>
         <MudNavMenu>
@@ -51,11 +50,7 @@
     </MudDrawer>
 
     <MudMainContent>
-        @* MudBlazor static assets *@
-        <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
-        <script src="_content/MudBlazor/MudBlazor.min.js"></script>
-
-        <main Style="padding: 72px 20px 20px 20px;">
+        <main Style="padding: 72px 20px 20px 20px; background-color: #d0d0d0;">
             <ErrorBoundary @ref="mainErrorBoundary">
                 <ChildContent>
                     @Body
@@ -100,7 +95,6 @@
         </div>
 
         <script src="/js/auth.js"></script>
-        <link href="/css/timeweather.css" rel="stylesheet" />
         <script src="/js/signalr.min.js"></script>
         <component type="typeof(Components.Systems.TimeWeather)" render-mode="InteractiveServer" />
         <component type="typeof(Components.Systems.KarmaBadge)" render-mode="InteractiveServer" />

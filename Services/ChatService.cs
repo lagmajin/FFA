@@ -11,6 +11,7 @@ public class ChatService
     // チャンネルごとのメッセージ保存（スレッドセーフ）
     private readonly ConcurrentQueue<ChatMessage> _worldMessages = new();
     private readonly ConcurrentQueue<ChatMessage> _guildMessages = new();
+    private readonly ConcurrentDictionary<string, ConcurrentQueue<ChatMessage>> _countryMessages = new();
     private readonly ConcurrentDictionary<string, ConcurrentQueue<ChatMessage>> _whisperMessages = new();
     
     private const int MaxMessagesPerChannel = 100;
@@ -63,6 +64,32 @@ public class ChatService
             while (_guildMessages.Count > MaxMessagesPerChannel)
             {
                 _guildMessages.TryDequeue(out _);
+            }
+        }
+
+        return chatMessage;
+    }
+
+    // 国別チャットにメッセージを送信
+    public ChatMessage SendCountryMessage(string username, string countryName, string message)
+    {
+        var chatMessage = new ChatMessage
+        {
+            Id = Interlocked.Increment(ref _nextId),
+            Username = username,
+            Message = message,
+            Channel = ChatChannel.Country,
+            Timestamp = DateTime.Now,
+            CountryName = countryName
+        };
+
+        var queue = _countryMessages.GetOrAdd(countryName, _ => new ConcurrentQueue<ChatMessage>());
+        lock (_lock)
+        {
+            queue.Enqueue(chatMessage);
+            while (queue.Count > MaxMessagesPerChannel)
+            {
+                queue.TryDequeue(out _);
             }
         }
 
@@ -135,6 +162,16 @@ public class ChatService
     public List<ChatMessage> GetGuildMessages(int limit = 50)
     {
         return _guildMessages.TakeLast(limit).ToList();
+    }
+
+    // 国別チャットメッセージを取得
+    public List<ChatMessage> GetCountryMessages(string countryName, int limit = 50)
+    {
+        if (_countryMessages.TryGetValue(countryName, out var queue))
+        {
+            return queue.TakeLast(limit).ToList();
+        }
+        return new List<ChatMessage>();
     }
 
     // 特定のユーザーの個人チャットメッセージを取得

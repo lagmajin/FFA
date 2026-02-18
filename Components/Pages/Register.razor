@@ -7,6 +7,7 @@
 @using FFA.Services
 @using FFA.Models
 @using Microsoft.AspNetCore.Components.Web
+@using MudBlazor
 
 @inject UserService UserService
 @inject CountryService CountryService
@@ -121,7 +122,11 @@
                         <InputText id="confirmPassword" type="password" @bind-Value="registerModel.ConfirmPassword" />
                     </div>
 
-                    <button type="submit" disabled="@isSubmitting">@(isSubmitting ? "登録中..." : "登録")</button>
+                    <div style="display:flex; justify-content:center; margin-top:12px;">
+                        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="login-button" Disabled="@isSubmitting">
+                            @(isSubmitting ? "登録中..." : "登録")
+                        </MudButton>
+                    </div>
                 </EditForm>
             }
         </div>

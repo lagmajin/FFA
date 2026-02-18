@@ -32,19 +32,19 @@
             <div class="player-info">
                 <div class="player-card">
                     <h2>プレイヤー情報</h2>
-                    <div class="player-details">
+            <div class="player-details">
                         <div class="stat-item">
                             <span class="stat-label">レベル</span>
-                            <span class="stat-value">@user.Level</span>
+                            <span class="stat-value">@(user?.Level ?? 0)</span>
                         </div>
-                        <div class="stat-item">
-                            <span class="stat-label">HP</span>
-                            <span class="stat-value">@user.Status.Vit * 100</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">MP</span>
-                            <span class="stat-value">@user.Status.Int * 50</span>
-                        </div>
+                <div class="stat-item">
+                    <span class="stat-label">HP</span>
+                    <span class="stat-value">@((user?.Status?.Vit ?? 0) * 100)</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">MP</span>
+                    <span class="stat-value">@((user?.Status?.Int ?? 0) * 50)</span>
+                </div>
                         <div class="stat-item">
                             <span class="stat-label">戦闘力</span>
                             <span class="stat-value">@CalculateCombatPower()</span>
@@ -159,33 +159,33 @@
                 RewardGil = 500,
                 RewardExp = 200
             },
-            new Opponent
+                new Opponent
             {
                 Name = "魔導士の霊",
                 Icon = "🔮",
-                Level = user.Level + 2,
+                    Level = (user?.Level ?? 1) + 2,
                 HP = 800,
                 Attack = 150,
                 Defense = 30,
                 RewardGil = 750,
                 RewardExp = 300
             },
-            new Opponent
+                new Opponent
             {
                 Name = "守護の竜",
                 Icon = "🐉",
-                Level = user.Level + 3,
+                    Level = (user?.Level ?? 1) + 3,
                 HP = 2000,
                 Attack = 200,
                 Defense = 100,
                 RewardGil = 1500,
                 RewardExp = 500
             },
-            new Opponent
+                new Opponent
             {
                 Name = "暗黒騎士",
                 Icon = "⚫",
-                Level = user.Level + 4,
+                    Level = (user?.Level ?? 1) + 4,
                 HP = 1500,
                 Attack = 180,
                 Defense = 80,

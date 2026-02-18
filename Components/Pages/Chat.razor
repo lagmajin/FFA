@@ -5,6 +5,7 @@
 @inject ChatService ChatService
 @inject UserService UserService
 @inject GuildService GuildService
+@inject CountryService CountryService
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthStateProvider
 
@@ -30,6 +31,9 @@
                 <button class="@(currentChannel == ChatChannel.Guild ? "active" : "")" @onclick="() => SwitchChannel(ChatChannel.Guild)">
                     ギルドチャット
                 </button>
+                <button class="@(currentChannel == ChatChannel.Country ? "active" : "")" @onclick="() => SwitchChannel(ChatChannel.Country)">
+                    国別チャット
+                </button>
                 <button class="@(currentChannel == ChatChannel.Whisper ? "active" : "")" @onclick="() => SwitchChannel(ChatChannel.Whisper)">
                     個人チャット
                 </button>
@@ -43,10 +47,14 @@
                     {
                         <div class="message @GetMessageClass(msg)">
                             <span class="timestamp">[@msg.Timestamp.ToString("HH:mm")]</span>
-                            @if (msg.Channel == ChatChannel.Whisper)
+                @if (msg.Channel == ChatChannel.Whisper)
                             {
                                 <span class="whisper-from">@(msg.Username) → @(msg.TargetUsername): </span>
                             }
+                else if (msg.Channel == ChatChannel.Country)
+                {
+                    <span class="country-name">[@msg.CountryName] </span>
+                }
                             else if (msg.Channel == ChatChannel.Guild)
                             {
                                 <span class="guild-name">[@msg.GuildName] </span>
@@ -75,6 +83,12 @@
                         <input @bind="whisperTarget" placeholder="ユーザー名" />
                     </div>
                 }
+                @if (currentChannel == ChatChannel.Country)
+                {
+                    <div style="margin-bottom:8px;">
+                        <small>あなたの国: <strong>@(currentCountryName ?? "無所属")</strong></small>
+                    </div>
+                }
                 <div class="input-row">
                     <input @bind="messageText" 
                            @onkeypress="HandleKeyPress"
@@ -96,6 +110,7 @@
     private string? username;
     private User? currentUser;
     private ChatChannel currentChannel = ChatChannel.World;
+    private string? currentCountryName;
     private string messageText = "";
     private string whisperTarget = "";
     private List<ChatMessage> currentMessages = new();
@@ -111,6 +126,11 @@
         if (isAuth && username != null)
         {
             currentUser = UserService.GetByUsername(username);
+            if (currentUser?.CountryId != null)
+            {
+                var c = CountryService.GetCountryById(currentUser.CountryId.Value);
+                currentCountryName = c?.Name;
+            }
             LoadMessages();
             
             // 自動更新タイマー（5秒ごとに更新）
@@ -125,13 +145,7 @@
 
     private void LoadMessages()
     {
-        currentChannel = currentChannel switch
-        {
-            ChatChannel.World => ChatChannel.World,
-            ChatChannel.Guild => ChatChannel.Guild,
-            ChatChannel.Whisper => ChatChannel.Whisper,
-            _ => ChatChannel.World
-        };
+        // keep currentChannel as selected
 
         if (!isAuth || username == null) return;
 
@@ -139,6 +153,7 @@
         {
             ChatChannel.World => ChatService.GetWorldMessages(),
             ChatChannel.Guild => ChatService.GetGuildMessages(),
+            ChatChannel.Country => (currentCountryName != null ? ChatService.GetCountryMessages(currentCountryName) : new List<ChatMessage>()),
             ChatChannel.Whisper => ChatService.GetWhisperMessages(username),
             _ => new List<ChatMessage>()
         };
@@ -167,6 +182,12 @@
                     {
                         ChatService.SendGuildMessage(username, guild.Name, messageText);
                     }
+                }
+                break;
+            case ChatChannel.Country:
+                if (currentUser?.CountryId != null && currentCountryName != null)
+                {
+                    ChatService.SendCountryMessage(username, currentCountryName, messageText);
                 }
                 break;
             case ChatChannel.Whisper:

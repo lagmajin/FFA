@@ -66,4 +66,6 @@ public class User
     // スキルシステム
     public int SkillPoints { get; set; } = 0; // スキルポイント
     public List<UserSkill> LearnedSkills { get; set; } = new(); // 習得済みスキル
+    // 最後にアクティブだった日時（放置報酬の計算で使用）
+    public DateTime LastActiveUtc { get; set; } = DateTime.UtcNow;
 }

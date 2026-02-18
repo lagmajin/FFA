@@ -555,7 +555,9 @@ public class EnhancementResult
 // 強化結果クラス（防具用）
 public class ArmorEnhancementResult : EnhancementResult
 {
-    public int NewDefense { get; set; }
+    // Intentionally hide base NewDefense to provide armor-specific value.
+    // CS0108 handled: using 'new' to explicitly indicate hiding as per project guidance.
+    public new int NewDefense { get; set; }
 }
 
 // 修理結果クラス（基本）

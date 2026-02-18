@@ -84,6 +84,53 @@ public class UserService
             var abilityService = new AbilityService();
             abilityService.AssignStarterAbilities(user);
 
+            // If user did not choose a country, assign a sensible default based on job
+            try
+            {
+                if (!countryId.HasValue)
+                {
+                    var countryService = new CountryService();
+                    int defaultCountry = countryService.GetAllCountries()
+                        .Where(c => c.Name == "Neutral Haven")
+                        .Select(c => c.Id)
+                        .FirstOrDefault();
+
+                    // map some jobs to thematic countries if desired
+                    switch (job)
+                    {
+                        case Models.Job.Warrior:
+                        case Models.Job.Paladin:
+                        case Models.Job.DarkKnight:
+                            defaultCountry = countryService.GetAllCountries().FirstOrDefault(c => c.Name == "Inferno")?.Id ?? defaultCountry;
+                            break;
+                        case Models.Job.WhiteMage:
+                        case Models.Job.Bard:
+                            defaultCountry = countryService.GetAllCountries().FirstOrDefault(c => c.Name == "Verdania")?.Id ?? defaultCountry;
+                            break;
+                        case Models.Job.BlackMage:
+                            defaultCountry = countryService.GetAllCountries().FirstOrDefault(c => c.Name == "Frostheim")?.Id ?? defaultCountry;
+                            break;
+                        case Models.Job.Ranger:
+                        case Models.Job.Thief:
+                        case Models.Job.Ninja:
+                            defaultCountry = countryService.GetAllCountries().FirstOrDefault(c => c.Name == "Tempestia")?.Id ?? defaultCountry;
+                            break;
+                    }
+
+                    user.CountryId = defaultCountry == 0 ? null : (int?)defaultCountry;
+
+                    // Apply country bonuses immediately
+                    if (user.CountryId.HasValue)
+                    {
+                        countryService.ApplyCountryBonus(user);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"UserService.Register: country assignment failed: {ex.Message}");
+            }
+
 
             // record admin log for registration
             var logs = db.GetCollection<AdminLog>("adminlogs");
@@ -107,6 +154,11 @@ public class UserService
 
             var user = users.FindOne(u => u.Username == username);
             if (user != null && VerifyPassword(password, user.PasswordHash))
+            {
+                // update last active on login
+                user.LastActiveUtc = DateTime.UtcNow;
+                users.Update(user);
+            }
                 return user;
 
             return null;

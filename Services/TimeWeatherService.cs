@@ -56,8 +56,8 @@ namespace FFA.Services
                 if (chance < 0.02)
                 {
                     // change weather randomly
-                    var vals = Enum.GetValues(typeof(WeatherType));
-                    Weather = (WeatherType)vals.GetValue(rnd.Next(vals.Length));
+                    var vals = Enum.GetValues<WeatherType>();
+                    Weather = vals[rnd.Next(vals.Length)];
                 }
             }
         }

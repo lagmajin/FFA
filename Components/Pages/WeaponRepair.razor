@@ -26,7 +26,7 @@ else
                 <div>現在の耐久度: @weapon.CurrentDurability / @weapon.Durability</div>
                 <div>修理費用: @weapon.RepairCost ギル</div>
                 <div>修理量: @weapon.RepairAmount 耐久度</div>
-                <div>あなたの所持金: @user.Gil ギル</div>
+                <div>あなたの所持金: @(user?.Gil ?? 0) ギル</div>
             </div>
 
             @if (repairResult != null)
@@ -36,7 +36,7 @@ else
                     <p>@repairResult.Message</p>
                     @if (repairResult.Success)
                     {
-                        <div>新しい耐久度: @repairResult.NewDurability / @weapon.Durability</div>
+                        <div>新しい耐久度: @(repairResult?.NewDurability ?? 0) / @weapon.Durability</div>
                     }
                 </div>
             }

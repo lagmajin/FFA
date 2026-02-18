@@ -1,0 +1,46 @@
+@page "/rock-smash"
+@rendermode InteractiveServer
+@using MudBlazor
+@using FFA.Services
+@using FFA.Models
+@inject RockSmashService RockSmashService
+@inject UserService UserService
+@inject Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProvider
+
+<PageTitle>岩割チャレンジ</PageTitle>
+
+<MudPaper Class="pa-4" Style="max-width:720px;margin:20px auto;">
+    <MudText Typo="Typo.h5">力試し：ワンターン岩割り</MudText>
+    <MudText Typo="Typo.body2" Class="mt-2">1ターンで全火力を叩き込み、閾値を超えれば岩が破壊されて報酬を獲得します。</MudText>
+
+    <div class="mt-4">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="DoSmash">叩き込む</MudButton>
+    </div>
+
+    @if (result != null)
+    {
+        <MudPaper Class="pa-3 mt-3">
+            <MudText Typo="Typo.subtitle1">結果</MudText>
+            <MudText>合計ダメージ: @result.Damage</MudText>
+            <MudText>閾値: @result.Threshold</MudText>
+            <MudText Color="@(result.Success ? MudBlazor.Color.Success : MudBlazor.Color.Error)">@result.Message</MudText>
+        </MudPaper>
+    }
+</MudPaper>
+
+@code {
+    SmashResult? result;
+
+    private async Task DoSmash()
+    {
+        var state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var username = state.User?.Identity?.Name;
+        if (string.IsNullOrEmpty(username))
+        {
+            result = new SmashResult { Success = false, Message = "ログインが必要です" };
+            return;
+        }
+
+        result = RockSmashService.AttemptSmash(username);
+    }
+}

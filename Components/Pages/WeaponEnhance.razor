@@ -30,7 +30,7 @@ else
                     <div>安全強化: はい</div>
                 }
                 <div>強化費用: @weapon.EnhancementCost ギル</div>
-                <div>あなたの所持金: @user.Gil ギル</div>
+                <div>あなたの所持金: @(user?.Gil ?? 0) ギル</div>
             </div>
 
             @if (enhancementResult != null)
@@ -40,8 +40,8 @@ else
                     <p>@enhancementResult.Message</p>
                     @if (enhancementResult.Success)
                     {
-                        <div>新しい攻撃力: @enhancementResult.NewAttack</div>
-                        <div>新しい強化レベル: @enhancementResult.NewLevel</div>
+                        <div>新しい攻撃力: @(enhancementResult?.NewAttack ?? 0)</div>
+                        <div>新しい強化レベル: @(enhancementResult?.NewLevel ?? 0)</div>
                     }
                 </div>
             }

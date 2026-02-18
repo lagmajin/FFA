@@ -25,7 +25,7 @@ else
                 <div>現在の耐久度: @accessory.CurrentDurability / @accessory.Durability</div>
                 <div>修理費用: @accessory.RepairCost ギル</div>
                 <div>修理で回復: @accessory.RepairAmount 耐久度</div>
-                <div>あなたの所持金: @user?.Gil ギル</div>
+                <div>あなたの所持金: @(user?.Gil ?? 0) ギル</div>
             </div>
 
             @if (repairResult != null)

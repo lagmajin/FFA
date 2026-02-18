@@ -18,14 +18,14 @@
 }
 else
 {
-    <div>
+            <div>
         <p>ユーザー: @username</p>
         <p>Karma: @karma</p>
         <p>Gil: @gil</p>
         <p>OldCoin: @oldcoin</p>
         <p>Job: @job</p>
         <p>Level: @level</p>
-        <p>STR: @status.Str DEX: @status.Dex INT: @status.Int VIT: @status.Vit</p>
+        <p>STR: @(status?.Str ?? 0) DEX: @(status?.Dex ?? 0) INT: @(status?.Int ?? 0) VIT: @(status?.Vit ?? 0)</p>
     </div>
     <div>
         <p>World Time: @timeStr (@TimeWeather.Phase)</p>

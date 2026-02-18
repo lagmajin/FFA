@@ -293,13 +293,15 @@ public class WeaponService
 // 強化結果クラス（武器用）
 public class WeaponEnhancementResult : EnhancementResult
 {
-    public int NewAttack { get; set; }
+    // CS0108 handled: explicitly hiding base NewAttack to indicate weapon-specific value
+    public new int NewAttack { get; set; }
 }
 
 // 修理結果クラス（武器用）
 public class WeaponRepairResult : RepairResult
 {
-    public int NewDurability { get; set; }
+    // CS0108 handled: explicitly hiding base NewDurability to indicate weapon-specific value
+    public new int NewDurability { get; set; }
 }
 
 // 分解結果クラス

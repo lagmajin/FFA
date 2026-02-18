@@ -34,24 +34,24 @@
                         <h3>@currentJobInfo.Name</h3>
                         <p class="job-role">@currentJobInfo.Role</p>
                         <p class="job-description">@currentJobInfo.Description</p>
-                        <div class="job-stats">
-                            <div class="stat-item">
-                                <span class="stat-label">STR</span>
-                                <span class="stat-value">@user.Status.Str</span>
+                            <div class="job-stats">
+                                <div class="stat-item">
+                                    <span class="stat-label">STR</span>
+                                    <span class="stat-value">@(user?.Status?.Str ?? 0)</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">DEX</span>
+                                    <span class="stat-value">@(user?.Status?.Dex ?? 0)</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">INT</span>
+                                    <span class="stat-value">@(user?.Status?.Int ?? 0)</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">VIT</span>
+                                    <span class="stat-value">@(user?.Status?.Vit ?? 0)</span>
+                                </div>
                             </div>
-                            <div class="stat-item">
-                                <span class="stat-label">DEX</span>
-                                <span class="stat-value">@user.Status.Dex</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">INT</span>
-                                <span class="stat-value">@user.Status.Int</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">VIT</span>
-                                <span class="stat-value">@user.Status.Vit</span>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -74,7 +74,7 @@
                 @foreach (var jobInfo in allJobs)
                 {
                     var isCurrentJob = jobInfo.Job.ToString() == currentJob;
-                    var canAfford = user.Gil >= changeCost;
+                    var canAfford = (user?.Gil ?? 0) >= changeCost;
 
                     <div class="job-card @(isCurrentJob ? "current" : "")">
                         <div class="job-card-header">

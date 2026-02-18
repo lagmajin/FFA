@@ -455,15 +455,18 @@ public class AccessoryService
 // 強化結果クラス
 public class AccessoryEnhancementResult : EnhancementResult
 {
-    public int NewAttack { get; set; }
-    public int NewDefense { get; set; }
+    // Intentionally hide some base members to provide accessory-specific values.
+    // CS0108 handled: using 'new' to explicitly indicate hiding as per project guidance.
+    public new int NewAttack { get; set; }
+    public new int NewDefense { get; set; }
     public int NewMagic { get; set; }
 }
 
 // 修理結果クラス
 public class AccessoryRepairResult : RepairResult
 {
-    public int NewDurability { get; set; }
+    // CS0108 handled: explicitly hiding base member NewDurability if present
+    public new int NewDurability { get; set; }
 }
 
 // 売却結果クラス

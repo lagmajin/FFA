@@ -40,6 +40,12 @@ builder.Services.AddSingleton<TimeWeatherService>();
 builder.Services.AddSingleton<KarmaService>();
 builder.Services.AddSingleton<QuestService>();
 builder.Services.AddSingleton<DailyRewardService>();
+// Register RockSmashService
+builder.Services.AddScoped<RockSmashService>();
+// Register AuctionService and CountryWarService
+builder.Services.AddScoped<AuctionService>();
+builder.Services.AddSingleton<CountryWarService>();
+
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
@@ -88,6 +94,14 @@ builder.Services.AddSignalR();
 builder.Services.AddSingleton<DeveloperExceptionService>();
 builder.Services.AddSingleton<AbilityService>();
 builder.Services.AddSingleton<ChatService>();
+builder.Services.AddScoped<ExplorationService>();
+builder.Services.AddScoped<CaravanService>();
+builder.Services.AddScoped<WorldEventService>();
+builder.Services.AddScoped<CompanionService>();
+builder.Services.AddScoped<InstanceService>();
+builder.Services.AddScoped<IdlenessService>();
+builder.Services.AddSingleton<MonsterService>();
+builder.Services.AddSingleton<NotoriousMonsterService>();
 
 // In development bind to standard HTTPS port 443 so https://localhost resolves
 if (builder.Environment.IsDevelopment())
@@ -457,6 +471,28 @@ try
 catch (Exception ex)
 {
     Console.WriteLine($"Champion initialization failed: {ex.Message}");
+}
+
+// Seed monster templates
+try
+{
+    var monsterService = app.Services.GetRequiredService<MonsterService>();
+    monsterService.SeedDefaultTemplates();
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Monster seeding failed: {ex.Message}");
+}
+
+// Seed NM defaults
+try
+{
+    var nmService = app.Services.GetRequiredService<NotoriousMonsterService>();
+    nmService.SeedDefaults();
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"NM seeding failed: {ex.Message}");
 }
 
 app.Run();

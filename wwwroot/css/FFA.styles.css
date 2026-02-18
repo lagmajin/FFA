@@ -17,10 +17,10 @@
 }
 
 /* 全体的なリセットと基本スタイル */
-* {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
-    margin: 0;
-    padding: 0;
 }
 
 body {
@@ -30,8 +30,8 @@ body {
     line-height: 1.6;
 }
 
-/* ヘッダースタイル */
-header {
+/* ヘッダースタイル (scoped to avoid MudAppBar conflict) */
+header.site-header {
     background-color: #1a202c;
     padding: 1rem 2rem;
     display: flex;
@@ -236,6 +236,28 @@ footer::before {
     border-color: #2d3748;
     transform: translateY(-1px);
     box-shadow: var(--shadow);
+}
+
+/* Login button custom style */
+.login-button {
+    min-width: 200px;
+    padding: 12px 20px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #2d3748 0%, #4a5568 100%);
+    color: #ffffff !important;
+    font-weight: 700;
+    box-shadow: 0 6px 18px rgba(45,55,72,0.25);
+    border: 1px solid rgba(0,0,0,0.08);
+    transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
+}
+
+.login-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(45,55,72,0.32);
+}
+
+@media (max-width: 480px) {
+    .login-button { min-width: 140px; padding: 10px 16px; }
 }
 
 /* Town container styles */
