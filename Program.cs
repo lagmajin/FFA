@@ -102,6 +102,12 @@ builder.Services.AddScoped<InstanceService>();
 builder.Services.AddScoped<IdlenessService>();
 builder.Services.AddSingleton<MonsterService>();
 builder.Services.AddSingleton<NotoriousMonsterService>();
+builder.Services.AddScoped<EffectService>();
+builder.Services.AddSingleton<WorldGridService>();
+// Combat configuration (criticals)
+builder.Services.AddSingleton<CombatService>();
+// Register DungeonService via DI to accept CombatService
+builder.Services.AddScoped<DungeonService>();
 
 // In development bind to standard HTTPS port 443 so https://localhost resolves
 if (builder.Environment.IsDevelopment())
@@ -121,6 +127,29 @@ if (builder.Environment.IsDevelopment())
 }
 
 var app = builder.Build();
+
+// Attach a simple startup logger to capture initialization issues to App_Data/startup.log
+var startupLogger = new FFA.Services.StartupLogger();
+startupLogger.LogInfo($"Application starting. Environment={builder.Environment.EnvironmentName}");
+
+// Middleware to log unhandled exceptions and 5xx responses during requests
+app.Use(async (context, next) =>
+{
+    try
+    {
+        await next();
+        var status = context.Response.StatusCode;
+        if (status >= 500)
+        {
+            try { startupLogger.LogInfo($"HTTP {context.Request.Method} {context.Request.Path} returned status {status} from {context.Connection.RemoteIpAddress}"); } catch { }
+        }
+    }
+    catch (Exception ex)
+    {
+        try { startupLogger.LogException(ex, $"Request:{context.Request.Method} {context.Request.Path} from {context.Connection.RemoteIpAddress}"); } catch { }
+        throw;
+    }
+});
 
 // Configure the HTTP request pipeline.
 // HTTPS リダイレクトは環境を問わず有効化（開発でも https プロファイルを使うため）
@@ -160,6 +189,12 @@ app.UseStatusCodePagesWithReExecute("/not-found");
 
 app.UseAntiforgery();
 
+// Entry gate middleware is available but disabled by default.
+// To enable the "entry-page flag" enforcement, uncomment the following lines.
+// var entryOpts = new EntryGateOptions();
+// builder.Services.AddSingleton(entryOpts);
+// app.UseEntryGate();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -192,6 +227,13 @@ app.MapPost("/signin", async (HttpContext http, LoginRequest req, UserService us
     var principal = new ClaimsPrincipal(identity);
 
     await http.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+    // capture remote IP if available
+    try
+    {
+        var ip = http.Connection.RemoteIpAddress?.ToString();
+        if (!string.IsNullOrEmpty(ip)) userService.UpdateIpFromContext(user.Username, ip);
+    }
+    catch { }
     return Results.Ok();
 });
 
@@ -471,6 +513,7 @@ try
 catch (Exception ex)
 {
     Console.WriteLine($"Champion initialization failed: {ex.Message}");
+    startupLogger.LogException(ex, "ChampionInit");
 }
 
 // Seed monster templates
@@ -482,6 +525,7 @@ try
 catch (Exception ex)
 {
     Console.WriteLine($"Monster seeding failed: {ex.Message}");
+    startupLogger.LogException(ex, "MonsterSeeding");
 }
 
 // Seed NM defaults
@@ -493,6 +537,24 @@ try
 catch (Exception ex)
 {
     Console.WriteLine($"NM seeding failed: {ex.Message}");
+    startupLogger.LogException(ex, "NMSeeding");
+}
+
+// Seed world grid
+try
+{
+    var grid = app.Services.GetRequiredService<WorldGridService>();
+    // Try loading maps from Data/Maps TOML files first; fallback to random seed
+    grid.LoadMapsFromFiles();
+    if (grid.Width == 0 || grid.Height == 0)
+    {
+        grid.Initialize(10, 10, seedRandom: true);
+    }
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"World grid initialization failed: {ex.Message}");
+    startupLogger.LogException(ex, "WorldGridInit");
 }
 
 app.Run();

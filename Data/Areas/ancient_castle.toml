@@ -1,0 +1,139 @@
+# Ancient Castle Ruins - area data (pure map data, no monsters/facilities)
+# ID should match the special tag referenced in world maps: "dungeon:ancient_castle"
+
+id = "area:ancient_castle"
+name = "古城跡"
+description = "かつての王城の遺構。複数階層から成る古い城塞エリア。ダンジョン表記ではなくエリアとして扱います。"
+entrance_world_tag = "area:ancient_castle" # link from WorldGridService cell.special
+recommended_level = 5
+
+# Floor definitions: each floor has its own simple grid and named rooms
+[[floors]]
+floor_number = 1
+width = 5
+height = 5
+# Rooms on this floor
+[[floors.rooms]]
+x = 2
+y = 0
+name = "南門（入口）"
+type = "entrance"
+description = "朽ちた大扉。地上からの入口。"
+
+[[floors.rooms]]
+x = 2
+y = 2
+name = "中央大広間"
+type = "hall"
+description = "かつての宴が開かれた大広間。階段が奥に続く。"
+
+[[floors.rooms]]
+x = 4
+y = 2
+name = "側廊"
+type = "corridor"
+description = "崩れた通路が連なる区画。"
+
+[[floors.rooms]]
+x = 1
+y = 3
+name = "執務室跡"
+type = "room"
+description = "古い書類棚と机の跡が残る部屋。"
+
+[[floors.rooms]]
+x = 3
+y = 4
+name = "階段（上り）"
+type = "stairs_up"
+description = "上階へ続く階段。"
+
+# connections: specify inter-room links (optional explicit graph)
+[[floors.connections]]
+from = { x = 2, y = 0 }
+to = { x = 2, y = 1 }
+
+[[floors.connections]]
+from = { x = 2, y = 1 }
+to = { x = 2, y = 2 }
+
+[[floors.connections]]
+from = { x = 2, y = 2 }
+to = { x = 3, y = 2 }
+
+[[floors.connections]]
+from = { x = 2, y = 2 }
+to = { x = 1, y = 3 }
+
+[[floors.connections]]
+from = { x = 3, y = 4 }
+to = { x = 2, y = 2 }
+
+[[floors]]
+floor_number = 2
+width = 5
+height = 5
+[[floors.rooms]]
+x = 2
+y = 0
+name = "回廊（北）"
+type = "corridor"
+
+[[floors.rooms]]
+x = 2
+y = 2
+name = "図書室跡"
+type = "room"
+description = "本の棚が倒れ、石版が散らばる大書庫。"
+
+[[floors.rooms]]
+x = 0
+y = 2
+name = "小礼拝堂"
+type = "room"
+
+[[floors.rooms]]
+x = 4
+y = 3
+name = "階段（上り）"
+type = "stairs_up"
+
+[[floors.connections]]
+from = { x = 2, y = 2 }
+to = { x = 0, y = 2 }
+
+[[floors.connections]]
+from = { x = 2, y = 2 }
+to = { x = 4, y = 3 }
+
+[[floors]]
+floor_number = 3
+width = 5
+height = 5
+[[floors.rooms]]
+x = 2
+y = 2
+name = "王の間（ボス）"
+type = "boss_room"
+description = "かつて王が玉座に座した大広間。最深部に続く。"
+
+[[floors.rooms]]
+x = 1
+y = 2
+name = "宝物庫前室"
+type = "room"
+
+[[floors.rooms]]
+x = 2
+y = 4
+name = "階段（下り）"
+type = "stairs_down"
+
+[[floors.connections]]
+from = { x = 2, y = 2 }
+to = { x = 1, y = 2 }
+
+[[meta]]
+# hints and metadata for UI / loader
+loader_version = 1
+notes = "このファイルはエリア専用のマップデータです。WorldGrid のセル special に id を設定してリンクしてください。モンスターやファシリティ情報は含まれていません。"

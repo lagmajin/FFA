@@ -5,6 +5,7 @@
 @inject Services.FieldService FieldService
 @inject Services.DungeonService DungeonService
 @inject Services.QuestService QuestService
+@inject Services.CombatService Combat
 
 <PageTitle>野宿・冒険</PageTitle>
 
@@ -29,17 +30,32 @@
     }
     else
     {
-        <div class="field-status">
-            <h2>@currentField.Name</h2>
-            <p>@currentField.Description</p>
-            
-            @if (!inBattle)
-            {
-                <div class="action-buttons">
-                    <button class="action-button" @onclick="SearchEnemy">敵を探す</button>
-                    <button class="back-button" @onclick="LeaveField">戻る</button>
-                </div>
-            }
+        <div class="field-status" style="display:flex; align-items:center; justify-content:center;">
+            <table style="width:640px; border-collapse:collapse; text-align:left; background:var(--mud-palette-surface); box-shadow:0 6px 18px rgba(0,0,0,0.06); border-radius:8px; overflow:hidden;">
+                <thead style="background:var(--mud-palette-primary); color:white;">
+                    <tr>
+                        <th colspan="2" style="padding:12px; font-size:1.2rem;">@currentField.Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding:12px; width:60%; vertical-align:top;">@currentField.Description</td>
+                        <td style="padding:12px; width:40%; vertical-align:top;">
+                            <div style="display:flex; flex-direction:column; gap:10px; align-items:center;">
+                                @if (!inBattle)
+                                {
+                                    <button class="action-button" style="width:160px;" @onclick="SearchEnemy">探索する</button>
+                                    <button class="action-button" style="width:160px;" @onclick="LeaveField">移動する</button>
+                                }
+                                else
+                                {
+                                    <div style="color:var(--mud-palette-text-secondary);">戦闘中です...</div>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
 
         @if (inBattle && currentEnemy != null)
@@ -175,7 +191,10 @@
         while (inBattle && currentEnemy != null && currentUser != null && string.IsNullOrEmpty(battleState))
         {
             // 玩家攻击
-            var playerDamage = DungeonService.CalculatePlayerDamage(currentUser);
+            var rawPlayerAtk = DungeonService.CalculatePlayerDamage(currentUser);
+            var playerDefense = currentEnemy.Defense;
+            // Use injected CombatService for crits
+            var playerDamage = DungeonService.ApplyCriticalAndDefense(rawPlayerAtk, playerDefense, Combat);
             currentEnemy.HP -= playerDamage;
             battleLog.Add($"あなたの攻撃！ {currentEnemy.Name} に {playerDamage} ダメージ！");
             

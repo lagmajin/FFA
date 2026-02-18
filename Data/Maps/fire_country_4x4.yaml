@@ -1,0 +1,58 @@
+width: 4
+height: 4
+
+start_position:
+  x: 1
+  y: 1
+  country: "Inferno"
+  capital: "Vulcanis"
+
+locations:
+  - x: 1
+    y: 1
+    name: "Vulcanis"
+    type: "Town"
+    country: "Inferno"
+    description: "火の国の首都。地域の交通と行政の中心。"
+
+  - x: 1
+    y: 2
+    name: "灼熱の平原"
+    type: "Field"
+    description: "溶岩流の外縁にある平原。開けた地形が広がる。"
+
+  - x: 2
+    y: 1
+    name: "赤熱の洞窟入口"
+    type: "Dungeon"
+    description: "火山の内部へ続く洞窟の入口。探索者が往来する場所。"
+    required_level: 4
+    special: "dungeon:lava_cavern"
+
+  - x: 0
+    y: 2
+    name: "灰色の関所"
+    type: "Field"
+    description: "他国と接する前哨。通行の管理が行われる。"
+    connection: true
+
+  - x: 0
+    y: 1
+    name: "Ashfield"
+    type: "Village"
+    description: "火山の麓にある小さな村。農業が中心の静かな集落。"
+
+  - x: 3
+    y: 3
+    name: "焦熱の砂原"
+    type: "Desert"
+    description: "熱風が吹き荒れる広大な砂地。移動には注意が必要。"
+    required_level: 5
+
+  - x: 2
+    y: 2
+    name: "溶岩の小径"
+    type: "Field"
+    description: "溶岩の流れる小道。地形が入り組んでいる。"
+
+# End of map (monsters, spawn points, facilities and resources intentionally omitted)

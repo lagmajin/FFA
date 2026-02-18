@@ -1,0 +1,105 @@
+# Demo map (TOML) for WorldGridService
+# - width/height define grid size
+# - locations is an array of tables describing specific cells
+# - start_position sets player starting cell
+# - spawn_points can be used by MonsterService/WorldEvent to spawn mobs
+# - notable_monsters references NM names (must match NotoriousMonster.Name)
+
+width = 10
+height = 8
+
+[start_position]
+x = 1
+y = 1
+
+[[locations]]
+# Town
+x = 1
+y = 1
+name = "ミスリル村"
+type = "Town"
+description = "この地方の中心となる小さな村。初心者向けのクエストが多い。"
+
+[[locations]]
+# Safe field
+x = 2
+y = 1
+name = "緑の野原"
+type = "Field"
+description = "草原。弱いモンスターが出現する。"
+enemies = ["スライム", "ウolf"]
+enemy_level = 1
+drops = ["草薬"]
+
+[[locations]]
+# Forest
+x = 3
+y = 1
+name = "古き森"
+type = "Forest"
+description = "森の奥にはゴブリンやスケルトンが潜む。"
+enemies = ["ゴブリン", "スケルトン"]
+enemy_level = 2
+required_level = 2
+
+auto_discover = true
+
+[[locations]]
+# Mountain with dungeon entrance
+x = 5
+y = 2
+name = "石の洞窟入口"
+type = "Dungeon"
+description = "洞窟の入口。深部には強力な敵がいるとの噂。"
+enemies = ["オーク", "スケルトン"]
+enemy_level = 4
+required_level = 4
+special = "dungeon:stone_cave"
+
+[[locations]]
+# Lake
+x = 2
+y = 3
+name = "静かな湖"
+type = "Lake"
+description = "水辺の穏やかな場所。釣りイベントが発生することがある。"
+enemies = ["スライム"]
+enemy_level = 1
+drops = ["水草"]
+
+[[spawn_points]]
+# Named spawn point (for events or caravans)
+name = "North Field Spawn"
+ x = 3
+ y = 0
+monster_templates = ["スライム", "ウolf"]
+rate = 60
+
+[[spawn_points]]
+name = "Cave Mouth"
+ x = 5
+ y = 2
+monster_templates = ["オーク", "スケルトン"]
+rate = 40
+
+[[notable_monsters]]
+# Reference to NotoriousMonster.Name
+name = "暴風のガルーダ"
+location = "天空の峰"
+x = 8
+y = 0
+respawn_hours = 6
+
+[[resources]]
+name = "鉄鉱"
+x = 4
+y = 5
+rarity = "common"
+
+[[resources]]
+name = "龍の鱗"
+x = 7
+y = 2
+rarity = "rare"
+
+# End of demo_map.toml

@@ -27,6 +27,8 @@ public class WorldLocation
     public string Name { get; set; } = "";
     public string Description { get; set; } = "";
     public LocationType Type { get; set; }
+    // Optional country association (matches Country.Name)
+    public string? CountryName { get; set; }
     public int? LocationId { get; set; } // 街IDやフィールドID
     public bool IsDiscovered { get; set; } = false; // 発見済みか
     public bool IsAccessible { get; set; } = true; // アクセス可能か

@@ -1,0 +1,36 @@
+# Example map for WorldGridService
+width = 5
+height = 5
+
+[[locations]]
+ x = 0
+ y = 0
+ name = "Starting Village"
+ type = "Town"
+ description = "冒険の始まりの街。"
+
+[[locations]]
+ x = 1
+ y = 0
+ name = "Green Fields"
+ type = "Field"
+ description = "草原が広がる安全なエリア。"
+ enemies = ["Slime", "Wolf"]
+
+[[locations]]
+ x = 2
+ y = 0
+ name = "Dark Forest"
+ type = "Forest"
+ description = "危険なモンスターの生息地。"
+ enemies = ["Goblin", "Skeleton"]
+ required_level = 3
+
+[[locations]]
+ x = 3
+ y = 0
+ name = "Old Ruins"
+ type = "Dungeon"
+ description = "古代遺跡。ボスの噂あり。"
+ enemies = ["Orc", "Skeleton"]
+ required_level = 5

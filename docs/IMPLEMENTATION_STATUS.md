@@ -93,6 +93,18 @@
  - [Services/MonsterService.cs](Services/MonsterService.cs) - モンスター生成・テンプレ管理サービス
  - [Models/NotoriousMonster.cs](Models/NotoriousMonster.cs) - NM (Notorious Monster) モデル
  - [Services/NotoriousMonsterService.cs](Services/NotoriousMonsterService.cs) - NM 管理サービス（スポーン・討伐・リスポーン管理）
+ - [Services/ExplorationService.cs](Services/ExplorationService.cs) - 探索/発見管理サービス
+ - [Services/WorldGridService.cs](Services/WorldGridService.cs) - 2次元グリッドのワールド領域サービス
+ - [Services/CaravanService.cs](Services/CaravanService.cs) - 商隊/交易ルート管理サービス
+ - [Services/WorldEventService.cs](Services/WorldEventService.cs) - 世界イベントスケジューラ
+ - [Services/AuctionService.cs](Services/AuctionService.cs) - オークション基盤
+ - [Services/CountryWarService.cs](Services/CountryWarService.cs) - 国戦基盤
+ - [Services/IdlenessService.cs](Services/IdlenessService.cs) - 放置検出/報酬サービス
+ - [Models/ActiveEffect.cs](Models/ActiveEffect.cs) - 状態異常 / バフモデル
+ - [Services/EffectService.cs](Services/EffectService.cs) - 状態異常 / バフ管理サービス
+ - [Services/EntryGateMiddleware.cs](Services/EntryGateMiddleware.cs) - エントリーページ経由フラグ方式のミドルウェア（作成済みだがデフォルトでは無効）
+ - [docs/DAMAGE_FORMULA.md](docs/DAMAGE_FORMULA.md) - ダメージ計算式ドキュメント
+ - [docs/PASSIVE_SKILLS.md](docs/PASSIVE_SKILLS.md) - 各職業のパッシブスキル一覧（説明）
 
 ***
 

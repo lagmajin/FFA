@@ -42,6 +42,27 @@ namespace FFA.Services
             return col.FindAll().ToList();
         }
 
+        public MonsterTemplate? GetTemplateByName(string name)
+        {
+            using var db = new LiteDatabase(_databasePath);
+            var col = db.GetCollection<MonsterTemplate>("templates");
+            return col.FindOne(t => t.Name == name);
+        }
+
+        public List<Enemy> SpawnEnemiesByNames(IEnumerable<string> names, int playerLevel)
+        {
+            var list = new List<Enemy>();
+            foreach (var n in names)
+            {
+                var t = GetTemplateByName(n);
+                if (t != null)
+                {
+                    list.Add(SpawnEnemyFromTemplate(t, playerLevel));
+                }
+            }
+            return list;
+        }
+
         public MonsterTemplate? GetTemplate(int id)
         {
             using var db = new LiteDatabase(_databasePath);

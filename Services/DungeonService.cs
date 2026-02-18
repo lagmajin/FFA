@@ -3,6 +3,14 @@ namespace FFA.Services;
 public class DungeonService
 {
     private static readonly Random _random = new();
+    private readonly CombatService _combat;
+
+    public DungeonService(CombatService combat)
+    {
+        _combat = combat;
+    }
+    // Damage scaling constant: larger K => defense has weaker effect. Default 500 as recommended.
+    private const double DamageDeflectionK = 500.0;
 
     // 職業による基本ボーナス
     public int GetJobBonus(Models.Job job)
@@ -66,13 +74,36 @@ public class DungeonService
         return baseAttack + weaponBonus + levelBonus + _random.Next(1, 6);
     }
 
+    // Apply defense scaling using the formula:
+    // Damage = ATK * (1 - tanh(DEF / K))
+    public int ApplyDefenseScaling(int atk, int def, double k = DamageDeflectionK)
+    {
+        // ensure non-negative inputs
+        var ATK = Math.Max(0, atk);
+        var DEF = Math.Max(0, def);
+        var ratio = DEF / k;
+        var factor = 1.0 - Math.Tanh(ratio);
+        var dmg = ATK * factor;
+        var result = (int)Math.Max(1, Math.Floor(dmg));
+        return result;
+    }
+
+    // Apply critical if CombatService is available externally. A simple helper to combine both steps
+    public int ApplyCriticalAndDefense(int rawAtk, int def)
+    {
+        var isCrit = _combat?.IsCritical() ?? false;
+        var afterDef = ApplyDefenseScaling(rawAtk, def);
+        var final = _combat?.ApplyCritical(afterDef, isCrit) ?? afterDef;
+        return final;
+    }
+
     // 敵の攻撃計算
     public int CalculateEnemyDamage(Models.Enemy enemy, Models.User user)
     {
         var defense = user.EquippedArmor?.Defense ?? 0;
-        var damage = enemy.Attack - defense;
-        if (damage < 1) damage = 1;
-        return damage + _random.Next(0, 3);
+        // base enemy attack may include some randomness
+        var baseAtk = enemy.Attack + _random.Next(0, 3);
+        return ApplyDefenseScaling(baseAtk, defense);
     }
 
     // ドロップ判定

@@ -1,0 +1,58 @@
+# Neutral Base 4x4 map (YAML) - 無所属プレイヤーの拠点エリア
+# Pure map data only: no monsters, no facilities, no spawn points
+
+width: 4
+height: 4
+
+start_position:
+  x: 1
+  y: 1
+  country: "None"
+  capital: "Freehold"
+
+locations:
+  - x: 1
+    y: 1
+    name: "Freehold"
+    type: "Town"
+    description: "無所属プレイヤーが集う中立の拠点。物資の交換や情報交換が行われる。"
+
+  - x: 1
+    y: 2
+    name: "Green Commons"
+    type: "Field"
+    description: "開けた共有地。キャンプや練習に適している。"
+
+  - x: 2
+    y: 1
+    name: "Old Watchpost"
+    type: "Field"
+    description: "かつての見張り台跡。視界が開けている。"
+
+  - x: 0
+    y: 2
+    name: "Crossing Point"
+    type: "Field"
+    description: "外部地域との接続点。行商や旅人が通る道。"
+    connection: true
+
+  - x: 0
+    y: 1
+    name: "Harbor Outskirts"
+    type: "Field"
+    description: "小さな停泊場の外縁。人や物資の往来がある。"
+
+  - x: 3
+    y: 3
+    name: "Sandy Flats"
+    type: "Desert"
+    description: "乾いた砂地の平原。長旅には適さないが希少資源の噂がある。"
+    required_level: 3
+
+  - x: 2
+    y: 2
+    name: "Old Trail"
+    type: "Field"
+    description: "古い道筋が残る通路。周辺の地形に合わせて曲がりくねっている。"
+
+# End of neutral_base_4x4.yaml - pure map (no monsters/facilities/resources)

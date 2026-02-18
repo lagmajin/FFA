@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 
 @using FFA.Services
+@using FFA.Models
 @using Microsoft.AspNetCore.Components.Authorization
 @inject KarmaService Karma
 @inject TimeWeatherService TimeWeather
@@ -9,6 +10,7 @@
 @inject AuthenticationStateProvider AuthStateProvider
 @inject IJSRuntime JS
 @inject NavigationManager Navigation
+@inject WorldGridService WorldGrid
 
 <h2>ダッシュボード</h2>
 
@@ -25,6 +27,7 @@ else
         <p>OldCoin: @oldcoin</p>
         <p>Job: @job</p>
         <p>Level: @level</p>
+        <p>Last IP: @user?.LastIp</p>
         <p>STR: @(status?.Str ?? 0) DEX: @(status?.Dex ?? 0) INT: @(status?.Int ?? 0) VIT: @(status?.Vit ?? 0)</p>
     </div>
     <div>
@@ -33,8 +36,14 @@ else
     </div>
 
     <div class="center-actions">
-        <button type="button" class="action-button" @onclick="GoToTown">街へ</button>
-        <button type="button" class="action-button" @onclick="GoToField">フィールドへ</button>
+        @if (showTownButton)
+        {
+            <button type="button" class="action-button" @onclick="GoToTown">街へ</button>
+        }
+        @if (showFieldButton)
+        {
+            <button type="button" class="action-button" @onclick="GoToField">フィールドへ</button>
+        }
     </div>
 }
 
@@ -47,27 +56,39 @@ else
     private string job = "";
     private int level = 1;
     private PlayerStatus status = new PlayerStatus();
+    private User? user;
     private DotNetObjectReference<Dashboard>? objRef;
     private IJSObjectReference? moduleRef;
-
+    private bool showTownButton = true;
+    private bool showFieldButton = true;
     protected override async Task OnInitializedAsync()
     {
         var state = await AuthStateProvider.GetAuthenticationStateAsync();
-        var user = state.User;
-        isAuth = user?.Identity?.IsAuthenticated ?? false;
-        username = user?.Identity?.Name;
+        var auth = state.User;
+        isAuth = auth?.Identity?.IsAuthenticated ?? false;
+        username = auth?.Identity?.Name;
         if (isAuth && username != null)
         {
             karma = Karma.GetKarma(username);
             // try to read claims for gil/oldcoin/job
-            gil = int.TryParse(user.FindFirst("Gil")?.Value, out var g) ? g : 0;
-            oldcoin = int.TryParse(user.FindFirst("OldCoin")?.Value, out var o) ? o : 0;
-            job = user.FindFirst("Job")?.Value ?? "";
-            level = int.TryParse(user.FindFirst("Level")?.Value, out var lv) ? lv : 1;
+            gil = int.TryParse(auth.FindFirst("Gil")?.Value, out var g) ? g : 0;
+            oldcoin = int.TryParse(auth.FindFirst("OldCoin")?.Value, out var o) ? o : 0;
+            job = auth.FindFirst("Job")?.Value ?? "";
+            level = int.TryParse(auth.FindFirst("Level")?.Value, out var lv) ? lv : 1;
             // try to read status from DB instead of claims
-            var u = UserService.GetByUsername(username);
-            if (u?.Status != null) status = u.Status;
-            if (u != null) level = u.Level;
+            user = UserService.GetByUsername(username);
+            if (user?.Status != null) status = user.Status;
+            if (user != null) level = user.Level;
+            // determine which action buttons to show based on player location
+            try
+            {
+                var pos = WorldGrid.GetOrCreatePlayerPosition(username);
+                var loc = WorldGrid.GetLocation(pos.X, pos.Y);
+                showTownButton = loc?.Type == LocationType.Town;
+                // Treat any non-town (including null) as Field per request
+                showFieldButton = !(loc?.Type == LocationType.Town);
+            }
+            catch { }
         }
     }
 

@@ -1,0 +1,128 @@
+# Fire Country 4x4 sample map (TOML)
+# Origin: 火の国 (Inferno)
+# Grid: 4 x 4 (0..3)
+
+width = 4
+height = 4
+
+[start_position]
+x = 1
+y = 1
+country = "Inferno"
+capital = "Vulcanis"
+
+# Locations: capital, plains, dungeon entrance, connection nodes, desert
+
+[[locations]]
+# Capital (首都)
+x = 1
+y = 1
+name = "Vulcanis"
+type = "Town"
+description = "火の国の首都。鍛冶屋や武器商人が集まる中心地。"
+country = "Inferno"
+population = 10000
+facilities = ["鍛冶屋", "広場", "宿屋"]
+
+[[locations]]
+# Grassland (草原)
+x = 1
+y = 2
+name = "灼熱の平原"
+type = "Field"
+description = "溶岩流の外縁にある草原。弱いモンスターが点在する。"
+enemies = ["スライム", "ウルフ"]
+enemy_level = 2
+drops = ["草薬"]
+
+[[locations]]
+# Dungeon entrance (洞窟入口)
+x = 2
+y = 1
+name = "赤熱の洞窟入口"
+type = "Dungeon"
+description = "火山の内部へ続く洞窟の入口。奥は危険。"
+enemies = ["オーク", "炎の蝙蝠"]
+enemy_level = 4
+required_level = 4
+special = "dungeon:lava_cavern"
+
+[[locations]]
+# Connection point to other region (接続点)
+x = 0
+y = 2
+name = "灰色の関所"
+type = "Field"
+description = "他国と接する前哨。通行の管理が行われる。"
+enemies = ["山賊"]
+enemy_level = 3
+connection = true
+
+[[locations]]
+# Small village
+x = 0
+y = 1
+name = "Ashfield"
+type = "Village"
+description = "火山の麓にある小さな村。農業と鍛冶の手伝いが主産業。"
+enemies = ["スライム"]
+enemy_level = 1
+
+[[locations]]
+# Desert-like area
+x = 3
+y = 3
+name = "焦熱の砂原"
+type = "Desert"
+description = "熱風が吹き荒れる広大な砂地。HP 回復が遅くなるため注意。"
+enemies = ["砂の魔人", "砂蜥蜴"]
+enemy_level = 5
+required_level = 5
+drops = ["砂晶"]
+
+[[locations]]
+# Misc area
+x = 2
+y = 2
+name = "溶岩の小径"
+type = "Field"
+description = "溶岩の流れる小道。遭遇率が高い。"
+enemies = ["炎の蝙蝠", "ゴブリン"]
+enemy_level = 3
+
+# Spawn points for monsters (used by MonsterService)
+[[spawn_points]]
+name = "Plains Spawn"
+x = 1
+y = 2
+monster_templates = ["スライム", "ウolf"]
+rate = 70
+
+[[spawn_points]]
+name = "Cave Mouth Spawn"
+x = 2
+y = 1
+monster_templates = ["オーク", "炎の蝙蝠"]
+rate = 50
+
+[[spawn_points]]
+name = "Desert Spawn"
+x = 3
+y = 3
+monster_templates = ["砂の魔人", "砂蜥蜴"]
+rate = 40
+
+# Resources / pickup nodes
+[[resources]]
+name = "火山石"
+x = 2
+y = 0
+rarity = "common"
+
+[[resources]]
+name = "黒曜の結晶"
+x = 3
+y = 2
+rarity = "rare"
+
+# End of fire_country_4x4.toml

@@ -136,6 +136,17 @@ public class UserService
             var logs = db.GetCollection<AdminLog>("adminlogs");
             logs.Insert(new AdminLog { Action = "Register", Detail = $"User '{username}' registered as {job}" + (countryId.HasValue ? $" in Country {countryId}" : " (no country)") });
 
+            // ensure player start position is created on registration
+            try
+            {
+                var grid = new WorldGridService();
+                grid.GetOrCreatePlayerPosition(username);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"UserService.Register: failed to create player position: {ex.Message}");
+            }
+
             return true;
         }
         catch (Exception ex)
@@ -158,6 +169,7 @@ public class UserService
                 // update last active on login
                 user.LastActiveUtc = DateTime.UtcNow;
                 users.Update(user);
+                // Last IP is set by caller via UpdateIpFromContext if available
             }
                 return user;
 
@@ -168,6 +180,20 @@ public class UserService
             Console.WriteLine($"UserService.Login 例外: {ex.Message} - {ex.StackTrace}");
             return null;
         }
+    }
+
+    public void UpdateIpFromContext(string username, string ip)
+    {
+        try
+        {
+            using var db = new LiteDatabase(_databasePath);
+            var users = db.GetCollection<User>("users");
+            var user = users.FindOne(u => u.Username == username);
+            if (user == null) return;
+            user.LastIp = ip;
+            users.Update(user);
+        }
+        catch { }
     }
 
     public User? GetByUsername(string username)
