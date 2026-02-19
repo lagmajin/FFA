@@ -56,7 +56,7 @@
 
                 @if (lastResult != null)
                 {
-                    <MudPaper Class="pa-4 mt-4" Style="border:1px solid #ddd; background:@(lastResult.IsSuccess ? "#f0fff0" : "#fff0f0")">
+                    <MudPaper Class="pa-4 mt-4" Style="@($"border:1px solid #ddd; background:{(lastResult.IsSuccess ? "#f0fff0" : "#fff0f0")}")">
                         @if (lastResult.IsSuccess)
                         {
                             <MudText Typo="Typo.h5" Style="color:#2e7d32;">🎉 釣果!</MudText>

@@ -1,0 +1,173 @@
+{
+  "$schema": "./named-monsters.schema.json",
+  "notoriousMonsters": [
+    {
+      "id": 1,
+      "name": "伝説の緑牙",
+      "japaneseName": "伝説の緑牙",
+      "englishName": "Daigo no Ryokuga",
+      "icon": "🐗",
+      "location": "森",
+      "respawnHours": 6,
+      "maxHp": 500,
+      "attack": 50,
+      "defense": 20,
+      "rewardExp": 500,
+      "rewardGil": 300,
+      "dropItems": [
+        { "name": "緑牙の牙", "dropRate": 100, "rarity": "Epic" },
+        { "name": "獣王の皮", "dropRate": 30, "rarity": "Rare" }
+      ],
+      "description": "森の奥に棲む巨大な野猪。牙は伝説の武器の素材となる。",
+      "weakness": "炎",
+      "strategy": "毒霧陷阱に陷れて動きを止めろ"
+    },
+    {
+      "id": 2,
+      "name": "氷炎の魔女",
+      "japaneseName": "氷炎の魔女",
+      "englishName": "Hyouen no Majo",
+      "icon": "🧙‍♀️",
+      "location": "雪山",
+      "respawnHours": 8,
+      "maxHp": 800,
+      "attack": 80,
+      "defense": 15,
+      "rewardExp": 800,
+      "rewardGil": 500,
+      "dropItems": [
+        { "name": "魔女の杖", "dropRate": 100, "rarity": "Epic" },
+        { "name": "氷炎の結晶", "dropRate": 25, "rarity": "Legendary" }
+      ],
+      "description": "雪山を支配する氷と炎を操る魔女。その力は恐れられている。",
+      "weakness": "聖魔法",
+      "strategy": "魔法防御を高めろ"
+    },
+    {
+      "id": 3,
+      "name": "岩窟王",
+      "japaneseName": "岩窟王",
+      "englishName": "Gankutsu Ou",
+      "icon": "👹",
+      "location": "ダンジョン",
+      "respawnHours": 12,
+      "maxHp": 1200,
+      "attack": 100,
+      "defense": 50,
+      "rewardExp": 1200,
+      "rewardGil": 800,
+      "dropItems": [
+        { "name": "王の宝玉", "dropRate": 100, "rarity": "Epic" },
+        { "name": "岩窟の鍵", "dropRate": 10, "rarity": "Legendary" }
+      ],
+      "description": "ダンジョンの最深部に君臨する岩石の巨人。全てのダンジョンを支配する王。",
+      "weakness": "雷",
+      "strategy": "防御を固めて持久戦を展開せよ"
+    },
+    {
+      "id": 4,
+      "name": "砂漠の嵐",
+      "japaneseName": "砂漠の嵐",
+      "englishName": "Sabaku no Arashi",
+      "icon": "🌀",
+      "location": "砂漠",
+      "respawnHours": 6,
+      "maxHp": 600,
+      "attack": 70,
+      "defense": 10,
+      "rewardExp": 600,
+      "rewardGil": 400,
+      "dropItems": [
+        { "name": "嵐の涙", "dropRate": 100, "rarity": "Rare" },
+        { "name": "砂塵の宝玉", "dropRate": 20, "rarity": "Epic" }
+      ],
+      "description": "砂漠を巻き込む砂嵐の化身。姿を変える謎の敵。",
+      "weakness": "水",
+      "strategy": "鳳仙花で視界を確保せよ"
+    },
+    {
+      "id": 5,
+      "name": "深淵の主",
+      "japaneseName": "深淵の主",
+      "englishName": "Shinen no Lord",
+      "icon": "🦑",
+      "location": "湖",
+      "respawnHours": 24,
+      "maxHp": 2000,
+      "attack": 120,
+      "defense": 30,
+      "rewardExp": 2000,
+      "rewardGil": 1500,
+      "dropItems": [
+        { "name": "深淵の王冠", "dropRate": 100, "rarity": "Legendary" },
+        { "name": "古代の珠", "dropRate": 50, "rarity": "Epic" }
+      ],
+      "description": "湖の最深部に潜む古代の生物。その正体は誰も知らない。",
+      "weakness": "光",
+      "strategy": "昼間に戦い、波止場で動きを封じろ"
+    },
+    {
+      "id": 6,
+      "name": "炎獄の守護者",
+      "japaneseName": "炎獄の守護者",
+      "englishName": "Engoku no Shugosha",
+      "icon": "🐲",
+      "location": "火山",
+      "respawnHours": 24,
+      "maxHp": 3000,
+      "attack": 150,
+      "defense": 40,
+      "rewardExp": 3000,
+      "rewardGil": 2000,
+      "dropItems": [
+        { "name": "龍の鱗", "dropRate": 100, "rarity": "Legendary" },
+        { "name": "獄炎の宝玉", "dropRate": 30, "rarity": "Legendary" }
+      ],
+      "description": "火山の奥底で眠る炎龍。其の炎は世界を焼き尽くすと呼ばれる。",
+      "weakness": "水・氷",
+      "strategy": "HQ武器で防御力を上げよ"
+    },
+    {
+      "id": 7,
+      "name": "幻視の眼",
+      "japaneseName": "幻視の眼",
+      "englishName": "Genshi no Me",
+      "icon": "👁️",
+      "location": "平地",
+      "respawnHours": 4,
+      "maxHp": 300,
+      "attack": 40,
+      "defense": 5,
+      "rewardExp": 300,
+      "rewardGil": 200,
+      "dropItems": [
+        { "name": "幻視の水晶", "dropRate": 100, "rarity": "Rare" },
+        { "name": "千里眼の証", "dropRate": 15, "rarity": "Epic" }
+      ],
+      "description": "平原に現れる幽霊のような眼。発見すれば幸せをもたらすという。",
+      "weakness": "聖",
+      "strategy": "白魔導士を同行せよ"
+    },
+    {
+      "id": 8,
+      "name": "時空の管理者",
+      "japaneseName": "時空の管理者",
+      "englishName": "Jikuu no Kanrisha",
+      "icon": "⏳",
+      "location": "ダンジョン",
+      "respawnHours": 48,
+      "maxHp": 5000,
+      "attack": 200,
+      "defense": 60,
+      "rewardExp": 5000,
+      "rewardGil": 5000,
+      "dropItems": [
+        { "name": "時空の砂", "dropRate": 100, "rarity": "Legendary" },
+        { "name": "管理者バッジ", "dropRate": 5, "rarity": "Legendary" }
+      ],
+      "description": "時空を操る謎の存在。倒すと時空が歪み、新たな力を得る事ができる。",
+      "weakness": "暗",
+      "strategy": "4人以上で挑め"
+    }
+  ]
+}

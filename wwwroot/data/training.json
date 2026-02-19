@@ -1,0 +1,80 @@
+{
+  "$schema": "./training.schema.json",
+  "trainingTypes": [
+    {
+      "type": "Dojo",
+      "japaneseName": "道場",
+      "description": "剣と体の鍛錬。力をつける",
+      "statFocus": "Str",
+      "baseCostPerMinute": 50,
+      "baseExpPerMinute": 20,
+      "icon": "⚔️",
+      "unlockLevel": 1
+    },
+    {
+      "type": "Arena",
+      "japaneseName": "訓練場",
+      "description": "模擬戦を通じて体を動かす",
+      "statFocus": "Vit",
+      "baseCostPerMinute": 100,
+      "baseExpPerMinute": 35,
+      "icon": "🏟️",
+      "unlockLevel": 5
+    },
+    {
+      "type": "Meditation",
+      "japaneseName": "瞑想所",
+      "description": "精神を集中させ、内なる力を目覚めさせる",
+      "statFocus": "Int",
+      "baseCostPerMinute": 30,
+      "baseExpPerMinute": 15,
+      "icon": "🧘",
+      "unlockLevel": 1
+    },
+    {
+      "type": "Smithy",
+      "japaneseName": "鍛冶場",
+      "description": "武器锻造を通じて技術を磨く",
+      "statFocus": "Dex",
+      "baseCostPerMinute": 80,
+      "baseExpPerMinute": 25,
+      "icon": "🔨",
+      "unlockLevel": 3
+    },
+    {
+      "type": "Library",
+      "japaneseName": "書庫",
+      "description": "古今の書を読み知識を高める",
+      "statFocus": "Int",
+      "baseCostPerMinute": 40,
+      "baseExpPerMinute": 18,
+      "icon": "📜",
+      "unlockLevel": 1
+    },
+    {
+      "type": "Garden",
+      "japaneseName": "庭園",
+      "description": "自然と触れ合い、心と体を养う",
+      "statFocus": "Agi",
+      "baseCostPerMinute": 25,
+      "baseExpPerMinute": 12,
+      "icon": "🌿",
+      "unlockLevel": 1
+    }
+  ],
+  "trainingDurations": [
+    { "minutes": 10, "name": "短時間", "multiplier": 1.0 },
+    { "minutes": 30, "name": "中時間", "multiplier": 0.95 },
+    { "minutes": 60, "name": "長時間", "multiplier": 0.9 },
+    { "minutes": 120, "name": "極限", "multiplier": 0.8 }
+  ],
+  "dailyLimits": {
+    "maxSessions": 10,
+    "bonusThreshold": 5,
+    "bonusMultiplier": 1.25
+  },
+  "unlockRequirements": {
+    "Arena": { "level": 5, "quest": null },
+    "Smithy": { "level": 3, "quest": null }
+  }
+}

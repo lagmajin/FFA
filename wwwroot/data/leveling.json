@@ -1,0 +1,311 @@
+{
+  "$schema": "./leveling.schema.json",
+  "settings": {
+    "maxLevel": 100,
+    "baseExpRequired": 100,
+    "expGrowthRate": 1.2,
+    "skillPointsPerLevel": 1,
+    "statusPointsPerLevel": 5
+  },
+  "expTable": [
+    { "level": 1, "expRequired": 0 },
+    { "level": 2, "expRequired": 100 },
+    { "level": 3, "expRequired": 220 },
+    { "level": 4, "expRequired": 374 },
+    { "level": 5, "expRequired": 569 },
+    { "level": 6, "expRequired": 813 },
+    { "level": 7, "expRequired": 1116 },
+    { "level": 8, "expRequired": 1479 },
+    { "level": 9, "expRequired": 1915 },
+    { "level": 10, "expRequired": 2438 },
+    { "level": 11, "expRequired": 3066 },
+    { "level": 12, "expRequired": 3819 },
+    { "level": 13, "expRequired": 4713 },
+    { "level": 14, "expRequired": 5766 },
+    { "level": 15, "expRequired": 7000 },
+    { "level": 16, "expRequired": 8430 },
+    { "level": 17, "expRequired": 10076 },
+    { "level": 18, "expRequired": 11961 },
+    { "level": 19, "expRequired": 14113 },
+    { "level": 20, "expRequired": 16556 },
+    { "level": 21, "expRequired": 19317 },
+    { "level": 22, "expRequired": 22420 },
+    { "level": 23, "expRequired": 25894 },
+    { "level": 24, "expRequired": 29763 },
+    { "level": 25, "expRequired": 34056 },
+    { "level": 26, "expRequired": 38807 },
+    { "level": 27, "expRequired": 44048 },
+    { "level": 28, "expRequired": 49818 },
+    { "level": 29, "expRequired": 56152 },
+    { "level": 30, "expRequired": 63083 },
+    { "level": 31, "expRequired": 70650 },
+    { "level": 32, "expRequired": 78890 },
+    { "level": 33, "expRequired": 87848 },
+    { "level": 34, "expRequired": 97568 },
+    { "level": 35, "expRequired": 108102 },
+    { "level": 36, "expRequired": 119612 },
+    { "level": 37, "expRequired": 132063 },
+    { "level": 38, "expRequired": 145516 },
+    { "level": 39, "expRequired": 160039 },
+    { "level": 40, "expRequired": 175707 },
+    { "level": 41, "expRequired": 192599 },
+    { "level": 42, "expRequired": 210799 },
+    { "level": 43, "expRequired": 230399 },
+    { "level": 44, "expRequired": 251499 },
+    { "level": 45, "expRequired": 274199 },
+    { "level": 46, "expRequired": 298613 },
+    { "level": 47, "expRequired": 324866 },
+    { "level": 48, "expRequired": 353099 },
+    { "level": 49, "expRequired": 383459 },
+    { "level": 50, "expRequired": 416111 },
+    { "level": 51, "expRequired": 451233 },
+    { "level": 52, "expRequired": 489010 },
+    { "level": 53, "expRequired": 529642 },
+    { "level": 54, "expRequired": 573341 },
+    { "level": 55, "expRequired": 620339 },
+    { "level": 56, "expRequired": 670887 },
+    { "level": 57, "expRequired": 725255 },
+    { "level": 58, "expRequired": 783736 },
+    { "level": 59, "expRequired": 846644 },
+    { "level": 60, "expRequired": 914313 },
+    { "level": 61, "expRequired": 987103 },
+    { "level": 62, "expRequired": 1065404 },
+    { "level": 63, "expRequired": 1149135 },
+    { "level": 64, "expRequired": 1238842 },
+    { "level": 65, "expRequired": 1335091 },
+    { "level": 66, "expRequired": 1438470 },
+    { "level": 67, "expRequired": 1549594 },
+    { "level": 68, "expRequired": 1669113 },
+    { "level": 69, "expRequired": 1797711 },
+    { "level": 70, "expRequired": 1936113 },
+    { "level": 71, "expRequired": 2085086 },
+    { "level": 72, "expRequired": 2245444 },
+    { "level": 73, "expRequired": 2418053 },
+    { "level": 74, "expRequired": 2603834 },
+    { "level": 75, "expRequired": 2803771 },
+    { "level": 76, "expRequired": 3018915 },
+    { "level": 77, "expRequired": 3250389 },
+    { "level": 78, "expRequired": 3499409 },
+    { "level": 79, "expRequired": 3767383 },
+    { "level": 80, "expRequired": 4055820 },
+    { "level": 81, "expRequired": 4366336 },
+    { "level": 82, "expRequired": 4700674 },
+    { "level": 83, "expRequired": 5060699 },
+    { "level": 84, "expRequired": 5448419 },
+    { "level": 85, "expRequired": 5865893 },
+    { "level": 86, "expRequired": 6315343 },
+    { "level": 87, "expRequired": 6799062 },
+    { "level": 88, "expRequired": 7319530 },
+    { "level": 89, "expRequired": 7879336 },
+    { "level": 90, "expRequired": 8481183 },
+    { "level": 91, "expRequired": 9127920 },
+    { "level": 92, "expRequired": 9822552 },
+    { "level": 93, "expRequired": 10568345 },
+    { "level": 94, "expRequired": 11357285 },
+    { "level": 95, "expRequired": 12193913 },
+    { "level": 96, "expRequired": 13083627 },
+    { "level": 97, "expRequired": 14032497 },
+    { "level": 98, "expRequired": 15047287 },
+    { "level": 99, "expRequired": 16134625 },
+    { "level": 100, "expRequired": 17302111 }
+  ],
+  "jobGrowthRates": {
+    "Warrior": {
+      "str": 3,
+      "dex": 1,
+      "int": 0,
+      "vit": 2,
+      "agi": 1,
+      "luk": 0,
+      "description": "戦士 - 筋力と体力を中心に成長",
+      "icon": "⚔️"
+    },
+    "Mage": {
+      "str": 0,
+      "dex": 1,
+      "int": 3,
+      "vit": 1,
+      "agi": 1,
+      "luk": 1,
+      "description": "魔法使い - 知力中心に成長",
+      "icon": "🧙"
+    },
+    "Rogue": {
+      "str": 1,
+      "dex": 3,
+      "int": 0,
+      "vit": 1,
+      "agi": 2,
+      "luk": 0,
+      "description": "盗賊 - 器用さと敏捷性を中心に成長",
+      "icon": "🗡️"
+    },
+    "Priest": {
+      "str": 1,
+      "dex": 0,
+      "int": 2,
+      "vit": 2,
+      "agi": 1,
+      "luk": 1,
+      "description": "僧侶 - 知力と体力を中心に成長",
+      "icon": "✝️"
+    },
+    "Ranger": {
+      "str": 1,
+      "dex": 2,
+      "int": 0,
+      "vit": 1,
+      "agi": 3,
+      "luk": 0,
+      "description": "弓使い - 敏捷性を中心に成長",
+      "icon": "🏹"
+    },
+    "Blacksmith": {
+      "str": 2,
+      "dex": 1,
+      "int": 0,
+      "vit": 3,
+      "agi": 0,
+      "luk": 1,
+      "description": "鍛冶師 - 体力を中心に成長",
+      "icon": "🔨"
+    },
+    "Alchemist": {
+      "str": 0,
+      "dex": 1,
+      "int": 2,
+      "vit": 1,
+      "agi": 1,
+      "luk": 2,
+      "description": "錬金術師 - 幸運を中心に成長",
+      "icon": "⚗️"
+    },
+    "Paladin": {
+      "str": 2,
+      "dex": 0,
+      "int": 1,
+      "vit": 3,
+      "agi": 0,
+      "luk": 1,
+      "description": "パラディン - 体力と筋力をを中心に成長",
+      "icon": "🛡️"
+    },
+    "DarkKnight": {
+      "str": 2,
+      "dex": 1,
+      "int": 1,
+      "vit": 2,
+      "agi": 0,
+      "luk": 1,
+      "description": "ダークナイト - 筋力と体力をを中心に成長",
+      "icon": "🖤"
+    },
+    "Monk": {
+      "str": 2,
+      "dex": 1,
+      "int": 0,
+      "vit": 2,
+      "agi": 2,
+      "luk": 0,
+      "description": "モンク - バランス型",
+      "icon": "🥊"
+    },
+    "Bard": {
+      "str": 0,
+      "dex": 2,
+      "int": 1,
+      "vit": 0,
+      "agi": 2,
+      "luk": 2,
+      "description": "吟遊詩人 - 器用さと幸運を中心に成長",
+      "icon": "🎵"
+    },
+    "Dragoon": {
+      "str": 2,
+      "dex": 2,
+      "int": 0,
+      "vit": 2,
+      "agi": 1,
+      "luk": 0,
+      "description": "竜騎士 - 攻撃的なバランス型",
+      "icon": "🐉"
+    },
+    "Summoner": {
+      "str": 0,
+      "dex": 0,
+      "int": 3,
+      "vit": 1,
+      "agi": 1,
+      "luk": 2,
+      "description": "召喚士 - 魔法と幸運を中心に成長",
+      "icon": "🦋"
+    },
+    "Ninja": {
+      "str": 1,
+      "dex": 2,
+      "int": 1,
+      "vit": 1,
+      "agi": 3,
+      "luk": 0,
+      "description": "忍者 - 敏捷性重視",
+      "icon": "🥷"
+    },
+    "Samurai": {
+      "str": 2,
+      "dex": 2,
+      "int": 0,
+      "vit": 1,
+      "agi": 2,
+      "luk": 0,
+      "description": "侍 - 攻撃的なバランス型",
+      "icon": "⚔️"
+    }
+  },
+  "levelBonuses": {
+    "10": {
+      "skillPoints": 1,
+      "message": "Lv10到達: スキルポイント+1"
+    },
+    "20": {
+      "skillPoints": 2,
+      "message": "Lv20到達: スキルポイント+2"
+    },
+    "30": {
+      "skillPoints": 3,
+      "message": "Lv30到達: スキルポイント+3"
+    },
+    "40": {
+      "skillPoints": 4,
+      "message": "Lv40到達: スキルポイント+4"
+    },
+    "50": {
+      "skillPoints": 5,
+      "message": "Lv50到達: スキルポイント+5 + 転生可能に"
+    },
+    "60": {
+      "skillPoints": 5,
+      "message": "Lv60到達: スキルポイント+5"
+    },
+    "70": {
+      "skillPoints": 5,
+      "message": "Lv70到達: スキルポイント+5"
+    },
+    "80": {
+      "skillPoints": 5,
+      "message": "Lv80到達: スキルポイント+5"
+    },
+    "90": {
+      "skillPoints": 5,
+      "message": "Lv90到達: スキルポイント+5"
+    },
+    "100": {
+      "skillPoints": 10,
+      "message": "Lv100到達: スキルポイント+10 + マスター試験合格"
+    }
+  },
+  "rebirthBonus": {
+    "statMultiplier": 0.1,
+    "expBonus": 0.05,
+    "description": "転生时会获得全ステータス10% bonusと経験値5% bonus"
+  }
+}

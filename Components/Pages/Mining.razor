@@ -1,0 +1,751 @@
+@page "/mining"
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthStateProvider
+@inject Services.MiningService MiningService
+@inject Services.UserService UserService
+@inject NavigationManager Navigation
+
+<PageTitle>採掘場 - FFA</PageTitle>
+
+<div class="mining-container">
+    <div class="mining-header">
+        <h1>⛏️ 採掘場</h1>
+        <p>鉱石を採掘して素材を集めよう！</p>
+    </div>
+
+    @if (!isAuth)
+    {
+        <div class="auth-warning">
+            <p>🔐 ログインして採掘を始めましょう</p>
+            <button class="action-button" @onclick="GoToLogin">ログイン</button>
+        </div>
+    }
+    else
+    {
+        <div class="mining-content">
+            <!-- プレイヤー情報 -->
+            <div class="player-panel">
+                <div class="player-header">
+                    <span class="player-icon">👤</span>
+                    <div class="player-info">
+                        <h3>@currentUser?.Username</h3>
+                        <span class="gil">💰 @currentUser?.Gil G</span>
+                    </div>
+                </div>
+                
+                @if (miningSkill != null)
+                {
+                    <div class="skill-panel">
+                        <div class="skill-header">
+                            <span class="skill-icon">⛏️</span>
+                            <span class="skill-name">採掘スキル</span>
+                            <span class="skill-level">Lv.@miningSkill.Level</span>
+                        </div>
+                        <div class="exp-bar">
+                            <div class="exp-fill" style="width: @expPercent%"></div>
+                        </div>
+                        <div class="exp-text">
+                            <span>EXP: @miningSkill.Experience / @miningSkill.ExperienceToNext</span>
+                            <span>総採掘数: @miningSkill.TotalOresMined</span>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- 採掘エリア選択 -->
+            <div class="mining-areas">
+                <h2>📍 採掘エリア</h2>
+                <div class="area-grid">
+                    @foreach (var area in miningAreas)
+                    {
+                        <div class="area-card @(selectedArea?.Id == area.Id ? "selected" : "")" 
+                             @onclick="() => SelectArea(area)">
+                            <div class="area-icon">@area.Icon</div>
+                            <div class="area-info">
+                                <h4>@area.Name</h4>
+                                <p class="area-desc">@area.Description</p>
+                                <div class="area-ores">
+                                    @foreach (var ore in area.AvailableOres.Take(3))
+                                    {
+                                        <span class="ore-tag">@ore</span>
+                                    }
+                                </div>
+                                <div class="area-requirement">
+                                    <span>必要Lv: @area.RequiredLevel</span>
+                                    <span>費用: @area.Cost G</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- 採掘アクション -->
+            @if (selectedArea != null)
+            {
+                <div class="mining-action">
+                    <div class="selected-area">
+                        <span class="area-icon-large">@selectedArea.Icon</span>
+                        <div>
+                            <h3>@selectedArea.Name</h3>
+                            <p>費用: @selectedArea.Cost G / 回</p>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="mine-btn" @onclick="DoMining" disabled="@isMining">
+                            @if (isMining)
+                            {
+                                <span class="loading">⛏️ 採掘中...</span>
+                            }
+                            else
+                            {
+                                <span>⛏️ 採掘する</span>
+                            }
+                        </button>
+                        <button class="auto-btn" @onclick="DoAutoMining" disabled="@isMining">
+                            🔄 連続採掘 (10回)
+                        </button>
+                    </div>
+                </div>
+            }
+
+            <!-- 採掘結果 -->
+            @if (lastResult != null)
+            {
+                <div class="result-panel @(lastResult.Success ? "success" : "failure")">
+                    @if (lastResult.Success)
+                    {
+                        <div class="result-content">
+                            <span class="result-icon">💎</span>
+                            <div class="result-details">
+                                <h3>@lastResult.OreName x @lastResult.Quantity</h3>
+                                @if (lastResult.LeveledUp)
+                                {
+                                    <p class="level-up">🎉 スキルレベルアップ！ Lv.@lastResult.SkillLevel</p>
+                                }
+                                <p class="exp-gained">+@lastResult.ExpGained EXP</p>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="result-content">
+                            <span class="result-icon">❌</span>
+                            <p>@lastResult.Message</p>
+                        </div>
+                    }
+                </div>
+            }
+
+            <!-- 連続採掘結果 -->
+            @if (autoResults.Count > 0)
+            {
+                <div class="auto-results">
+                    <h3>📊 連続採掘結果</h3>
+                    <div class="results-summary">
+                        <div class="summary-item">
+                            <span class="label">成功回数</span>
+                            <span class="value">@autoResults.Count(r => r.Success)</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">総獲得数</span>
+                            <span class="value">@autoResults.Where(r => r.Success).Sum(r => r.Quantity)</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">総経験値</span>
+                            <span class="value">@autoResults.Sum(r => r.ExpGained)</span>
+                        </div>
+                    </div>
+                    <div class="results-list">
+                        @foreach (var result in autoResults.Where(r => r.Success).TakeLast(10))
+                        {
+                            <span class="result-item">@result.OreName x@result.Quantity</span>
+                        }
+                    </div>
+                </div>
+            }
+
+            <!-- 鉱石図鑑 -->
+            <div class="ore-dex">
+                <h2>📖 鉱石図鑑</h2>
+                <div class="ore-grid">
+                    @foreach (var ore in allOres)
+                    {
+                        var canMine = miningSkill != null && miningSkill.Level >= ore.RequiredSkillLevel;
+                        <div class="ore-card @(canMine ? "available" : "locked")">
+                            <div class="ore-icon">@GetOreIcon(ore.Type)</div>
+                            <div class="ore-info">
+                                <h4>@ore.JapaneseName</h4>
+                                <div class="ore-stats">
+                                    <span>価値: @ore.Value G</span>
+                                    <span>必要Lv: @ore.RequiredSkillLevel</span>
+                                </div>
+                                @if (!canMine)
+                                {
+                                    <span class="locked-label">🔒 ロック</span>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .mining-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .mining-header {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    
+    .mining-header h1 {
+        color: var(--mud-palette-primary);
+        margin-bottom: 5px;
+    }
+    
+    .mining-header p {
+        color: var(--mud-palette-text-secondary);
+    }
+    
+    .auth-warning {
+        text-align: center;
+        padding: 40px;
+        background: var(--mud-palette-surface);
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .player-panel {
+        background: var(--mud-palette-surface);
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .player-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .player-icon {
+        font-size: 2rem;
+    }
+    
+    .player-info h3 {
+        margin: 0;
+    }
+    
+    .gil {
+        color: #ffd700;
+        font-weight: bold;
+    }
+    
+    .skill-panel {
+        background: rgba(0,0,0,0.05);
+        border-radius: 8px;
+        padding: 15px;
+    }
+    
+    .skill-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+    
+    .skill-icon {
+        font-size: 1.5rem;
+    }
+    
+    .skill-name {
+        flex: 1;
+    }
+    
+    .skill-level {
+        background: var(--mud-palette-primary);
+        color: white;
+        padding: 2px 10px;
+        border-radius: 12px;
+        font-weight: bold;
+    }
+    
+    .exp-bar {
+        height: 10px;
+        background: #333;
+        border-radius: 5px;
+        overflow: hidden;
+        margin-bottom: 5px;
+    }
+    
+    .exp-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #4caf50, #8bc34a);
+        transition: width 0.3s;
+    }
+    
+    .exp-text {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85em;
+        color: var(--mud-palette-text-secondary);
+    }
+    
+    .mining-areas {
+        margin-bottom: 20px;
+    }
+    
+    .mining-areas h2 {
+        margin-bottom: 15px;
+    }
+    
+    .area-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 15px;
+    }
+    
+    .area-card {
+        background: var(--mud-palette-surface);
+        border: 2px solid transparent;
+        border-radius: 8px;
+        padding: 15px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .area-card:hover {
+        border-color: var(--mud-palette-primary);
+        transform: translateY(-2px);
+    }
+    
+    .area-card.selected {
+        border-color: var(--mud-palette-primary);
+        background: rgba(var(--mud-palette-primary-rgb), 0.1);
+    }
+    
+    .area-card .area-icon {
+        font-size: 2rem;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+    
+    .area-card h4 {
+        margin: 0 0 5px 0;
+    }
+    
+    .area-desc {
+        font-size: 0.85em;
+        color: var(--mud-palette-text-secondary);
+        margin-bottom: 10px;
+    }
+    
+    .area-ores {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-bottom: 10px;
+    }
+    
+    .ore-tag {
+        padding: 2px 8px;
+        background: rgba(0,0,0,0.1);
+        border-radius: 4px;
+        font-size: 0.75em;
+    }
+    
+    .area-requirement {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.8em;
+        color: var(--mud-palette-text-secondary);
+    }
+    
+    .mining-action {
+        background: var(--mud-palette-surface);
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .selected-area {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .area-icon-large {
+        font-size: 3rem;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .mine-btn {
+        flex: 2;
+        padding: 15px;
+        background: #ff9800;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    
+    .mine-btn:hover:not(:disabled) {
+        background: #f57c00;
+    }
+    
+    .mine-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    
+    .auto-btn {
+        flex: 1;
+        padding: 15px;
+        background: #607d8b;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    
+    .auto-btn:hover:not(:disabled) {
+        background: #455a64;
+    }
+    
+    .result-panel {
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .result-panel.success {
+        background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+        border: 2px solid #4caf50;
+    }
+    
+    .result-panel.failure {
+        background: linear-gradient(135deg, #ffebee, #ffcdd2);
+        border: 2px solid #f44336;
+    }
+    
+    .result-content {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .result-icon {
+        font-size: 2.5rem;
+    }
+    
+    .result-details h3 {
+        margin: 0;
+    }
+    
+    .level-up {
+        color: #ff9800;
+        font-weight: bold;
+    }
+    
+    .exp-gained {
+        color: #4caf50;
+    }
+    
+    .auto-results {
+        background: var(--mud-palette-surface);
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .results-summary {
+        display: flex;
+        justify-content: space-around;
+        margin: 15px 0;
+    }
+    
+    .summary-item {
+        text-align: center;
+    }
+    
+    .summary-item .label {
+        display: block;
+        font-size: 0.85em;
+        color: var(--mud-palette-text-secondary);
+    }
+    
+    .summary-item .value {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--mud-palette-primary);
+    }
+    
+    .results-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    
+    .result-item {
+        padding: 3px 8px;
+        background: rgba(0,0,0,0.1);
+        border-radius: 4px;
+        font-size: 0.85em;
+    }
+    
+    .ore-dex {
+        background: var(--mud-palette-surface);
+        border-radius: 8px;
+        padding: 15px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .ore-dex h2 {
+        margin-bottom: 15px;
+    }
+    
+    .ore-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 10px;
+    }
+    
+    .ore-card {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        border-radius: 8px;
+        background: rgba(0,0,0,0.05);
+    }
+    
+    .ore-card.locked {
+        opacity: 0.5;
+    }
+    
+    .ore-card .ore-icon {
+        font-size: 1.5rem;
+    }
+    
+    .ore-info h4 {
+        margin: 0;
+        font-size: 0.9rem;
+    }
+    
+    .ore-stats {
+        display: flex;
+        flex-direction: column;
+        font-size: 0.75em;
+        color: var(--mud-palette-text-secondary);
+    }
+    
+    .locked-label {
+        font-size: 0.7em;
+        color: #f44336;
+    }
+    
+    .action-button {
+        padding: 10px 20px;
+        background: var(--mud-palette-primary);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+</style>
+
+@code {
+    private bool isAuth = false;
+    private string? username;
+    private User? currentUser;
+    private MiningSkill? miningSkill;
+    private MiningResult? lastResult;
+    private List<MiningResult> autoResults = new();
+    private List<Ore> allOres = new();
+    private MiningArea? selectedArea;
+    private bool isMining = false;
+    
+    private int expPercent => miningSkill != null 
+        ? (int)((double)miningSkill.Experience / miningSkill.ExperienceToNext * 100) 
+        : 0;
+
+    private List<MiningArea> miningAreas = new()
+    {
+        new MiningArea 
+        { 
+            Id = 1, 
+            Name = "初心者の洞窟", 
+            Icon = "🕳️", 
+            Description = "銅と鉄が採れる入門用エリア",
+            RequiredLevel = 1, 
+            Cost = 5,
+            AvailableOres = new List<string> { "銅鉱石", "鉄鉱石" }
+        },
+        new MiningArea 
+        { 
+            Id = 2, 
+            Name = "銀の坑道", 
+            Icon = "🪨", 
+            Description = "銀と金が採れる中級エリア",
+            RequiredLevel = 10, 
+            Cost = 15,
+            AvailableOres = new List<string> { "銀鉱石", "金鉱石" }
+        },
+        new MiningArea 
+        { 
+            Id = 3, 
+            Name = "ミスリル鉱山", 
+            Icon = "💎", 
+            Description = "ミスリルが採れる上級エリア",
+            RequiredLevel = 25, 
+            Cost = 30,
+            AvailableOres = new List<string> { "ミスリル鉱石", "アダマンタイト" }
+        },
+        new MiningArea 
+        { 
+            Id = 4, 
+            Name = "古代の遺跡", 
+            Icon = "🏛️", 
+            Description = "オリハルコンが眠る伝説のエリア",
+            RequiredLevel = 45, 
+            Cost = 50,
+            AvailableOres = new List<string> { "オリハルコン", "魔法結晶" }
+        },
+        new MiningArea 
+        { 
+            Id = 5, 
+            Name = "竜の巣", 
+            Icon = "🐉", 
+            Description = "ダイヤと不死鳥の羽がある最上級エリア",
+            RequiredLevel = 70, 
+            Cost = 100,
+            AvailableOres = new List<string> { "ダイヤモンド", "不死鳥の羽" }
+        }
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        var authUser = state.User;
+        isAuth = authUser?.Identity?.IsAuthenticated ?? false;
+        username = authUser?.Identity?.Name;
+
+        if (isAuth && username != null)
+        {
+            currentUser = UserService.GetByUsername(username);
+            miningSkill = MiningService.GetSkill(username) ?? MiningService.InitializeSkill(username);
+        }
+        
+        allOres = MiningDatabase.Ores;
+    }
+
+    private void GoToLogin()
+    {
+        Navigation.NavigateTo("/login");
+    }
+
+    private void SelectArea(MiningArea area)
+    {
+        if (miningSkill != null && miningSkill.Level >= area.RequiredLevel)
+        {
+            selectedArea = area;
+        }
+    }
+
+    private async Task DoMining()
+    {
+        if (username == null || selectedArea == null) return;
+        
+        isMining = true;
+        StateHasChanged();
+        
+        await Task.Delay(500);
+        
+        lastResult = MiningService.Mine(username);
+        
+        // ユーザー情報を更新
+        currentUser = UserService.GetByUsername(username);
+        miningSkill = MiningService.GetSkill(username);
+        
+        isMining = false;
+        StateHasChanged();
+    }
+
+    private async Task DoAutoMining()
+    {
+        if (username == null || selectedArea == null) return;
+        
+        isMining = true;
+        autoResults.Clear();
+        StateHasChanged();
+        
+        for (int i = 0; i < 10; i++)
+        {
+            await Task.Delay(200);
+            
+            var result = MiningService.Mine(username);
+            autoResults.Add(result);
+            
+            if (!result.Success)
+                break;
+        }
+        
+        // ユーザー情報を更新
+        currentUser = UserService.GetByUsername(username);
+        miningSkill = MiningService.GetSkill(username);
+        
+        isMining = false;
+        StateHasChanged();
+    }
+    
+    private string GetOreIcon(OreType type)
+    {
+        return type switch
+        {
+            OreType.Copper => "🟤",
+            OreType.Iron => "⚫",
+            OreType.Silver => "⚪",
+            OreType.Gold => "🟡",
+            OreType.Mithril => "🔵",
+            OreType.Adamantite => "🟣",
+            OreType.Orichalcum => "🟠",
+            OreType.Crystal => "💠",
+            OreType.Diamond => "💎",
+            OreType.Phoenix => "🔥",
+            _ => "🪨"
+        };
+    }
+    
+    private class MiningArea
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = "";
+        public string Icon { get; set; } = "🪨";
+        public string Description { get; set; } = "";
+        public int RequiredLevel { get; set; }
+        public int Cost { get; set; }
+        public List<string> AvailableOres { get; set; } = new();
+    }
+}

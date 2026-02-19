@@ -309,27 +309,105 @@ public class UserService
             if (user == null) return;
 
             int oldLevel = user.Level;
+            int oldStatusStr = user.Status.Str;
+            int oldStatusDex = user.Status.Dex;
+            int oldStatusInt = user.Status.Int;
+            int oldStatusVit = user.Status.Vit;
+            int oldStatusAgi = user.Status.Agi;
+            int oldStatusLuk = user.Status.Luk;
+            int totalLevelsGained = 0;
+
             user.Exp += amount;
-            while (user.Exp >= user.ExpToNext)
+            while (user.Exp >= user.ExpToNext && user.Level < 100)
             {
                 user.Exp -= user.ExpToNext;
                 user.Level++;
-                user.Status.PointsAvailable += 5; // grant 5 points per level
-                user.ExpToNext = (int)(user.ExpToNext * 1.2);
+                totalLevelsGained++;
+                
+                // 基本ステータスポイント
+                user.Status.PointsAvailable += 5;
+                
+                // ジョブ別成長適用的ステータス自動成長
+                var (strBonus, dexBonus, intBonus, vitBonus, agiBonus, lukBonus) = GetJobGrowthRates(user.Job);
+                user.Status.Str += strBonus;
+                user.Status.Dex += dexBonus;
+                user.Status.Int += intBonus;
+                user.Status.Vit += vitBonus;
+                user.Status.Agi += agiBonus;
+                user.Status.Luk += lukBonus;
+                
+                // HP/MP成長
+                user.MaxHP += (vitBonus * 5) + 5;
+                user.HP = user.MaxHP;
+                
+                // レベル10,20,30...でスキルポイント bonus
+                if (user.Level % 10 == 0)
+                {
+                    user.SkillPoints += (user.Level / 10);
+                }
+                
+                // 経験値テーブルの更新
+                user.ExpToNext = CalculateExpForLevel(user.Level + 1);
             }
             users.Update(user);
 
             // レベルアップイベントを記録
-            if (user.Level > oldLevel)
+            if (totalLevelsGained > 0)
             {
                 var eventService = new GameEventService();
                 eventService.LogLevelUp(username, user.Level);
+                
+                // ステータスの成長を記録
+                int totalStrGain = user.Status.Str - oldStatusStr;
+                int totalDexGain = user.Status.Dex - oldStatusDex;
+                int totalIntGain = user.Status.Int - oldStatusInt;
+                int totalVitGain = user.Status.Vit - oldStatusVit;
+                int totalAgiGain = user.Status.Agi - oldStatusAgi;
+                int totalLukGain = user.Status.Luk - oldStatusLuk;
+                
+                Console.WriteLine($"[LevelUp] {username}: Lv{oldLevel}→{user.Level}, STR+{totalStrGain} DEX+{totalDexGain} INT+{totalIntGain} VIT+{totalVitGain} AGI+{totalAgiGain} LUK+{totalLukGain}");
             }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"UserService.AddExpAndHandleLevel 例外: {ex.Message} - {ex.StackTrace}");
         }
+    }
+    
+    // Get job growth rates based on job
+    private (int str, int dex, int intel, int vit, int agi, int luk) GetJobGrowthRates(Job job)
+    {
+        return job switch
+        {
+            Job.Warrior => (3, 1, 0, 2, 1, 0),
+            Job.Monk => (2, 1, 0, 2, 2, 0),
+            Job.WhiteMage => (1, 0, 2, 2, 1, 1),
+            Job.BlackMage => (0, 1, 3, 1, 1, 1),
+            Job.Ranger => (1, 2, 0, 1, 3, 0),
+            Job.Paladin => (2, 0, 1, 3, 0, 1),
+            Job.DarkKnight => (2, 1, 1, 2, 0, 1),
+            Job.Bard => (0, 2, 1, 0, 2, 2),
+            Job.Thief => (1, 3, 0, 1, 2, 0),
+            Job.Ninja => (1, 2, 1, 1, 3, 0),
+            Job.HolyKnight => (2, 0, 1, 3, 0, 1),
+            Job.DeathKnight => (2, 1, 1, 2, 0, 1),
+            Job.ArchMage => (0, 0, 3, 1, 1, 2),
+            Job.BeastMaster => (1, 2, 0, 2, 2, 0),
+            Job.Duelist => (2, 2, 0, 1, 2, 0),
+            Job.Grandmaster => (2, 1, 1, 2, 1, 1),
+            _ => (1, 1, 1, 1, 1, 1)
+        };
+    }
+    
+    // Calculate experience required for a specific level
+    private int CalculateExpForLevel(int level)
+    {
+        if (level <= 1) return 0;
+        
+        // 指数関数的な経験値曲線
+        // Base: 100, Growth: 1.2 per level
+        double exp = 100 * Math.Pow(1.2, level - 1);
+        return (int)exp;
     }
 
     public bool DeleteUser(string username)

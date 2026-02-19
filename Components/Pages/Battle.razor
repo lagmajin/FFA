@@ -1,0 +1,771 @@
+@page "/battle"
+@page "/battle/{FieldId:int}"
+@rendermode InteractiveServer
+@inject NavigationManager Navigation
+@inject Services.UserService UserService
+@inject Services.FieldService FieldService
+@inject Services.DungeonService DungeonService
+@inject Services.QuestService QuestService
+@inject Services.CombatService Combat
+
+<PageTitle>バトル</PageTitle>
+
+<div class="battle-container">
+    @if (currentField == null)
+    {
+        <div class="no-field">
+            <h2>場所が選択されていません</h2>
+            <p>探索する場所を選んでください</p>
+            <button class="action-button" @onclick="GoToField">場所を選ぶ</button>
+        </div>
+    }
+    else if (currentEnemy == null)
+    {
+        <div class="searching">
+            <h2>@currentField.Name</h2>
+            <p>@currentField.Description</p>
+            <div class="field-info">
+                <span>難易度: @currentField.Difficulty</span>
+                <span>推奨Lv: @(currentField.Difficulty * 5)</span>
+            </div>
+            <button class="action-button search-btn" @onclick="SearchEnemy">🔍 敵を探す</button>
+            <button class="back-button" @onclick="GoToField">場所を変える</button>
+        </div>
+    }
+    else
+    {
+        <div class="battle-section">
+            <!-- 敵情報 -->
+            <div class="enemy-info">
+                <div class="enemy-header">
+                    <span class="enemy-icon">@currentEnemy.Icon</span>
+                    <div class="enemy-details">
+                        <h3>@currentEnemy.Name</h3>
+                        <span class="enemy-level">Lv.@currentEnemy.Level</span>
+                        @if (currentEnemy.Type != EnemyType.Normal)
+                        {
+                            <span class="enemy-type @currentEnemy.Type.ToString().ToLower()">[@GetEnemyTypeLabel(currentEnemy.Type)]</span>
+                        }
+                    </div>
+                </div>
+                <div class="hp-bar-container">
+                    <div class="hp-bar enemy-hp">
+                        <div class="hp-fill" style="width: @enemyHpPercent%"></div>
+                    </div>
+                    <span class="hp-text">HP: @currentEnemy.HP / @currentEnemy.MaxHP</span>
+                </div>
+            </div>
+
+            <!-- プレイヤー情報 -->
+            <div class="player-info">
+                <h4>👤 @currentUser?.Username</h4>
+                <div class="hp-bar-container">
+                    <div class="hp-bar player-hp">
+                        <div class="hp-fill" style="width: @playerHpPercent%"></div>
+                    </div>
+                    <span class="hp-text">HP: @currentUser?.HP / @currentUser?.MaxHP</span>
+                </div>
+                @if (battleSession != null)
+                {
+                    <div class="battle-stats">
+                        <span>ターン: @battleSession.Turn</span>
+                        <span>コンボ: @battleSession.ComboCount</span>
+                    </div>
+                }
+            </div>
+
+            <!-- バトルログ -->
+            @if (battleLog.Count > 0)
+            {
+                <div class="battle-log">
+                    @foreach (var log in battleLog.TakeLast(5))
+                    {
+                        <p>@log</p>
+                    }
+                </div>
+            }
+
+            <!-- アクションボタン -->
+            @if (battleSession != null && !battleSession.IsFinished && battleSession.IsPlayerTurn)
+            {
+                <div class="action-buttons">
+                    <button class="battle-btn attack-btn" @onclick="PlayerAttack" disabled="@isProcessing">
+                        ⚔️ 攻撃
+                    </button>
+                    <button class="battle-btn defend-btn" @onclick="PlayerDefend" disabled="@isProcessing">
+                        🛡️ 防御
+                    </button>
+                    <button class="battle-btn flee-btn" @onclick="PlayerFlee" disabled="@isProcessing">
+                        🏃 逃走
+                    </button>
+                </div>
+            }
+            else if (battleSession != null && !battleSession.IsFinished && !battleSession.IsPlayerTurn)
+            {
+                <div class="waiting-message">
+                    <p>敵のターン...</p>
+                </div>
+            }
+
+            <!-- 勝利結果 -->
+            @if (battleSession?.IsFinished == true && battleSession.PlayerWon)
+            {
+                <div class="result victory">
+                    <h3>🎉 勝利！</h3>
+                    <div class="rewards">
+                        <p>経験値: <strong>+@gainedExp</strong>@if (bonusExp > 0) { <span class="bonus">(+@bonusExp ボーナス)</span> }</p>
+                        <p>ギル: <strong>+@gainedGil</strong>@if (bonusGil > 0) { <span class="bonus">(+@bonusGil ボーナス)</span> }</p>
+                    </div>
+                    @if (droppedItems.Count > 0)
+                    {
+                        <div class="drops">
+                            <h4>📦 ドロップアイテム</h4>
+                            @foreach (var drop in droppedItems)
+                            {
+                                <p class="@GetRarityClass(drop.Rarity)">
+                                    @if (drop.IsRare) { <span>★</span> }
+                                    @drop.Name x@drop.Quantity
+                                </p>
+                            }
+                        </div>
+                    }
+                    <div class="result-actions">
+                        <button class="action-button" @onclick="ContinueSearch">続きを探索</button>
+                        <button class="back-button" @onclick="GoToField">場所を変える</button>
+                    </div>
+                </div>
+            }
+
+            <!-- 敗北結果 -->
+            @if (battleSession?.IsFinished == true && !battleSession.PlayerWon)
+            {
+                <div class="result defeat">
+                    <h3>💀 敗北...</h3>
+                    <p>経験値を @expLoss 失った</p>
+                    <button class="back-button" @onclick="Respawn">リスポーン</button>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<style>
+    .battle-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .no-field, .searching {
+        text-align: center;
+        padding: 40px;
+        background: var(--mud-palette-surface);
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .searching h2 {
+        color: var(--mud-palette-primary);
+        margin-bottom: 10px;
+    }
+    
+    .field-info {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin: 15px 0;
+        color: var(--mud-palette-text-secondary);
+    }
+    
+    .search-btn {
+        font-size: 1.2rem;
+        padding: 15px 30px;
+        margin: 10px;
+    }
+    
+    .battle-section {
+        background: var(--mud-palette-surface);
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .enemy-info, .player-info {
+        margin-bottom: 15px;
+    }
+    
+    .enemy-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+    
+    .enemy-icon {
+        font-size: 2.5rem;
+    }
+    
+    .enemy-details h3 {
+        margin: 0;
+        display: inline;
+    }
+    
+    .enemy-level {
+        margin-left: 10px;
+        color: var(--mud-palette-text-secondary);
+    }
+    
+    .enemy-type {
+        margin-left: 5px;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.8em;
+    }
+    
+    .enemy-type.elite { background: #ffd700; color: #000; }
+    .enemy-type.rare { background: #9932cc; color: #fff; }
+    .enemy-type.boss { background: #ff4500; color: #fff; }
+    
+    .hp-bar-container {
+        margin: 5px 0;
+    }
+    
+    .hp-bar {
+        height: 20px;
+        background: #333;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 5px;
+    }
+    
+    .enemy-hp .hp-fill {
+        background: linear-gradient(90deg, #ff4444, #ff6666);
+        height: 100%;
+        transition: width 0.3s;
+    }
+    
+    .player-hp .hp-fill {
+        background: linear-gradient(90deg, #44ff44, #66ff66);
+        height: 100%;
+        transition: width 0.3s;
+    }
+    
+    .hp-text {
+        font-size: 0.9em;
+        color: var(--mud-palette-text-secondary);
+    }
+    
+    .battle-stats {
+        display: flex;
+        gap: 20px;
+        margin-top: 10px;
+        font-size: 0.9em;
+    }
+    
+    .battle-log {
+        background: rgba(0,0,0,0.1);
+        border-radius: 8px;
+        padding: 10px;
+        margin: 15px 0;
+        max-height: 150px;
+        overflow-y: auto;
+    }
+    
+    .battle-log p {
+        margin: 5px 0;
+        font-size: 0.9em;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 15px;
+    }
+    
+    .battle-btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: transform 0.1s, opacity 0.2s;
+    }
+    
+    .battle-btn:hover:not(:disabled) {
+        transform: scale(1.05);
+    }
+    
+    .battle-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    .attack-btn {
+        background: #e53935;
+        color: white;
+    }
+    
+    .defend-btn {
+        background: #1e88e5;
+        color: white;
+    }
+    
+    .flee-btn {
+        background: #757575;
+        color: white;
+    }
+    
+    .waiting-message {
+        text-align: center;
+        padding: 15px;
+        color: var(--mud-palette-text-secondary);
+    }
+    
+    .result {
+        margin-top: 20px;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+    }
+    
+    .result.victory {
+        background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+        border: 2px solid #4caf50;
+    }
+    
+    .result.defeat {
+        background: linear-gradient(135deg, #ffebee, #ffcdd2);
+        border: 2px solid #f44336;
+    }
+    
+    .rewards {
+        margin: 15px 0;
+    }
+    
+    .bonus {
+        color: #ff9800;
+        font-size: 0.9em;
+    }
+    
+    .drops {
+        background: rgba(0,0,0,0.05);
+        border-radius: 8px;
+        padding: 10px;
+        margin: 15px 0;
+    }
+    
+    .rarity-common { color: #333; }
+    .rarity-uncommon { color: #4caf50; }
+    .rarity-rare { color: #2196f3; }
+    .rarity-epic { color: #9c27b0; }
+    .rarity-legendary { color: #ff9800; font-weight: bold; }
+    
+    .result-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 15px;
+    }
+    
+    .action-button {
+        padding: 10px 20px;
+        background: var(--mud-palette-primary);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+    
+    .back-button {
+        padding: 10px 20px;
+        background: #757575;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+</style>
+
+@code {
+    [Parameter]
+    public int? FieldId { get; set; }
+    
+    private User? currentUser;
+    private Models.Field? currentField;
+    private Enemy? currentEnemy;
+    private List<string> battleLog = new();
+    private DungeonService.BattleSession? battleSession;
+    
+    private bool isProcessing = false;
+    private int gainedExp = 0;
+    private int gainedGil = 0;
+    private int bonusExp = 0;
+    private int bonusGil = 0;
+    private int expLoss = 0;
+    private List<DungeonService.DropResult> droppedItems = new();
+    
+    private int enemyHpPercent => currentEnemy != null ? (currentEnemy.HP * 100 / Math.Max(1, currentEnemy.MaxHP)) : 0;
+    private int playerHpPercent => currentUser != null ? (currentUser.HP * 100 / Math.Max(1, currentUser.MaxHP)) : 100;
+
+    protected override void OnInitialized()
+    {
+        currentUser = UserService.GetAllUsers().FirstOrDefault();
+        
+        if (FieldId.HasValue)
+        {
+            currentField = FieldService.GetFieldById(FieldId.Value);
+        }
+    }
+    
+    protected override void OnParametersSet()
+    {
+        if (FieldId.HasValue)
+        {
+            currentField = FieldService.GetFieldById(FieldId.Value);
+        }
+    }
+
+    private void GoToField()
+    {
+        Navigation.NavigateTo("/field");
+    }
+
+    private void SearchEnemy()
+    {
+        if (currentField == null || currentUser == null) return;
+        
+        battleLog.Clear();
+        droppedItems.Clear();
+        bonusExp = 0;
+        bonusGil = 0;
+        
+        // モンスター生成
+        currentEnemy = GenerateEnemyForField(currentField);
+        
+        // バトルセッション開始
+        battleSession = new DungeonService.BattleSession();
+        
+        // 先制攻撃判定
+        if (DungeonService.CheckPreemptiveStrike(currentUser, currentEnemy))
+        {
+            battleSession.IsPlayerTurn = true;
+            battleLog.Add($"⚡ 先制攻撃のチャンス！");
+        }
+        else
+        {
+            battleSession.IsPlayerTurn = true;
+        }
+        
+        battleLog.Add($"{currentField.Name}で {currentEnemy.Icon} {currentEnemy.Name} が現れた！");
+    }
+    
+    private Enemy GenerateEnemyForField(Models.Field field)
+    {
+        var random = new Random();
+        var enemyName = field.Enemies[random.Next(field.Enemies.Length)];
+        var userLevel = currentUser?.Exp / 100 + 1 ?? 1;
+        
+        // エリア難易度に基づく基本ステータス
+        var baseHp = 30 + field.Difficulty * 20;
+        var baseAtk = 8 + field.Difficulty * 5;
+        var baseDef = 3 + field.Difficulty * 2;
+        var baseExp = 15 + field.Difficulty * 10;
+        var baseGil = 10 + field.Difficulty * 8;
+        
+        // レベル調整
+        var levelMultiplier = 1.0 + (userLevel - 1) * 0.05;
+        
+        // モンスタータイプ決定（低確率でエリート・レア）
+        var typeRoll = random.Next(100);
+        var enemyType = EnemyType.Normal;
+        var typeMultiplier = 1.0;
+        
+        if (typeRoll < 3) // 3% レア
+        {
+            enemyType = EnemyType.Rare;
+            typeMultiplier = 2.0;
+        }
+        else if (typeRoll < 10) // 7% エリート
+        {
+            enemyType = EnemyType.Elite;
+            typeMultiplier = 1.5;
+        }
+        
+        // ドロップアイテム生成
+        var drops = new List<DropItem>();
+        var dropName = field.Drops[random.Next(field.Drops.Length)];
+        drops.Add(new DropItem 
+        { 
+            Name = dropName, 
+            DropRate = 25 + field.Difficulty * 5,
+            MinQuantity = 1,
+            MaxQuantity = 1 + field.Difficulty / 2
+        });
+        
+        // レアドロップ（エリート・レアのみ）
+        DropItem? rareDrop = null;
+        if (enemyType != EnemyType.Normal)
+        {
+            rareDrop = new DropItem
+            {
+                Name = GetRareDropForField(field),
+                DropRate = enemyType == EnemyType.Rare ? 30 : 15,
+                Rarity = enemyType == EnemyType.Rare ? ItemRarity.Epic : ItemRarity.Rare,
+                MinQuantity = 1,
+                MaxQuantity = 1
+            };
+        }
+        
+        return new Enemy
+        {
+            Name = enemyName,
+            Icon = GetEnemyIcon(enemyName),
+            Level = Math.Max(1, field.Difficulty * 3 + random.Next(-1, 2)),
+            HP = (int)(baseHp * levelMultiplier * typeMultiplier),
+            MaxHP = (int)(baseHp * levelMultiplier * typeMultiplier),
+            Attack = (int)(baseAtk * levelMultiplier * typeMultiplier),
+            Defense = (int)(baseDef * levelMultiplier * typeMultiplier),
+            Exp = (int)(baseExp * typeMultiplier),
+            Gil = (int)(baseGil * typeMultiplier),
+            Type = enemyType,
+            Speed = 10 + field.Difficulty * 2,
+            DropItems = drops,
+            RareDrop = rareDrop,
+            BonusExp = enemyType != EnemyType.Normal ? (int)(baseExp * 0.5 * (int)typeMultiplier) : 0,
+            BonusGil = enemyType != EnemyType.Normal ? (int)(baseGil * 0.5 * (int)typeMultiplier) : 0
+        };
+    }
+    
+    private string GetEnemyIcon(string enemyName)
+    {
+        return enemyName switch
+        {
+            "スライム" => "🟢",
+            "ウサギ" => "🐰",
+            "蝶" => "🦋",
+            "ゴブリン" => "👺",
+            "狼" or "ウolf" => "🐺",
+            "毒キノコ" => "🍄",
+            "水.Elemental" => "💧",
+            "魚人" => "🐟",
+            "アシガエル" => "🐸",
+            "サソリ" => "🦂",
+            "トカゲ" => "🦎",
+            "ミイラ" => "🧟",
+            "雪だるま" => "⛄",
+            "冰ゴーレム" => "🧊",
+            "白狼" => "🐺",
+            "溶岩ゴーレム" => "🔥",
+            "火織" => "🔥",
+            "炎 Elemental" => "🔥",
+            "スケルトン" => "💀",
+            "リッチ" => "👻",
+            "オーク" => "👹",
+            _ => "👾"
+        };
+    }
+    
+    private string GetRareDropForField(Models.Field field)
+    {
+        return field.Difficulty switch
+        {
+            1 => "不思議な種",
+            2 => "精霊の雫",
+            3 => "古代の砂",
+            4 => "氷晶石",
+            5 => "ドラゴンの牙",
+            _ => "神秘の結晶"
+        };
+    }
+    
+    private string GetEnemyTypeLabel(EnemyType type)
+    {
+        return type switch
+        {
+            EnemyType.Elite => "エリート",
+            EnemyType.Rare => "レア",
+            EnemyType.Boss => "ボス",
+            EnemyType.Event => "イベント",
+            _ => ""
+        };
+    }
+    
+    private string GetRarityClass(ItemRarity rarity)
+    {
+        return $"rarity-{rarity.ToString().ToLower()}";
+    }
+
+    private async Task PlayerAttack()
+    {
+        if (currentEnemy == null || currentUser == null || battleSession == null) return;
+        
+        isProcessing = true;
+        
+        var result = DungeonService.PlayerAttack(currentUser, currentEnemy, battleSession);
+        battleLog.Add(result.Message);
+        
+        if (result.BattleEnded)
+        {
+            await HandleVictory();
+        }
+        else
+        {
+            // 敵のターンへ
+            battleSession.IsPlayerTurn = false;
+            StateHasChanged();
+            
+            await Task.Delay(1000);
+            await EnemyTurn();
+        }
+        
+        isProcessing = false;
+    }
+    
+    private async Task PlayerDefend()
+    {
+        if (currentEnemy == null || currentUser == null || battleSession == null) return;
+        
+        isProcessing = true;
+        
+        var result = DungeonService.PlayerDefend(currentUser, currentEnemy, battleSession);
+        battleLog.Add(result.Message);
+        
+        // 敵のターンへ
+        battleSession.IsPlayerTurn = false;
+        StateHasChanged();
+        
+        await Task.Delay(1000);
+        await EnemyTurn();
+        
+        isProcessing = false;
+    }
+    
+    private async Task PlayerFlee()
+    {
+        if (currentEnemy == null || currentUser == null || battleSession == null) return;
+        
+        isProcessing = true;
+        
+        var result = DungeonService.PlayerFlee(currentUser, currentEnemy, battleSession);
+        battleLog.Add(result.Message);
+        
+        if (result.Success)
+        {
+            currentEnemy = null;
+            battleSession = null;
+        }
+        else
+        {
+            // 逃走失敗、敵のターン
+            battleSession.IsPlayerTurn = false;
+            StateHasChanged();
+            
+            await Task.Delay(1000);
+            await EnemyTurn();
+        }
+        
+        isProcessing = false;
+    }
+    
+    private async Task EnemyTurn()
+    {
+        if (currentEnemy == null || currentUser == null || battleSession == null) return;
+        
+        var result = DungeonService.EnemyAttack(currentUser, currentEnemy, battleSession);
+        battleLog.Add(result.Message);
+        
+        battleSession.Turn++;
+        
+        if (result.BattleEnded)
+        {
+            await HandleDefeat();
+        }
+        else
+        {
+            // プレイヤーのターンへ
+            battleSession.IsPlayerTurn = true;
+        }
+        
+        StateHasChanged();
+    }
+    
+    private async Task HandleVictory()
+    {
+        if (currentUser == null || currentEnemy == null || battleSession == null) return;
+        
+        // 報酬計算
+        var (baseExp, baseGil, bExp, bGil) = DungeonService.CalculateRewards(currentEnemy, battleSession);
+        gainedExp = baseExp;
+        gainedGil = baseGil;
+        bonusExp = bExp;
+        bonusGil = bGil;
+        
+        // 経験値・ギル付与
+        currentUser.Exp += gainedExp + bonusExp;
+        currentUser.Gil += gainedGil + bonusGil;
+        
+        // ドロップ生成
+        droppedItems = DungeonService.GenerateDrops(currentEnemy, battleSession.ComboCount);
+        
+        // インベントリに追加
+        foreach (var drop in droppedItems)
+        {
+            var existingItem = currentUser.Inventory.FirstOrDefault(i => i.Name == drop.Name);
+            if (existingItem != null)
+            {
+                existingItem.Quantity += drop.Quantity;
+            }
+            else
+            {
+                currentUser.Inventory.Add(new InventoryItem { Name = drop.Name, Quantity = drop.Quantity });
+            }
+        }
+        
+        // クエスト進捗更新
+        QuestService.UpdateProgress(currentUser, enemyName: currentEnemy.Name);
+        
+        UserService.UpdateUser(currentUser);
+        
+        battleLog.Add($"✨ 戦闘終了！勝利！");
+    }
+    
+    private async Task HandleDefeat()
+    {
+        if (currentUser == null) return;
+        
+        expLoss = 10 + (currentUser.Exp / 100);
+        currentUser.Exp = Math.Max(0, currentUser.Exp - expLoss);
+        
+        UserService.UpdateUser(currentUser);
+        
+        battleLog.Add($"💀 敗北...");
+    }
+
+    private void ContinueSearch()
+    {
+        if (currentUser == null) return;
+        
+        // HPを少し回復
+        currentUser.HP = Math.Min(currentUser.MaxHP, currentUser.HP + currentUser.MaxHP / 10);
+        
+        battleSession = null;
+        currentEnemy = null;
+        battleLog.Clear();
+        droppedItems.Clear();
+        
+        UserService.UpdateUser(currentUser);
+    }
+
+    private void Respawn()
+    {
+        if (currentUser == null) return;
+        
+        currentUser.HP = currentUser.MaxHP;
+        battleSession = null;
+        currentEnemy = null;
+        battleLog.Clear();
+        
+        UserService.UpdateUser(currentUser);
+    }
+}

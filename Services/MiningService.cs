@@ -141,6 +141,7 @@ public class MiningService
                 SkillLevel = skill.Level,
                 SkillExp = skill.Experience,
                 ExpToNext = skill.ExperienceToNext,
+                ExpGained = expGained,
                 LeveledUp = leveledUp,
                 Cost = MiningCost
             };
@@ -172,6 +173,7 @@ public class MiningResult
     public int SkillLevel { get; set; }
     public int SkillExp { get; set; }
     public int ExpToNext { get; set; }
+    public int ExpGained { get; set; }
     public bool LeveledUp { get; set; }
     public int Cost { get; set; }
 }

@@ -46,6 +46,13 @@ builder.Services.AddScoped<RockSmashService>();
 builder.Services.AddScoped<AuctionService>();
 builder.Services.AddSingleton<CountryWarService>();
 
+// MasterDataService for JSON data loading
+builder.Services.AddHttpClient();
+builder.Services.AddSingleton<MasterDataService>();
+
+// NMSpawnService for Named Monster system
+builder.Services.AddSingleton<NMSpawnService>();
+
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {

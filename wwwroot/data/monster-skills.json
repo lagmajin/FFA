@@ -1,0 +1,304 @@
+{
+  "$schema": "./monster-skills.schema.json",
+  "skills": [
+    {
+      "id": "bite",
+      "name": "かみつき",
+      "japaneseName": "かみつき",
+      "description": "牙で咬みつく",
+      "icon": "🦷",
+      "type": "Physical",
+      "basePower": 1.2,
+      "successRate": 95,
+      "target": "SingleEnemy",
+      "usageRate": 30
+    },
+    {
+      "id": "claw",
+      "name": "爪攻撃",
+      "japaneseName": "爪",
+      "description": "鋭い爪で切り裂く",
+      "icon": "💅",
+      "type": "Physical",
+      "basePower": 1.3,
+      "successRate": 90,
+      "target": "SingleEnemy",
+      "usageRate": 25
+    },
+    {
+      "id": "tail_swing",
+      "name": "しっぽ攻击",
+      "japaneseName": "しっぽ振る",
+      "description": "大きなしっぽで振り回す",
+      "icon": "🌀",
+      "type": "Physical",
+      "basePower": 1.5,
+      "successRate": 85,
+      "target": "AllEnemies",
+      "usageRate": 15
+    },
+    {
+      "id": "fire_breath",
+      "name": "炎の息",
+      "japaneseName": "炎の息",
+      "description": "炎を吐く",
+      "icon": "🔥",
+      "type": "Magical",
+      "basePower": 1.8,
+      "successRate": 90,
+      "target": "AllEnemies",
+      "effect": {
+        "statusEffect": "Burn",
+        "statusEffectRate": 30
+      },
+      "usageRate": 20
+    },
+    {
+      "id": "ice_breath",
+      "name": "氷の息",
+      "japaneseName": "氷の息",
+      "description": "冷気を吐く",
+      "icon": "❄️",
+      "type": "Magical",
+      "basePower": 1.8,
+      "successRate": 90,
+      "target": "AllEnemies",
+      "effect": {
+        "statusEffect": "Freeze",
+        "statusEffectRate": 25
+      },
+      "usageRate": 20
+    },
+    {
+      "id": "thunder",
+      "name": "雷撃",
+      "japaneseName": "雷撃",
+      "description": "雷を落とす",
+      "icon": "⚡",
+      "type": "Magical",
+      "basePower": 2.0,
+      "successRate": 85,
+      "target": "SingleEnemy",
+      "effect": {
+        "statusEffect": "Shock",
+        "statusEffectRate": 20
+      },
+      "usageRate": 15
+    },
+    {
+      "id": "poison_sting",
+      "name": "毒針",
+      "japaneseName": "毒針",
+      "description": "毒針を射出",
+      "icon": "💉",
+      "type": "Physical",
+      "basePower": 1.0,
+      "successRate": 80,
+      "target": "SingleEnemy",
+      "effect": {
+        "statusEffect": "Poison",
+        "statusEffectRate": 50
+      },
+      "usageRate": 20
+    },
+    {
+      "id": "dark_cloud",
+      "name": "闇の雲",
+      "japaneseName": "闇の雲",
+      "description": "闇の雲で覆う",
+      "icon": "☁️",
+      "type": "Magical",
+      "basePower": 1.5,
+      "successRate": 90,
+      "target": "AllEnemies",
+      "effect": {
+        "statusEffect": "Blind",
+        "statusEffectRate": 40
+      },
+      "usageRate": 15
+    },
+    {
+      "id": "howl",
+      "name": "吠え",
+      "japaneseName": "吠え",
+      "description": "巨大な声で威嚇",
+      "icon": "🐺",
+      "type": "Special",
+      "basePower": 0,
+      "successRate": 100,
+      "target": "AllEnemies",
+      "effect": {
+        "statusEffect": "Fear",
+        "statusEffectRate": 25
+      },
+      "usageRate": 10
+    },
+    {
+      "id": "regeneration",
+      "name": "再生",
+      "japaneseName": "再生",
+      "description": "体力を回復する",
+      "icon": "💚",
+      "type": "Heal",
+      "basePower": 0,
+      "fixedDamage": -50,
+      "successRate": 100,
+      "target": "Self",
+      "effect": {
+        "healAmount": 50
+      },
+      "cooldownTurns": 3,
+      "usageRate": 10
+    },
+    {
+      "id": "power_up",
+      "name": "気合注入",
+      "japaneseName": "気合",
+      "description": "攻撃力を上げる",
+      "icon": "💪",
+      "type": "Buff",
+      "basePower": 0,
+      "successRate": 100,
+      "target": "Self",
+      "effect": {
+        "attackUp": 30
+      },
+      "cooldownTurns": 4,
+      "usageRate": 10
+    },
+    {
+      "id": "stone_gaze",
+      "name": "石化の視線",
+      "japaneseName": "石化の視線",
+      "description": "目で見て石化させる",
+      "icon": "🗿",
+      "type": "Special",
+      "basePower": 0.5,
+      "successRate": 30,
+      "target": "SingleEnemy",
+      "effect": {
+        "statusEffect": "Petrify",
+        "statusEffectRate": 30
+      },
+      "usageRate": 5
+    },
+    {
+      "id": "sleep_powder",
+      "name": "睡眠粉末",
+      "japaneseName": "睡眠粉末",
+      "description": "粉末を撒き散らす",
+      "icon": "💤",
+      "type": "Special",
+      "basePower": 0,
+      "successRate": 70,
+      "target": "AllEnemies",
+      "effect": {
+        "statusEffect": "Sleep",
+        "statusEffectRate": 50
+      },
+      "usageRate": 10
+    },
+    {
+      "id": "confuse",
+      "name": "幻惑",
+      "japaneseName": "幻惑",
+      "description": "幻惑の攻撃",
+      "icon": "🌀",
+      "type": "Special",
+      "basePower": 0.8,
+      "successRate": 60,
+      "target": "SingleEnemy",
+      "effect": {
+        "statusEffect": "Confusion",
+        "statusEffectRate": 40
+      },
+      "usageRate": 15
+    },
+    {
+      "id": "drain",
+      "name": "Drain",
+      "japaneseName": "ドレイン",
+      "description": "HPを吸収",
+      "icon": "🩸",
+      "type": "Magical",
+      "basePower": 1.2,
+      "successRate": 95,
+      "target": "SingleEnemy",
+      "effect": {
+        "healAmount": 30
+      },
+      "usageRate": 15
+    },
+    {
+      "id": "doom",
+      "name": "死の宣告",
+      "japaneseName": "死の宣告",
+      "description": "呪いを宣告する",
+      "icon": "💀",
+      "type": "Special",
+      "basePower": 0,
+      "successRate": 20,
+      "target": "SingleEnemy",
+      "effect": {
+        "statusEffect": "Curse",
+        "statusEffectRate": 100
+      },
+      "usageRate": 5
+    },
+    {
+      "id": "meteor",
+      "name": "メテオ",
+      "japaneseName": "メテオ",
+      "description": "隕石を落とす",
+      "icon": "☄️",
+      "type": "Magical",
+      "basePower": 2.5,
+      "successRate": 80,
+      "target": "AllEnemies",
+      "cooldownTurns": 5,
+      "usageRate": 5
+    },
+    {
+      "id": "flameshield",
+      "name": "炎の盾",
+      "japaneseName": "炎の盾",
+      "description": "炎の盾で身を守る",
+      "icon": "🛡️",
+      "type": "Buff",
+      "basePower": 0,
+      "successRate": 100,
+      "target": "Self",
+      "cooldownTurns": 4,
+      "usageRate": 10
+    },
+    {
+      "id": "counter",
+      "name": "反撃",
+      "japaneseName": "反撃",
+      "description": "攻撃に合わせて反撃",
+      "icon": "⚔️",
+      "type": "Special",
+      "basePower": 1.5,
+      "successRate": 100,
+      "target": "SelfAlly",
+      "usageRate": 20
+    },
+    {
+      "id": "flood",
+      "name": "洪水",
+      "japaneseName": "洪水",
+      "description": "大洪水を起こす",
+      "icon": "🌊",
+      "type": "Magical",
+      "basePower": 2.0,
+      "successRate": 85,
+      "target": "AllEnemies",
+      "effect": {
+        "statusEffect": "Slow",
+        "statusEffectRate": 30
+      },
+      "cooldownTurns": 3,
+      "usageRate": 10
+    }
+  ]
+}

@@ -1,0 +1,413 @@
+{
+  "$schema": "./companions.schema.json",
+  "companions": [
+    {
+      "id": 1,
+      "name": "Slime",
+      "japaneseName": "スライム",
+      "type": "Slime",
+      "rarity": "Common",
+      "baseAttack": 3,
+      "baseDefense": 5,
+      "baseHP": 50,
+      "growthRate": 1.1,
+      "element": "Water",
+      "description": "柔らかい胶状の生物。初心者でも育てやすい。",
+      "icon": "💧",
+      "skills": ["WaterGun", "Harden"],
+      "skillDescriptions": {
+        "WaterGun": "水鉄砲を放つ",
+        "Harden": "体を硬くして防御力UP"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Cheetah",
+      "japaneseName": "チーター",
+      "type": "Beast",
+      "rarity": "Uncommon",
+      "baseAttack": 8,
+      "baseDefense": 3,
+      "baseHP": 40,
+      "growthRate": 1.15,
+      "element": "Wind",
+      "description": "非常に速い獣。攻撃回数が増加。",
+      "icon": "🐆",
+      "skills": ["QuickAttack", "Dash"],
+      "skillDescriptions": {
+        "QuickAttack": "素早い攻撃",
+        "Dash": "素早い移動で回避率UP"
+      }
+    },
+    {
+      "id": 3,
+      "name": "Wolf",
+      "japaneseName": "オオカミ",
+      "type": "Beast",
+      "rarity": "Uncommon",
+      "baseAttack": 7,
+      "baseDefense": 5,
+      "baseHP": 60,
+      "growthRate": 1.12,
+      "element": "Earth",
+      "description": "群れで狩りをする狼。チームバ加成。",
+      "icon": "🐺",
+      "skills": ["PackHowl", "Bite"],
+      "skillDescriptions": {
+        "PackHowl": "味方の攻撃力をUP",
+        "Bite": "強力なかみつき攻撃"
+      }
+    },
+    {
+      "id": 4,
+      "name": "Fire Spirit",
+      "japaneseName": "火の精霊",
+      "type": "Elemental",
+      "rarity": "Rare",
+      "baseAttack": 12,
+      "baseDefense": 3,
+      "baseHP": 35,
+      "growthRate": 1.18,
+      "element": "Fire",
+      "description": "炎を操る精霊。高い攻撃力を持つ。",
+      "icon": "🔥",
+      "skills": ["FireBreath", "HeatUp"],
+      "skillDescriptions": {
+        "FireBreath": "炎の息を吐く",
+        "HeatUp": "周囲的温度を上げて攻撃力UP"
+      }
+    },
+    {
+      "id": 5,
+      "name": "Ice Spirit",
+      "japaneseName": "氷の精霊",
+      "type": "Elemental",
+      "rarity": "Rare",
+      "baseAttack": 10,
+      "baseDefense": 5,
+      "baseHP": 40,
+      "growthRate": 1.18,
+      "element": "Ice",
+      "description": "氷を操る精霊。敵を凍らせる。",
+      "icon": "❄️",
+      "skills": ["IceShard", "Freeze"],
+      "skillDescriptions": {
+        "IceShard": "氷の碎片を発射",
+        "Freeze": "敵を凍らせる"
+      }
+    },
+    {
+      "id": 6,
+      "name": "Thunder Bird",
+      "japaneseName": "雷鳥",
+      "type": "Bird",
+      "rarity": "Rare",
+      "baseAttack": 11,
+      "baseDefense": 4,
+      "baseHP": 45,
+      "growthRate": 1.16,
+      "element": "Lightning",
+      "description": "雷を操る巨大な鳥。麻痹効果。",
+      "icon": "🦅",
+      "skills": ["ThunderClap", "Flight"],
+      "skillDescriptions": {
+        "ThunderClap": "雷鳴攻撃",
+        "Flight": "飛行態で回避率UP"
+      }
+    },
+    {
+      "id": 7,
+      "name": "Guardian Angel",
+      "japaneseName": "守護天使",
+      "type": "Celestial",
+      "rarity": "Epic",
+      "baseAttack": 8,
+      "baseDefense": 15,
+      "baseHP": 100,
+      "growthRate": 1.2,
+      "element": "Holy",
+      "description": "味方を守る天使。強力なサポート能力。",
+      "icon": "👼",
+      "skills": ["DivineProtection", "HealingLight", "HolyShield"],
+      "skillDescriptions": {
+        "DivineProtection": "味方の被ダメージを軽減",
+        "HealingLight": "味方のHPを回復",
+        "HolyShield": "聖なる盾で防御"
+      }
+    },
+    {
+      "id": 8,
+      "name": "Dark Dragon",
+      "japaneseName": "暗黒竜",
+      "type": "Dragon",
+      "rarity": "Epic",
+      "baseAttack": 18,
+      "baseDefense": 10,
+      "baseHP": 120,
+      "growthRate": 1.22,
+      "element": "Dark",
+      "description": "暗黒の力を宿した竜。高い攻撃力。",
+      "icon": "🐉",
+      "skills": ["DarkBreath", "Intimidate", "LifeDrain"],
+      "skillDescriptions": {
+        "DarkBreath": "暗黒の炎を吐く",
+        "Intimidate": "敵の攻撃力を下げる",
+        "LifeDrain": "敵のHPを吸収"
+      }
+    },
+    {
+      "id": 9,
+      "name": "Phoenix",
+      "japaneseName": "不死鳥",
+      "type": "Mythical",
+      "rarity": "Legendary",
+      "baseAttack": 20,
+      "baseDefense": 12,
+      "baseHP": 150,
+      "growthRate": 1.25,
+      "element": "Fire",
+      "description": "炎と再生の象徴。戦闘不能から蘇生。",
+      "icon": "🦅",
+      "skills": ["Rebirth", "Inferno", "FlameShield"],
+      "skillDescriptions": {
+        "Rebirth": "戦闘不能時に自動蘇生",
+        "inferno": "範囲 огненная атака",
+        "FlameShield": "炎の盾で反撃"
+      }
+    },
+    {
+      "id": 10,
+      "name": "Kirin",
+      "japaneseName": "麒麟",
+      "type": "Mythical",
+      "rarity": "Legendary",
+      "baseAttack": 15,
+      "baseDefense": 18,
+      "baseHP": 180,
+      "growthRate": 1.25,
+      "element": "Holy",
+      "description": "聖なる獣。全ステータス向上。",
+      "icon": "🦄",
+      "skills": ["DivineBlessing", "ThunderHoof", "PureAura"],
+      "skillDescriptions": {
+        "DivineBlessing": "味方の全ステータスをUP",
+        "ThunderHoof": "雷の蹴り",
+        "PureAura": "清めのパワーで味方を回復"
+      }
+    },
+    {
+      "id": 11,
+      "name": "Goblin",
+      "japaneseName": "ゴブリン",
+      "type": "Monster",
+      "rarity": "Common",
+      "baseAttack": 5,
+      "baseDefense": 3,
+      "baseHP": 30,
+      "growthRate": 1.08,
+      "element": "Dark",
+      "description": "小型の邪悪な妖精。数を増やせる。",
+      "icon": "👺",
+      "skills": ["SneakAttack", "Taunt"],
+      "skillDescriptions": {
+        "SneakAttack": "不意打ち",
+        "Taunt": "敵の注意力在自己に"
+      }
+    },
+    {
+      "id": 12,
+      "name": "Cat",
+      "japaneseName": "猫",
+      "type": "Beast",
+      "rarity": "Common",
+      "baseAttack": 4,
+      "baseDefense": 2,
+      "baseHP": 25,
+      "growthRate": 1.1,
+      "element": "Neutral",
+      "description": "可爱的猫。幸运加成。",
+      "icon": "🐱",
+      "skills": ["Scratch", "LuckyPaw"],
+      "skillDescriptions": {
+        "Scratch": "引っかき攻撃",
+        "LuckyPaw": "偶尔会心一击"
+      }
+    },
+    {
+      "id": 13,
+      "name": "Dog",
+      "japaneseName": "犬",
+      "type": "Beast",
+      "rarity": "Common",
+      "baseAttack": 5,
+      "baseDefense": 4,
+      "baseHP": 35,
+      "growthRate": 1.1,
+      "element": "Neutral",
+      "description": "忠実な犬。主人的防御。",
+      "icon": "🐕",
+      "skills": ["Guard", "Bark"],
+      "skillDescriptions": {
+        "Guard": "主人を守る",
+        "Bark": "威嚇して敵の攻撃力を下げる"
+      }
+    },
+    {
+      "id": 14,
+      "name": "Mushroom",
+      "japaneseName": "キノコ",
+      "type": "Plant",
+      "rarity": "Common",
+      "baseAttack": 2,
+      "baseDefense": 8,
+      "baseHP": 45,
+      "growthRate": 1.08,
+      "element": "Earth",
+      "description": "不思議な茸。毒と回復の両方を扱う。",
+      "icon": "🍄",
+      "skills": ["Spore", "MushroomHeal"],
+      "skillDescriptions": {
+        "Spore": "毒胞子を散布",
+        "MushroomHeal": "回復胞子で味方を回復"
+      }
+    },
+    {
+      "id": 15,
+      "name": "Ghost",
+      "japaneseName": "ゴースト",
+      "type": "Undead",
+      "rarity": "Uncommon",
+      "baseAttack": 8,
+      "baseDefense": 2,
+      "baseHP": 25,
+      "growthRate": 1.14,
+      "element": "Dark",
+      "description": "幽霊。物理攻撃を避けやすい。",
+      "icon": "👻",
+      "skills": ["PhaseShift", "SoulDrain"],
+      "skillDescriptions": {
+        "PhaseShift": "肉体化で攻撃を回避",
+        "SoulDrain": "魂を吸ってMP回復"
+      }
+    },
+    {
+      "id": 16,
+      "name": "Golem",
+      "japaneseName": "ゴーレム",
+      "type": "Construct",
+      "rarity": "Rare",
+      "baseAttack": 10,
+      "baseDefense": 20,
+      "baseHP": 150,
+      "growthRate": 1.15,
+      "element": "Earth",
+      "description": "土石の巨人。极高的防御力。",
+      "icon": "🗿",
+      "skills": ["StoneSkin", "Earthquake", "Repair"],
+      "skillDescriptions": {
+        "StoneSkin": "石皮膚で防御力大幅UP",
+        "Earthquake": "地震で敵全体攻撃",
+        "Repair": "自らのHPを回復"
+      }
+    },
+    {
+      "id": 17,
+      "name": "Unicorn",
+      "japaneseName": "ユニコーン",
+      "type": "Mythical",
+      "rarity": "Epic",
+      "baseAttack": 12,
+      "baseDefense": 12,
+      "baseHP": 100,
+      "growthRate": 1.2,
+      "element": "Holy",
+      "description": "聖なる角を持つ馬。净化能力。",
+      "icon": "🦄",
+      "skills": ["HornThrust", "Purify", "HolyLight"],
+      "skillDescriptions": {
+        "HornThrust": "聖なる角で突く",
+        "Purify": "味方の状態異常を解除",
+        "HolyLight": "聖なる光で回復"
+      }
+    },
+    {
+      "id": 18,
+      "name": "Griffon",
+      "japaneseName": "グリフォン",
+      "type": "Hybrid",
+      "rarity": "Epic",
+      "baseAttack": 16,
+      "baseDefense": 10,
+      "baseHP": 90,
+      "growthRate": 1.18,
+      "element": "Wind",
+      "description": "獅子と鷲のハイブリッド。攻撃と防御兼备。",
+      "icon": "🦅",
+      "skills": ["SkyAttack", "Talons", "Flight"],
+      "skillDescriptions": {
+        "SkyAttack": "空からの急襲",
+        "Talons": "鋭い爪で連続攻撃",
+        "Flight": "飛行態で回避"
+      }
+    },
+    {
+      "id": 19,
+      "name": "Sphinx",
+      "japaneseName": "スフィンクス",
+      "type": "Hybrid",
+      "rarity": "Epic",
+      "baseAttack": 14,
+      "baseDefense": 14,
+      "baseHP": 110,
+      "growthRate": 1.18,
+      "element": "Holy",
+      "description": "謎 걸ificador。魔法と物理の両方に対応。",
+      "icon": "🦁",
+      "skills": ["Riddle", "MagicBreath", "Mystery"],
+      "skillDescriptions": {
+        "Riddle": "謎かけで敵のMP减少",
+        "MagicBreath": "魔法の息",
+        "Mystery": "正体不明で回避率UP"
+      }
+    },
+    {
+      "id": 20,
+      "name": "Behemoth",
+      "japaneseName": "ベヒーモス",
+      "type": "Monster",
+      "rarity": "Legendary",
+      "baseAttack": 25,
+      "baseDefense": 25,
+      "baseHP": 300,
+      "growthRate": 1.28,
+      "element": "Earth",
+      "description": "巨大的魔物。すべての攻撃を跳ね返す。",
+      "icon": "🦖",
+      "skills": ["TitanPunch", "EarthShatter", "Roar"],
+      "skillDescriptions": {
+        "TitanPunch": "巨大なパンチ",
+        "EarthShatter": "地面を割って攻撃",
+        "Roar": "咆哮で敵の防御力を下げる"
+      }
+    }
+  ],
+  "companionTypes": [
+    { "type": "Slime", "description": "胶状生物", "strength": "防御", "weakness": "攻撃" },
+    { "type": "Beast", "description": "獣系", "strength": "速度", "weakness": "魔法防御" },
+    { "type": "Elemental", "description": "精霊系", "strength": "魔法攻撃", "weakness": "物理防御" },
+    { "type": "Dragon", "description": "竜系", "strength": "攻撃・防御両立", "weakness": "なし" },
+    { "type": "Celestial", "description": "天界系", "strength": "サポート", "weakness": "攻撃力" },
+    { "type": "Mythical", "description": "神話系", "strength": "全能力バランス", "weakness": "入手困難" },
+    { "type": "Monster", "description": "怪物系", "strength": "的特殊能力", "weakness": "成長のムラ" },
+    { "type": "Undead", "description": "アンデッド系", "strength": "不死身", "weakness": "聖属性" },
+    { "type": "Construct", "description": "人造生命体", "strength": "高い防御", "weakness": "MPの枯渇" },
+    { "type": "Hybrid", "description": "ハイブリッド系", "strength": "多様性", "weakness": "特化不足" }
+  ],
+  "rarityBonuses": {
+    "Common": { "expBonus": 1.0, "dropBonus": 1.0 },
+    "Uncommon": { "expBonus": 1.1, "dropBonus": 1.1 },
+    "Rare": { "expBonus": 1.2, "dropBonus": 1.2 },
+    "Epic": { "expBonus": 1.35, "dropBonus": 1.3 },
+    "Legendary": { "expBonus": 1.5, "dropBonus": 1.5 }
+  }
+}

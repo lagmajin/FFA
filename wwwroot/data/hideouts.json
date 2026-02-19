@@ -1,0 +1,196 @@
+{
+  "$schema": "./hideouts.schema.json",
+  "hideoutTypes": [
+    {
+      "type": "Cabin",
+      "japaneseName": "小屋",
+      "description": "シンプルな木製小屋。初心者向け。",
+      "baseStorage": 20,
+      "baseCost": 1000,
+      "icon": "🏚️",
+      "maxUpgrades": 5
+    },
+    {
+      "type": "House",
+      "japaneseName": "家",
+      "description": " 일반적인民居。的标准的な居住空間。",
+      "baseStorage": 50,
+      "baseCost": 5000,
+      "icon": "🏠",
+      "maxUpgrades": 10
+    },
+    {
+      "type": "Mansion",
+      "japaneseName": "豪宅",
+      "description": "広い豪宅。 많은ストレージスペース。",
+      "baseStorage": 100,
+      "baseCost": 25000,
+      "icon": "🏰",
+      "maxUpgrades": 15
+    },
+    {
+      "type": "Castle",
+      "japaneseName": "城",
+      "description": "壮大な城。 VIP Only。",
+      "baseStorage": 200,
+      "baseCost": 100000,
+      "icon": "🏯",
+      "maxUpgrades": 20
+    },
+    {
+      "type": "Temple",
+      "japaneseName": "神殿",
+      "description": "神を祀る神殿。聖なる力。",
+      "baseStorage": 150,
+      "baseCost": 50000,
+      "icon": "⛩️",
+      "maxUpgrades": 15
+    },
+    {
+      "type": "Tower",
+      "japaneseName": "塔",
+      "description": "高い塔。魔法研究に最適。",
+      "baseStorage": 120,
+      "baseCost": 40000,
+      "icon": "🗼",
+      "maxUpgrades": 15
+    }
+  ],
+  "upgrades": [
+    {
+      "type": "Storage",
+      "japaneseName": "倉庫",
+      "description": "アイテム保管スペースを拡張",
+      "baseCost": 500,
+      "costMultiplier": 1.5,
+      "effect": "MaxStorageSlots +10 per level",
+      "icon": "📦"
+    },
+    {
+      "type": "Garden",
+      "japaneseName": "庭園",
+      "description": "美しい庭園。気分Replacement。",
+      "baseCost": 300,
+      "costMultiplier": 1.4,
+      "effect": "Comfort +5 per level",
+      "icon": "🌳"
+    },
+    {
+      "type": "Workshop",
+      "japaneseName": "作業場",
+      "description": "クラフト效率向上。",
+      "baseCost": 800,
+      "costMultiplier": 1.6,
+      "effect": "Craft bonus +10% per level",
+      "icon": "🔨"
+    },
+    {
+      "type": "TrainingRoom",
+      "japaneseName": "トレーニング部屋",
+      "description": "戦闘訓練施設。",
+      "baseCost": 600,
+      "costMultiplier": 1.5,
+      "effect": "Combat exp +5% per level",
+      "icon": "⚔️"
+    },
+    {
+      "type": "Library",
+      "japaneseName": "図書館",
+      "description": "知識の殿堂。スキル効率向上。",
+      "baseCost": 1000,
+      "costMultiplier": 1.7,
+      "effect": "Skill exp +5% per level",
+      "icon": "📚"
+    },
+    {
+      "type": "Shrine",
+      "japaneseName": "祠",
+      "description": "祈りの場所。経験値bonus。",
+      "baseCost": 1200,
+      "costMultiplier": 1.8,
+      "effect": "All exp +3% per level",
+      "icon": "⛩️"
+    },
+    {
+      "type": "Farm",
+      "japaneseName": "農場",
+      "description": "作物を育てられる。",
+      "baseCost": 400,
+      "costMultiplier": 1.4,
+      "effect": "Crop slots +2 per level",
+      "icon": "🌾"
+    }
+  ],
+  "crops": [
+    {
+      "id": "wheat",
+      "name": "Wheat",
+      "japaneseName": "小麦",
+      "growthTime": 300,
+      "sellPrice": 10,
+      "expReward": 5,
+      "icon": "🌾"
+    },
+    {
+      "id": "corn",
+      "name": "Corn",
+      "japaneseName": "とうかれん",
+      "growthTime": 600,
+      "sellPrice": 25,
+      "expReward": 12,
+      "icon": "🌽"
+    },
+    {
+      "id": "carrot",
+      "name": "Carrot",
+      "japaneseName": "人参",
+      "growthTime": 450,
+      "sellPrice": 18,
+      "expReward": 8,
+      "icon": "🥕"
+    },
+    {
+      "id": "tomato",
+      "name": "Tomato",
+      "japaneseName": "トマト",
+      "growthTime": 500,
+      "sellPrice": 22,
+      "expReward": 10,
+      "icon": "🍅"
+    },
+    {
+      "id": "herb",
+      "name": "Healing Herb",
+      "japaneseName": "薬草",
+      "growthTime": 800,
+      "sellPrice": 50,
+      "expReward": 25,
+      "icon": "🌿"
+    },
+    {
+      "id": "mushroom",
+      "name": "Magic Mushroom",
+      "japaneseName": "魔法キノコ",
+      "growthTime": 1200,
+      "sellPrice": 100,
+      "expReward": 50,
+      "icon": "🍄"
+    },
+    {
+      "id": "flower",
+      "name": "Rare Flower",
+      "japaneseName": "レアの花",
+      "growthTime": 1800,
+      "sellPrice": 200,
+      "expReward": 100,
+      "icon": "🌸"
+    }
+  ],
+  "decorations": [
+    { "id": "bench", "name": "Bench", "japaneseName": "ベンチ", "cost": 100 },
+    { "id": "fountain", "name": "Fountain", "japaneseName": "噴水", "cost": 500 },
+    { "id": "statue", "name": "Statue", "japaneseName": "像", "cost": 1000 },
+    { "id": "lamp", "name": "Magic Lamp", "japaneseName": "魔法ランタン", "cost": 300 },
+    { "id": "tree", "name": "Sacred Tree", "japaneseName": "神木", "cost": 800 }
+  ]
+}

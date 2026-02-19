@@ -1,0 +1,311 @@
+{
+  "$schema": "./monsters.schema.json",
+  "monsters": [
+    {
+      "id": 1,
+      "name": "スライム",
+      "icon": "🟢",
+      "level": 1,
+      "type": "Normal",
+      "hp": 20,
+      "attack": 5,
+      "defense": 2,
+      "speed": 5,
+      "exp": 10,
+      "gil": 5,
+      "dropItems": [
+        { "name": "スライムゼリー", "dropRate": 30, "minQuantity": 1, "maxQuantity": 2, "rarity": "Common" }
+      ],
+      "description": "最も基本的なモンスター。初心者の練習相手。",
+      "habitat": ["平地"]
+    },
+    {
+      "id": 2,
+      "name": "ウサギ",
+      "icon": "🐰",
+      "level": 1,
+      "type": "Normal",
+      "hp": 15,
+      "attack": 3,
+      "defense": 1,
+      "speed": 15,
+      "exp": 8,
+      "gil": 3,
+      "dropItems": [
+        { "name": "ウサギの毛皮", "dropRate": 40, "minQuantity": 1, "maxQuantity": 1, "rarity": "Common" }
+      ],
+      "description": "素早い小動物。逃げ足が速い。",
+      "habitat": ["平地", "森"]
+    },
+    {
+      "id": 3,
+      "name": "蝶",
+      "icon": "🦋",
+      "level": 1,
+      "type": "Normal",
+      "hp": 10,
+      "attack": 2,
+      "defense": 1,
+      "speed": 10,
+      "exp": 5,
+      "gil": 2,
+      "dropItems": [
+        { "name": "蝶の羽", "dropRate": 50, "minQuantity": 1, "maxQuantity": 2, "rarity": "Common" },
+        { "name": "蝶の粉", "dropRate": 20, "minQuantity": 1, "maxQuantity": 1, "rarity": "Uncommon" }
+      ],
+      "description": "美しい羽を持つ昆虫。",
+      "habitat": ["平地", "森"]
+    },
+    {
+      "id": 4,
+      "name": "ゴブリン",
+      "icon": "👺",
+      "level": 5,
+      "type": "Normal",
+      "hp": 50,
+      "attack": 12,
+      "defense": 5,
+      "speed": 8,
+      "exp": 30,
+      "gil": 20,
+      "dropItems": [
+        { "name": "ゴブリンの牙", "dropRate": 25, "minQuantity": 1, "maxQuantity": 1, "rarity": "Common" },
+        { "name": "粗末な短剣", "dropRate": 10, "minQuantity": 1, "maxQuantity": 1, "rarity": "Uncommon" }
+      ],
+      "description": "小型の亜人。集団で行動することが多い。",
+      "habitat": ["森"]
+    },
+    {
+      "id": 5,
+      "name": "狼",
+      "icon": "🐺",
+      "level": 6,
+      "type": "Normal",
+      "hp": 60,
+      "attack": 15,
+      "defense": 4,
+      "speed": 12,
+      "exp": 35,
+      "gil": 15,
+      "dropItems": [
+        { "name": "狼の毛皮", "dropRate": 35, "minQuantity": 1, "maxQuantity": 1, "rarity": "Common" },
+        { "name": "狼の牙", "dropRate": 15, "minQuantity": 1, "maxQuantity": 1, "rarity": "Uncommon" }
+      ],
+      "description": "鋭い牙を持つ獰猛な獣。",
+      "habitat": ["森", "雪山"]
+    },
+    {
+      "id": 6,
+      "name": "毒キノコ",
+      "icon": "🍄",
+      "level": 4,
+      "type": "Normal",
+      "hp": 30,
+      "attack": 8,
+      "defense": 3,
+      "speed": 3,
+      "exp": 25,
+      "gil": 12,
+      "dropItems": [
+        { "name": "毒キノコ", "dropRate": 40, "minQuantity": 1, "maxQuantity": 2, "rarity": "Common" },
+        { "name": "毒胞子", "dropRate": 20, "minQuantity": 1, "maxQuantity": 1, "rarity": "Uncommon" }
+      ],
+      "description": "毒の胞子を撒き散らす危険なキノコ。",
+      "habitat": ["森"]
+    },
+    {
+      "id": 7,
+      "name": "水エレメンタル",
+      "icon": "💧",
+      "level": 8,
+      "type": "Normal",
+      "hp": 80,
+      "attack": 18,
+      "defense": 6,
+      "speed": 10,
+      "exp": 50,
+      "gil": 30,
+      "dropItems": [
+        { "name": "水の結晶", "dropRate": 20, "minQuantity": 1, "maxQuantity": 1, "rarity": "Rare" },
+        { "name": "水のエッセンス", "dropRate": 30, "minQuantity": 1, "maxQuantity": 1, "rarity": "Uncommon" }
+      ],
+      "description": "水の精霊が実体化したもの。",
+      "habitat": ["湖"]
+    },
+    {
+      "id": 8,
+      "name": "魚人",
+      "icon": "🐟",
+      "level": 7,
+      "type": "Normal",
+      "hp": 70,
+      "attack": 14,
+      "defense": 5,
+      "speed": 9,
+      "exp": 40,
+      "gil": 25,
+      "dropItems": [
+        { "name": "魚人の鱗", "dropRate": 30, "minQuantity": 1, "maxQuantity": 2, "rarity": "Common" },
+        { "name": "魚人の槍", "dropRate": 8, "minQuantity": 1, "maxQuantity": 1, "rarity": "Rare" }
+      ],
+      "description": "水中に生息する半魚人。",
+      "habitat": ["湖"]
+    },
+    {
+      "id": 9,
+      "name": "サソリ",
+      "icon": "🦂",
+      "level": 10,
+      "type": "Normal",
+      "hp": 90,
+      "attack": 20,
+      "defense": 8,
+      "speed": 7,
+      "exp": 60,
+      "gil": 35,
+      "dropItems": [
+        { "name": "サソリの針", "dropRate": 25, "minQuantity": 1, "maxQuantity": 1, "rarity": "Uncommon" },
+        { "name": "サソリの甲殻", "dropRate": 20, "minQuantity": 1, "maxQuantity": 1, "rarity": "Common" }
+      ],
+      "description": "砂漠に生息する毒を持つ虫。",
+      "habitat": ["砂漠"]
+    },
+    {
+      "id": 10,
+      "name": "ミイラ",
+      "icon": "🧟",
+      "level": 12,
+      "type": "Elite",
+      "hp": 150,
+      "attack": 25,
+      "defense": 10,
+      "speed": 5,
+      "exp": 100,
+      "gil": 60,
+      "dropItems": [
+        { "name": "包帯", "dropRate": 40, "minQuantity": 1, "maxQuantity": 3, "rarity": "Common" },
+        { "name": "古代の護符", "dropRate": 15, "minQuantity": 1, "maxQuantity": 1, "rarity": "Rare" }
+      ],
+      "rareDrop": { "name": "ミイラの呪符", "dropRate": 5, "minQuantity": 1, "maxQuantity": 1, "rarity": "Epic" },
+      "description": "古代の墓守り。呪いを操る。",
+      "habitat": ["砂漠", "ダンジョン"]
+    },
+    {
+      "id": 11,
+      "name": "雪だるま",
+      "icon": "⛄",
+      "level": 15,
+      "type": "Normal",
+      "hp": 100,
+      "attack": 18,
+      "defense": 6,
+      "speed": 4,
+      "exp": 70,
+      "gil": 40,
+      "dropItems": [
+        { "name": "雪の結晶", "dropRate": 35, "minQuantity": 1, "maxQuantity": 2, "rarity": "Common" },
+        { "name": "氷の欠片", "dropRate": 20, "minQuantity": 1, "maxQuantity": 1, "rarity": "Uncommon" }
+      ],
+      "description": "魔法によって動き出した雪だるま。",
+      "habitat": ["雪山"]
+    },
+    {
+      "id": 12,
+      "name": "氷ゴーレム",
+      "icon": "🧊",
+      "level": 18,
+      "type": "Elite",
+      "hp": 250,
+      "attack": 30,
+      "defense": 15,
+      "speed": 3,
+      "exp": 150,
+      "gil": 100,
+      "dropItems": [
+        { "name": "氷晶石", "dropRate": 25, "minQuantity": 1, "maxQuantity": 2, "rarity": "Rare" }
+      ],
+      "rareDrop": { "name": "永遠の氷", "dropRate": 8, "minQuantity": 1, "maxQuantity": 1, "rarity": "Epic" },
+      "description": "氷で作られた巨大なゴーレム。",
+      "habitat": ["雪山"]
+    },
+    {
+      "id": 13,
+      "name": "溶岩ゴーレム",
+      "icon": "🔥",
+      "level": 22,
+      "type": "Elite",
+      "hp": 300,
+      "attack": 35,
+      "defense": 18,
+      "speed": 4,
+      "exp": 200,
+      "gil": 150,
+      "dropItems": [
+        { "name": "溶岩の石", "dropRate": 30, "minQuantity": 1, "maxQuantity": 2, "rarity": "Rare" },
+        { "name": "火のエッセンス", "dropRate": 20, "minQuantity": 1, "maxQuantity": 1, "rarity": "Rare" }
+      ],
+      "rareDrop": { "name": "マグマコア", "dropRate": 5, "minQuantity": 1, "maxQuantity": 1, "rarity": "Epic" },
+      "description": "灼熱の溶岩で形成されたゴーレム。",
+      "habitat": ["火山"]
+    },
+    {
+      "id": 14,
+      "name": "スケルトン",
+      "icon": "💀",
+      "level": 20,
+      "type": "Normal",
+      "hp": 120,
+      "attack": 22,
+      "defense": 8,
+      "speed": 8,
+      "exp": 80,
+      "gil": 50,
+      "dropItems": [
+        { "name": "骨", "dropRate": 50, "minQuantity": 1, "maxQuantity": 3, "rarity": "Common" },
+        { "name": "古びた剣", "dropRate": 10, "minQuantity": 1, "maxQuantity": 1, "rarity": "Uncommon" }
+      ],
+      "description": "死霊魔法で動く骸骨戦士。",
+      "habitat": ["ダンジョン"]
+    },
+    {
+      "id": 15,
+      "name": "リッチ",
+      "icon": "👻",
+      "level": 25,
+      "type": "Rare",
+      "hp": 200,
+      "attack": 40,
+      "defense": 12,
+      "speed": 10,
+      "exp": 300,
+      "gil": 250,
+      "dropItems": [
+        { "name": "リッチのローブ", "dropRate": 20, "minQuantity": 1, "maxQuantity": 1, "rarity": "Rare" },
+        { "name": "死霊の書", "dropRate": 15, "minQuantity": 1, "maxQuantity": 1, "rarity": "Epic" }
+      ],
+      "rareDrop": { "name": "リッチの王冠", "dropRate": 3, "minQuantity": 1, "maxQuantity": 1, "rarity": "Legendary" },
+      "description": "強大な魔力を持つアンデッドの王。",
+      "habitat": ["ダンジョン"]
+    },
+    {
+      "id": 16,
+      "name": "ドラゴン",
+      "icon": "🐉",
+      "level": 50,
+      "type": "Boss",
+      "hp": 1000,
+      "attack": 80,
+      "defense": 40,
+      "speed": 15,
+      "exp": 1000,
+      "gil": 1000,
+      "dropItems": [
+        { "name": "ドラゴンの鱗", "dropRate": 50, "minQuantity": 1, "maxQuantity": 3, "rarity": "Epic" },
+        { "name": "ドラゴンの牙", "dropRate": 30, "minQuantity": 1, "maxQuantity": 2, "rarity": "Epic" }
+      ],
+      "rareDrop": { "name": "ドラゴンハート", "dropRate": 5, "minQuantity": 1, "maxQuantity": 1, "rarity": "Legendary" },
+      "description": "最強のモンスター。炎を吐く伝説の竜。",
+      "habitat": ["火山", "ダンジョn"]
+    }
+  ]
+}
