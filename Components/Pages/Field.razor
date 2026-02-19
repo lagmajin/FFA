@@ -193,8 +193,8 @@
             // 玩家攻击
             var rawPlayerAtk = DungeonService.CalculatePlayerDamage(currentUser);
             var playerDefense = currentEnemy.Defense;
-            // Use injected CombatService for crits
-            var playerDamage = DungeonService.ApplyCriticalAndDefense(rawPlayerAtk, playerDefense, Combat);
+            // Use DungeonService which now uses injected CombatService internally
+            var playerDamage = DungeonService.ApplyCriticalAndDefense(rawPlayerAtk, playerDefense);
             currentEnemy.HP -= playerDamage;
             battleLog.Add($"あなたの攻撃！ {currentEnemy.Name} に {playerDamage} ダメージ！");
             
