@@ -1,0 +1,289 @@
+@page "/craft"
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Components.Authorization
+@using MudBlazor
+@inject AuthenticationStateProvider AuthStateProvider
+@inject Services.CraftService CraftService
+@inject Services.UserService UserService
+@inject Services.StaminaService StaminaService
+@inject ISnackbar Snackbar
+
+<PageTitle>クラフト - FFA</PageTitle>
+
+<MudPaper Class="pa-4" Style="max-width:1000px; margin:1rem auto;">
+    <MudText Typo="Typo.h4" Class="mb-4">⚒️ クラフト</MudText>
+
+    @if (!isAuth)
+    {
+        <MudAlert Severity="Severity.Warning">ログインが必要です。</MudAlert>
+    }
+    else
+    {
+        @if (craftingStamina != null)
+        {
+            <MudPaper Class="pa-3 mb-4" Style="background:#e3f2fd; border:1px solid #90caf9; max-width:300px;">
+                <MudText Typo="Typo.subtitle1">⚡ 製作スタミナ</MudText>
+                <MudProgressLinear Value="@((double)craftingStamina.Current / craftingStamina.Max * 100)" 
+                                   Color="@GetStaminaColor(craftingStamina.Current, craftingStamina.Max)" />
+                <div style="margin-top:4px;">
+                    <strong>@craftingStamina.Current / @craftingStamina.Max</strong>
+                </div>
+            </MudPaper>
+        }
+
+        <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-4">
+            @foreach (var category in categories)
+            {
+                <MudTabPanel Text="@category.Key" Icon="@category.Value">
+                    <MudGrid>
+                        @foreach (var recipe in recipes.Where(r => r.Category.ToString() == category.Key))
+                        {
+                            <MudItem xs="12" sm="6" md="4">
+                                <MudPaper Class="pa-3" Style="border:1px solid #ddd; height:100%;">
+                                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                                        <MudText Typo="Typo.subtitle1" Style="font-weight:bold;">@recipe.Name</MudText>
+                                        <MudChip T="string" Size="Size.Small" Color="@GetCategoryColor(recipe.Category)">
+                                            @recipe.Category
+                                        </MudChip>
+                                    </div>
+                                    
+                                    <MudText Typo="Typo.body2" Style="color:#666; margin:8px 0;">@recipe.Description</MudText>
+                                    
+                                    <MudDivider Class="my-2" />
+                                    
+                                    <MudText Typo="Typo.caption" Style="color:#888;">必要素材:</MudText>
+                                    @foreach (var mat in recipe.RequiredMaterials)
+                                    {
+                                        <div style="font-size:0.85rem; padding:2px 0;">
+                                            • @mat.MaterialName x@(mat.Quantity * craftQuantity[recipe.Id])
+                                            @if (!HasEnoughMaterial(mat.MaterialName, mat.MaterialType, mat.Quantity * craftQuantity[recipe.Id]))
+                                            {
+                                                <span style="color:#c62828;">(不足)</span>
+                                            }
+                                        </div>
+                                    }
+                                    
+                                    <div style="margin-top:8px; font-size:0.85rem;">
+                                        💰 必要ギル: @(recipe.RequiredGil * craftQuantity[recipe.Id])
+                                        @if (currentUser != null && currentUser.Gil < recipe.RequiredGil * craftQuantity[recipe.Id])
+                                        {
+                                            <span style="color:#c62828;">(不足)</span>
+                                        }
+                                    </div>
+                                    
+                                    <div style="margin-top:4px; font-size:0.85rem;">
+                                        📊 成功率: @((recipe.SuccessRate * 100).ToString("F0"))%
+                                    </div>
+                                    
+                                    <div style="margin-top:4px; font-size:0.85rem;">
+                                        ⭐ 経験値: @recipe.ExpReward
+                                    </div>
+                                    
+                                    <MudDivider Class="my-2" />
+                                    
+                                    <div style="display:flex; align-items:center; gap:8px;">
+                                        <MudNumericField @bind-Value="craftQuantity[recipe.Id]" Min="1" Max="99" 
+                                                         Label="個数" Style="width:80px;" />
+                                        <MudButton Variant="Variant.Filled" Color="Color.Primary" 
+                                                   OnClick="() => DoCraft(recipe.Id)"
+                                                   Disabled="!CanCraft(recipe)">
+                                            作成
+                                        </MudButton>
+                                    </div>
+                                </MudPaper>
+                            </MudItem>
+                        }
+                    </MudGrid>
+                </MudTabPanel>
+            }
+        </MudTabs>
+
+        @if (lastResult != null)
+        {
+            <MudPaper Class="pa-3 mt-4" Style="@GetResultStyle(lastResult.IsSuccess)">
+                @if (lastResult.IsSuccess)
+                {
+                    <MudText Typo="Typo.h6" Style="color:#2e7d32;">
+                        ✅ @lastResult.Message
+                    </MudText>
+                    @if (lastResult.CreatedItem != null)
+                    {
+                        <MudText Typo="Typo.body2" Style="color:#666;">
+                            経験値 +@lastResult.ExpGained
+                        </MudText>
+                    }
+                }
+                else
+                {
+                    <MudText Typo="Typo.h6" Style="color:#c62828;">
+                        ❌ @lastResult.Message
+                    </MudText>
+                    @if (lastResult.ExpGained > 0)
+                    {
+                        <MudText Typo="Typo.body2" Style="color:#888;">
+                            経験値 +@lastResult.ExpGained (失敗ボーナス)
+                        </MudText>
+                    }
+                }
+            </MudPaper>
+        }
+
+        <MudPaper Class="pa-3 mt-4" Style="background:#f5f5f5; border:1px solid #ddd;">
+            <MudText Typo="Typo.h6">📦 所持素材</MudText>
+            <MudDivider Class="my-2" />
+            @if (materials.Any())
+            {
+                <MudGrid>
+                    @foreach (var mat in materials)
+                    {
+                        <MudItem xs="6" sm="4" md="3">
+                            <div style="padding:4px 8px; background:#fff; border-radius:4px; margin:2px;">
+                                <strong>@mat.Name</strong> x@(GetMaterialCount(mat.Name))
+                            </div>
+                        </MudItem>
+                    }
+                </MudGrid>
+            }
+            else
+            {
+                <MudText Typo="Typo.body2" Style="color:#666;">素材を所持していません</MudText>
+            }
+        </MudPaper>
+    }
+</MudPaper>
+
+@code {
+    private bool isAuth = false;
+    private User? currentUser;
+    private List<Models.CraftRecipe> recipes = new();
+    private List<Models.CraftMaterialInfo> materials = new();
+    private Dictionary<int, int> craftQuantity = new();
+    private CraftResultInfo? lastResult;
+    private StaminaStatus? craftingStamina;
+
+    private Dictionary<string, string> categories = new()
+    {
+        { "Consumable", "消耗品" },
+        { "Weapon", "武器" },
+        { "Armor", "防具" },
+        { "Cooking", "料理" }
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        isAuth = state.User?.Identity?.IsAuthenticated ?? false;
+        
+        if (isAuth)
+        {
+            var username = state.User?.Identity?.Name;
+            if (username != null)
+            {
+                currentUser = UserService.GetByUsername(username);
+                LoadData();
+            }
+        }
+    }
+
+    private void LoadData()
+    {
+        try
+        {
+            recipes = CraftService.GetAllRecipes();
+            materials = CraftService.GetAllMaterials();
+            
+            // 個数の初期化
+            foreach (var recipe in recipes)
+            {
+                if (!craftQuantity.ContainsKey(recipe.Id))
+                    craftQuantity[recipe.Id] = 1;
+            }
+            
+            // スタミナ取得
+            if (currentUser != null)
+            {
+                craftingStamina = StaminaService.GetStaminaStatus(currentUser.Username, StaminaType.Crafting);
+            }
+        }
+        catch { }
+    }
+
+    private bool HasEnoughMaterial(string name, string type, int required)
+    {
+        if (currentUser == null) return false;
+        int have = currentUser.Inventory
+            .Where(i => i.Name == name && i.Type == type)
+            .Sum(i => i.Quantity);
+        return have >= required;
+    }
+
+    private int GetMaterialCount(string name)
+    {
+        if (currentUser == null) return 0;
+        return currentUser.Inventory
+            .Where(i => i.Name == name)
+            .Sum(i => i.Quantity);
+    }
+
+    private bool CanCraft(Models.CraftRecipe recipe)
+    {
+        if (currentUser == null) return false;
+        
+        int qty = craftQuantity.GetValueOrDefault(recipe.Id, 1);
+        
+        // 素材チェック
+        foreach (var mat in recipe.RequiredMaterials)
+        {
+            if (!HasEnoughMaterial(mat.MaterialName, mat.MaterialType, mat.Quantity * qty))
+                return false;
+        }
+        
+        // ギルチェック
+        if (currentUser.Gil < recipe.RequiredGil * qty)
+            return false;
+        
+        return true;
+    }
+
+    private void DoCraft(int recipeId)
+    {
+        if (currentUser == null) return;
+        
+        int qty = craftQuantity.GetValueOrDefault(recipeId, 1);
+        lastResult = CraftService.Craft(currentUser.Id, recipeId, qty);
+        
+        if (lastResult.IsSuccess)
+            Snackbar.Add(lastResult.Message, Severity.Success);
+        else
+            Snackbar.Add(lastResult.Message, Severity.Warning);
+        
+        // ユーザー情報を再取得
+        currentUser = UserService.GetByUsername(currentUser.Username);
+    }
+
+    private Color GetCategoryColor(Models.CraftCategory category)
+    {
+        return category switch
+        {
+            Models.CraftCategory.Consumable => Color.Info,
+            Models.CraftCategory.Weapon => Color.Error,
+            Models.CraftCategory.Armor => Color.Warning,
+            Models.CraftCategory.Accessory => Color.Secondary,
+            Models.CraftCategory.Cooking => Color.Success,
+            _ => Color.Default
+        };
+    }
+
+    private string GetResultStyle(bool isSuccess)
+    {
+        return isSuccess ? "border:1px solid #ddd; background:#f0fff0;" : "border:1px solid #ddd; background:#fff0f0;";
+    }
+
+    private Color GetStaminaColor(int current, int max)
+    {
+        double ratio = (double)current / max;
+        if (ratio > 0.5) return Color.Success;
+        if (ratio > 0.25) return Color.Warning;
+        return Color.Error;
+    }
+}

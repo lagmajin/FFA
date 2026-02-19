@@ -75,3 +75,50 @@
   - 成功時は希少宝石や岩の欠片をインベントリへ付与、ギル報酬の可能性あり
 - [Components/Pages/RockSmash.razor](Components/Pages/RockSmash.razor) - 新規作成
   - UI: ワンボタンで判定し結果表示（ログイン必須）
+
+## フレンドシステム（基盤のみ）
+- [Models/Friend.cs](Models/Friend.cs) - 新規作成
+  - フレンド状態（申請中、承認済み、拒否、ブロック）
+  - フレンド情報、申請情報モデル
+- [Services/FriendService.cs](Services/FriendService.cs) - 新規作成
+  - フレンド申請/承認/拒否/削除
+  - ブロック/ブロック解除
+  - オンライン状態判定
+
+## メールシステム（基盤のみ）
+- [Models/Mail.cs](Models/Mail.cs) - 新規作成
+  - メールタイプ（プレイヤー間、システム、イベント、ギルド）
+  - 添付アイテム、ゴールド添付
+- [Services/MailService.cs](Services/MailService.cs) - 新規作成
+  - プレイヤー間メール送信
+  - システムメール、イベント報酬メール
+  - 添付品受取、メール削除
+
+## 釣りシステム（基盤のみ）
+- [Models/Fish.cs](Models/Fish.cs) - 新規作成
+  - 魚情報、釣りスポット、釣り竿、餌モデル
+  - 釣り場所、時間帯、天候条件
+- [Services/FishingService.cs](Services/FishingService.cs) - 新規作成
+  - 釣り実行、魚選択（レアリティ重み付け）
+  - 重量計算、価格計算
+  - 初期魚データ、釣り竿、餌データ投入
+
+## クラフトシステム（基盤のみ）
+- [Models/CraftRecipe.cs](Models/CraftRecipe.cs) - 新規作成
+  - レシピ、素材、クラフト結果モデル
+  - クラフトカテゴリ（武器、防具、装飾品、消耗品、料理）
+- [Services/CraftService.cs](Services/CraftService.cs) - 新規作成
+  - クラフト実行、成功率判定
+  - 素材消費、アイテム生成
+  - 初期レシピデータ投入
+
+---
+
+## 今後の実装候補
+- [ ] フレンドシステムUI（Friend.razor）
+- [ ] メールシステムUI（Mail.razor）
+- [ ] 釣りシステムUI（Fishing.razor）
+- [ ] クラフトシステムUI（Craft.razor）
+- [ ] ペット/コンパニオンシステム
+- [ ] 取引所UI改善
+- [ ] その他新規機能

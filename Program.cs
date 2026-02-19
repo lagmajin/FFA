@@ -95,6 +95,11 @@ builder.Services.AddSingleton<DeveloperExceptionService>();
 builder.Services.AddSingleton<AbilityService>();
 builder.Services.AddSingleton<ChatService>();
 builder.Services.AddScoped<ExplorationService>();
+// 新システム: フレンド、メール、釣り、クラフト
+builder.Services.AddSingleton<FriendService>();
+builder.Services.AddSingleton<MailService>();
+builder.Services.AddSingleton<FishingService>();
+builder.Services.AddSingleton<CraftService>();
 builder.Services.AddScoped<CaravanService>();
 builder.Services.AddScoped<WorldEventService>();
 builder.Services.AddScoped<CompanionService>();

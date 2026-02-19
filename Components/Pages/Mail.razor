@@ -1,0 +1,251 @@
+@page "/mail"
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Components.Authorization
+@using MudBlazor
+@inject AuthenticationStateProvider AuthStateProvider
+@inject Services.MailService MailService
+@inject Services.UserService UserService
+@inject ISnackbar Snackbar
+
+<PageTitle>メール - FFA</PageTitle>
+
+<MudPaper Class="pa-4" Style="max-width:900px; margin:1rem auto;">
+    <MudText Typo="Typo.h4" Class="mb-4">📬 メールボックス</MudText>
+
+    @if (!isAuth)
+    {
+        <MudAlert Severity="Severity.Warning">ログインが必要です。</MudAlert>
+    }
+    else
+    {
+        <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-4">
+            <MudTabPanel Text="受信箱" Icon="@Icons.Material.Filled.Inbox">
+                <MudChip T="string" Variant="Variant.Filled" Color="Color.Primary" Class="mb-2">
+                    未読: @unreadCount 通
+                </MudChip>
+                
+                @if (mailList.Any())
+                {
+                    @foreach (var mail in mailList)
+                    {
+                        <MudPaper Class="pa-3 mb-2" Style="border:1px solid #ddd; cursor:pointer;" 
+                                  @onclick="() => OpenMail(mail.MailId)">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                @if (!mail.IsRead)
+                                {
+                                    <MudIcon Icon="@Icons.Material.Filled.Markunread" Color="Color.Primary" />
+                                }
+                                else
+                                {
+                                    <MudIcon Icon="@Icons.Material.Filled.Mail" Color="Color.Default" />
+                                }
+                                <div style="flex:1;">
+                                    <div style="font-weight:@(mail.IsRead ? "normal" : "bold")">
+                                        @mail.SenderName
+                                    </div>
+                                    <MudText Typo="Typo.body2">@mail.Subject</MudText>
+                                </div>
+                                @if (mail.HasAttachment)
+                                {
+                                    <MudIcon Icon="@Icons.Material.Filled.AttachFile" Color="Color.Warning" />
+                                }
+                                <MudText Typo="Typo.caption" Style="color:#666;">
+                                    @mail.SentAt.ToString("MM/dd HH:mm")
+                                </MudText>
+                            </div>
+                        </MudPaper>
+                    }
+                }
+                else
+                {
+                    <MudText Typo="Typo.body1" Style="color:#666; text-align:center; padding:20px;">
+                        メールはありません。
+                    </MudText>
+                }
+            </MudTabPanel>
+
+            <MudTabPanel Text="メール作成" Icon="@Icons.Material.Filled.Edit">
+                <MudPaper Class="pa-3" Style="background:#f5f5f5;">
+                    <MudTextField @bind-Value="newRecipient" Label="送信先ユーザー名" Variant="Variant.Outlined" Class="mb-2" />
+                    <MudTextField @bind-Value="newSubject" Label="件名" Variant="Variant.Outlined" Class="mb-2" />
+                    <MudTextField @bind-Value="newBody" Label="本文" Variant="Variant.Outlined" Lines="5" Class="mb-2" />
+                    <MudNumericField @bind-Value="newGil" Label="添付ギル" Min="0" Class="mb-2" />
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SendMail">送信</MudButton>
+                </MudPaper>
+            </MudTabPanel>
+        </MudTabs>
+
+        @* メール詳細ダイアログ *@
+        <MudDialog @bind-IsOpen="showMailDialog">
+            <TitleContent>@selectedMail?.Subject</TitleContent>
+            <DialogContent>
+                @if (selectedMail != null)
+                {
+                    <MudText Typo="Typo.body2" Style="color:#666; margin-bottom:12px;">
+                        送信者: @selectedMail.SenderName | @selectedMail.SentAt.ToString("yyyy/MM/dd HH:mm")
+                    </MudText>
+                    <MudDivider Class="my-2" />
+                    <MudText Typo="Typo.body1" Style="white-space:pre-wrap;">@selectedMail.Body</MudText>
+                    
+                    @if (selectedMail.AttachedGil > 0 || selectedMail.Attachment != null)
+                    {
+                        <MudPaper Class="pa-3 mt-3" Style="background:#fffbe6; border:1px solid #e0d0a0;">
+                            <MudText Typo="Typo.subtitle2">添付品</MudText>
+                            @if (selectedMail.AttachedGil > 0)
+                            {
+                                <div>💰 @selectedMail.AttachedGil ギル</div>
+                            }
+                            @if (selectedMail.Attachment != null)
+                            {
+                                <div>📦 @selectedMail.Attachment.ItemName x@selectedMail.Attachment.Quantity</div>
+                            }
+                            @if (!selectedMail.AttachmentClaimed)
+                            {
+                                <MudButton Variant="Variant.Filled" Color="Color.Warning" Class="mt-2" 
+                                           OnClick="ClaimAttachment">受け取る</MudButton>
+                            }
+                            else
+                            {
+                                <MudText Typo="Typo.caption" Style="color:#666;">受け取り済み</MudText>
+                            }
+                        </MudPaper>
+                    }
+                }
+            </DialogContent>
+            <DialogActions>
+                <MudButton OnClick="CloseMailDialog">閉じる</MudButton>
+                @if (selectedMail != null)
+                {
+                    <MudButton Color="Color.Error" OnClick="DeleteCurrentMail">削除</MudButton>
+                }
+            </DialogActions>
+        </MudDialog>
+    }
+</MudPaper>
+
+@code {
+    private bool isAuth = false;
+    private User? currentUser;
+    private int unreadCount = 0;
+    private List<MailSummary> mailList = new();
+    private Models.Mail? selectedMail;
+    private bool showMailDialog = false;
+
+    private string newRecipient = "";
+    private string newSubject = "";
+    private string newBody = "";
+    private int newGil = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        isAuth = state.User?.Identity?.IsAuthenticated ?? false;
+        
+        if (isAuth)
+        {
+            var username = state.User?.Identity?.Name;
+            if (username != null)
+            {
+                currentUser = UserService.GetByUsername(username);
+                LoadData();
+            }
+        }
+    }
+
+    private void LoadData()
+    {
+        if (currentUser == null) return;
+        
+        try
+        {
+            mailList = MailService.GetMailList(currentUser.Id);
+            unreadCount = MailService.GetUnreadCount(currentUser.Id);
+        }
+        catch { }
+    }
+
+    private void OpenMail(int mailId)
+    {
+        if (currentUser == null) return;
+        
+        selectedMail = MailService.GetMail(currentUser.Id, mailId);
+        if (selectedMail != null)
+        {
+            showMailDialog = true;
+            LoadData();
+        }
+    }
+
+    private void CloseMailDialog()
+    {
+        showMailDialog = false;
+    }
+
+    private void ClaimAttachment()
+    {
+        if (currentUser == null || selectedMail == null) return;
+        
+        var result = MailService.ClaimAttachment(currentUser.Id, selectedMail.Id);
+        if (result.IsSuccess)
+        {
+            Snackbar.Add(result.Message, Severity.Success);
+            selectedMail.AttachmentClaimed = true;
+            LoadData();
+        }
+        else
+        {
+            Snackbar.Add(result.Message, Severity.Error);
+        }
+    }
+
+    private void DeleteCurrentMail()
+    {
+        if (currentUser == null || selectedMail == null) return;
+        
+        var result = MailService.DeleteMail(currentUser.Id, selectedMail.Id);
+        if (result.IsSuccess)
+        {
+            Snackbar.Add(result.Message, Severity.Success);
+            showMailDialog = false;
+            LoadData();
+        }
+        else
+        {
+            Snackbar.Add(result.Message, Severity.Error);
+        }
+    }
+
+    private void SendMail()
+    {
+        if (currentUser == null) return;
+        if (string.IsNullOrWhiteSpace(newRecipient) || string.IsNullOrWhiteSpace(newSubject))
+        {
+            Snackbar.Add("送信先と件名を入力してください。", Severity.Error);
+            return;
+        }
+
+        var request = new SendMailRequest
+        {
+            SenderId = currentUser.Id,
+            SenderName = currentUser.Username,
+            RecipientName = newRecipient,
+            Subject = newSubject,
+            Body = newBody,
+            AttachedGil = newGil
+        };
+
+        var result = MailService.SendMail(request);
+        if (result.IsSuccess)
+        {
+            Snackbar.Add(result.Message, Severity.Success);
+            newRecipient = "";
+            newSubject = "";
+            newBody = "";
+            newGil = 0;
+        }
+        else
+        {
+            Snackbar.Add(result.Message, Severity.Error);
+        }
+    }
+}

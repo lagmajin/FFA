@@ -1,0 +1,193 @@
+@page "/friend"
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Components.Authorization
+@using MudBlazor
+@inject AuthenticationStateProvider AuthStateProvider
+@inject Services.FriendService FriendService
+@inject Services.UserService UserService
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
+
+<PageTitle>フレンド - FFA</PageTitle>
+
+<MudPaper Class="pa-4" Style="max-width:900px; margin:1rem auto;">
+    <MudText Typo="Typo.h4" Class="mb-4">👥 フレンド</MudText>
+
+    @if (!isAuth)
+    {
+        <MudAlert Severity="Severity.Warning">ログインが必要です。</MudAlert>
+    }
+    else
+    {
+        <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-4">
+            <MudTabPanel Text="フレンド一覧" Icon="@Icons.Material.Filled.People">
+                @if (friends.Any())
+                {
+                    @foreach (var friend in friends)
+                    {
+                        <MudPaper Class="pa-2 mb-2" Style="display:flex; align-items:center; gap:12px; border:1px solid #ddd;">
+                            <MudAvatar Size="Size.Small" Color="@GetOnlineColor(friend.IsOnline)"></MudAvatar>
+                            <div>
+                                <strong>@friend.Username</strong>
+                                <MudText Typo="Typo.body2" Style="color:#666;">Lv.@friend.Level @friend.Job</MudText>
+                            </div>
+                            <MudSpacer />
+                            <MudButton Variant="Variant.Text" Color="Color.Error" Size="Size.Small" 
+                                       OnClick="() => RemoveFriend(friend.FriendId)">削除</MudButton>
+                        </MudPaper>
+                    }
+                }
+                else
+                {
+                    <MudText Typo="Typo.body1" Style="color:#666; text-align:center; padding:20px;">
+                        フレンドがいません。申請を送ってみましょう！
+                    </MudText>
+                }
+            </MudTabPanel>
+
+            <MudTabPanel Text="申請受信" Icon="@Icons.Material.Filled.Inbox">
+                @if (pendingRequests.Any())
+                {
+                    @foreach (var req in pendingRequests)
+                    {
+                        <MudPaper Class="pa-2 mb-2" Style="display:flex; align-items:center; gap:12px; border:1px solid #ddd;">
+                            <div>
+                                <strong>@req.RequesterName</strong>
+                                <MudText Typo="Typo.body2" Style="color:#666;">Lv.@req.RequesterLevel</MudText>
+                            </div>
+                            <MudSpacer />
+                            <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small"
+                                       OnClick="() => AcceptRequest(req.RequestId)">承認</MudButton>
+                            <MudButton Variant="Variant.Outlined" Color="Color.Error" Size="Size.Small"
+                                       OnClick="() => RejectRequest(req.RequestId)">拒否</MudButton>
+                        </MudPaper>
+                    }
+                }
+                else
+                {
+                    <MudText Typo="Typo.body1" Style="color:#666; text-align:center; padding:20px;">
+                        受信した申請はありません。
+                    </MudText>
+                }
+            </MudTabPanel>
+
+            <MudTabPanel Text="フレンド申請" Icon="@Icons.Material.Filled.PersonAdd">
+                <MudPaper Class="pa-3" Style="background:#f5f5f5;">
+                    <MudTextField @bind-Value="searchUsername" Label="ユーザー名" Variant="Variant.Outlined" />
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-2" OnClick="SendFriendRequest">
+                        申請送信
+                    </MudButton>
+                </MudPaper>
+            </MudTabPanel>
+        </MudTabs>
+    }
+</MudPaper>
+
+@code {
+    private bool isAuth = false;
+    private User? currentUser;
+    private string searchUsername = "";
+    private List<FriendInfo> friends = new();
+    private List<FriendRequestInfo> pendingRequests = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        isAuth = state.User?.Identity?.IsAuthenticated ?? false;
+        
+        if (isAuth)
+        {
+            var username = state.User?.Identity?.Name;
+            if (username != null)
+            {
+                currentUser = UserService.GetByUsername(username);
+                LoadData();
+            }
+        }
+    }
+
+    private void LoadData()
+    {
+        if (currentUser == null) return;
+        
+        try
+        {
+            friends = FriendService.GetFriends(currentUser.Id);
+            pendingRequests = FriendService.GetPendingRequests(currentUser.Id);
+        }
+        catch { }
+    }
+
+    private void SendFriendRequest()
+    {
+        if (currentUser == null || string.IsNullOrWhiteSpace(searchUsername)) return;
+        
+        var targetUser = UserService.GetByUsername(searchUsername);
+        if (targetUser == null)
+        {
+            Snackbar.Add("ユーザーが見つかりません。", Severity.Error);
+            return;
+        }
+
+        var result = FriendService.SendRequest(currentUser.Id, targetUser.Id);
+        if (result.IsSuccess)
+            Snackbar.Add(result.Message, Severity.Success);
+        else
+            Snackbar.Add(result.Message, Severity.Error);
+        
+        searchUsername = "";
+    }
+
+    private void AcceptRequest(int requestId)
+    {
+        if (currentUser == null) return;
+        
+        var result = FriendService.AcceptRequest(currentUser.Id, requestId);
+        if (result.IsSuccess)
+        {
+            Snackbar.Add(result.Message, Severity.Success);
+            LoadData();
+        }
+        else
+        {
+            Snackbar.Add(result.Message, Severity.Error);
+        }
+    }
+
+    private void RejectRequest(int requestId)
+    {
+        if (currentUser == null) return;
+        
+        var result = FriendService.RejectRequest(currentUser.Id, requestId);
+        if (result.IsSuccess)
+        {
+            Snackbar.Add(result.Message, Severity.Success);
+            LoadData();
+        }
+        else
+        {
+            Snackbar.Add(result.Message, Severity.Error);
+        }
+    }
+
+    private void RemoveFriend(int friendId)
+    {
+        if (currentUser == null) return;
+        
+        var result = FriendService.RemoveFriend(currentUser.Id, friendId);
+        if (result.IsSuccess)
+        {
+            Snackbar.Add(result.Message, Severity.Success);
+            LoadData();
+        }
+        else
+        {
+            Snackbar.Add(result.Message, Severity.Error);
+        }
+    }
+
+    private Color GetOnlineColor(bool isOnline)
+    {
+        return isOnline ? Color.Success : Color.Default;
+    }
+}

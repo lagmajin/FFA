@@ -1,0 +1,241 @@
+@page "/fishing"
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Components.Authorization
+@using MudBlazor
+@inject AuthenticationStateProvider AuthStateProvider
+@inject Services.FishingService FishingService
+@inject Services.UserService UserService
+@inject Services.StaminaService StaminaService
+@inject ISnackbar Snackbar
+
+<PageTitle>釣り - FFA</PageTitle>
+
+<MudPaper Class="pa-4" Style="max-width:900px; margin:1rem auto;">
+    <MudText Typo="Typo.h4" Class="mb-4">🎣 釣り</MudText>
+
+    @if (!isAuth)
+    {
+        <MudAlert Severity="Severity.Warning">ログインが必要です。</MudAlert>
+    }
+    else
+    {
+        <MudGrid>
+            <MudItem xs="12" md="8">
+                <MudPaper Class="pa-4" Style="border:1px solid #ddd;">
+                    <MudText Typo="Typo.h6" Class="mb-2">装備選択</MudText>
+                    
+                    <MudSelect @bind-Value="selectedRodId" Label="釣り竿" Variant="Variant.Outlined" Class="mb-2">
+                        @foreach (var rod in rods)
+                        {
+                            <MudSelectItem Value="@rod.Id">@rod.Name (捕獲率+@rod.BonusCatchRate%)</MudSelectItem>
+                        }
+                    </MudSelect>
+
+                    <MudSelect @bind-Value="selectedBaitId" Label="餌" Variant="Variant.Outlined" Class="mb-3">
+                        <MudSelectItem Value="0">なし</MudSelectItem>
+                        @foreach (var bait in baits)
+                        {
+                            <MudSelectItem Value="@bait.Id">@bait.Name (+@bait.BonusCatchRate%)</MudSelectItem>
+                        }
+                    </MudSelect>
+
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" 
+                               OnClick="DoFishing" Disabled="isFishing">
+                        @if (isFishing)
+                        {
+                            <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                            <span>釣り中...</span>
+                        }
+                        else
+                        {
+                            <MudIcon Icon="@Icons.Material.Filled.Phishing" Class="mr-2" />
+                            <span>釣りをする</span>
+                        }
+                    </MudButton>
+                </MudPaper>
+
+                @if (lastResult != null)
+                {
+                    <MudPaper Class="pa-4 mt-4" Style="border:1px solid #ddd; background:@(lastResult.IsSuccess ? "#f0fff0" : "#fff0f0")">
+                        @if (lastResult.IsSuccess)
+                        {
+                            <MudText Typo="Typo.h5" Style="color:#2e7d32;">🎉 釣果!</MudText>
+                            <MudText Typo="Typo.body1" Class="mt-2">
+                                <strong>@lastResult.CaughtFish?.Name</strong>（@lastResult.Weight g）
+                            </MudText>
+                            <MudText Typo="Typo.body2" Style="color:#666;">
+                                価値: @CalculateValue(lastResult.CaughtFish, lastResult.Weight) ギル
+                            </MudText>
+                        }
+                        else
+                        {
+                            <MudText Typo="Typo.h6" Style="color:#c62828;">@lastResult.Message</MudText>
+                        }
+                    </MudPaper>
+                }
+            </MudItem>
+
+            <MudItem xs="12" md="4">
+                <MudPaper Class="pa-3 mb-3" Style="background:#e3f2fd; border:1px solid #90caf9;">
+                    <MudText Typo="Typo.h6">⚡ 釣りスタミナ</MudText>
+                    <MudDivider Class="my-2" />
+                    @if (fishingStamina != null)
+                    {
+                        <MudProgressLinear Value="@((double)fishingStamina.Current / fishingStamina.Max * 100)" 
+                                           Color="@GetStaminaColor(fishingStamina.Current, fishingStamina.Max)" />
+                        <div style="margin-top:8px;">
+                            <strong>@fishingStamina.Current / @fishingStamina.Max</strong>
+                            @if (fishingStamina.NextRecovery.HasValue)
+                            {
+                                <MudText Typo="Typo.caption" Style="color:#666;">
+                                    回復まで: @(fishingStamina.NextRecovery.Value.ToString("HH:mm:ss"))
+                                </MudText>
+                            }
+                        </div>
+                    }
+                </MudPaper>
+
+                <MudPaper Class="pa-3" Style="background:#f5f5f5; border:1px solid #ddd;">
+                    <MudText Typo="Typo.h6">🐟 魚図鑑</MudText>
+                    <MudDivider Class="my-2" />
+                    @foreach (var fish in fishList.Take(7))
+                    {
+                        <div style="padding:4px 0; border-bottom:1px solid #eee;">
+                            <span style="color:@GetRarityColor(fish.Rarity)">●</span>
+                            @fish.Name <small style="color:#666;">(Lv.@fish.RequiredFishingLevel)</small>
+                        </div>
+                    }
+                </MudPaper>
+
+                <MudPaper Class="pa-3 mt-3" Style="background:#f5f5f5; border:1px solid #ddd;">
+                    <MudText Typo="Typo.h6">🎒 所持魚</MudText>
+                    <MudDivider Class="my-2" />
+                    @if (ownedFish.Any())
+                    {
+                        @foreach (var fish in ownedFish)
+                        {
+                            <div style="display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid #eee;">
+                                <span>@fish.Name</span>
+                                <MudButton Variant="Variant.Text" Size="Size.Small" Color="Color.Primary"
+                                           OnClick="() => SellFish(fish.Name)">売る (@fish.Price G)</MudButton>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.body2" Style="color:#666;">魚を所持していません</MudText>
+                    }
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    }
+</MudPaper>
+
+@code {
+    private bool isAuth = false;
+    private User? currentUser;
+    private bool isFishing = false;
+    private FishingResult? lastResult;
+    private StaminaStatus? fishingStamina;
+
+    private List<Models.Fish> fishList = new();
+    private List<Models.FishingRod> rods = new();
+    private List<Models.FishingBait> baits = new();
+    private List<InventoryItem> ownedFish = new();
+
+    private int selectedRodId = 1;
+    private int selectedBaitId = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        isAuth = state.User?.Identity?.IsAuthenticated ?? false;
+        
+        if (isAuth)
+        {
+            var username = state.User?.Identity?.Name;
+            if (username != null)
+            {
+                currentUser = UserService.GetByUsername(username);
+                LoadData();
+            }
+        }
+    }
+
+    private void LoadData()
+    {
+        try
+        {
+            fishList = FishingService.GetAllFish();
+            rods = FishingService.GetAllRods();
+            baits = FishingService.GetAllBaits();
+            
+            if (currentUser != null)
+            {
+                ownedFish = currentUser.Inventory.Where(i => i.Type == "Fish").ToList();
+                fishingStamina = StaminaService.GetStaminaStatus(currentUser.Username, StaminaType.Fishing);
+            }
+        }
+        catch { }
+    }
+
+    private async Task DoFishing()
+    {
+        if (currentUser == null) return;
+        
+        isFishing = true;
+        StateHasChanged();
+        
+        await Task.Delay(1000); // アニメーション用待機
+        
+        lastResult = FishingService.Fish(currentUser.Id, selectedRodId, selectedBaitId);
+        
+        // ユーザー情報を再取得
+        currentUser = UserService.GetByUsername(currentUser.Username);
+        LoadData();
+        
+        isFishing = false;
+        StateHasChanged();
+    }
+
+    private int CalculateValue(Models.Fish? fish, int weight)
+    {
+        if (fish == null) return 0;
+        double avg = (fish.MinWeight + fish.MaxWeight) / 2.0;
+        return (int)(fish.BasePrice * (weight / avg));
+    }
+
+    private void SellFish(string fishName)
+    {
+        if (currentUser == null) return;
+        
+        int sold = FishingService.SellFish(currentUser.Id, fishName);
+        if (sold > 0)
+        {
+            Snackbar.Add($"{fishName}を{sold}ギルで売却しました。", Severity.Success);
+            currentUser = UserService.GetByUsername(currentUser.Username);
+            LoadData();
+        }
+    }
+
+    private string GetRarityColor(int rarity)
+    {
+        return rarity switch
+        {
+            1 => "#888",
+            2 => "#4CAF50",
+            3 => "#2196F3",
+            4 => "#9C27B0",
+            5 => "#FF9800",
+            _ => "#888"
+        };
+    }
+
+    private Color GetStaminaColor(int current, int max)
+    {
+        double ratio = (double)current / max;
+        if (ratio > 0.5) return Color.Success;
+        if (ratio > 0.25) return Color.Warning;
+        return Color.Error;
+    }
+}
