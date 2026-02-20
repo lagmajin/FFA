@@ -7,6 +7,12 @@
 @inject Services.TownService TownService
 @inject Services.TimeWeatherService TWService
 @inject Services.FieldService FieldService
+@inject Services.GuildService GuildService
+@inject Services.StaminaService StaminaService
+@inject Services.QuestService QuestService
+@inject Services.FriendService FriendService
+@inject Services.MailService MailService
+@inject Services.DailyRewardService DailyRewardService
 
 <PageTitle>街</PageTitle>
 
@@ -22,6 +28,10 @@
                 <span class="tw-icon">@GetTimeIcon(TWService.Phase)</span>
                 <span class="tw-time">@FormatTime(TWService.TimeOfDay)</span>
                 <span class="tw-weather">@TWService.Weather</span>
+            </div>
+            <div class="game-date">
+                <span class="date-icon">📅</span>
+                <span class="date-value">@GetGameDate()</span>
             </div>
         </div>
     </div>
@@ -85,6 +95,58 @@
                     </div>
                     <span class="exp-value">@currentUser?.Exp / @currentUser?.ExpToNext</span>
                 </div>
+            </div>
+            @* 追加情報: スタミナ *@
+            @if (staminaInfo != null && staminaInfo.Status.TryGetValue(StaminaType.Movement, out var moveStamina))
+            {
+                <div class="stat-row stamina-row">
+                    <div class="stamina-bar">
+                        <span class="stamina-label">⚡</span>
+                        <div class="stamina-track">
+                            <div class="stamina-fill" style="width: @(moveStamina.RecoveryProgress * 100)%"></div>
+                        </div>
+                        <span class="stamina-value">@moveStamina.Current / @moveStamina.Max</span>
+                    </div>
+                </div>
+            }
+        </div>
+        @* クイック情報バー *@
+        <div class="quick-info-bar">
+            <div class="quick-info-item" @onclick="GoToQuests">
+                <span class="quick-icon">📋</span>
+                <span class="quick-label">クエスト</span>
+                <span class="quick-value">@questCount 件</span>
+            </div>
+            <div class="quick-info-item" @onclick="GoToMail">
+                <span class="quick-icon">📧</span>
+                <span class="quick-label">メール</span>
+                <span class="quick-value">@unreadMailCount</span>
+            </div>
+            <div class="quick-info-item" @onclick="GoToFriends">
+                <span class="quick-icon">👥</span>
+                <span class="quick-label">フレンド</span>
+                <span class="quick-value">@friendCount</span>
+            </div>
+            @if (currentGuild != null)
+            {
+                <div class="quick-info-item" @onclick="GoToGuild">
+                    <span class="quick-icon">🎖️</span>
+                    <span class="quick-label">ギルド</span>
+                    <span class="quick-value">@currentGuild.Name</span>
+                </div>
+            }
+            else
+            {
+                <div class="quick-info-item" @onclick="GoToGuild">
+                    <span class="quick-icon">🎖️</span>
+                    <span class="quick-label">ギルド</span>
+                    <span class="quick-value">未加入</span>
+                </div>
+            }
+            <div class="quick-info-item @dailyRewardClass" @onclick="GoToDailyReward">
+                <span class="quick-icon">🎁</span>
+                <span class="quick-label">ログボ</span>
+                <span class="quick-value">@dailyRewardStatus</span>
             </div>
         </div>
     </div>
@@ -282,7 +344,16 @@
     private Models.Town? CurrentTown { get; set; }
     private List<Models.Town> OtherTowns { get; set; } = new List<Models.Town>();
     private List<SurroundingDirection> SurroundingFields { get; set; } = new List<SurroundingDirection>();
-
+    
+    // 追加: スタミナ、ギルド、クエスト、メール、フレンド情報
+    private StaminaInfo? staminaInfo;
+    private Models.Guild? currentGuild;
+    private int questCount;
+    private int unreadMailCount;
+    private int friendCount;
+    private string dailyRewardStatus = "";
+    private string dailyRewardClass = "";
+    
     // 8方向の構造体
     private class SurroundingDirection
     {
@@ -298,6 +369,36 @@
     {
         var users = UserService.GetAllUsers().ToList();
         currentUser = users.FirstOrDefault();
+        
+        if (currentUser != null)
+        {
+            // スタミナを取得
+            staminaInfo = StaminaService.GetStaminaInfo(currentUser.Username);
+            
+            // ギルド情報を取得
+            currentGuild = GuildService.GetUserGuild(currentUser);
+            
+            // クエスト数を取得（現在進行中のクエスト）
+            questCount = currentUser.CurrentQuest != null && !currentUser.CurrentQuest.IsCompleted ? 1 : 0;
+            
+            // メール数を取得
+            unreadMailCount = MailService.GetUnreadCount(currentUser.Id);
+            
+            // フレンド数を取得
+            friendCount = FriendService.GetFriendCount(currentUser.Id);
+            
+            // ログボ状態を取得
+            if (DailyRewardService.HasClaimed(currentUser.Username))
+            {
+                dailyRewardStatus = "明日\n受取";
+                dailyRewardClass = "";
+            }
+            else
+            {
+                dailyRewardStatus = "受取可能";
+                dailyRewardClass = "available";
+            }
+        }
         
         if (currentUser?.CountryId != null)
         {
@@ -350,6 +451,21 @@
         int hh = (int)Math.Floor(t);
         int mm = (int)Math.Floor((t - hh) * 60);
         return $"{hh:D2}:{mm:D2}";
+    }
+    
+    private string GetGameDate()
+    {
+        // ゲーム内日付を計算（現在はまだリアルタイム経過）
+        // 简易的に現在の日付を表示
+        var now = DateTime.Now;
+        
+        // 和風の日付表现形式
+        int month = now.Month;
+        int day = now.Day;
+        
+        string[] monthNames = { "", "雪月", "花月", "風月", "鳥月", "虫月", "雨月", "雲月", "霧月", "紅葉月", "神無月", "霜月", "師走" };
+        
+        return $"{monthNames[month]} {day}日";
     }
 
     private string GetJobName(Job? job)
@@ -553,4 +669,11 @@
     {
         Navigation.NavigateTo($"/field?id={fieldId}");
     }
+    
+    // クイック情報バーのナビゲーション
+    private void GoToQuests() => Navigation.NavigateTo("/quests");
+    private void GoToMail() => Navigation.NavigateTo("/mail");
+    private void GoToFriends() => Navigation.NavigateTo("/friend");
+    private void GoToGuild() => Navigation.NavigateTo("/guild");
+    private void GoToDailyReward() => Navigation.NavigateTo("/daily-reward");
 }

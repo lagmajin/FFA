@@ -56,3 +56,19 @@ description = "地下的迷宫。強力なモンスターで満ちています�
 enemies = ["スケルトン", "リッチ", "オーク"]
 drops = ["骨", "宝石", "盾牌", "古代の剣"]
 difficulty = 5
+
+[[fields]]
+id = 8
+name = "墓地"
+description = "古い墓場。幽霊やアンデッドが徘徊している。"
+enemies = ["幽霊", "スケルトン", "ゾンビ", "リaper"]
+drops = ["魂の石", "骨", "腐った肉", "死体の牙"]
+difficulty = 3
+
+[[fields]]
+id = 9
+name = "浄化の墓地"
+description = "聖なる力が残る墓場。強力なアンデッドが眠る。"
+enemies = ["リッチ", "レイス", "ヴァンパイア", "死騎"]
+drops = ["聖なる骨", "魂の宝玉", "血の结晶", "暗黒の剣"]
+difficulty = 5

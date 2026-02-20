@@ -76,6 +76,27 @@
     font-size: 0.85rem;
 }
 
+/* ゲーム日付 */
+.game-date {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.3rem 0.6rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+}
+
+.date-icon {
+    font-size: 0.9rem;
+}
+
+.date-value {
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: bold;
+}
+
 /* 町の情報バー */
 .town-info-bar {
     display: flex;
@@ -323,6 +344,100 @@
     color: rgba(255, 255, 255, 0.9);
     min-width: 80px;
     text-align: right;
+}
+
+/* スタミナバー */
+.stamina-row {
+    margin-top: 0.25rem;
+}
+
+.stamina-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.stamina-label {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.7);
+    min-width: 20px;
+}
+
+.stamina-track {
+    flex: 1;
+    height: 6px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.stamina-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #f39c12 0%, #e67e22 100%);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+.stamina-value {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.9);
+    min-width: 60px;
+    text-align: right;
+}
+
+/* クイック情報バー */
+.quick-info-bar {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    flex-wrap: wrap;
+}
+
+.quick-info-item {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.6rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex: 1;
+    min-width: 80px;
+    justify-content: center;
+}
+
+.quick-info-item:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+.quick-info-item.available {
+    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+}
+
+.quick-icon {
+    font-size: 0.9rem;
+}
+
+.quick-label {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.quick-value {
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: white;
 }
 
 /* 町のメインセクション */

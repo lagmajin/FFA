@@ -1,10 +1,10 @@
-# Cemetery Dungeon - 死者の墓場
+# Underground Cemetery Dungeon - 地下墓地
 # 難易度：中級者向け（Lv20-30）
 
-id = "area:cemetery"
-name = "死者の墓場"
-description = "古くから続く墓場。夜间には幽霊が徘徊する。"
-entrance_world_tag = "area:cemetery"
+id = "area:underground_cemetery"
+name = "地下墓地"
+description = "地下に眠る死者の墓所。幽霊やアンデッドが徘徊する。"
+entrance_world_tag = "area:underground_cemetery"
 recommended_level = 20
 
 [[floors]]
