@@ -195,7 +195,35 @@ else
 // Use forwarded headers early so the scheme is correct when using a reverse proxy
 app.UseForwardedHeaders();
 
-app.UseStaticFiles();
+// Serve static files with relaxed caching for development/fast rollout.
+// Files under `/_framework`, JS, WASM and DLLs are served with no-cache to avoid stale client bundles.
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = ctx =>
+    {
+        try
+        {
+            var reqPath = ctx.Context.Request.Path.Value ?? string.Empty;
+            // Treat framework and script/artifact files as non-cacheable
+            if (reqPath.StartsWith("/_framework", StringComparison.OrdinalIgnoreCase)
+                || reqPath.Contains("/js/", StringComparison.OrdinalIgnoreCase)
+                || reqPath.EndsWith(".js", StringComparison.OrdinalIgnoreCase)
+                || reqPath.EndsWith(".wasm", StringComparison.OrdinalIgnoreCase)
+                || reqPath.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
+            {
+                ctx.Context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+                ctx.Context.Response.Headers["Pragma"] = "no-cache";
+                ctx.Context.Response.Headers["Expires"] = "0";
+            }
+            else
+            {
+                // keep short caching for other static assets
+                ctx.Context.Response.Headers["Cache-Control"] = "public, max-age=60";
+            }
+        }
+        catch { }
+    }
+});
 
 app.UseStatusCodePagesWithReExecute("/not-found");
 
