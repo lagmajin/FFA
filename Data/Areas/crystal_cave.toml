@@ -1,0 +1,140 @@
+# Crystal Cave - 水晶洞窟
+# 難易度：中級者向け（Lv15-25）
+
+id = "area:crystal_cave"
+name = "水晶洞窟"
+description = "的光が差し込む鍾乳洞。巨大な水晶柱が神秘的な雰囲気を醸し出す。"
+entrance_world_tag = "area:crystal_cave"
+recommended_level = 15
+
+[[floors]]
+floor_number = 1
+width = 4
+height = 4
+
+[[floors.rooms]]
+x = 1
+y = 0
+name = "洞口"
+type = "entrance"
+description = " 外光が差し込む洞窟の入口。"
+
+[[floors.rooms]]
+x = 2
+y = 2
+name = "水晶の間"
+type = "hall"
+description = "巨大な水晶柱が立ち並ぶ美しい空間。"
+
+[[floors.rooms]]
+x = 0
+y = 2
+name = "鍾乳洞"
+type = "corridor"
+description = "鍾乳石が垂れ下がる 좁은 통로。"
+
+[[floors.rooms]]
+x = 3
+y = 1
+name = "地下湖"
+type = "room"
+description = "透き通った水がたまる地下湖。"
+
+[[floors.rooms]]
+x = 1
+y = 3
+name = "階段（下り）"
+type = "stairs_down"
+description = "更深部へ続く階段。"
+
+[[floors.connections]]
+from = { x = 1, y = 0 }
+to = { x = 1, y = 1 }
+
+[[floors.connections]]
+from = { x = 1, y = 1 }
+to = { x = 2, y = 2 }
+
+[[floors.connections]]
+from = { x = 2, y = 2 }
+to = { x = 0, y = 2 }
+
+[[floors.connections]]
+from = { x = 2, y = 2 }
+to = { x = 3, y = 1 }
+
+[[floors.connections]]
+from = { x = 1, y = 1 }
+to = { x = 1, y = 3 }
+
+[[floors]]
+floor_number = 2
+width = 4
+height = 4
+
+[[floors.rooms]]
+x = 1
+y = 3
+name = " Crystal Lake"
+type = "room"
+description = "的神秘的な光が池を照らす。"
+
+[[floors.rooms]]
+x = 2
+y = 1
+name = "結晶の間"
+type = "hall"
+description = "純度の高い水晶が結晶化した区域。"
+
+[[floors.rooms]]
+x = 0
+y = 1
+name = "隠し通路"
+type = "corridor"
+description = "いくつかの隠し通路がある。"
+
+[[floors.rooms]]
+x = 3
+y = 2
+name = "ボスの間"
+type = "boss_room"
+description = "水晶の守護者が眠る大広間。"
+
+[[floors.connections]]
+from = { x = 1, y = 3 }
+to = { x = 2, y = 1 }
+
+[[floors.connections]]
+from = { x = 2, y = 1 }
+to = { x = 0, y = 1 }
+
+[[floors.connections]]
+from = { x = 2, y = 1 }
+to = { x = 3, y = 2 }
+
+[[floors]]
+floor_number = 3
+width = 3
+height = 3
+
+[[floors.rooms]]
+x = 1
+y = 1
+name = "王座の間"
+type = "boss_room"
+description = " Crystal Kingが君臨する最深部。"
+
+[[floors.rooms]]
+x = 1
+y = 2
+name = " treasure room"
+type = "room"
+description = "貴重な水晶宝物の保管場所。"
+
+[[floors.connections]]
+from = { x = 1, y = 1 }
+to = { x = 1, y = 2 }
+
+[meta]
+loader_version = 1
+notes = "水晶をテーマにした中級者向けダンジョン"

@@ -1,0 +1,155 @@
+# Volcanic Ruins - 火山廃墟
+# 難易度：中上級者向け（Lv25-35）
+
+id = "area:volcanic_ruins"
+name = "火山廃墟"
+description = "かつての火山国の中核施設。溶岩流が施設内を巡回しており非常に危険。"
+entrance_world_tag = "area:volcanic_ruins"
+recommended_level = 25
+
+[[floors]]
+floor_number = 1
+width = 5
+height = 5
+
+[[floors.rooms]]
+x = 2
+y = 0
+name = "噴火口"
+type = "entrance"
+description = "炎と煙が立ち込める危険な入口。"
+
+[[floors.rooms]]
+x = 2
+y = 2
+name = "溶岩導水路"
+type = "corridor"
+description = "溶岩が流れる危険な通路。"
+
+[[floors.rooms]]
+x = 0
+y = 2
+name = "古代の研究室"
+type = "room"
+description = "かつての研究设施の跡。"
+
+[[floors.rooms]]
+x = 4
+y = 2
+name = "熱風廊下"
+type = "corridor"
+description = "灼熱の風が吹き荒れる廊下。"
+
+[[floors.rooms]]
+x = 2
+y = 4
+name = "溶岩層への階段"
+type = "stairs_down"
+description = "さらなる危険区域へ続く。"
+
+[[floors.connections]]
+from = { x = 2, y = 0 }
+to = { x = 2, y = 1 }
+
+[[floors.connections]]
+from = { x = 2, y = 1 }
+to = { x = 2, y = 2 }
+
+[[floors.connections]]
+from = { x = 2, y = 2 }
+to = { x = 0, y = 2 }
+
+[[floors.connections]]
+from = { x = 2, y = 2 }
+to = { x = 4, y = 2 }
+
+[[floors.connections]]
+from = { x = 2, y = 2 }
+to = { x = 2, y = 4 }
+
+[[floors]]
+floor_number = 2
+width = 5
+height = 5
+
+[[floors.rooms]]
+x = 2
+y = 4
+name = "溶岩浴室"
+type = "room"
+description = "溶岩が循環する大浴場。"
+
+[[floors.rooms]]
+x = 1
+y = 2
+name = "工匠の間"
+type = "room"
+description = "鍛冶工匠の作業場だった区域。"
+
+[[floors.rooms]]
+x = 3
+y = 2
+name = "魔力炉"
+type = "room"
+description = "強力な魔力を発生する古代炉。"
+
+[[floors.rooms]]
+x = 2
+y = 1
+name = "溶岩王子"
+type = "boss_room"
+description = "溶岩の魔物が待つボスルーム。"
+
+[[floors.connections]]
+from = { x = 2, y = 4 }
+to = { x = 1, y = 2 }
+
+[[floors.connections]]
+from = { x = 2, y = 4 }
+to = { x = 3, y = 2 }
+
+[[floors.connections]]
+from = { x = 1, y = 2 }
+to = { x = 2, y = 1 }
+
+[[floors.connections]]
+from = { x = 3, y = 2 }
+to = { x = 2, y = 1 }
+
+[[floors]]
+floor_number = 3
+width = 3
+height = 3
+
+[[floors.rooms]]
+x = 1
+y = 1
+name = "溶岩王の玉座"
+type = "boss_room"
+description = "火山を支配する溶岩王の待つ最深部。"
+
+[[floors.rooms]]
+x = 0
+y = 1
+name = "寶蔵庫"
+type = "room"
+description = "火山国で収集した財宝が眠る。"
+
+[[floors.rooms]]
+x = 1
+y = 2
+name = "脱出ポイント"
+type = "stairs_up"
+description = "地上への脱出ポイント。"
+
+[[floors.connections]]
+from = { x = 1, y = 1 }
+to = { x = 0, y = 1 }
+
+[[floors.connections]]
+from = { x = 1, y = 1 }
+to = { x = 1, y = 2 }
+
+[meta]
+loader_version = 1
+notes = "火山をテーマにした中上級者向けダンジョン"
