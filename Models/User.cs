@@ -71,4 +71,7 @@ public class User
     
     // 最後にアクティブだった日時（放置報酬の計算で使用）
     public DateTime LastActiveUtc { get; set; } = DateTime.UtcNow;
+    
+    // 所属する世界/次元（表世界、裏世界など）
+    public string CurrentWorld { get; set; } = "Main";
 }

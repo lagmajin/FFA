@@ -18,10 +18,20 @@ public enum LocationType
 }
 
 /// <summary>
+/// 世界/次元のタイプ
+/// </summary>
+public enum WorldType
+{
+    Main,      // メイン世界（表世界）
+    Underworld // 裏世界
+}
+
+/// <summary>
 /// 世界の場所（一つのグリッドセル）
 /// </summary>
 public class WorldLocation
 {
+    public WorldType World { get; set; } = WorldType.Main; // 所属する世界/次元
     public int X { get; set; }
     public int Y { get; set; }
     public string Name { get; set; } = "";
@@ -60,6 +70,7 @@ public class WorldLocation
 public class PlayerPosition
 {
     public string Username { get; set; } = "";
+    public WorldType World { get; set; } = WorldType.Main; // 現在の所属世界
     public int X { get; set; }
     public int Y { get; set; }
     public DateTime LastMoveTime { get; set; } = DateTime.UtcNow;

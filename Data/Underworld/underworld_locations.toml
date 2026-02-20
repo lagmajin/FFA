@@ -1,0 +1,127 @@
+# Underworld / 裏世界 Locations
+# メイン世界とは別の次元に位置する危険な領域
+
+[[locations]]
+x = 0
+y = 0
+name = "Dark Citadel"
+description = "裏世界の中心に位置する暗黒城塞。常に暗い霧に覆われている。"
+type = "Town"
+world = "Underworld"
+country_name = "Dark Realm"
+location_id = 1
+required_level = 20
+is_accessible = true
+is_discovered = true
+
+[[locations]]
+x = 0
+y = -1
+name = "Cursed Forest"
+description = "呪われた森。幽霊の木々が月光に映える。"
+type = "Forest"
+world = "Underworld"
+required_level = 15
+enemies = ["Ghost Tree", "Shadow Wolf"]
+enemy_level = 18
+enemy_count = 2
+drops = ["Ghost Branch", "Shadow Crystal"]
+drop_rate = 15
+
+[[locations]]
+x = 1
+y = 0
+name = "Blood Lake"
+description = "血のように赤く染まった湖。周囲一体を不気味な雰囲気に包む。"
+type = "Lake"
+world = "Underworld"
+required_level = 18
+enemies = ["Blood Spirit", "Drowned Ghost"]
+enemy_level = 20
+enemy_count = 3
+drops = ["Blood Orb", "Spirit Pearl"]
+drop_rate = 20
+
+[[locations]]
+x = -1
+y = 0
+name = "Bone Mountain"
+description = "骨の山。古代の戦場の跡地。"
+type = "Mountain"
+world = "Underworld"
+required_level = 22
+enemies = ["Skeleton Warrior", "Bone Archer"]
+enemy_level = 25
+enemy_count = 2
+drops = ["Bone Fragment", "Skull Gem"]
+drop_rate = 12
+
+[[locations]]
+x = 0
+y = 1
+name = "Abyss Desert"
+description = "終わりなき砂漠。幻覚を起こす砂嵐が吹き荒れる。"
+type = "Desert"
+world = "Underworld"
+required_level = 25
+enemies = ["Sand Wraith", "Desert Mummy"]
+enemy_level = 28
+enemy_count = 2
+drops = ["Sand Essence", "Mummy Cloth"]
+drop_rate = 18
+
+[[locations]]
+x = -1
+y = -1
+name = "Frozen Cemetery"
+description = "氷の墓場。永遠に凍った死者たちが眠る。"
+type = "Snow"
+world = "Underworld"
+required_level = 30
+enemies = ["Ice Corpse", "Frozen Spirit"]
+enemy_level = 32
+enemy_count = 3
+drops = ["Ice Crystal", "Frozen Heart"]
+drop_rate = 15
+
+[[locations]]
+x = 1
+y = -1
+name = "Volcanic Ruins"
+description = "溶岩の流れ出る古代遗迹。"
+type = "Volcano"
+world = "Underworld"
+required_level = 35
+enemies = ["Magma Golem", "Fire Spirit"]
+enemy_level = 38
+enemy_count = 2
+drops = ["Magma Core", "Fire Essence"]
+drop_rate = 20
+
+[[locations]]
+x = -1
+y = 1
+name = "Haunted Plains"
+description = "幽霊が徘徊する草原。"
+type = "Field"
+world = "Underworld"
+required_level = 12
+enemies = ["Phantom", "Lost Soul"]
+enemy_level = 15
+enemy_count = 4
+drops = ["Soul Shard", "Phantom Dust"]
+drop_rate = 10
+
+[[locations]]
+x = 1
+y = 1
+name = "Shadow Sea"
+description = "影に覆われた海。海底には古代の遺産。"
+type = "Sea"
+world = "Underworld"
+required_level = 40
+enemies = ["Sea Phantom", "Abyssal Crab"]
+enemy_level = 42
+enemy_count = 3
+drops = ["Sea Essence", "Abyssal Pearl"]
+drop_rate = 25
