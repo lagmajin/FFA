@@ -1,0 +1,144 @@
+# Cemetery Dungeon - 死者の墓場
+# 難易度：中級者向け（Lv20-30）
+
+id = "area:cemetery"
+name = "死者の墓場"
+description = "古くから続く墓場。夜间には幽霊が徘徊する。"
+entrance_world_tag = "area:cemetery"
+recommended_level = 20
+
+[[floors]]
+floor_number = 1
+width = 4
+height = 4
+
+[[floors.rooms]]
+x = 2
+y = 0
+name = "墓場入り口"
+type = "entrance"
+description = "古い石の門。墓地への入口。"
+
+[[floors.rooms]]
+x = 1
+y = 2
+name = "古参道"
+type = "corridor"
+description = "古い墓石が並ぶ参道。"
+
+[[floors.rooms]]
+x = 3
+y = 2
+name = "礼拝堂"
+type = "room"
+description = "小さな礼拝堂の跡。"
+
+[[floors.rooms]]
+x = 2
+y = 3
+name = "地下墓所への階段"
+type = "stairs_down"
+description = "さらに奥へと続く暗い階段。"
+
+[[floors.connections]]
+from = { x = 2, y = 0 }
+to = { x = 2, y = 1 }
+
+[[floors.connections]]
+from = { x = 2, y = 1 }
+to = { x = 1, y = 2 }
+
+[[floors.connections]]
+from = { x = 2, y = 1 }
+to = { x = 3, y = 2 }
+
+[[floors.connections]]
+from = { x = 2, y = 1 }
+to = { x = 2, y = 3 }
+
+[[floors]]
+floor_number = 2
+width = 4
+height = 4
+
+[[floors.rooms]]
+x = 2
+y = 3
+name = "地下納骨堂"
+type = "room"
+description = "骨收纳施設。"
+
+[[floors.rooms]]
+x = 1
+y = 1
+name = "幽霊回廊"
+type = "corridor"
+description = "幽霊が徘徊する廊下。"
+
+[[floors.rooms]]
+x = 3
+y = 1
+name = "石棺の間"
+type = "room"
+description = "大きな石棺が置かれた部屋。"
+
+[[floors.rooms]]
+x = 2
+y = 0
+name = "屍術師の Lab"
+type = "boss_room"
+description = "屍を操る者が待つラボ。"
+
+[[floors.connections]]
+from = { x = 2, y = 3 }
+to = { x = 1, y = 1 }
+
+[[floors.connections]]
+from = { x = 2, y = 3 }
+to = { x = 3, y = 1 }
+
+[[floors.connections]]
+from = { x = 1, y = 1 }
+to = { x = 2, y = 0 }
+
+[[floors.connections]]
+from = { x = 3, y = 1 }
+to = { x = 2, y = 0 }
+
+[[floors]]
+floor_number = 3
+width = 3
+height = 3
+
+[[floors.rooms]]
+x = 1
+y = 1
+name = "死者の王"
+type = "boss_room"
+description = "墓場を支配する死者の王が待つ。"
+
+[[floors.rooms]]
+x = 0
+y = 1
+name = "宝物庫"
+type = "room"
+description = "貴重な装備が眠る。"
+
+[[floors.rooms]]
+x = 1
+y = 2
+name = "脱出ポイント"
+type = "stairs_up"
+description = "地上への脱出ポイント。"
+
+[[floors.connections]]
+from = { x = 1, y = 1 }
+to = { x = 0, y = 1 }
+
+[[floors.connections]]
+from = { x = 1, y = 1 }
+to = { x = 1, y = 2 }
+
+[meta]
+loader_version = 1
+notes = "墓場をテーマにした中級者向けダンジョン"

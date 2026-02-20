@@ -1,0 +1,155 @@
+# Underwater Ruins - 海底都市
+# 難易度：中上級者向け（Lv30-40）
+
+id = "area:underwater_ruins"
+name = "海底都市"
+description = "昔に沈んだ都市の遗迹。海底深くに位置する。"
+entrance_world_tag = "area:underwater_ruins"
+recommended_level = 30
+
+[[floors]]
+floor_number = 1
+width = 5
+height = 5
+
+[[floors.rooms]]
+x = 2
+y = 0
+name = "水中入口"
+type = "entrance"
+description = "泡に包まれた水中への入口。"
+
+[[floors.rooms]]
+x = 2
+y = 2
+name = "市場跡"
+type = "hall"
+description = "かつての商業地区。"
+
+[[floors.rooms]]
+x = 0
+y = 2
+name = "住宅街"
+type = "room"
+description = "住民の住宅の遗迹。"
+
+[[floors.rooms]]
+x = 4
+y = 2
+name = "港设施"
+type = "room"
+description = "港の设施跡。"
+
+[[floors.rooms]]
+x = 2
+y = 4
+name = "深海への階段"
+type = "stairs_down"
+description = "さらなる水深へ続く。"
+
+[[floors.connections]]
+from = { x = 2, y = 0 }
+to = { x = 2, y = 1 }
+
+[[floors.connections]]
+from = { x = 2, y = 1 }
+to = { x = 2, y = 2 }
+
+[[floors.connections]]
+from = { x = 2, y = 2 }
+to = { x = 0, y = 2 }
+
+[[floors.connections]]
+from = { x = 2, y = 2 }
+to = { x = 4, y = 2 }
+
+[[floors.connections]]
+from = { x = 2, y = 2 }
+to = { x = 2, y = 4 }
+
+[[floors]]
+floor_number = 2
+width = 5
+height = 5
+
+[[floors.rooms]]
+x = 2
+y = 4
+name = "海底神殿"
+type = "room"
+description = "神を祀った大神殿。"
+
+[[floors.rooms]]
+x = 1
+y = 2
+name = "図書館"
+type = "room"
+description = "知识の保管庫。"
+
+[[floors.rooms]]
+x = 3
+y = 2
+name = "王的居城"
+type = "boss_room"
+description = "王が住んだ城。"
+
+[[floors.rooms]]
+x = 2
+y = 1
+name = "魔法实验室"
+type = "room"
+description = "魔法研究の場。"
+
+[[floors.connections]]
+from = { x = 2, y = 4 }
+to = { x = 1, y = 2 }
+
+[[floors.connections]]
+from = { x = 2, y = 4 }
+to = { x = 3, y = 2 }
+
+[[floors.connections]]
+from = { x = 1, y = 2 }
+to = { x = 2, y = 1 }
+
+[[floors.connections]]
+from = { x = 3, y = 2 }
+to = { x = 2, y = 1 }
+
+[[floors]]
+floor_number = 3
+width = 3
+height = 3
+
+[[floors.rooms]]
+x = 1
+y = 1
+name = "深海王の玉座"
+type = "boss_room"
+description = "海底を支配する王の玉座。"
+
+[[floors.rooms]]
+x = 0
+y = 1
+name = "秘宝の間"
+type = "room"
+description = "貴重な海底宝物の保管場所。"
+
+[[floors.rooms]]
+x = 1
+y = 2
+name = "脱出ポイント"
+type = "stairs_up"
+description = "地上への脱出ポイント。"
+
+[[floors.connections]]
+from = { x = 1, y = 1 }
+to = { x = 0, y = 1 }
+
+[[floors.connections]]
+from = { x = 1, y = 1 }
+to = { x = 1, y = 2 }
+
+[meta]
+loader_version = 1
+notes = "海底都市をテーマにした上級者向けダンジョン"
