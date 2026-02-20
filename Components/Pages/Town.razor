@@ -5,54 +5,158 @@
 @inject Services.UserService UserService
 @inject Services.CountryService CountryService
 @inject Services.TownService TownService
+@inject Services.TimeWeatherService TWService
 
 <PageTitle>街</PageTitle>
 
 <div class="town-container">
-    <h1 class="town-title">@CurrentTown?.Name</h1>
-    <p class="town-description">@CurrentTown?.Description</p>
+    @* ヘッダーセクション *@
+    <div class="town-header">
+        <div class="town-main-info">
+            <h1 class="town-title">@CurrentTown?.Name</h1>
+            <p class="town-description">@CurrentTown?.Description</p>
+        </div>
+        <div class="town-time-weather">
+            <div class="tw-display @TWService.Phase.ToString().ToLower()">
+                <span class="tw-icon">@GetTimeIcon(TWService.Phase)</span>
+                <span class="tw-time">@FormatTime(TWService.TimeOfDay)</span>
+                <span class="tw-weather">@TWService.Weather</span>
+            </div>
+        </div>
+    </div>
     
-    <div class="town-info">
+    @* 町の情報バー *@
+    <div class="town-info-bar">
         <div class="town-type">
             <span class="type-badge @CurrentTown?.Type">@GetTownTypeName(CurrentTown?.Type)</span>
         </div>
         <div class="town-details">
-            <span>人口: @CurrentTown?.Population</span>
-            <span>繁栄度: @CurrentTown?.Prosperity/100</span>
+            <span class="detail-item"><span class="label">人口</span> <span class="value">@CurrentTown?.Population.ToString("N0")</span></span>
+            <span class="detail-item"><span class="label">繁栄度</span> <span class="value">@CurrentTown?.Prosperity/100</span></span>
             @if (CurrentTown?.CountryName != null)
             {
-                <span>所属国: @CurrentTown.CountryName</span>
+                <span class="detail-item"><span class="label">所属国</span> <span class="value">@CurrentTown.CountryName</span></span>
             }
+            @if (CurrentTown?.HasSpecialShop == true)
+            {
+                <span class="detail-item special-shop"><span class="label">特産</span> <span class="value">@CurrentTown.SpecialShopType</span></span>
+            }
+        </div>
+    </div>
+
+    @* プレイヤーステータス *@
+    <div class="player-status-card">
+        <div class="player-header">
+            <h3>プレイヤー情報</h3>
+            <span class="player-name">@currentUser?.Username</span>
+        </div>
+        <div class="player-stats">
+            <div class="stat-row">
+                <div class="stat">
+                    <span class="stat-label">Lv.</span>
+                    <span class="stat-value level">@currentUser?.Level</span>
+                    <span class="stat-job">@GetJobName(currentUser?.Job)</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">💰</span>
+                    <span class="stat-value gold">@currentUser?.Gil.ToString("N0")</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">💎</span>
+                    <span class="stat-value premium">@currentUser?.Premium</span>
+                </div>
+            </div>
+            <div class="stat-row hp-row">
+                <div class="hp-bar">
+                    <span class="hp-label">HP</span>
+                    <div class="hp-track">
+                        <div class="hp-fill" style="width: @GetHpPercent()%"></div>
+                    </div>
+                    <span class="hp-value">@currentUser?.HP / @currentUser?.MaxHP</span>
+                </div>
+            </div>
+            <div class="stat-row exp-row">
+                <div class="exp-bar">
+                    <span class="exp-label">EXP</span>
+                    <div class="exp-track">
+                        <div class="exp-fill" style="width: @GetExpPercent()%"></div>
+                    </div>
+                    <span class="exp-value">@currentUser?.Exp / @currentUser?.ExpToNext</span>
+                </div>
+            </div>
         </div>
     </div>
 
     @if (CurrentTown != null)
     {
         <div class="town-content">
-            <div class="frame facilities-section">
+            @* 町の便利情報 *@
+            <div class="frame convenience-section">
                 <div class="frame-header">
-                    <h3>施設</h3>
+                    <h3>町の情報</h3>
                 </div>
                 <div class="frame-body">
-                    <div class="facilities-list">
-                        @foreach (var facility in CurrentTown.Facilities)
-                        {
-                            <div class="facility-item">@facility</div>
-                        }
+                    <div class="convenience-grid">
+                        <div class="convenience-item">
+                            <span class="icon">🏨</span>
+                            <span class="name">宿屋</span>
+                            <span class="info">HP全回復: 100G</span>
+                        </div>
+                        <div class="convenience-item">
+                            <span class="icon">🏦</span>
+                            <span class="name">銀行</span>
+                            <span class="info">預け入れ: @currentUser?.BankedGil.ToString("N0")G</span>
+                        </div>
+                        <div class="convenience-item">
+                            <span class="icon">⚒️</span>
+                            <span class="name">鍛冶屋</span>
+                            <span class="info">強化・修理</span>
+                        </div>
+                        <div class="convenience-item">
+                            <span class="icon">🎣</span>
+                            <span class="name">釣り</span>
+                            <span class="info"> 川・海</span>
+                        </div>
+                        <div class="convenience-item">
+                            <span class="icon">⛏️</span>
+                            <span class="name">採掘</span>
+                            <span class="info">鉱山</span>
+                        </div>
+                        <div class="convenience-item">
+                            <span class="icon">🏰</span>
+                            <span class="name">ダンジョン</span>
+                            <span class="info">迷宫探索</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="frame events-section">
-                <div class="frame-header">
-                    <h3>イベント</h3>
+            <div class="town-main-sections">
+                <div class="frame facilities-section">
+                    <div class="frame-header">
+                        <h3>施設</h3>
+                    </div>
+                    <div class="frame-body">
+                        <div class="facilities-list">
+                            @foreach (var facility in CurrentTown.Facilities)
+                            {
+                                <div class="facility-item">@facility</div>
+                            }
+                        </div>
+                    </div>
                 </div>
-                <div class="frame-body">
-                    <div class="events-list">
-                        @foreach (var ev in CurrentTown.Events)
-                        {
-                            <div class="event-item">@ev</div>
-                        }
+
+                <div class="frame events-section">
+                    <div class="frame-header">
+                        <h3>イベント</h3>
+                    </div>
+                    <div class="frame-body">
+                        <div class="events-list">
+                            @foreach (var ev in CurrentTown.Events)
+                            {
+                                <div class="event-item">@ev</div>
+                            }
+                        </div>
                     </div>
                 </div>
             </div>
@@ -70,20 +174,49 @@
                             </button>
                         }
                         
-                        <div class="basic-shops">
-                            <button class="action-button" @onclick="GoToWeaponShop">武器屋</button>
-                            <button class="action-button" @onclick="GoToArmorShop">防具屋</button>
-                            <button class="action-button" @onclick="GoToAccessoryShop">装飾品屋</button>
-                            <button class="action-button" @onclick="GoToConsumablesShop">消耗品屋</button>
+                        <div class="shop-group">
+                            <div class="group-title">商店</div>
+                            <div class="basic-shops">
+                                <button class="action-button" @onclick="GoToWeaponShop">武器屋</button>
+                                <button class="action-button" @onclick="GoToArmorShop">防具屋</button>
+                                <button class="action-button" @onclick="GoToAccessoryShop">装飾品屋</button>
+                                <button class="action-button" @onclick="GoToConsumablesShop">消耗品屋</button>
+                            </div>
                         </div>
                         
-                        <div class="other-actions">
-                            <button class="action-button" @onclick="GoToInn">宿屋</button>
-                            <button class="action-button" @onclick="GoToBank">銀行</button>
-                            <button class="action-button" @onclick="GoToAccessoryManagement">装飾品管理</button>
-                            <button class="action-button" @onclick="GoToSkillTrees">スキルツリー</button>
-                            <button class="action-button" @onclick="GoToAbilities">アビリティ</button>
-                            <button class="action-button" @onclick="GoBack">ダッシュボード</button>
+                        <div class="service-group">
+                            <div class="group-title">サービス</div>
+                            <div class="other-actions">
+                                <button class="action-button" @onclick="GoToInn">宿屋</button>
+                                <button class="action-button" @onclick="GoToBank">銀行</button>
+                                <button class="action-button" @onclick="GoToTavern">酒場</button>
+                            </div>
+                        </div>
+                        
+                        <div class="management-group">
+                            <div class="group-title">管理</div>
+                            <div class="other-actions">
+                                <button class="action-button" @onclick="GoToAccessoryManagement">装飾品管理</button>
+                                <button class="action-button" @onclick="GoToWeaponManagement">武器管理</button>
+                                <button class="action-button" @onclick="GoToArmorManagement">防具管理</button>
+                            </div>
+                        </div>
+                        
+                        <div class="skill-group">
+                            <div class="group-title">スキル</div>
+                            <div class="other-actions">
+                                <button class="action-button" @onclick="GoToSkillTrees">スキルツリー</button>
+                                <button class="action-button" @onclick="GoToAbilities">アビリティ</button>
+                            </div>
+                        </div>
+                        
+                        <div class="navigation-group">
+                            <div class="group-title">移動</div>
+                            <div class="other-actions">
+                                <button class="action-button primary" @onclick="GoBack">ダッシュボード</button>
+                                <button class="action-button" @onclick="GoToField">フィールド</button>
+                                <button class="action-button" @onclick="GoToMap">マップ</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -158,6 +291,61 @@
         };
     }
 
+    private string GetTimeIcon(FFA.Services.DayPhase phase)
+    {
+        return phase switch
+        {
+            FFA.Services.DayPhase.Dawn => "🌅",
+            FFA.Services.DayPhase.Day => "☀️",
+            FFA.Services.DayPhase.Dusk => "🌆",
+            FFA.Services.DayPhase.Night => "🌙",
+            _ => "🌤️"
+        };
+    }
+
+    private string FormatTime(double t)
+    {
+        int hh = (int)Math.Floor(t);
+        int mm = (int)Math.Floor((t - hh) * 60);
+        return $"{hh:D2}:{mm:D2}";
+    }
+
+    private string GetJobName(Job? job)
+    {
+        return job switch
+        {
+            Job.Warrior => "戦士",
+            Job.Monk => "武闘家",
+            Job.WhiteMage => "白魔道士",
+            Job.BlackMage => "黒魔道士",
+            Job.Ranger => "レンジャー",
+            Job.Paladin => "パラディン",
+            Job.DarkKnight => "ダークナイト",
+            Job.Bard => "吟遊詩人",
+            Job.Thief => "盗賊",
+            Job.Ninja => "忍者",
+            Job.HolyKnight => "聖騎士",
+            Job.DeathKnight => "死騎",
+            Job.ArchMage => "大魔道師",
+            Job.BeastMaster => "ビーストマスター",
+            Job.Duelist => "剣豪",
+            Job.Grandmaster => "マスター",
+            _ => "初心者"
+        };
+    }
+
+    private int GetHpPercent()
+    {
+        if (currentUser == null || currentUser.MaxHP == 0) return 0;
+        return (int)((double)currentUser.HP / currentUser.MaxHP * 100);
+    }
+
+    private int GetExpPercent()
+    {
+        if (currentUser == null || currentUser.ExpToNext == 0) return 0;
+        return (int)((double)currentUser.Exp / currentUser.ExpToNext * 100);
+    }
+
     private void GoToSpecialShop()
     {
         if (CurrentTown == null) return;
@@ -197,12 +385,17 @@
     private void GoToShop() => Navigation.NavigateTo("/shop");
     private void GoToInn() => Navigation.NavigateTo("/inn");
     private void GoToBank() => Navigation.NavigateTo("/bank");
+    private void GoToTavern() => Navigation.NavigateTo("/tavern");
     private void GoBack() => Navigation.NavigateTo("/dashboard");
     private void GoToWeaponShop() => Navigation.NavigateTo("/weapon-shop");
     private void GoToArmorShop() => Navigation.NavigateTo("/armor-shop");
     private void GoToAccessoryShop() => Navigation.NavigateTo("/accessory-shop");
     private void GoToAccessoryManagement() => Navigation.NavigateTo("/accessory-management");
+    private void GoToWeaponManagement() => Navigation.NavigateTo("/weapon-management");
+    private void GoToArmorManagement() => Navigation.NavigateTo("/armor-management");
     private void GoToSkillTrees() => Navigation.NavigateTo("/skill-trees");
     private void GoToAbilities() => Navigation.NavigateTo("/abilities");
     private void GoToConsumablesShop() => Navigation.NavigateTo("/consumables-shop");
+    private void GoToField() => Navigation.NavigateTo("/field");
+    private void GoToMap() => Navigation.NavigateTo("/map");
 }

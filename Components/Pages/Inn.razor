@@ -1,32 +1,233 @@
 @page "/inn"
 @rendermode InteractiveServer
 
+@using FFA.Services
+@using Microsoft.AspNetCore.Components.Authorization
+@inject UserService UserService
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
+
 <PageTitle>宿屋</PageTitle>
 
-@using FFA.Services
-@inject UserService UserService
+@if (!isAuth)
+{
+    <div class="auth-required">
+        <h2>🔒 アクセス制限</h2>
+        <p>この機能を利用するにはログインしてください。</p>
+        <button class="login-button" @onclick="GoToLogin">ログイン画面へ</button>
+    </div>
+}
+else
+{
+    <div class="inn-container">
+        <div class="inn-header">
+            <h1>🏨 宿屋</h1>
+            <p class="inn-description">ゆっくり休んでHPを回復しましょう</p>
+        </div>
 
-<h2>宿屋</h2>
+        @if (currentUser != null)
+        {
+            <div class="player-status">
+                <div class="status-row">
+                    <span class="label">プレイヤー:</span>
+                    <span class="value">@currentUser.Username</span>
+                </div>
+                <div class="status-row">
+                    <span class="label">所持金:</span>
+                    <span class="value gold">@currentUser.Gil.ToString("N0") ギル</span>
+                </div>
+                <div class="status-row">
+                    <span class="label">HP:</span>
+                    <span class="value hp">@currentUser.HP / @currentUser.MaxHP</span>
+                </div>
+            </div>
 
-<p>宿屋で休むとHPが全回復します（デモ）。</p>
+            <div class="inn-actions">
+                <div class="rest-section">
+                    <h3>休息する</h3>
+                    <p class="cost">費用: 100 ギル</p>
+                    <button class="rest-button @(!canRest ? "disabled" : "")" 
+                            @onclick="Rest" 
+                            disabled="@(!canRest)">
+                        @if (!canRest)
+                        {
+                            <span>ギル不足</span>
+                        }
+                        else
+                        {
+                            <span>休む</span>
+                        }
+                    </button>
+                </div>
 
-<button @onclick="Rest">休む（100ギル）</button>
+                @if (currentUser.HP >= currentUser.MaxHP)
+                {
+                    <div class="already-healed">
+                        <p>💚 HPは既に満点です！</p>
+                    </div>
+                }
+            </div>
+
+            @if (lastEvent != null)
+            {
+                <div class="event-display @lastEvent.Type.ToString().ToLower()">
+                    <div class="event-header">
+                        <span class="event-icon">@lastEvent.Icon</span>
+                        <span class="event-title">@lastEvent.Title</span>
+                    </div>
+                    <p class="event-message">@lastEvent.Message</p>
+                    @if (lastEvent.GilChange != 0)
+                    {
+                        <p class="event-reward @(lastEvent.GilChange > 0 ? "positive" : "negative")">
+                            @(lastEvent.GilChange > 0 ? "+" : "")@lastEvent.GilChange ギル
+                        </p>
+                    }
+                    @if (lastEvent.ExpGain > 0)
+                    {
+                        <p class="event-reward positive">+@lastEvent.ExpGain EXP</p>
+                    }
+                </div>
+            }
+
+            <div class="inn-info">
+                <h3>宿屋のイベント</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="icon">💤</span>
+                        <span class="name">休息</span>
+                        <span class="desc">HP全回復</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="icon">🎲</span>
+                        <span class="name">ランダムイベント</span>
+                        <span class="desc">様々なことが發生</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="icon">💬</span>
+                        <span class="name">情報</span>
+                        <span class="desc">最新の情報を得る</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="icon">🍺</span>
+                        <span class="name">交流</span>
+                        <span class="desc">他の冒険者と会う</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="back-button">
+                <button @onclick="GoBack">← 街に戻る</button>
+            </div>
+        }
+        else
+        {
+            <div class="no-user">
+                <p>プレイヤーデータが見つかりません</p>
+                <button @onclick="GoBack">戻る</button>
+            </div>
+        }
+    </div>
+}
 
 @code {
+    private User? currentUser;
+    private bool canRest;
+    private bool isAuth;
+    private string? username;
+    private InnEvent? lastEvent;
+    private readonly Random random = new Random();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        isAuth = state.User?.Identity?.IsAuthenticated ?? false;
+        username = state.User?.Identity?.Name;
+
+        if (isAuth && !string.IsNullOrEmpty(username))
+        {
+            currentUser = UserService.GetByUsername(username);
+            UpdateCanRest();
+        }
+    }
+
+    private List<InnEvent> possibleEvents = new List<InnEvent>
+    {
+        new InnEvent { Type = EventType.Normal, Icon = "😴", Title = "良い休息", Message = "ゆっくり休んで疲れが取れた", GilChange = 0, ExpGain = 10 },
+        new InnEvent { Type = EventType.Normal, Icon = "🌙", Title = "深い眠り", Message = "深い眠りについた", GilChange = 0, ExpGain = 15 },
+        new InnEvent { Type = EventType.Normal, Icon = "✨", Title = "リラックス", Message = "心が穏やかになった", GilChange = 0, ExpGain = 5 },
+        new InnEvent { Type = EventType.Good, Icon = "💰", Title = "落とし物", Message = "aisseで落ちている金貨を見つけた！", GilChange = 50, ExpGain = 5 },
+        new InnEvent { Type = EventType.Good, Icon = "🎁", Title = "親切な店主", Message = "店主がサービスを無料にしてくれた", GilChange = 100, ExpGain = 0 },
+        new InnEvent { Type = EventType.Good, Icon = "💎", Title = "寶物", Message = "古い宝箱を発見した！", GilChange = 200, ExpGain = 20 },
+        new InnEvent { Type = EventType.Good, Icon = "🗣️", Title = "情報を得る", Message = "興味深い情報をんだろう", GilChange = 0, ExpGain = 25 },
+        new InnEvent { Type = EventType.Bad, Icon = "👻", Title = "悪夢", Message = "噩梦にうなされてしまった", GilChange = 0, ExpGain = -5 },
+        new InnEvent { Type = EventType.Bad, Icon = "🐛", Title = "虫", Message = "虫に刺されて痒い", GilChange = 0, ExpGain = 0 },
+        new InnEvent { Type = EventType.Bad, Icon = "💸", Title = "泥棒", Message = "お金を盗まれてしまった！", GilChange = -30, ExpGain = 0 },
+        new InnEvent { Type = EventType.Special, Icon = "🌟", Title = "特別な夢", Message = "神秘的な夢を見た。何か大切なものを学んだような...", GilChange = 0, ExpGain = 50 },
+        new InnEvent { Type = EventType.Special, Icon = "🦉", Title = "賢者の言葉", Message = "夜明けに賢者が話しかけてきた", GilChange = 0, ExpGain = 30 },
+    };
+
+    private void UpdateCanRest()
+    {
+        canRest = currentUser != null && currentUser.Gil >= 100;
+    }
+
     private void Rest()
     {
-        var username = "demo";
-        var user = UserService.GetByUsername(username);
-        if (user == null) return;
+        if (currentUser == null || currentUser.Gil < 100) return;
 
-        if (user.Gil < 100)
+        // お金を支払う
+        currentUser.Gil -= 100;
+        
+        // HPを全回復
+        currentUser.HP = currentUser.MaxHP;
+
+        // ランダムイベント发生
+        var eventIndex = random.Next(possibleEvents.Count);
+        lastEvent = possibleEvents[eventIndex];
+
+        // イベントの効果を適用
+        currentUser.Gil += lastEvent.GilChange;
+        currentUser.Exp += lastEvent.ExpGain;
+
+        // 経験値レベルでチェック
+        if (currentUser.Exp >= currentUser.ExpToNext)
         {
-            Console.WriteLine("所持金不足");
-            return;
+            currentUser.Level++;
+            currentUser.Exp -= currentUser.ExpToNext;
+            currentUser.ExpToNext = (int)(currentUser.ExpToNext * 1.5);
+            currentUser.MaxHP += 10;
+            currentUser.HP = currentUser.MaxHP;
         }
 
-        user.Gil -= 100;
-        user.HP = user.MaxHP;
-        UserService.UpdateUser(user);
+        UserService.UpdateUser(currentUser);
+        UpdateCanRest();
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/town");
+    }
+
+    private void GoToLogin()
+    {
+        Navigation.NavigateTo("/login");
+    }
+
+    private enum EventType
+    {
+        Normal,
+        Good,
+        Bad,
+        Special
+    }
+
+    private class InnEvent
+    {
+        public EventType Type { get; set; }
+        public string Icon { get; set; } = "";
+        public string Title { get; set; } = "";
+        public string Message { get; set; } = "";
+        public int GilChange { get; set; }
+        public int ExpGain { get; set; }
     }
 }
