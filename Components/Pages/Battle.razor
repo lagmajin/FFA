@@ -734,12 +734,21 @@
     {
         if (currentUser == null) return;
         
-        expLoss = 10 + (currentUser.Exp / 100);
+        // 経験値損失: 基本10 + レベルの5%
+        expLoss = 10 + (currentUser.Exp / 20);
         currentUser.Exp = Math.Max(0, currentUser.Exp - expLoss);
+        
+        // Gold損失: 持有Goldの5%（最低100）
+        var goldLoss = Math.Max(100, currentUser.Gil / 20);
+        currentUser.Gil = Math.Max(0, currentUser.Gil - goldLoss);
+        
+        // HPを1に
+        currentUser.HP = 1;
         
         UserService.UpdateUser(currentUser);
         
-        battleLog.Add($"💀 敗北...");
+        battleLog.Add($"💀 敗北... {expLoss}経験値、{goldLoss}Gil失った！");
+        battleLog.Add("💀 HPが1になった！arlyに回復せよ！");
     }
 
     private void ContinueSearch()

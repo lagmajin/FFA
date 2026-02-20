@@ -205,11 +205,19 @@
         
         battleState = BattleState.Defeat;
         
-        // 経験値少し失う
-        var expLoss = 10;
+        // 経験値損失: 基本10 + レベルの5%
+        var expLoss = 10 + (currentUser.Exp / 20);
         currentUser.Exp = Math.Max(0, currentUser.Exp - expLoss);
         
-        AddLog("system", $"💀 倒れた... {expLoss} 経験値失った");
+        // Gold損失: 持有Goldの5%（最低100）
+        var goldLoss = Math.Max(100, currentUser.Gil / 20);
+        currentUser.Gil = Math.Max(0, currentUser.Gil - goldLoss);
+        
+        // HPを1に
+        currentUser.HP = 1;
+        
+        AddLog("system", $"💀 倒れた... {expLoss}経験値、{goldLoss}Gil失った！");
+        AddLog("system", "💀 HPが1になった！宿屋で回復せよ！");
         
         UserService.UpdateUser(currentUser);
     }
