@@ -86,6 +86,7 @@ else
                     {
                         <p class="event-reward positive">+@lastEvent.ExpGain EXP</p>
                     }
+                    <p class="auto-return">@(countdown)秒後に街に戻ります...</p>
                 </div>
             }
 
@@ -135,7 +136,9 @@ else
     private bool isAuth;
     private string? username;
     private InnEvent? lastEvent;
+    private int countdown;
     private readonly Random random = new Random();
+    private System.Threading.Timer? autoReturnTimer;
 
     protected override async Task OnInitializedAsync()
     {
@@ -201,6 +204,22 @@ else
 
         UserService.UpdateUser(currentUser);
         UpdateCanRest();
+        
+        // 5秒後に自動返回
+        countdown = 5;
+        autoReturnTimer = new System.Threading.Timer(_ =>
+        {
+            InvokeAsync(() =>
+            {
+                countdown--;
+                if (countdown <= 0)
+                {
+                    autoReturnTimer?.Dispose();
+                    GoBack();
+                }
+                StateHasChanged();
+            });
+        }, null, 1000, 1000);
     }
 
     private void GoBack()

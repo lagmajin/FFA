@@ -93,40 +93,41 @@
             @* 町の便利情報 *@
             <div class="frame convenience-section">
                 <div class="frame-header">
-                    <h3>町の情報</h3>
+                    <h3>@CurrentTown.Name の情報</h3>
                 </div>
                 <div class="frame-body">
                     <div class="convenience-grid">
+                        @* 固定インフラ *@
                         <div class="convenience-item">
                             <span class="icon">🏨</span>
                             <span class="name">宿屋</span>
-                            <span class="info">HP全回復: 100G</span>
+                            <span class="info">HP全回復</span>
                         </div>
                         <div class="convenience-item">
                             <span class="icon">🏦</span>
                             <span class="name">銀行</span>
-                            <span class="info">預け入れ: @currentUser?.BankedGil.ToString("N0")G</span>
+                            <span class="info">@currentUser?.BankedGil.ToString("N0")G</span>
                         </div>
-                        <div class="convenience-item">
-                            <span class="icon">⚒️</span>
-                            <span class="name">鍛冶屋</span>
-                            <span class="info">強化・修理</span>
-                        </div>
-                        <div class="convenience-item">
-                            <span class="icon">🎣</span>
-                            <span class="name">釣り</span>
-                            <span class="info"> 川・海</span>
-                        </div>
-                        <div class="convenience-item">
-                            <span class="icon">⛏️</span>
-                            <span class="name">採掘</span>
-                            <span class="info">鉱山</span>
-                        </div>
-                        <div class="convenience-item">
-                            <span class="icon">🏰</span>
-                            <span class="name">ダンジョン</span>
-                            <span class="info">迷宫探索</span>
-                        </div>
+                        
+                        @* 町の施設に基づいて表示 *@
+                        @foreach (var facility in GetTownFacilitiesList(CurrentTown.Facilities))
+                        {
+                            <div class="convenience-item">
+                                <span class="icon">@facility.Icon</span>
+                                <span class="name">@facility.Name</span>
+                                <span class="info">@facility.Info</span>
+                            </div>
+                        }
+                        
+                        @* 特殊商店があるなら表示 *@
+                        @if (CurrentTown.HasSpecialShop)
+                        {
+                            <div class="convenience-item highlight">
+                                <span class="icon">⭐</span>
+                                <span class="name">特殊商店</span>
+                                <span class="info">@CurrentTown.SpecialShopType</span>
+                            </div>
+                        }
                     </div>
                 </div>
             </div>
@@ -344,6 +345,40 @@
     {
         if (currentUser == null || currentUser.ExpToNext == 0) return 0;
         return (int)((double)currentUser.Exp / currentUser.ExpToNext * 100);
+    }
+
+    private List<TownFacilityInfo> GetTownFacilitiesList(List<string> facilities)
+    {
+        var result = new List<TownFacilityInfo>();
+        
+        foreach (var facility in facilities)
+        {
+            var info = facility.ToLower() switch
+            {
+                "鍛冶屋" or "鍛冶" or "武器屋" => new TownFacilityInfo { Icon = "⚒️", Name = "鍛冶屋", Info = "強化・修理" },
+                "防具屋" => new TownFacilityInfo { Icon = "🛡️", Name = "防具屋", Info = "防具販売" },
+                "装飾品屋" or "アクセサリー" => new TownFacilityInfo { Icon = "💍", Name = "装飾品屋", Info = "アクセサリー" },
+                "消耗品屋" or "薬屋" => new TownFacilityInfo { Icon = "🧪", Name = "消耗品屋", Info = "薬・道具" },
+                "釣り場" or "釣り" => new TownFacilityInfo { Icon = "🎣", Name = "釣り場", Info = "川・海" },
+                "鉱山" or "採掘" => new TownFacilityInfo { Icon = "⛏️", Name = "鉱山", Info = "採掘" },
+                "ダンジョン" => new TownFacilityInfo { Icon = "🏰", Name = "ダンジョン", Info = "探索" },
+                "酒場" or " Tavern" => new TownFacilityInfo { Icon = "🍺", Name = "酒場", Info = "情報" },
+                "神殿" or "教会" => new TownFacilityInfo { Icon = "⛪", Name = "神殿", Info = "回復・祈願" },
+                "市場" => new TownFacilityInfo { Icon = "🏪", Name = "市場", Info = "交易" },
+                "guild" or "ギルド" => new TownFacilityInfo { Icon = "🎖️", Name = "ギルド", Info = "共同活動" },
+                _ => new TownFacilityInfo { Icon = "🏛️", Name = facility, Info = "施設" }
+            };
+            result.Add(info);
+        }
+        
+        return result;
+    }
+
+    private class TownFacilityInfo
+    {
+        public string Icon { get; set; } = "";
+        public string Name { get; set; } = "";
+        public string Info { get; set; } = "";
     }
 
     private void GoToSpecialShop()

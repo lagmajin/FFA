@@ -1,0 +1,258 @@
+# Town Master Data
+# 街のマスターデータ
+
+[[countries]]
+id = 1
+name = "Inferno"
+description = "火山地帯に位置する国。火属性に強く、攻撃力が上昇する。"
+bonus_stat = 5
+bonus_type = "attack"
+capital_name = "Vulcanis"
+capital_description = "火山の近くに建てられた熱気のある首都。鍛冶技術が発達している。"
+village_name = "Ashfield"
+village_description = "火山の麓にある小さな村。火山の灰で肥沃な土地が広がっている。"
+
+[[countries.towns]]
+id = 1
+name = "Vulcanis"
+description = "火山の近くに建てられた熱気のある首都。鍛冶技術が発達している。"
+type = "capital"
+country_id = 1
+country_name = "Inferno"
+has_special_shop = true
+special_shop_type = "武器"
+population = 10000
+prosperity = 85
+facilities = ["鍛冶屋", "魔法学校", "戦闘訓練場", "温泉"]
+events = ["炎の祭り", "火山観光", "鍛冶大会"]
+
+[[countries.towns]]
+id = 2
+name = "Ashfield"
+description = "火山の麓にある小さな村。火山の灰で肥沃な土地が広がっている。"
+type = "village"
+country_id = 1
+country_name = "Inferno"
+has_special_shop = false
+population = 500
+prosperity = 45
+facilities = ["農場", "小規模鍛冶屋", "教会"]
+events = ["収穫祭", "火山の恵み祭"]
+
+[[countries.towns]]
+id = 3
+name = "Pyrrhus"
+description = "炎の国を代表する商業都市。様々な武器商人が集まっている。"
+type = "town"
+country_id = 1
+country_name = "Inferno"
+has_special_shop = true
+special_shop_type = "武器"
+population = 5000
+prosperity = 70
+facilities = ["武器商人", "旅館", "酒場"]
+events = ["武器市", "相撲大会"]
+
+[[countries]]
+id = 2
+name = "Frostheim"
+description = "雪山之国。防御力が上昇し、寒さに対処できる。"
+bonus_stat = 5
+bonus_type = "defense"
+capital_name = "Glaciermount"
+capital_description = "雪山の中に建てられた美しい首都。氷の彫刻が特徴的。"
+village_name = "Snowpeak"
+village_description = "雪山の麓にある平和な村。氷漁が盛ん。"
+
+[[countries.towns]]
+id = 4
+name = "Glaciermount"
+description = "雪山の中に建てられた美しい首都。氷の彫刻が特徴的。"
+type = "capital"
+country_id = 2
+country_name = "Frostheim"
+has_special_shop = true
+special_shop_type = "防具"
+population = 8000
+prosperity = 80
+facilities = ["氷の彫刻館", "魔法学院", "氷の城", "スキー場"]
+events = ["氷の祭り", "スキー大会", "氷の彫刻展"]
+
+[[countries.towns]]
+id = 5
+name = "Snowpeak"
+description = "雪山の麓にある平和な村。氷漁が盛ん。"
+type = "village"
+country_id = 2
+country_name = "Frostheim"
+has_special_shop = false
+population = 300
+prosperity = 40
+facilities = ["漁港", "小規模防具店", "神社"]
+events = ["氷漁祭", "雪合戦大会"]
+
+[[countries.towns]]
+id = 6
+name = "Frostport"
+description = "氷の國の港町。物流の中心地。"
+type = "town"
+country_id = 2
+country_name = "Frostheim"
+has_special_shop = true
+special_shop_type = "防具"
+population = 4000
+prosperity = 65
+facilities = ["防具商人", "港", "温泉旅館"]
+events = ["海産物祭", "防具展示会"]
+
+[[countries]]
+id = 3
+name = "Nature"
+description = "森林之国。自然回復能力が上昇する。"
+bonus_stat = 5
+bonus_type = "health"
+capital_name = "Eldoria"
+capital_description = "森林の奥深く建てられた神秘的な首都。"
+village_name = "Greenshollow"
+village_description = "森林の奥深くにある村。木々と共生している。"
+
+[[countries.towns]]
+id = 7
+name = "Eldoria"
+description = "森林の奥深く建てられた神秘的な首都。"
+type = "capital"
+country_id = 3
+country_name = "Nature"
+has_special_shop = false
+population = 7500
+prosperity = 75
+facilities = ["薬草園", "魔法大学", "大聖樹の寺", "自然公園"]
+events = ["花祭り", "薬草収穫祭", "大聖樹の儀式"]
+
+[[countries.towns]]
+id = 8
+name = "Greenshollow"
+description = "森林の奥深くにある村。木々と共生している。"
+type = "village"
+country_id = 3
+country_name = "Nature"
+has_special_shop = false
+population = 350
+prosperity = 35
+facilities = ["木工作坊", "薬草店", "森の神社"]
+events = ["森の祭り", "木彫り大会"]
+
+[[countries.towns]]
+id = 9
+name = "Herbstone"
+description = "薬草の研究が盛んな町。"
+type = "town"
+country_id = 3
+country_name = "Nature"
+has_special_shop = false
+population = 3500
+prosperity = 60
+facilities = ["薬草商人", "研究所", "民宿"]
+events = ["薬草即売会", "採取大会"]
+
+[[countries]]
+id = 4
+name = "Storm"
+description = "雷鳴が響きわたる国。素早さが上昇する。"
+bonus_stat = 5
+bonus_type = "agility"
+capital_name = "Thunderhold"
+capital_description = "雷鳴がよく響く高地の首都。"
+village_name = "Sparkhill"
+village_description = "雷鳴がよく響く高地の村。雷よけの工芸が有名。"
+
+[[countries.towns]]
+id = 10
+name = "Thunderhold"
+description = "雷鳴がよく響く高地の首都。"
+type = "capital"
+country_id = 4
+country_name = "Storm"
+has_special_shop = false
+population = 9000
+prosperity = 90
+facilities = ["雷の研究所", "魔法工房", "雷の塔", "スピード訓練場"]
+events = ["雷の祭り", "高速走行大会", "雷の石展示会"]
+
+[[countries.towns]]
+id = 11
+name = "Sparkhill"
+description = "雷鳴がよく響く高地の村。雷よけの工芸が有名。"
+type = "village"
+country_id = 4
+country_name = "Storm"
+has_special_shop = false
+population = 400
+prosperity = 50
+facilities = ["雷の石鉱山", "小規模装飾品店", "雷の神社"]
+events = ["雷の石祭り", "山登り大会"]
+
+[[countries.towns]]
+id = 12
+name = "Innovation"
+description = "、発明と工学で有名な進歩的な町。"
+type = "town"
+country_id = 4
+country_name = "Storm"
+has_special_shop = false
+population = 4500
+prosperity = 72
+facilities = ["発明工房", "学園", "城砦"]
+events = ["発明展", "競速大会"]
+
+[[countries]]
+id = 5
+name = "Neutral Haven"
+description = "どの国にも属さない中立の都市。バランス型。"
+bonus_stat = 3
+bonus_type = "all"
+capital_name = "Centralia"
+capital_description = "中都に位置する大きな都市。各国からの人で賑わう。"
+village_name = "Outskirts"
+village_description = "都市の郊外にある平和な村。農業が盛ん。"
+
+[[countries.towns]]
+id = 13
+name = "Centralia"
+description = "中都に位置する大きな都市。各国からの人で賑わう。"
+type = "capital"
+country_id = 5
+country_name = "Neutral Haven"
+has_special_shop = true
+special_shop_type = "消耗品"
+population = 15000
+prosperity = 95
+facilities = ["大市場", "各国大使館", "図書館", "競技場"]
+events = ["国際祭り", "商業博覧会", "格闘大会"]
+
+[[countries.towns]]
+id = 14
+name = "Outskirts"
+description = "都市の郊外にある平和な村。農業が盛ん。"
+type = "village"
+country_id = 5
+country_name = "Neutral Haven"
+has_special_shop = false
+population = 600
+prosperity = 55
+facilities = ["大農場", "市場", "教会"]
+events = ["農業祭", "秋の収穫祭"]
+
+[[countries.towns]]
+id = 15
+name = "Tradetown"
+description = "商業活動が活発な交易の町。"
+type = "town"
+country_id = 5
+country_name = "Neutral Haven"
+has_special_shop = true
+special_shop_type = "消耗品"
+population = 6000
+prosperity = 85
+facilities = ["大商館", "銀行", "ホテル"]
+events = ["商品市", "商談会"]
