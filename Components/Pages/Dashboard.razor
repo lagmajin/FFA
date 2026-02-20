@@ -12,40 +12,140 @@
 @inject NavigationManager Navigation
 @inject WorldGridService WorldGrid
 
-<h2>ダッシュボード</h2>
+<PageTitle>ダッシュボード</PageTitle>
 
-@if (!isAuth)
-{
-    <p>ログインしてください。</p>
-}
-else
-{
-            <div>
-        <p>ユーザー: @username</p>
-        <p>Karma: @karma</p>
-        <p>Gil: @gil</p>
-        <p>OldCoin: @oldcoin</p>
-        <p>Job: @job</p>
-        <p>Level: @level</p>
-        <p>Last IP: @user?.LastIp</p>
-        <p>STR: @(status?.Str ?? 0) DEX: @(status?.Dex ?? 0) INT: @(status?.Int ?? 0) VIT: @(status?.Vit ?? 0)</p>
-    </div>
-    <div>
-        <p>World Time: @timeStr (@TimeWeather.Phase)</p>
-        <p>Weather: @TimeWeather.Weather</p>
-    </div>
+<div class="dashboard-container">
+    <div class="dashboard-content">
+    @if (!isAuth)
+    {
+        <div class="auth-required">
+            <p>ログインしてください。</p>
+        </div>
+    }
+    else
+    {
+        @* ヘッダー *@
+        <div class="dashboard-header">
+            <div class="user-welcome">
+                <h1>おかえりなさい、<span class="username">@username</span>さん</h1>
+            </div>
+            <div class="time-weather">
+                <div class="tw-display @TimeWeather.Phase.ToString().ToLower()">
+                    <span class="tw-icon">@GetTimeIcon(TimeWeather.Phase)</span>
+                    <span class="tw-time">@timeStr</span>
+                    <span class="tw-weather">@TimeWeather.Weather</span>
+                </div>
+            </div>
+        </div>
 
-    <div class="center-actions">
-        @if (showTownButton)
-        {
-            <button type="button" class="action-button" @onclick="GoToTown">街へ</button>
-        }
-        @if (showFieldButton)
-        {
-            <button type="button" class="action-button" @onclick="GoToField">フィールドへ</button>
-        }
-    </div>
-}
+        @* プレイヤーステータス *@
+        <div class="player-card">
+            <div class="player-header">
+                <div class="player-avatar">
+                    <span class="avatar-icon">🧙</span>
+                </div>
+                <div class="player-info">
+                    <h2>@username</h2>
+                    <div class="player-badges">
+                        <span class="badge job">@GetJobName(job)</span>
+                        <span class="badge level">Lv.@level</span>
+                        <span class="badge karma" title="Karma">@karma</span>
+                    </div>
+                </div>
+                <div class="player-currency">
+                    <div class="currency-item gold">
+                        <span class="currency-icon">💰</span>
+                        <span class="currency-value">@gil.ToString("N0")</span>
+                    </div>
+                    <div class="currency-item">
+                        <span class="currency-icon">🪙</span>
+                        <span class="currency-value">@oldcoin</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="player-stats-bars">
+                <div class="stat-bar hp-bar">
+                    <div class="bar-label">
+                        <span>HP</span>
+                        <span class="bar-value">@(user?.HP ?? 0) / @(user?.MaxHP ?? 0)</span>
+                    </div>
+                    <div class="bar-track">
+                        <div class="bar-fill hp" style="width: @GetHpPercent()%"></div>
+                    </div>
+                </div>
+                <div class="stat-bar exp-bar">
+                    <div class="bar-label">
+                        <span>EXP</span>
+                        <span class="bar-value">@(user?.Exp ?? 0) / @(user?.ExpToNext ?? 1)</span>
+                    </div>
+                    <div class="bar-track">
+                        <div class="bar-fill exp" style="width: @GetExpPercent()%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="player-attributes">
+                <div class="attr">
+                    <span class="attr-label">STR</span>
+                    <span class="attr-value">@(status?.Str ?? 0)</span>
+                </div>
+                <div class="attr">
+                    <span class="attr-label">DEX</span>
+                    <span class="attr-value">@(status?.Dex ?? 0)</span>
+                </div>
+                <div class="attr">
+                    <span class="attr-label">INT</span>
+                    <span class="attr-value">@(status?.Int ?? 0)</span>
+                </div>
+                <div class="attr">
+                    <span class="attr-label">VIT</span>
+                    <span class="attr-value">@(status?.Vit ?? 0)</span>
+                </div>
+            </div>
+        </div>
+
+        @* アクションボタン *@
+        <div class="dashboard-actions">
+            <div class="action-card town-action" @onclick="GoToTown">
+                <span class="action-icon">🏘️</span>
+                <span class="action-text">街へ</span>
+                <span class="action-desc">施設を使う・装備整える</span>
+            </div>
+            <div class="action-card field-action" @onclick="GoToField">
+                <span class="action-icon">🌲</span>
+                <span class="action-text">フィールドへ</span>
+                <span class="action-desc">冒険・戦闘・採取</span>
+            </div>
+            <div class="action-card status-action" @onclick="GoToStatus">
+                <span class="action-icon">📊</span>
+                <span class="action-text">ステータス</span>
+                <span class="action-desc">能力値詳細</span>
+            </div>
+            <div class="action-card inventory-action" @onclick="GoToInventory">
+                <span class="action-icon">🎒</span>
+                <span class="action-text">持ち物</span>
+                <span class="action-desc">アイテム管理</span>
+            </div>
+        </div>
+
+        @* 位置情報 *@
+        <div class="location-info">
+            <div class="location-card">
+                <span class="location-icon">📍</span>
+                <div class="location-details">
+                    <span class="location-label">現在地</span>
+                    <span class="location-value">@GetLocationName()</span>
+                    <span class="location-coords">(@currentX, @currentY)</span>
+                </div>
+            </div>
+            <div class="ip-info">
+                <span class="ip-label">最終ログインIP</span>
+                <span class="ip-value">@user?.LastIp</span>
+            </div>
+        </div>
+    }
+</div>
 
 @code {
     private bool isAuth = false;
@@ -61,6 +161,10 @@ else
     private IJSObjectReference? moduleRef;
     private bool showTownButton = true;
     private bool showFieldButton = true;
+    private int currentX = 0;
+    private int currentY = 0;
+    private string currentLocationName = "不明";
+
     protected override async Task OnInitializedAsync()
     {
         var state = await AuthStateProvider.GetAuthenticationStateAsync();
@@ -70,22 +174,22 @@ else
         if (isAuth && username != null)
         {
             karma = Karma.GetKarma(username);
-            // try to read claims for gil/oldcoin/job
             gil = int.TryParse(auth.FindFirst("Gil")?.Value, out var g) ? g : 0;
             oldcoin = int.TryParse(auth.FindFirst("OldCoin")?.Value, out var o) ? o : 0;
             job = auth.FindFirst("Job")?.Value ?? "";
             level = int.TryParse(auth.FindFirst("Level")?.Value, out var lv) ? lv : 1;
-            // try to read status from DB instead of claims
             user = UserService.GetByUsername(username);
             if (user?.Status != null) status = user.Status;
             if (user != null) level = user.Level;
-            // determine which action buttons to show based on player location
+            
             try
             {
                 var pos = WorldGrid.GetOrCreatePlayerPosition(username);
-                var loc = WorldGrid.GetLocation(pos.X, pos.Y);
+                currentX = pos.X;
+                currentY = pos.Y;
+                var loc = WorldGrid.GetLocation(currentX, currentY);
+                currentLocationName = loc?.Name ?? "フィールド";
                 showTownButton = loc?.Type == LocationType.Town;
-                // Treat any non-town (including null) as Field per request
                 showFieldButton = !(loc?.Type == LocationType.Town);
             }
             catch { }
@@ -100,11 +204,63 @@ else
         int mm = (int)Math.Floor((t - hh) * 60);
         return $"{hh:D2}:{mm:D2}";
     }
-    
+
+    private string GetTimeIcon(FFA.Services.DayPhase phase)
+    {
+        return phase switch
+        {
+            FFA.Services.DayPhase.Dawn => "🌅",
+            FFA.Services.DayPhase.Day => "☀️",
+            FFA.Services.DayPhase.Dusk => "🌆",
+            FFA.Services.DayPhase.Night => "🌙",
+            _ => "🌤️"
+        };
+    }
+
+    private string GetJobName(string jobName)
+    {
+        return jobName switch
+        {
+            "Warrior" => "戦士",
+            "Monk" => "武闘家",
+            "WhiteMage" => "白魔道士",
+            "BlackMage" => "黒魔道士",
+            "Ranger" => "レンジャー",
+            "Paladin" => "パラディン",
+            "DarkKnight" => "ダークナイト",
+            "Bard" => "吟遊詩人",
+            "Thief" => "盗賊",
+            "Ninja" => "忍者",
+            "HolyKnight" => "聖騎士",
+            "DeathKnight" => "死騎",
+            "ArchMage" => "大魔道師",
+            "BeastMaster" => "ビーストマスター",
+            "Duelist" => "剣豪",
+            "Grandmaster" => "マスター",
+            _ => jobName
+        };
+    }
+
+    private string GetLocationName()
+    {
+        return currentLocationName;
+    }
+
+    private int GetHpPercent()
+    {
+        if (user == null || user.MaxHP == 0) return 0;
+        return (int)((double)user.HP / user.MaxHP * 100);
+    }
+
+    private int GetExpPercent()
+    {
+        if (user == null || user.ExpToNext == 0) return 0;
+        return (int)((double)user.Exp / user.ExpToNext * 100);
+    }
+
     [JSInvokable]
     public Task OnWorldUpdated(string json)
     {
-        // refresh simple values
         StateHasChanged();
         return Task.CompletedTask;
     }
@@ -141,4 +297,15 @@ else
     {
         Navigation.NavigateTo("/field");
     }
+
+    private void GoToStatus()
+    {
+        Navigation.NavigateTo("/status");
+    }
+
+    private void GoToInventory()
+    {
+        Navigation.NavigateTo("/inventory");
+    }
 }
+</div>

@@ -1,0 +1,373 @@
+/* Dashboard.razor スタイル */
+
+.dashboard-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+.dashboard-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* ヘッダー */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.user-welcome h1 {
+    font-size: 1.5rem;
+    margin: 0;
+    color: var(--text-primary);
+}
+
+.username {
+    color: #fdcb6e;
+}
+
+.time-weather {
+    display: flex;
+    align-items: center;
+}
+
+.tw-display {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    background: var(--bg-secondary);
+    font-size: 0.9rem;
+}
+
+.tw-display.morning {
+    background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+    color: #2d3436;
+}
+
+.tw-display.day {
+    background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+    color: white;
+}
+
+.tw-display.evening {
+    background: linear-gradient(135deg, #fab1a0 0%, #e17055 100%);
+    color: #2d3436;
+}
+
+.tw-display.night {
+    background: linear-gradient(135deg, #2d3436 0%, #636e72 100%);
+    color: white;
+}
+
+/* プレイヤーカード */
+.player-card {
+    background: linear-gradient(135deg, #2d3436 0%, #636e72 100%);
+    border-radius: 12px;
+    padding: 1.25rem;
+    color: white;
+}
+
+.player-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.player-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.avatar-icon {
+    font-size: 2rem;
+}
+
+.player-info {
+    flex: 1;
+}
+
+.player-info h2 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.25rem;
+}
+
+.player-badges {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.badge.job {
+    background: #74b9ff;
+    color: #2d3436;
+}
+
+.badge.level {
+    background: #fdcb6e;
+    color: #2d3436;
+}
+
+.badge.karma {
+    background: #a29bfe;
+    color: white;
+}
+
+.player-currency {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    text-align: right;
+}
+
+.currency-item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.currency-icon {
+    font-size: 1rem;
+}
+
+.currency-value {
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+/* ステータスバー */
+.player-stats-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.stat-bar {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.bar-track {
+    height: 12px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.3s ease;
+}
+
+.bar-fill.hp {
+    background: linear-gradient(90deg, #e74c3c 0%, #c0392b 100%);
+}
+
+.bar-fill.exp {
+    background: linear-gradient(90deg, #9b59b6 0%, #8e44ad 100%);
+}
+
+/* 属性 */
+.player-attributes {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.attr {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.attr-label {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+}
+
+.attr-value {
+    font-weight: bold;
+    font-size: 1rem;
+    color: #fdcb6e;
+}
+
+/* アクションボタン */
+.dashboard-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+}
+
+.action-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem 1rem;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    border: 2px solid transparent;
+}
+
+.action-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.town-action {
+    background: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%);
+    color: white;
+}
+
+.field-action {
+    background: linear-gradient(135deg, #55efc4 0%, #00b894 100%);
+    color: #2d3436;
+}
+
+.status-action {
+    background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+    color: white;
+}
+
+.inventory-action {
+    background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
+    color: white;
+}
+
+.action-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.action-text {
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+}
+
+.action-desc {
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
+
+/* 位置情報 */
+.location-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+}
+
+.location-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.location-icon {
+    font-size: 1.5rem;
+}
+
+.location-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.location-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.location-value {
+    font-weight: bold;
+    color: var(--text-primary);
+}
+
+.location-coords {
+    font-size: 0.8rem;
+    color: #74b9ff;
+    font-family: monospace;
+}
+
+.ip-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.ip-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.ip-value {
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    font-family: monospace;
+}
+
+/* レスポンシブ */
+@media (max-width: 600px) {
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .player-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .player-currency {
+        text-align: center;
+        flex-direction: row;
+        justify-content: center;
+    }
+    
+    .location-info {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .ip-info {
+        align-items: flex-start;
+    }
+}

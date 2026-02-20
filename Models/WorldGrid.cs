@@ -43,11 +43,15 @@ public class WorldLocation
     public string[] Drops { get; set; } = Array.Empty<string>();
     public int DropRate { get; set; } = 10; // ドロップ率%
     
-    // 接続先（東西南北）
+    // 8方向への接続（東西南北 + 対角線）
     public (int X, int Y)? North { get; set; }
     public (int X, int Y)? South { get; set; }
     public (int X, int Y)? East { get; set; }
     public (int X, int Y)? West { get; set; }
+    public (int X, int Y)? NorthEast { get; set; }
+    public (int X, int Y)? NorthWest { get; set; }
+    public (int X, int Y)? SouthEast { get; set; }
+    public (int X, int Y)? SouthWest { get; set; }
 }
 
 /// <summary>
@@ -91,7 +95,7 @@ public class WorldMapInfo
 }
 
 /// <summary>
-/// 周辺の情報（プレイヤーの周りのセル）
+/// 周辺の情報（プレイヤーの周りのセル）- 8方向
 /// </summary>
 public class SurroundingsInfo
 {
@@ -99,6 +103,10 @@ public class SurroundingsInfo
     public WorldLocation? South { get; set; }
     public WorldLocation? East { get; set; }
     public WorldLocation? West { get; set; }
+    public WorldLocation? NorthEast { get; set; }
+    public WorldLocation? NorthWest { get; set; }
+    public WorldLocation? SouthEast { get; set; }
+    public WorldLocation? SouthWest { get; set; }
     public int PlayerX { get; set; }
     public int PlayerY { get; set; }
     public string CurrentLocationName { get; set; } = "";

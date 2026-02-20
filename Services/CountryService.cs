@@ -105,7 +105,9 @@ public class CountryService
                             Prosperity = GetIntValue(townToml, "prosperity", 0),
                             Facilities = GetStringList(townToml, "facilities"),
                             Events = GetStringList(townToml, "events"),
-                            AvailableFields = GetIntList(townToml, "available_fields")
+                            AvailableFields = GetIntList(townToml, "available_fields"),
+                            X = GetIntValue(townToml, "x", 0),
+                            Y = GetIntValue(townToml, "y", 0)
                         };
                         country.Towns.Add(town);
                     }

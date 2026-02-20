@@ -34,6 +34,7 @@
         <div class="town-details">
             <span class="detail-item"><span class="label">人口</span> <span class="value">@CurrentTown?.Population.ToString("N0")</span></span>
             <span class="detail-item"><span class="label">繁栄度</span> <span class="value">@CurrentTown?.Prosperity/100</span></span>
+            <span class="detail-item coordinate"><span class="label">座標</span> <span class="value">(@CurrentTown?.X, @CurrentTown?.Y)</span></span>
             @if (CurrentTown?.CountryName != null)
             {
                 <span class="detail-item"><span class="label">所属国</span> <span class="value">@CurrentTown.CountryName</span></span>
@@ -137,21 +138,25 @@
                 @* 町の便利情報 *@
                 <div class="frame fields-section">
                     <div class="frame-header">
-                        <h3>🗺️ 周辺のフィールド</h3>
+                        <h3>🗺️ 周辺のフィールド (8方向)</h3>
                     </div>
                     <div class="frame-body">
-                        <div class="fields-grid">
-                            @foreach (var fieldId in CurrentTown.AvailableFields)
+                        <div class="directions-grid">
+                            @foreach (var dir in GetSurroundingFields())
                             {
-                                var field = GetFieldById(fieldId);
-                                @if (field != null)
-                                {
-                                    <div class="field-card" @onclick="() => GoToFieldWithId(fieldId)">
-                                        <span class="field-icon">🌲</span>
-                                        <span class="field-name">@field.Name</span>
-                                        <span class="field-difficulty">難易度: @field.Difficulty</span>
-                                    </div>
-                                }
+                                <div class="direction-card @(@dir.Field != null ? "active" : "inactive")" 
+                                     @onclick="() => NavigateToDirection(dir)">
+                                    <div class="direction-icon">@dir.Icon</div>
+                                    <div class="direction-name">@dir.Name</div>
+                                    @if (dir.Field != null)
+                                    {
+                                        <div class="direction-field">🌲 @dir.Field.Name</div>
+                                    }
+                                    else
+                                    {
+                                        <div class="direction-field empty">未探索</div>
+                                    }
+                                </div>
                             }
                         </div>
                     </div>
@@ -276,6 +281,18 @@
     private Models.Country? currentCountry;
     private Models.Town? CurrentTown { get; set; }
     private List<Models.Town> OtherTowns { get; set; } = new List<Models.Town>();
+    private List<SurroundingDirection> SurroundingFields { get; set; } = new List<SurroundingDirection>();
+
+    // 8方向の構造体
+    private class SurroundingDirection
+    {
+        public string Name { get; set; } = "";
+        public string Icon { get; set; } = "";
+        public int X { get; set; }
+        public int Y { get; set; }
+        public int? FieldId { get; set; }
+        public Models.Field? Field { get; set; }
+    }
 
     protected override void OnInitialized()
     {
@@ -405,6 +422,67 @@
         public string Info { get; set; } = "";
     }
 
+    // 8方向の名前とアイコン
+    private static readonly (string Name, string Icon, int DX, int DY)[] Directions = new[]
+    {
+        ("北", "⬆️", 0, -1),
+        ("北東", "↗️", 1, -1),
+        ("東", "➡️", 1, 0),
+        ("南東", "↘️", 1, 1),
+        ("南", "⬇️", 0, 1),
+        ("南西", "↙️", -1, 1),
+        ("西", "⬅️", -1, 0),
+        ("北西", "↖️", -1, -1)
+    };
+
+    // 8方向のフィールドを取得
+    private List<SurroundingDirection> GetSurroundingFields()
+    {
+        var result = new List<SurroundingDirection>();
+        
+        if (CurrentTown == null) return result;
+        
+        // フィールドのマスターデータを取得
+        var allFields = FieldService.GetAllFields();
+        
+        foreach (var (name, icon, dx, dy) in Directions)
+        {
+            var targetX = CurrentTown.X + dx;
+            var targetY = CurrentTown.Y + dy;
+            
+            // その座標にあるフィールドを探す（名前やIDでマッピング）
+            // ここでは簡易的にAvailableFieldsから取得
+            var fieldId = GetFieldIdForDirection(targetX, targetY);
+            
+            result.Add(new SurroundingDirection
+            {
+                Name = name,
+                Icon = icon,
+                X = targetX,
+                Y = targetY,
+                FieldId = fieldId,
+                Field = fieldId.HasValue ? FieldService.GetFieldById(fieldId.Value) : null
+            });
+        }
+        
+        return result;
+    }
+
+    // 座標からフィールドIDを取得する簡易マッピング
+    private int? GetFieldIdForDirection(int x, int y)
+    {
+        // フィールドのマスターデータを使用して座標からフィールドIDへのマッピング
+        // ここではAvailableFieldsを基準に返す
+        if (CurrentTown?.AvailableFields == null || CurrentTown.AvailableFields.Count == 0)
+            return null;
+        
+        // 北(0,-1)からは最初のフィールド、南(0,1)からは2番目のフィールド...
+        // 簡易的なマッピング
+        var fieldIndex = (x + 1) + (y + 1) * 3; // -1,-1=0, 0,-1=1, 1,-1=2, etc.
+        fieldIndex = Math.Clamp(fieldIndex, 0, CurrentTown.AvailableFields.Count - 1);
+        return CurrentTown.AvailableFields[fieldIndex];
+    }
+
     private void GoToSpecialShop()
     {
         if (CurrentTown == null) return;
@@ -426,6 +504,14 @@
             case "特殊":
                 GoToShop();
                 break;
+        }
+    }
+
+    private void NavigateToDirection(SurroundingDirection dir)
+    {
+        if (dir.FieldId.HasValue)
+        {
+            GoToFieldWithId(dir.FieldId.Value);
         }
     }
 
