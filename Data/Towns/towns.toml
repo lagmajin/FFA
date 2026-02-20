@@ -25,6 +25,7 @@ population = 10000
 prosperity = 85
 facilities = ["鍛冶屋", "魔法学校", "戦闘訓練場", "温泉"]
 events = ["炎の祭り", "火山観光", "鍛冶大会"]
+available_fields = [1, 2, 6]
 
 [[countries.towns]]
 id = 2
@@ -38,6 +39,7 @@ population = 500
 prosperity = 45
 facilities = ["農場", "小規模鍛冶屋", "教会"]
 events = ["収穫祭", "火山の恵み祭"]
+available_fields = [1, 2]
 
 [[countries.towns]]
 id = 3
@@ -52,6 +54,7 @@ population = 5000
 prosperity = 70
 facilities = ["武器商人", "旅館", "酒場"]
 events = ["武器市", "相撲大会"]
+available_fields = [1, 4]
 
 [[countries]]
 id = 2
@@ -60,14 +63,14 @@ description = "雪山之国。防御力が上昇し、寒さに対処できる�
 bonus_stat = 5
 bonus_type = "defense"
 capital_name = "Glaciermount"
-capital_description = "雪山の中に建てられた美しい首都。氷の彫刻が特徴的。"
+capital_description = "雪山の中に建てられた美しい首都。氷の彫刻色が特徴的。"
 village_name = "Snowpeak"
 village_description = "雪山の麓にある平和な村。氷漁が盛ん。"
 
 [[countries.towns]]
 id = 4
 name = "Glaciermount"
-description = "雪山の中に建てられた美しい首都。氷の彫刻が特徴的。"
+description = "雪山の中に建てられた美しい首都。氷の彫刻が特征的。"
 type = "capital"
 country_id = 2
 country_name = "Frostheim"
@@ -77,6 +80,7 @@ population = 8000
 prosperity = 80
 facilities = ["氷の彫刻館", "魔法学院", "氷の城", "スキー場"]
 events = ["氷の祭り", "スキー大会", "氷の彫刻展"]
+available_fields = [1, 2, 5]
 
 [[countries.towns]]
 id = 5
@@ -90,6 +94,7 @@ population = 300
 prosperity = 40
 facilities = ["漁港", "小規模防具店", "神社"]
 events = ["氷漁祭", "雪合戦大会"]
+available_fields = [1, 3]
 
 [[countries.towns]]
 id = 6
@@ -104,6 +109,7 @@ population = 4000
 prosperity = 65
 facilities = ["防具商人", "港", "温泉旅館"]
 events = ["海産物祭", "防具展示会"]
+available_fields = [1, 3, 5]
 
 [[countries]]
 id = 3
@@ -128,6 +134,7 @@ population = 7500
 prosperity = 75
 facilities = ["薬草園", "魔法大学", "大聖樹の寺", "自然公園"]
 events = ["花祭り", "薬草収穫祭", "大聖樹の儀式"]
+available_fields = [1, 2, 7]
 
 [[countries.towns]]
 id = 8
@@ -141,6 +148,7 @@ population = 350
 prosperity = 35
 facilities = ["木工作坊", "薬草店", "森の神社"]
 events = ["森の祭り", "木彫り大会"]
+available_fields = [1, 2]
 
 [[countries.towns]]
 id = 9
@@ -154,6 +162,7 @@ population = 3500
 prosperity = 60
 facilities = ["薬草商人", "研究所", "民宿"]
 events = ["薬草即売会", "採取大会"]
+available_fields = [1, 2, 3]
 
 [[countries]]
 id = 4
@@ -178,6 +187,7 @@ population = 9000
 prosperity = 90
 facilities = ["雷の研究所", "魔法工房", "雷の塔", "スピード訓練場"]
 events = ["雷の祭り", "高速走行大会", "雷の石展示会"]
+available_fields = [1, 2, 4]
 
 [[countries.towns]]
 id = 11
@@ -191,11 +201,12 @@ population = 400
 prosperity = 50
 facilities = ["雷の石鉱山", "小規模装飾品店", "雷の神社"]
 events = ["雷の石祭り", "山登り大会"]
+available_fields = [1, 4]
 
 [[countries.towns]]
 id = 12
 name = "Innovation"
-description = "、発明と工学で有名な進歩的な町。"
+description = "発明と工学で有名な進歩的な町。"
 type = "town"
 country_id = 4
 country_name = "Storm"
@@ -204,6 +215,7 @@ population = 4500
 prosperity = 72
 facilities = ["発明工房", "学園", "城砦"]
 events = ["発明展", "競速大会"]
+available_fields = [1, 2, 7]
 
 [[countries]]
 id = 5
@@ -229,6 +241,7 @@ population = 15000
 prosperity = 95
 facilities = ["大市場", "各国大使館", "図書館", "競技場"]
 events = ["国際祭り", "商業博覧会", "格闘大会"]
+available_fields = [1, 2, 3, 4, 5, 6, 7]
 
 [[countries.towns]]
 id = 14
@@ -242,6 +255,7 @@ population = 600
 prosperity = 55
 facilities = ["大農場", "市場", "教会"]
 events = ["農業祭", "秋の収穫祭"]
+available_fields = [1, 2]
 
 [[countries.towns]]
 id = 15
@@ -256,3 +270,4 @@ population = 6000
 prosperity = 85
 facilities = ["大商館", "銀行", "ホテル"]
 events = ["商品市", "商談会"]
+available_fields = [1, 3, 4]

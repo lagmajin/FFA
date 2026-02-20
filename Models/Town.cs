@@ -14,4 +14,5 @@ public class Town
     public int Prosperity { get; set; } = 50; // 繁栄度（0-100）
     public List<string> Facilities { get; set; } = new List<string>(); // 施設一覧
     public List<string> Events { get; set; } = new List<string>(); // イベント一覧
+    public List<int> AvailableFields { get; set; } = new List<int>(); // 移動可能なフィールドID列表
 }

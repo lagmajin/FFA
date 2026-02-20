@@ -104,7 +104,8 @@ public class CountryService
                             Population = GetIntValue(townToml, "population", 0),
                             Prosperity = GetIntValue(townToml, "prosperity", 0),
                             Facilities = GetStringList(townToml, "facilities"),
-                            Events = GetStringList(townToml, "events")
+                            Events = GetStringList(townToml, "events"),
+                            AvailableFields = GetIntList(townToml, "available_fields")
                         };
                         country.Towns.Add(town);
                     }
@@ -150,6 +151,22 @@ public class CountryService
             {
                 if (item is string s)
                     result.Add(s);
+            }
+        }
+        return result;
+    }
+
+    private List<int> GetIntList(TomlTable table, string key)
+    {
+        var result = new List<int>();
+        if (table.TryGetValue(key, out var value) && value is TomlArray arr)
+        {
+            foreach (var item in arr)
+            {
+                if (item is long l)
+                    result.Add((int)l);
+                else if (item is int i)
+                    result.Add(i);
             }
         }
         return result;

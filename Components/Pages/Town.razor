@@ -6,6 +6,7 @@
 @inject Services.CountryService CountryService
 @inject Services.TownService TownService
 @inject Services.TimeWeatherService TWService
+@inject Services.FieldService FieldService
 
 <PageTitle>街</PageTitle>
 
@@ -133,6 +134,29 @@
             </div>
 
             <div class="town-main-sections">
+                @* 町の便利情報 *@
+                <div class="frame fields-section">
+                    <div class="frame-header">
+                        <h3>🗺️ 周辺のフィールド</h3>
+                    </div>
+                    <div class="frame-body">
+                        <div class="fields-grid">
+                            @foreach (var fieldId in CurrentTown.AvailableFields)
+                            {
+                                var field = GetFieldById(fieldId);
+                                @if (field != null)
+                                {
+                                    <div class="field-card" @onclick="() => GoToFieldWithId(fieldId)">
+                                        <span class="field-icon">🌲</span>
+                                        <span class="field-name">@field.Name</span>
+                                        <span class="field-difficulty">難易度: @field.Difficulty</span>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+
                 <div class="frame facilities-section">
                     <div class="frame-header">
                         <h3>施設</h3>
@@ -433,4 +457,14 @@
     private void GoToConsumablesShop() => Navigation.NavigateTo("/consumables-shop");
     private void GoToField() => Navigation.NavigateTo("/field");
     private void GoToMap() => Navigation.NavigateTo("/map");
+
+    private Models.Field? GetFieldById(int fieldId)
+    {
+        return FieldService.GetFieldById(fieldId);
+    }
+
+    private void GoToFieldWithId(int fieldId)
+    {
+        Navigation.NavigateTo($"/field?id={fieldId}");
+    }
 }

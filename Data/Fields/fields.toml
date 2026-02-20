@@ -1,0 +1,58 @@
+# Field Master Data
+# フィールドのマスターデータ
+
+[[fields]]
+id = 1
+name = "平地"
+description = "穏やかな草原。初心者の冒険者でも安心して入場できます。"
+enemies = ["スライム", "ウサギ", "蝶"]
+drops = ["草药", "毛皮", "蝶の粉"]
+difficulty = 1
+
+[[fields]]
+id = 2
+name = "森"
+description = "木々が茂る暗い森。中級者が入場できます。"
+enemies = ["ゴブリン", "狼", "毒キノコ"]
+drops = ["木材", "毛皮", "毒キノコ", "短剣"]
+difficulty = 2
+
+[[fields]]
+id = 3
+name = "湖"
+description = "神秘的な湖。水の者が住んでいます。"
+enemies = ["水Elemental", "魚人", "アシガエル"]
+drops = ["魚の肉", "珍珠", "水のエッセンス"]
+difficulty = 2
+
+[[fields]]
+id = 4
+name = "砂漠"
+description = "広大な砂漠。厳しい環境が待ち受けています。"
+enemies = ["サソリ", "トカゲ", "ミイラ"]
+drops = ["サソリの針", "砂金", "骨", "盾牌"]
+difficulty = 3
+
+[[fields]]
+id = 5
+name = "雪山"
+description = "冰と雪に覆われた山脈。強い者が入場できます。"
+enemies = ["雪だるま", "冰ゴーレム", "白狼"]
+drops = ["冰の結晶", "毛皮", "雪の結晶"]
+difficulty = 4
+
+[[fields]]
+id = 6
+name = "火山"
+description = "灼熱の山脈。最強者のみが入場できます。"
+enemies = ["溶岩ゴーレム", "火織", "炎Elemental"]
+drops = ["溶岩の石", "火のエッセンス", "黒曜石"]
+difficulty = 5
+
+[[fields]]
+id = 7
+name = "ダンジョン"
+description = "地下的迷宫。強力なモンスターで満ちています。"
+enemies = ["スケルトン", "リッチ", "オーク"]
+drops = ["骨", "宝石", "盾牌", "古代の剣"]
+difficulty = 5
