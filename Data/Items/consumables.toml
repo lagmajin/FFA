@@ -1,0 +1,596 @@
+# ============================================
+# 消耗品アイテム マスターデータ
+# ============================================
+
+# ============================================
+# HP回復薬 (HPHeal)
+# ============================================
+
+[[items]]
+id = 1
+name = "小红药水"
+description = "可以恢复少量HP的最常见药水。"
+type = "HPHeal"
+price = 30
+use_level = 1
+heal_amount = 30
+heal_percent = 0
+max_stack = 99
+rarity = "White"
+
+[[items]]
+id = 2
+name = "中红药水"
+description = "可以恢复中等量HP的药水。"
+type = "HPHeal"
+price = 80
+use_level = 5
+heal_amount = 80
+heal_percent = 0
+max_stack = 99
+rarity = "White"
+
+[[items]]
+id = 3
+name = "大红药水"
+description = "可以恢复大量HP的高级药水。"
+type = "HPHeal"
+price = 200
+use_level = 10
+heal_amount = 200
+heal_percent = 0
+max_stack = 99
+rarity = "Purple"
+
+[[items]]
+id = 4
+name = "特大红药水"
+description = "可以恢复超大HP的高级药水。"
+type = "HPHeal"
+price = 500
+use_level = 20
+heal_amount = 500
+heal_percent = 0
+max_stack = 99
+rarity = "Purple"
+
+[[items]]
+id = 5
+name = "极红药水"
+description = "可以恢复巨量HP的稀有药水。"
+type = "HPHeal"
+price = 1200
+use_level = 35
+heal_amount = 1200
+heal_percent = 0
+max_stack = 99
+rarity = "Red"
+
+[[items]]
+id = 6
+name = "HP百分比药水"
+description = "可以恢复HP最大值30%的药水。"
+type = "HPHeal"
+price = 150
+use_level = 8
+heal_amount = 0
+heal_percent = 30
+max_stack = 99
+rarity = "White"
+
+[[items]]
+id = 7
+name = "完全恢复药"
+description = "可以完全恢复HP的贵重药水。"
+type = "HPHeal"
+price = 800
+use_level = 15
+heal_amount = 0
+heal_percent = 100
+max_stack = 99
+rarity = "Red"
+
+[[items]]
+id = 8
+name = "秘药"
+description = "HP最大值完全恢复的秘传之药。"
+type = "HPHeal"
+price = 3000
+use_level = 40
+heal_amount = 0
+heal_percent = 100
+max_stack = 30
+rarity = "Orange"
+
+# ============================================
+# MP/Ether回復 (MPHeal)
+# ============================================
+
+[[items]]
+id = 10
+name = "小蓝药水"
+description = "可以恢复少量MP的药水。"
+type = "MPHeal"
+price = 50
+use_level = 5
+heal_amount = 20
+heal_percent = 0
+max_stack = 99
+rarity = "White"
+
+[[items]]
+id = 11
+name = "中蓝药水"
+description = "可以恢复中等量MP的药水。"
+type = "MPHeal"
+price = 120
+use_level = 10
+heal_amount = 50
+heal_percent = 0
+max_stack = 99
+rarity = "White"
+
+[[items]]
+id = 12
+name = "大蓝药水"
+description = "可以恢复大量MP的高级药水。"
+type = "MPHeal"
+price = 300
+use_level = 20
+heal_amount = 120
+heal_percent = 0
+max_stack = 99
+rarity = "Purple"
+
+[[items]]
+id = 13
+name = "以太"
+description = "可以完全恢复MP的秘药。"
+type = "MPHeal"
+price = 1000
+use_level = 30
+heal_amount = 0
+heal_percent = 100
+max_stack = 30
+rarity = "Red"
+
+# ============================================
+# スタミナ回復 (StaminaHeal)
+# ============================================
+
+[[items]]
+id = 20
+name = "体力药水"
+description = "可以恢复少量体力的药水。"
+type = "StaminaHeal"
+price = 25
+use_level = 1
+stamina_heal_amount = 30
+stamina_type = "Movement"
+max_stack = 99
+rarity = "White"
+
+[[items]]
+id = 21
+name = "中体力药水"
+description = "可以恢复中等量体力的药水。"
+type = "StaminaHeal"
+price = 60
+use_level = 5
+stamina_heal_amount = 70
+stamina_type = "Movement"
+max_stack = 99
+rarity = "White"
+
+[[items]]
+id = 22
+name = "大体力药水"
+description = "可以恢复大量体力的药水。"
+type = "StaminaHeal"
+price = 150
+use_level = 12
+stamina_heal_amount = 150
+stamina_type = "Movement"
+max_stack = 99
+rarity = "Purple"
+
+[[items]]
+id = 23
+name = "体力恢复药"
+description = "可以完全恢复体力的贵重药水。"
+type = "StaminaHeal"
+price = 500
+use_level = 25
+stamina_heal_amount = 0
+heal_percent = 100
+stamina_type = "Movement"
+max_stack = 50
+rarity = "Red"
+
+[[items]]
+id = 24
+name = "精力饮料"
+description = "可以快速恢复作业所需精力的饮料。"
+type = "StaminaHeal"
+price = 40
+use_level = 1
+stamina_heal_amount = 50
+stamina_type = "Crafting"
+max_stack = 99
+rarity = "White"
+
+[[items]]
+id = 25
+name = "战斗饮料"
+description = "可以快速恢复战斗所需精力的饮料。"
+type = "StaminaHeal"
+price = 40
+use_level = 1
+stamina_heal_amount = 50
+stamina_type = "Battle"
+max_stack = 99
+rarity = "White"
+
+# ============================================
+# バフアイテム (Buff)
+# ============================================
+
+[[items]]
+id = 30
+name = "力量药水"
+description = "30分钟内攻击力提升10%。"
+type = "Buff"
+price = 100
+use_level = 5
+buff_type = "Attack"
+buff_amount = 10
+buff_duration_minutes = 30
+max_stack = 30
+rarity = "White"
+
+[[items]]
+id = 31
+name = "防御药水"
+description = "30分钟内防御力提升10%。"
+type = "Buff"
+price = 100
+use_level = 5
+buff_type = "Defense"
+buff_amount = 10
+buff_duration_minutes = 30
+max_stack = 30
+rarity = "White"
+
+[[items]]
+id = 32
+name = "速度药水"
+description = "30分钟内速度提升10%。"
+type = "Buff"
+price = 100
+use_level = 5
+buff_type = "Speed"
+buff_amount = 10
+buff_duration_minutes = 30
+max_stack = 30
+rarity = "White"
+
+[[items]]
+id = 33
+name = "幸运药水"
+description = "30分钟内幸运提升15%。"
+type = "Buff"
+price = 150
+use_level = 8
+buff_type = "Luck"
+buff_amount = 15
+buff_duration_minutes = 30
+max_stack = 20
+rarity = "White"
+
+[[items]]
+id = 34
+name = "经验药水"
+description = "30分钟内获得的经验值增加20%。"
+type = "Buff"
+price = 300
+use_level = 10
+buff_type = "EXP"
+buff_amount = 20
+buff_duration_minutes = 30
+max_stack = 10
+rarity = "Purple"
+
+[[items]]
+id = 35
+name = "稀有度药水"
+description = "30分钟内稀有度出现率增加30%。"
+type = "Buff"
+price = 500
+use_level = 15
+buff_type = "Rarity"
+buff_amount = 30
+buff_duration_minutes = 30
+max_stack = 10
+rarity = "Purple"
+
+[[items]]
+id = 36
+name = "完美药水"
+description = "60分钟内全能力提升15%。"
+type = "Buff"
+price = 1500
+use_level = 30
+buff_type = "All"
+buff_amount = 15
+buff_duration_minutes = 60
+max_stack = 5
+rarity = "Red"
+
+# ============================================
+# 状態異常回復 (Debuff)
+# ============================================
+
+[[items]]
+id = 40
+name = "解毒药"
+description = "可以解除毒状态。"
+type = "Debuff"
+price = 50
+use_level = 1
+max_stack = 99
+rarity = "White"
+
+[[items]]
+id = 41
+name = "清醒药"
+description = "可以解除睡眠状态。"
+type = "Debuff"
+price = 50
+use_level = 1
+max_stack = 99
+rarity = "White"
+
+[[items]]
+id = 42
+name = "麻痹恢复药"
+description = "可以解除麻痹状态。"
+type = "Debuff"
+price = 80
+use_level = 5
+max_stack = 99
+rarity = "White"
+
+[[items]]
+id = 43
+name = "沉默解除药"
+description = "可以解除沉默状态。"
+type = "Debuff"
+price = 80
+use_level = 5
+max_stack = 99
+rarity = "White"
+
+[[items]]
+id = 44
+name = "目药"
+description = "可以解除黑暗状态。"
+type = "Debuff"
+price = 60
+use_level = 3
+max_stack = 99
+rarity = "White"
+
+[[items]]
+id = 45
+name = "万能药"
+description = "可以解除所有状态异常。"
+type = "Debuff"
+price = 300
+use_level = 10
+max_stack = 30
+rarity = "Purple"
+
+# ============================================
+# テレポートアイテム (Teleport)
+# ============================================
+
+[[items]]
+id = 50
+name = "返回卷轴"
+description = "使用后可以立即返回最近的城镇。"
+type = "Teleport"
+price = 100
+use_level = 1
+teleport_location = "Town"
+can_use_in_battle = false
+max_stack = 30
+rarity = "White"
+
+[[items]]
+id = 51
+name = "回家卷轴"
+description = "使用后可以立即返回自己的房子。"
+type = "Teleport"
+price = 200
+use_level = 5
+teleport_location = "Home"
+can_use_in_battle = false
+max_stack = 20
+rarity = "White"
+
+[[items]]
+id = 52
+name = "传送卷轴"
+description = "可以传送到曾经去过的城镇。"
+type = "Teleport"
+price = 500
+use_level = 15
+teleport_location = "Remembered"
+can_use_in_battle = false
+max_stack = 10
+rarity = "Purple"
+
+# ============================================
+# その他消耗品
+# ============================================
+
+[[items]]
+id = 60
+name = "复活药"
+description = "战斗不能状态下可以原地复活并恢复50% HP。"
+type = "Other"
+price = 1000
+use_level = 10
+heal_percent = 50
+max_stack = 10
+rarity = "Purple"
+
+[[items]]
+id = 61
+name = "复活石"
+description = "战斗不能状态下可以完全复活。"
+type = "Other"
+price = 3000
+use_level = 25
+heal_percent = 100
+max_stack = 5
+rarity = "Red"
+
+[[items]]
+id = 62
+name = "成长药水"
+description = "使用后获得50点经验值。"
+type = "Other"
+price = 200
+use_level = 1
+max_stack = 50
+rarity = "White"
+
+[[items]]
+id = 63
+name = "大经验药水"
+description = "使用后获得200点经验值。"
+type = "Other"
+price = 600
+use_level = 10
+max_stack = 20
+rarity = "Purple"
+
+[[items]]
+id = 64
+name = "超级经验药水"
+description = "使用后获得500点经验值。"
+type = "Other"
+price = 1500
+use_level = 20
+max_stack = 10
+rarity = "Red"
+
+[[items]]
+id = 65
+name = "技能点数药水"
+description = "使用后获得1点技能点数。"
+type = "Other"
+price = 2000
+use_level = 10
+max_stack = 10
+rarity = "Red"
+
+# ============================================
+# 料理/食物
+# ============================================
+
+[[items]]
+id = 70
+name = "面包"
+description = "简单的干粮，可以恢复少量体力。"
+type = "StaminaHeal"
+price = 10
+use_level = 1
+stamina_heal_amount = 10
+stamina_type = "Movement"
+max_stack = 99
+rarity = "White"
+
+[[items]]
+id = 71
+name = "烤肉"
+description = "美味的烤肉，可以恢复中等体力。"
+type = "StaminaHeal"
+price = 30
+use_level = 3
+stamina_heal_amount = 30
+stamina_type = "Movement"
+max_stack = 99
+rarity = "White"
+
+[[items]]
+id = 72
+name = "豪华料理"
+description = "奢华的料理，可以恢复大量体力。"
+type = "StaminaHeal"
+price = 100
+use_level = 8
+stamina_heal_amount = 80
+stamina_type = "Movement"
+max_stack = 50
+rarity = "Purple"
+
+[[items]]
+id = 73
+name = "鱼料理"
+description = "新鲜的鱼料理，恢复体力并小幅提升幸运。"
+type = "StaminaHeal"
+price = 80
+use_level = 5
+stamina_heal_amount = 50
+stamina_type = "Movement"
+buff_type = "Luck"
+buff_amount = 5
+buff_duration_minutes = 15
+max_stack = 50
+rarity = "White"
+
+# ============================================
+# 特殊消耗品
+# ============================================
+
+[[items]]
+id = 80
+name = "强化石"
+description = "用于装备强化时的辅助材料。"
+type = "Other"
+price = 500
+use_level = 1
+max_stack = 99
+rarity = "Purple"
+
+[[items]]
+id = 81
+name = "高级强化石"
+description = "用于高级装备强化的辅助材料。"
+type = "Other"
+price = 2000
+use_level = 20
+max_stack = 30
+rarity = "Red"
+
+[[items]]
+id = 82
+name = "鉴定卷轴"
+description = "用于鉴定未知的装备物品。"
+type = "Other"
+price = 100
+use_level = 1
+max_stack = 99
+rarity = "White"
+
+[[items]]
+id = 83
+name = "仓库扩张券"
+description = "使用后可以增加仓库容量10格。"
+type = "Other"
+price = 1000
+use_level = 1
+max_stack = 10
+rarity = "Purple"

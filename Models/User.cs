@@ -74,4 +74,9 @@ public class User
     
     // 所属する世界/次元（表世界、裏世界など）
     public string CurrentWorld { get; set; } = "Main";
+    
+    // ワールドマップ上の位置
+    public int MapX { get; set; } = 10;
+    public int MapY { get; set; } = 7;
+    public string CurrentMapId { get; set; } = "world";
 }

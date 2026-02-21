@@ -1,177 +1,432 @@
 @page "/map"
 @rendermode InteractiveServer
+@inject Services.UserService UserService
 @inject Services.MapService MapService
 @inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
 
-<PageTitle>マップ</PageTitle>
+<PageTitle>ワールドマップ</PageTitle>
 
-<div class="map-container">
-    <h1>マップ</h1>
-    
-    <div class="current-location">
-        <h2>@CurrentLocation.Name</h2>
-        <p>@CurrentLocation.Description</p>
-        <div class="location-info">
-            <span class="location-type @CurrentLocation.Type">@GetLocationTypeName(CurrentLocation.Type)</span>
-            <span class="coordinates">座標: (@CurrentLocation.X, @CurrentLocation.Y)</span>
+<div @ref="mapContainer" tabindex="0" @onkeydown="HandleKeyDown"
+     style="outline:none; background:#fdf6e3; min-height:100vh; padding:16px; user-select:none; font-family:sans-serif;">
+
+    @if (!isAuth)
+    {
+        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:60vh; gap:16px;">
+            <h2 style="color:#78350f;">🔒 アクセス制限</h2>
+            <p>この機能を利用するにはログインしてください。</p>
+            <button @onclick="GoToLogin"
+                    style="padding:12px 24px; background:#8b6914; border:none; border-radius:4px; color:white; font-weight:bold; cursor:pointer; font-size:14px;">
+                ログイン画面へ
+            </button>
         </div>
-    </div>
-    
-    <div class="direction-buttons">
-        <button class="direction-button" @onclick="() => Move(Direction.North)" disabled="@(CurrentLocation.Y == 0)">↑ 北</button>
-        <div class="horizontal-buttons">
-            <button class="direction-button" @onclick="() => Move(Direction.West)" disabled="@(CurrentLocation.X == 0)">← 西</button>
-            <button class="direction-button" @onclick="() => Move(Direction.East)" disabled="@(CurrentLocation.X == MapService.GetCurrentMap().Width - 1)">→ 東</button>
-        </div>
-        <button class="direction-button" @onclick="() => Move(Direction.South)" disabled="@(CurrentLocation.Y == MapService.GetCurrentMap().Height - 1)">↓ 南</button>
-    </div>
-    
-    <div class="map-preview">
-        <h3>マッププレビュー</h3>
-        <div class="map-grid">
-            @for (int y = 0; y < 5; y++)
+    }
+    else if (countryMap == null || locationLookup.Count == 0)
+    {
+        <div style="text-align:center; padding:60px; color:#92400e;">
+            <div style="font-size:32px; margin-bottom:12px;">🗺️</div>
+            <div>マップデータを読み込み中...</div>
+            @if (!string.IsNullOrEmpty(loadError))
             {
-                <div class="map-row">
-                    @for (int x = 0; x < 5; x++)
+                <div style="margin-top:16px; padding:12px; background:#fef2f2; border:1px solid #fca5a5; border-radius:8px; color:#991b1b; text-align:left; font-size:12px; max-width:600px; margin-left:auto; margin-right:auto;">
+                    <div style="font-weight:bold; margin-bottom:4px;">⚠️ エラー: @loadError</div>
+                </div>
+            }
+            <div style="margin-top:16px; padding:12px; background:#fffbeb; border:1px solid #fcd34d; border-radius:8px; color:#78350f; text-align:left; font-size:11px; font-family:monospace; max-width:600px; margin-left:auto; margin-right:auto;">
+                <div style="font-weight:bold; margin-bottom:4px;">📋 MapService Diagnostics:</div>
+                @foreach (var line in MapService.LoadDiagnostics)
+                {
+                    <div>@line</div>
+                }
+                @if (MapService.LoadDiagnostics.Count == 0)
+                {
+                    <div>（診断情報なし - MapServiceが初期化されていない可能性）</div>
+                }
+            </div>
+            <div style="margin-top:12px;">
+                <button @onclick="GoToHome" style="padding:8px 16px; background:#8b6914; border:none; border-radius:4px; color:white; cursor:pointer;">🏠 戻る</button>
+            </div>
+        </div>
+    }
+    else
+    {
+        @* ヘッダー *@
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding-bottom:10px; border-bottom:3px solid #8b6914;">
+            <div>
+                <h1 style="margin:0; font-size:20px; color:#78350f;">🗺️ @countryMap.Name</h1>
+                <div style="font-size:13px; color:#92400e; margin-top:3px;">
+                    @GetTileIcon(PlayerX, PlayerY)
+                    <strong>@GetCurrentLocationName()</strong>
+                    @if (!string.IsNullOrEmpty(GetCurrentLocationDesc()))
                     {
-                        int mapX = CurrentLocation.X - 2 + x;
-                        int mapY = CurrentLocation.Y - 2 + y;
-                        var location = MapService.GetLocation(mapX, mapY);
-                        var isCurrent = mapX == CurrentLocation.X && mapY == CurrentLocation.Y;
-                        
-                        <div class="map-cell @location.Type @(isCurrent ? "current" : "")" @onclick="() => JumpTo(mapX, mapY)">
-                            @GetCellSymbol(location.Type, isCurrent)
+                        <span style="color:#a16207; margin-left:8px;">— @GetCurrentLocationDesc()</span>
+                    }
+                </div>
+            </div>
+            <div style="display:flex; gap:12px; align-items:center;">
+                <span style="color:#92400e; font-size:12px; font-family:monospace; background:#fef3c7; padding:4px 8px; border-radius:4px; border:1px solid #d97706;">
+                    (@PlayerX, @PlayerY)
+                </span>
+                <button @onclick="GoToHome"
+                        style="padding:6px 14px; background:transparent; border:2px solid #92400e; border-radius:4px; color:#92400e; cursor:pointer; font-size:12px; font-weight:bold;">
+                    🏠 戻る
+                </button>
+            </div>
+        </div>
+
+        @* メインレイアウト: マップグリッド + 右パネル *@
+        <div style="display:flex; gap:24px; align-items:flex-start; justify-content:center; flex-wrap:wrap;">
+
+            @* マップグリッド *@
+            <div style="display:flex; flex-direction:column; align-items:center;">
+                <div style="background:#78350f; border:4px solid #92400e; border-radius:6px; padding:3px; box-shadow:4px 4px 0 #7c2d12;">
+                    @for (int sy = mapMinY; sy <= mapMaxY; sy++)
+                    {
+                        <div style="display:flex; flex-direction:row;">
+                            @for (int sx = mapMinX; sx <= mapMaxX; sx++)
+                            {
+                                bool isPlayer = (sx == PlayerX && sy == PlayerY);
+                                var loc = GetLocationAt(sx, sy);
+                                var visual = GetVisual(loc?.Type);
+                                int cx = sx, cy = sy;
+
+                                <div style="width:72px; height:72px; background:@(loc != null ? visual.Bg : "#374151"); display:flex; flex-direction:column; align-items:center; justify-content:center; box-sizing:border-box; cursor:@(loc != null && visual.Walkable && !isPlayer ? "pointer" : "default"); border:@(isPlayer ? "3px solid #1d4ed8" : "1px solid rgba(0,0,0,0.15)"); @(isPlayer ? "box-shadow:inset 0 0 10px rgba(29,78,216,0.4);" : "")"
+                                     @onclick="() => OnTileClick(cx, cy)">
+                                    @if (isPlayer)
+                                    {
+                                        <span style="font-size:30px; filter:drop-shadow(0 2px 3px rgba(0,0,0,0.6));">🧙</span>
+                                    }
+                                    else if (loc != null)
+                                    {
+                                        <span style="font-size:26px; line-height:1;">@visual.Icon</span>
+                                        <span style="font-size:9px; color:#1c1917; font-weight:600; text-align:center; padding:0 2px; max-width:68px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; margin-top:2px;">@loc.Name</span>
+                                    }
+                                    else
+                                    {
+                                        <span style="font-size:18px; color:#6b7280; opacity:0.6;">▓</span>
+                                    }
+                                </div>
+                            }
                         </div>
                     }
                 </div>
-            }
-        </div>
-    </div>
-    
-    @if (CurrentLocation.Events.Count > 0)
-    {
-        <div class="location-events">
-            <h3>イベント</h3>
-            <ul>
-                @foreach (var ev in CurrentLocation.Events)
-                {
-                    <li>@ev</li>
+                <div style="margin-top:8px; font-size:11px; color:#92400e; text-align:center;">
+                    矢印キー / WASD で移動　・　タイルをクリックして移動
+                </div>
+            </div>
+
+            @* 右パネル *@
+            <div style="display:flex; flex-direction:column; gap:12px; width:200px;">
+
+                @* D-パッド *@
+                <div style="background:#fef3c7; border:2px solid #d97706; border-radius:8px; padding:16px; text-align:center;">
+                    <div style="font-size:11px; color:#92400e; margin-bottom:10px; font-weight:bold; letter-spacing:1px;">移動</div>
+                    <div style="display:flex; flex-direction:column; align-items:center; gap:3px;">
+                        <button @onclick="() => TryMove(0, -1)" style="@DpadStyle width:44px; height:40px;">▲</button>
+                        <div style="display:flex; gap:3px; align-items:center;">
+                            <button @onclick="() => TryMove(-1, 0)" style="@DpadStyle width:40px; height:44px;">◀</button>
+                            <div style="width:44px; height:44px; background:#d97706; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:24px; box-shadow:2px 2px 0 #92400e;">🧙</div>
+                            <button @onclick="() => TryMove(1, 0)" style="@DpadStyle width:40px; height:44px;">▶</button>
+                        </div>
+                        <button @onclick="() => TryMove(0, 1)" style="@DpadStyle width:44px; height:40px;">▼</button>
+                    </div>
+                </div>
+
+                @* 現在地情報 *@
+                @{
+                    var currentLoc = GetLocationAt(PlayerX, PlayerY);
+                    var ct = currentLoc?.Type.ToLower() ?? "";
                 }
-            </ul>
+                @if (currentLoc != null)
+                {
+                    <div style="background:#fef3c7; border:2px solid #d97706; border-radius:8px; padding:12px;">
+                        <div style="font-size:11px; color:#92400e; margin-bottom:6px; font-weight:bold; letter-spacing:1px;">現在地</div>
+                        <div style="font-size:32px; text-align:center; margin-bottom:4px;">@GetVisual(currentLoc.Type).Icon</div>
+                        <div style="font-weight:bold; color:#78350f; text-align:center; font-size:14px;">@currentLoc.Name</div>
+                        <div style="font-size:11px; color:#57534e; text-align:center; margin-top:2px;">@GetTypeName(currentLoc.Type)</div>
+                        @if (!string.IsNullOrEmpty(currentLoc.Description))
+                        {
+                            <div style="font-size:11px; color:#92400e; margin-top:6px; line-height:1.4; border-top:1px solid #fcd34d; padding-top:6px;">@currentLoc.Description</div>
+                        }
+                        @if (currentLoc.DangerLevel > 0)
+                        {
+                            <div style="margin-top:6px; text-align:center; font-size:11px; color:#dc2626; font-weight:bold;">
+                                ⚔️ 危険度: @string.Concat(Enumerable.Repeat("★", Math.Min(currentLoc.DangerLevel, 5)))
+                            </div>
+                        }
+                    </div>
+
+                    @* アクションボタン *@
+                    @if (ct is "town" or "village")
+                    {
+                        <button @onclick="GoToTown" style="@ActionStyle background:#f59e0b; border-color:#d97706; color:#78350f;">
+                            🏠 町に入る
+                        </button>
+                    }
+                    else if (ct is "dungeon" or "cave")
+                    {
+                        <button @onclick="GoToDungeon" style="@ActionStyle background:#c4b5fd; border-color:#7c3aed; color:#3b0764;">
+                            🚪 ダンジョンへ
+                        </button>
+                    }
+                    else if (ct is "field" or "plains" or "ruins" or "jungle")
+                    {
+                        <button @onclick="Search" style="@ActionStyle background:#86efac; border-color:#22c55e; color:#14532d;">
+                            🔍 探索する
+                        </button>
+                    }
+                    else if (ct is "forest")
+                    {
+                        <button @onclick="Gather" style="@ActionStyle background:#4ade80; border-color:#16a34a; color:#052e16;">
+                            🌿 採取する
+                        </button>
+                    }
+                    else if (ct is "river" or "lake" or "beach")
+                    {
+                        <button @onclick="Fish" style="@ActionStyle background:#93c5fd; border-color:#3b82f6; color:#1e3a8a;">
+                            🎣 魚を釣る
+                        </button>
+                    }
+                }
+                else
+                {
+                    <div style="background:#fef3c7; border:2px solid #d97706; border-radius:8px; padding:12px; text-align:center; color:#92400e;">
+                        <div style="font-size:24px; margin-bottom:4px;">❓</div>
+                        <div style="font-size:13px; font-weight:bold;">未踏の地</div>
+                        <div style="font-size:11px; color:#b45309; margin-top:4px;">(@PlayerX, @PlayerY)</div>
+                    </div>
+                }
+
+                @* 凡例 (現在のマップに存在するタイルのみ表示) *@
+                <div style="background:#fef3c7; border:2px solid #d97706; border-radius:8px; padding:12px;">
+                    <div style="font-size:11px; color:#92400e; margin-bottom:6px; font-weight:bold; letter-spacing:1px;">凡例</div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:4px; font-size:11px; color:#78350f;">
+                        @foreach (var kv in TileVisuals.Where(kv => locationLookup.Values.Any(l => l.Type.Equals(kv.Key, StringComparison.OrdinalIgnoreCase))))
+                        {
+                            <div style="display:flex; gap:4px; align-items:center;">
+                                <span>@kv.Value.Icon</span>
+                                <span>@GetTypeName(kv.Key)</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+            </div>
         </div>
     }
-    
-    <div class="actions">
-        <h3>行動</h3>
-        <div class="action-buttons">
-            @if (CurrentLocation.Type == "town")
-            {
-                <button class="action-button" @onclick="GoToTown">町に入る</button>
-            }
-            else if (CurrentLocation.Type == "dungeon")
-            {
-                <button class="action-button" @onclick="GoToDungeon">ダンジョンに入る</button>
-            }
-            else if (CurrentLocation.Type == "field")
-            {
-                <button class="action-button" @onclick="Search">探索する</button>
-            }
-            else if (CurrentLocation.Type == "forest")
-            {
-                <button class="action-button" @onclick="CutWood">木を切る</button>
-                <button class="action-button" @onclick="Hunt">狩りをする</button>
-            }
-            else if (CurrentLocation.Type == "river")
-            {
-                <button class="action-button" @onclick="Fish">魚を釣る</button>
-            }
-            
-            <button class="action-button" @onclick="GoToHome">ホームに戻る</button>
-        </div>
-    </div>
 </div>
 
 @code {
-    private MapLocation CurrentLocation { get; set; } = new MapLocation();
-    
-    protected override void OnInitialized()
-    {
-        // 初期位置（町の広場）に設定
-        CurrentLocation = MapService.GetLocation(5, 5);
-    }
-    
-    private string GetLocationTypeName(string type)
-    {
-        return type switch
+    // マップ座標範囲（マスターデータから動的計算）
+    private int mapMinX, mapMaxX, mapMinY, mapMaxY;
+
+    // プレイヤー位置
+    private int PlayerX { get; set; }
+    private int PlayerY { get; set; }
+
+    // 認証
+    private bool isAuth;
+    private User? currentUser;
+    private ElementReference mapContainer;
+
+    // マスターデータから読み込んだ国別マップ
+    private FFA.Models.Map? countryMap;
+    private Dictionary<(int, int), MapLocation> locationLookup = new();
+    private string? loadError;
+
+    // ボタンスタイル定数
+    private const string DpadStyle   = "background:#fef3c7; border:2px solid #d97706; border-radius:4px; color:#78350f; font-size:15px; font-weight:bold; cursor:pointer; box-shadow:2px 2px 0 #92400e;";
+    private const string ActionStyle = "width:100%; padding:10px; border:2px solid; border-radius:6px; font-weight:bold; font-size:13px; cursor:pointer;";
+
+    // タイルタイプ別ビジュアル（大文字小文字を区別しない）
+    private static readonly Dictionary<string, (string Icon, string Bg, bool Walkable)> TileVisuals =
+        new(StringComparer.OrdinalIgnoreCase)
         {
-            "town" => "町",
-            "field" => "野原",
-            "forest" => "森",
-            "mountain" => "山",
-            "river" => "川",
-            "dungeon" => "ダンジョン",
-            _ => "不明"
+            { "town",          ("🏠", "#fcd34d", true)  },
+            { "village",       ("🏘️", "#fde68a", true)  },
+            { "field",         ("🌾", "#86efac", true)  },
+            { "plains",        ("🌿", "#a7f3d0", true)  },
+            { "forest",        ("🌲", "#4ade80", true)  },
+            { "jungle",        ("🌴", "#22c55e", true)  },
+            { "mountain",      ("🏔️", "#e5e7eb", false) },
+            { "snow_mountain", ("🗻", "#dbeafe", false) },
+            { "river",         ("🏞️", "#93c5fd", true)  },
+            { "lake",          ("🌊", "#60a5fa", false) },
+            { "dungeon",       ("🚪", "#c4b5fd", true)  },
+            { "cave",          ("🕳️", "#d1d5db", true)  },
+            { "ruins",         ("🏚️", "#d1d5db", true)  },
+            { "desert",        ("🏜️", "#fef08a", false) },
+            { "beach",         ("🏖️", "#fed7aa", true)  },
+            { "swamp",         ("🐊", "#6ee7b7", false) },
+            { "snow_plains",   ("❄️",  "#e0f2fe", true)  },
+            { "volcano",       ("🌋", "#fca5a5", false) },
         };
-    }
-    
-    private string GetCellSymbol(string type, bool isCurrent)
+
+    protected override async Task OnInitializedAsync()
     {
-        if (isCurrent) return "◎";
-        
-        return type switch
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        isAuth = state.User?.Identity?.IsAuthenticated ?? false;
+        var username = state.User?.Identity?.Name;
+
+        if (!isAuth || string.IsNullOrEmpty(username))
         {
-            "town" => "🏠",
-            "field" => "🌾",
-            "forest" => "🌲",
-            "mountain" => "🏔️",
-            "river" => "💧",
-            "dungeon" => "🚪",
-            _ => "?"
-        };
+            Navigation.NavigateTo("/login");
+            return;
+        }
+
+        currentUser = UserService.GetByUsername(username);
+        if (currentUser == null)
+        {
+            Navigation.NavigateTo("/login");
+            return;
+        }
+
+        try
+        {
+            // プレイヤーの所属国のマップをマスターデータから取得
+            int countryId = currentUser.CountryId ?? 5;
+            loadError = null;
+            countryMap = MapService.GetMapByCountryId(countryId);
+
+            // 座標→ロケーション のルックアップテーブルを構築（重複座標は最初のエントリを使用）
+            locationLookup = countryMap.Locations
+                .GroupBy(l => (l.X, l.Y))
+                .ToDictionary(g => g.Key, g => g.First());
+
+            // マップの座標範囲を動的に算出
+            if (locationLookup.Count > 0)
+            {
+                mapMinX = countryMap.Locations.Min(l => l.X);
+                mapMaxX = countryMap.Locations.Max(l => l.X);
+                mapMinY = countryMap.Locations.Min(l => l.Y);
+                mapMaxY = countryMap.Locations.Max(l => l.Y);
+            }
+            else
+            {
+                loadError = $"countryId={countryId}, Locations.Count={countryMap.Locations.Count}, MapName={countryMap.Name}";
+            }
+        }
+        catch (Exception ex)
+        {
+            loadError = $"{ex.GetType().Name}: {ex.Message}";
+        }
+
+        // プレイヤー位置の初期化
+        PlayerX = currentUser.MapX;
+        PlayerY = currentUser.MapY;
+
+        // 保存位置がマップ上に存在しない場合は首都（最初の town）へ移動
+        if (!locationLookup.ContainsKey((PlayerX, PlayerY)))
+        {
+            var capital = countryMap.Locations
+                              .FirstOrDefault(l => l.Type.Equals("town", StringComparison.OrdinalIgnoreCase))
+                          ?? countryMap.Locations.FirstOrDefault();
+            if (capital != null)
+            {
+                PlayerX = capital.X;
+                PlayerY = capital.Y;
+                SavePlayerPosition();
+            }
+        }
     }
-    
-    private void Move(Direction direction)
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        CurrentLocation = MapService.Move(direction, CurrentLocation.X, CurrentLocation.Y);
+        if (firstRender && isAuth)
+        {
+            try { await mapContainer.FocusAsync(); } catch { }
+        }
     }
-    
-    private void JumpTo(int x, int y)
+
+    private MapLocation? GetLocationAt(int x, int y)
+        => locationLookup.TryGetValue((x, y), out var loc) ? loc : null;
+
+    private (string Icon, string Bg, bool Walkable) GetVisual(string? type)
     {
-        CurrentLocation = MapService.GetLocation(x, y);
+        if (type == null) return ("▓", "#374151", false);
+        return TileVisuals.TryGetValue(type, out var v) ? v : ("🌾", "#a7f3d0", true);
     }
-    
-    private void GoToTown()
+
+    private string GetTileIcon(int x, int y)
+        => GetVisual(GetLocationAt(x, y)?.Type).Icon;
+
+    private string GetCurrentLocationName()
+        => GetLocationAt(PlayerX, PlayerY)?.Name ?? "不明な場所";
+
+    private string GetCurrentLocationDesc()
+        => GetLocationAt(PlayerX, PlayerY)?.Description ?? "";
+
+    private string GetTypeName(string type) => type.ToLower() switch
     {
-        Navigation.NavigateTo("/town");
-    }
-    
-    private void GoToDungeon()
+        "town"         => "町",
+        "village"      => "村",
+        "field"        => "草原",
+        "plains"       => "平原",
+        "forest"       => "森",
+        "jungle"       => "密林",
+        "mountain"     => "山",
+        "snow_mountain"=> "雪山",
+        "river"        => "川",
+        "lake"         => "湖",
+        "dungeon"      => "ダンジョン",
+        "cave"         => "洞窟",
+        "ruins"        => "廃墟",
+        "desert"       => "砂漠",
+        "beach"        => "砂浜",
+        "swamp"        => "湿地",
+        "snow_plains"  => "雪原",
+        "volcano"      => "火山",
+        _ => type
+    };
+
+    private void TryMove(int dx, int dy)
     {
-        Navigation.NavigateTo("/dungeon");
+        int newX = PlayerX + dx;
+        int newY = PlayerY + dy;
+        if (locationLookup.TryGetValue((newX, newY), out var loc) && GetVisual(loc.Type).Walkable)
+        {
+            PlayerX = newX;
+            PlayerY = newY;
+            SavePlayerPosition();
+        }
     }
-    
-    private void Search()
+
+    private void OnTileClick(int wx, int wy)
     {
-        // 探索の処理
+        if (locationLookup.TryGetValue((wx, wy), out var loc) && GetVisual(loc.Type).Walkable)
+        {
+            PlayerX = wx;
+            PlayerY = wy;
+            SavePlayerPosition();
+        }
     }
-    
-    private void CutWood()
+
+    private void HandleKeyDown(KeyboardEventArgs e)
     {
-        // 木を切る処理
+        switch (e.Key)
+        {
+            case "ArrowUp":    case "w": case "W": TryMove(0, -1); break;
+            case "ArrowDown":  case "s": case "S": TryMove(0, 1);  break;
+            case "ArrowLeft":  case "a": case "A": TryMove(-1, 0); break;
+            case "ArrowRight": case "d": case "D": TryMove(1, 0);  break;
+        }
     }
-    
-    private void Hunt()
+
+    private void SavePlayerPosition()
     {
-        // 狩りの処理
+        if (currentUser != null)
+        {
+            currentUser.MapX = PlayerX;
+            currentUser.MapY = PlayerY;
+            UserService.UpdateUser(currentUser);
+        }
     }
-    
-    private void Fish()
-    {
-        // 魚を釣る処理
-    }
-    
-    private void GoToHome()
-    {
-        Navigation.NavigateTo("/");
-    }
+
+    private void GoToTown()    => Navigation.NavigateTo("/town");
+    private void GoToDungeon() => Navigation.NavigateTo("/dungeon");
+    private void GoToHome()    => Navigation.NavigateTo("/");
+    private void GoToLogin()   => Navigation.NavigateTo("/login");
+    private void Search() { }
+    private void Gather() { }
+    private void Fish()   { }
 }

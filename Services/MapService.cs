@@ -8,89 +8,140 @@ public class MapService
 {
     private Dictionary<int, Map> countryMaps = new();
     private const int MapOffset = 4; // 町の座標(-4~4)をマップ座標(0~8)に変換
-    
+
+    /// <summary>読み込み診断情報</summary>
+    public List<string> LoadDiagnostics { get; } = new();
+
     public MapService()
     {
         LoadCountryMaps();
     }
-    
+
     private void LoadCountryMaps()
     {
+        var path1 = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "Maps");
+        var path2 = Path.Combine(Directory.GetCurrentDirectory(), "Data", "Maps");
+
+        LoadDiagnostics.Add($"Path1: {path1} exists={Directory.Exists(path1)}");
+        LoadDiagnostics.Add($"Path2: {path2} exists={Directory.Exists(path2)}");
+
         // Data/Maps ディレクトリから国別マップを読み込み
-        var mapsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "Maps");
-        
+        var mapsPath = path1;
+
         // 開発時はプロジェクトルートからも読み込み
         if (!Directory.Exists(mapsPath))
         {
-            mapsPath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "Maps");
+            mapsPath = path2;
         }
-        
+
         if (!Directory.Exists(mapsPath))
+        {
+            LoadDiagnostics.Add("ERROR: No Data/Maps directory found at either path.");
             return;
-            
+        }
+
+        LoadDiagnostics.Add($"Using: {mapsPath}");
+
         var files = Directory.GetFiles(mapsPath, "*_country_*.toml");
-        
+        LoadDiagnostics.Add($"Found {files.Length} *_country_*.toml files");
+
         foreach (var file in files)
         {
+            var fileName = Path.GetFileName(file);
             try
             {
                 var content = File.ReadAllText(file);
-                var model = Toml.Parse(content);
-                var table = model.ToModel();
-                
-                if (table.ContainsKey("meta"))
+                var doc = Toml.Parse(content);
+
+                if (doc.HasErrors)
                 {
-                    var meta = table["meta"] as TomlTable;
-                    if (meta != null)
+                    LoadDiagnostics.Add($"  {fileName}: TOML parse errors: {string.Join("; ", doc.Diagnostics)}");
+                    continue;
+                }
+
+                var table = doc.ToModel();
+
+                bool hasMeta = table.ContainsKey("meta");
+                bool hasGrid = table.ContainsKey("grid");
+                LoadDiagnostics.Add($"  {fileName}: hasMeta={hasMeta}, hasGrid={hasGrid}, keys=[{string.Join(",", table.Keys)}]");
+
+                if (!hasMeta)
+                {
+                    LoadDiagnostics.Add($"  {fileName}: SKIP (no [meta])");
+                    continue;
+                }
+
+                var meta = table["meta"] as TomlTable;
+                if (meta == null)
+                {
+                    LoadDiagnostics.Add($"  {fileName}: SKIP (meta is {table["meta"]?.GetType().Name ?? "null"})");
+                    continue;
+                }
+
+                int countryId = GetIntValue(meta, "country_id", 0);
+                string countryName = GetStringValue(meta, "country_name",
+                    GetStringValue(meta, "description", "Unknown"));
+
+                var map = new Map
+                {
+                    Id = countryId,
+                    Name = countryName,
+                    Width = 4,
+                    Height = 4,
+                    Locations = new List<MapLocation>()
+                };
+
+                // グリッドデータを読み込み
+                if (hasGrid)
+                {
+                    var gridRaw = table["grid"];
+                    LoadDiagnostics.Add($"  {fileName}: grid type={gridRaw?.GetType().FullName}");
+
+                    var gridArray = gridRaw as TomlArray;
+                    if (gridArray != null)
                     {
-                        int countryId = GetIntValue(meta, "country_id", 0);
-                        string countryName = GetStringValue(meta, "description", "");
-                        
-                        var map = new Map
+                        LoadDiagnostics.Add($"  {fileName}: grid count={gridArray.Count}");
+                        foreach (var item in gridArray)
                         {
-                            Id = countryId,
-                            Name = countryName,
-                            Width = 4,
-                            Height = 4,
-                            Locations = new List<MapLocation>()
-                        };
-                        
-                        // グリッドデータを読み込み
-                        if (table.ContainsKey("grid"))
-                        {
-                            var gridArray = table["grid"] as TomlArray;
-                            if (gridArray != null)
+                            var grid = item as TomlTable;
+                            if (grid == null)
                             {
-                                foreach (var item in gridArray)
-                                {
-                                    var grid = item as TomlTable;
-                                    if (grid == null) continue;
-                                    
-                                    var location = new MapLocation
-                                    {
-                                        X = GetIntValue(grid, "x", 0),
-                                        Y = GetIntValue(grid, "y", 0),
-                                        Name = GetStringValue(grid, "name", ""),
-                                        Description = GetStringValue(grid, "description", ""),
-                                        Type = GetStringValue(grid, "type", "field"),
-                                        CanEnter = true,
-                                        Events = new List<string>()
-                                    };
-                                    
-                                    map.Locations.Add(location);
-                                }
+                                LoadDiagnostics.Add($"  {fileName}: grid item is {item?.GetType().Name ?? "null"}, not TomlTable");
+                                continue;
                             }
+
+                            var location = new MapLocation
+                            {
+                                X = GetIntValue(grid, "x", 0),
+                                Y = GetIntValue(grid, "y", 0),
+                                Name = GetStringValue(grid, "name", ""),
+                                Description = GetStringValue(grid, "description", ""),
+                                Type = GetStringValue(grid, "type", "field"),
+                                DangerLevel = GetIntValue(grid, "difficulty", 0),
+                                CanEnter = true,
+                                Events = new List<string>()
+                            };
+
+                            map.Locations.Add(location);
                         }
-                        
-                        countryMaps[countryId] = map;
+                    }
+                    else
+                    {
+                        LoadDiagnostics.Add($"  {fileName}: grid as TomlArray = null (actual type: {gridRaw?.GetType().FullName})");
                     }
                 }
+
+                countryMaps[countryId] = map;
+                LoadDiagnostics.Add($"  {fileName}: Loaded countryId={countryId} name={countryName} locations={map.Locations.Count}");
             }
             catch (Exception ex)
             {
+                LoadDiagnostics.Add($"  {fileName}: EXCEPTION: {ex.Message}");
                 Console.WriteLine($"Failed to load map {file}: {ex.Message}");
             }
         }
+
+        LoadDiagnostics.Add($"Total maps loaded: {countryMaps.Count} ({string.Join(", ", countryMaps.Keys)})");
     }
     
     private int GetIntValue(TomlTable table, string key, int defaultValue)

@@ -1,0 +1,239 @@
+# ============================================
+# 属性（元素）マスターデータ
+# ============================================
+
+# ============================================
+# 基本属性
+# ============================================
+
+[[elements]]
+id = 0
+name = "None"
+japanese_name = "無"
+icon = "⚪"
+description = "属性を持たない攻撃"
+color = "#888888"
+strong_against = []
+weak_against = []
+
+[[elements]]
+id = 1
+name = "Fire"
+japanese_name = "火"
+icon = "🔥"
+description = "熱さと炎を持つ属性。氷に弱い。"
+color = "#e74c3c"
+strong_against = [3, 13, 11]  # Ice, Bug, Steel
+weak_against = [2, 1, 17]     # Water, Fire, Rock
+
+[[elements]]
+id = 2
+name = "Water"
+japanese_name = "水"
+icon = "💧"
+description = "水の流れを持つ属性。火に弱い。"
+color = "#3498db"
+strong_against = [1, 6, 17]   # Fire, Earth, Rock
+weak_against = [2, 4, 5]      # Water, Electric, Wind
+
+[[elements]]
+id = 3
+name = "Ice"
+japanese_name = "氷"
+icon = "❄️"
+description = "氷の冷たさを持つ属性。火/岩/鋼に弱い。"
+color = "#74b9ff"
+strong_against = [12, 19, 5]  # Dragon, Flying, Wind
+weak_against = [1, 3, 18]     # Fire, Ice, Fighting
+
+[[elements]]
+id = 4
+name = "Electric"
+japanese_name = "雷"
+icon = "⚡"
+description = "電気の力を持つ属性。地面に弱い。"
+color = "#f1c40f"
+strong_against = [2, 19]       # Water, Flying
+weak_against = [4, 5, 6]      # Electric, Wind, Earth
+
+[[elements]]
+id = 5
+name = "Wind"
+japanese_name = "風"
+icon = "🌀"
+description = "風の力を持つ属性。"
+color = "#2ecc71"
+strong_against = [6, 17, 13]   # Earth, Rock, Bug
+weak_against = [5, 4]         # Wind, Electric
+
+[[elements]]
+id = 6
+name = "Earth"
+japanese_name = "土"
+icon = "🌍"
+description = "大地の力を持つ属性。雷に弱い。"
+color = "#8b4513"
+strong_against = [4, 1, 9, 17, 11]  # Electric, Fire, Poison, Rock, Steel
+weak_against = [2, 5, 3]           # Water, Wind, Ice
+
+[[elements]]
+id = 7
+name = "Light"
+japanese_name = "光"
+icon = "☀️"
+description = "光の力を持つ属性。闇に弱い。"
+color = "#f39c12"
+strong_against = [8, 15]       # Dark, Evil
+weak_against = [7, 8]          # Light, Dark
+
+[[elements]]
+id = 8
+name = "Dark"
+japanese_name = "闇"
+icon = "🌑"
+description = "闇の力を持つ属性。光に弱い。"
+color = "#2c3e50"
+strong_against = [7, 16, 14]   # Light, Fairy, Ghost
+weak_against = [8, 18]          # Dark, Fighting
+
+[[elements]]
+id = 9
+name = "Poison"
+japanese_name = "毒"
+icon = "☠️"
+description = "毒の力を持つ属性。"
+color = "#9b59b6"
+strong_against = [16, 5]       # Fairy, Grass
+weak_against = [9, 6, 14]      # Poison, Earth, Ghost
+
+# ============================================
+# 特殊属性
+# ============================================
+
+[[elements]]
+id = 10
+name = "Holy"
+japanese_name = "聖"
+icon = "✨"
+description = "聖なる力を持つ属性。"
+color = "#ecf0f1"
+strong_against = [8, 15, 14]   # Dark, Evil, Ghost
+weak_against = [1, 10]         # Fire, Holy
+
+[[elements]]
+id = 11
+name = "Steel"
+japanese_name = "鋼"
+icon = "⚔️"
+description = "鋼の硬さを持つ属性。"
+color = "#95a5a6"
+strong_against = [3, 17, 16]  # Ice, Rock, Fairy
+weak_against = [1, 18, 11]    # Fire, Fighting, Steel
+
+[[elements]]
+id = 12
+name = "Dragon"
+japanese_name = "龍"
+icon = "🐉"
+description = "龍の力を持つ属性。"
+color = "#8e44ad"
+strong_against = [12]          # Dragon
+weak_against = [3, 12, 16]     # Ice, Dragon, Fairy
+
+[[elements]]
+id = 13
+name = "Bug"
+japanese_name = "虫"
+icon = "🐛"
+description = "虫の力を持つ属性。"
+color = "#27ae60"
+strong_against = [8, 5, 7]     # Dark, Grass, Light
+weak_against = [1, 18, 17]     # Fire, Fighting, Rock
+
+[[elements]]
+id = 14
+name = "Ghost"
+japanese_name = "ゴースト"
+icon = "👻"
+description = "霊的な力を持つ属性。"
+color = "#34495e"
+strong_against = [14, 22]     # Ghost, Psychic
+weak_against = [8, 14]        # Dark, Ghost
+
+[[elements]]
+id = 15
+name = "Evil"
+japanese_name = "悪"
+icon = "😈"
+description = "悪しき力を持つ属性。"
+color = "#c0392b"
+strong_against = [14, 7]       # Ghost, Light
+weak_against = [18, 8, 16]    # Fighting, Dark, Fairy
+
+[[elements]]
+id = 16
+name = "Fairy"
+japanese_name = "妖精"
+icon = "🧚"
+description = "妖精の魔法を持つ属性。"
+color = "#e91e63"
+strong_against = [8, 15, 12]  # Dark, Evil, Dragon
+weak_against = [1, 9, 11]     # Fire, Poison, Steel
+
+# ============================================
+# 物理属性
+# ============================================
+
+[[elements]]
+id = 17
+name = "Rock"
+japanese_name = "岩"
+icon = "🪨"
+description = "岩の硬さを持つ属性。"
+color = "#795548"
+strong_against = [3, 19, 13]  # Ice, Flying, Bug
+weak_against = [2, 5, 18, 6, 11]  # Water, Wind, Fighting, Earth, Steel
+
+[[elements]]
+id = 18
+name = "Fighting"
+japanese_name = "格闘"
+icon = "🥊"
+description = "格闘技の力を持つ属性。"
+color = "#e67e22"
+strong_against = [8, 3, 0, 11]  # Dark, Ice, None, Steel
+weak_against = [16, 19, 22]     # Fairy, Flying, Psychic
+
+[[elements]]
+id = 19
+name = "Flying"
+japanese_name = "飛行"
+icon = "🦅"
+description = "飛行の力を持つ属性。"
+color = "#87ceeb"
+strong_against = [13, 18, 5]   # Bug, Fighting, Grass
+weak_against = [4, 3, 17]      # Electric, Ice, Rock
+
+# ============================================
+# 神秘属性
+# ============================================
+
+[[elements]]
+id = 20
+name = "Ether"
+japanese_name = "エーテル"
+icon = "💎"
+description = "神秘的なエーテルの力を持つ属性。"
+color = "#00ffff"
+strong_against = [7, 8, 12]    # Light, Dark, Dragon
+weak_against = [0]             # None
+
+[[elements]]
+id = 22
+name = "Psychic"
+japanese_name = "精神"
+icon = "🔮"
+description = "精神の力を持つ属性。"
+color = "#ff69b4"
+strong_against = [18, 8]        # Fighting, Dark
+weak_against = [22, 16]        # Psychic, Fairy

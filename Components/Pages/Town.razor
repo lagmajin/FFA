@@ -124,10 +124,23 @@
                 <MudPaper Class="pa-4 mb-4">
                     <h3 style="margin:0 0 16px 0;">🏨 @CurrentTown.Name の施設</h3>
                     <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:12px;">
-                        <div class="convenience-item" style="text-align:center; padding:12px; background:#f9f9f9; border-radius:8px;">
-                            <div style="font-size:24px;">🏨</div>
-                            <div>宿屋</div>
+                        <div class="convenience-item" style="text-align:center; padding:16px; background:linear-gradient(135deg, #fff5e6 0%, #ffe0b2 100%); border-radius:12px; border:2px solid #ff9800; cursor:pointer; transition:transform 0.2s, box-shadow 0.2s;" @onclick="GoToInn">
+                            <div style="font-size:28px;">🏨</div>
+                            <div style="font-weight:bold; margin:4px 0;">宿屋</div>
                             <div style="font-size:12px; color:#666;">HP全回復</div>
+                            @if (currentUser != null)
+                            {
+                                <div style="margin-top:8px; padding:6px; background:rgba(255,255,255,0.7); border-radius:6px; font-size:11px;">
+                                    <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
+                                        <span>HP:</span>
+                                        <span style="color:@(currentUser.HP < currentUser.MaxHP ? "#e53935" : "#43a047"); font-weight:bold;">@currentUser.HP / @currentUser.MaxHP</span>
+                                    </div>
+                                    <div style="display:flex; justify-content:space-between;">
+                                        <span>費用:</span>
+                                        <span style="color:@(currentUser.Gil >= 100 ? "#43a047" : "#e53935"); font-weight:bold;">100 ギル</span>
+                                    </div>
+                                </div>
+                            }
                         </div>
                         <div class="convenience-item" style="text-align:center; padding:12px; background:#f9f9f9; border-radius:8px;">
                             <div style="font-size:24px;">🏦</div>
@@ -305,12 +318,12 @@
             <MudPaper Class="pa-4" style="position:sticky; top:16px;">
                 <h3 style="margin:0 0 16px 0; font-size:16px;">⚡ アクション</h3>
                 <div style="display:flex; flex-direction:column; gap:8px;">
-                    @* フィールドへの移動は常に表示 *@
+                    @* マップ移動ボタン *@
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" OnClick="GoToMap" StartIcon="🗺️">
+                        マップ移動
+                    </MudButton>
                     <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" OnClick="GoToField" StartIcon="🌲">
                         フィールド
-                    </MudButton>
-                    <MudButton Variant="Variant.Filled" Color="Color.Success" FullWidth="true" OnClick="EnterMapMode" StartIcon="🗺️">
-                        マップ移動
                     </MudButton>
                     <MudButton Variant="Variant.Filled" Color="Color.Success" FullWidth="true" OnClick="GoToInn" StartIcon="🏨">
                         宿屋
@@ -362,9 +375,6 @@
                     
                     <MudButton Variant="Variant.Filled" Color="Color.Dark" FullWidth="true" OnClick="GoBack" StartIcon="🏠">
                         ダッシュボード
-                    </MudButton>
-                    <MudButton Variant="Variant.Text" Color="Color.Default" FullWidth="true" OnClick="GoToMap" StartIcon="🗺️">
-                        マップ
                     </MudButton>
                 </div>
             </MudPaper>
@@ -443,23 +453,46 @@
             }
         }
         
-        if (currentUser?.CountryId != null)
+        // 未認証はログインへリダイレクト
+        if (currentUser == null)
+        {
+            Navigation.NavigateTo("/login");
+            return;
+        }
+
+        // フォールバック1: 所属国の首都
+        if (currentUser.CountryId != null)
         {
             currentCountry = CountryService.GetCountryById(currentUser.CountryId.Value);
             var towns = TownService.GetTownsByCountryId(currentUser.CountryId.Value);
             CurrentTown = towns.FirstOrDefault(t => t.Type == "capital") ?? towns.FirstOrDefault();
             OtherTowns = towns.Where(t => t.Id != CurrentTown?.Id).ToList();
-            
-            // 国のIDを設定
             currentCountryId = CurrentTown?.CountryId ?? 5;
         }
-        else
+
+        // フォールバック2: 中立国 "Neutral Haven" の首都
+        if (CurrentTown == null)
         {
             var neutralCountry = CountryService.GetAllCountries().FirstOrDefault(c => c.Name == "Neutral Haven");
             if (neutralCountry != null)
             {
-                CurrentTown = neutralCountry.Towns.FirstOrDefault(t => t.Type == "capital");
+                currentCountry = neutralCountry;
+                CurrentTown = neutralCountry.Towns.FirstOrDefault(t => t.Type == "capital") ?? neutralCountry.Towns.FirstOrDefault();
                 OtherTowns = neutralCountry.Towns.Where(t => t.Id != CurrentTown?.Id).ToList();
+                currentCountryId = neutralCountry.Id;
+            }
+        }
+
+        // フォールバック3: 全国から最初の首都を使用
+        if (CurrentTown == null)
+        {
+            var allTowns = TownService.GetAllTowns();
+            CurrentTown = allTowns.FirstOrDefault(t => t.Type == "capital") ?? allTowns.FirstOrDefault();
+            if (CurrentTown != null)
+            {
+                currentCountryId = CurrentTown.CountryId;
+                OtherTowns = TownService.GetTownsByCountryId(CurrentTown.CountryId)
+                    .Where(t => t.Id != CurrentTown.Id).ToList();
             }
         }
     }

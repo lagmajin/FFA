@@ -10,9 +10,16 @@
 
 <PageTitle>FFA - トップ</PageTitle>
 
+<style>
+  .two-px-border th,
+  .two-px-border td {
+    border: 2px solid #000;
+  }
+</style>
+
 <div style="max-width:1024px; margin:1rem auto; padding:1rem;">
     <div style="min-height:0; margin-bottom:0; padding-bottom:0;"></div>
-    <table border="1" style="width: 100%; border-collapse: collapse;">
+    <table class="two-px-border" style="width: 100%; border-collapse: collapse; border: 2px solid #000;">
         <thead>
             <tr>
                 @* 3カラム分を結合 *@
@@ -25,7 +32,7 @@
             <tr>
                 @* 2行目からは通常通り3カラム *@
                 <td>
-                    <table border="1">
+                    <table class="two-px-border" style="border-collapse: collapse; border: 2px solid #000;">
                         <tr>
                             <th>(武器)</th>
                             

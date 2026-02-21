@@ -28,45 +28,59 @@ else
         @if (currentUser != null)
         {
             <div class="player-status">
-                <div class="status-row">
-                    <span class="label">プレイヤー:</span>
-                    <span class="value">@currentUser.Username</span>
-                </div>
-                <div class="status-row">
-                    <span class="label">所持金:</span>
-                    <span class="value gold">@currentUser.Gil.ToString("N0") ギル</span>
-                </div>
-                <div class="status-row">
-                    <span class="label">HP:</span>
-                    <span class="value hp">@currentUser.HP / @currentUser.MaxHP</span>
-                </div>
-            </div>
-
-            <div class="inn-actions">
-                <div class="rest-section">
-                    <h3>休息する</h3>
-                    <p class="cost">費用: 100 ギル</p>
-                    <button class="rest-button @(!canRest ? "disabled" : "")" 
-                            @onclick="Rest" 
-                            disabled="@(!canRest)">
-                        @if (!canRest)
-                        {
-                            <span>ギル不足</span>
-                        }
-                        else
-                        {
-                            <span>休む</span>
-                        }
-                    </button>
-                </div>
-
-                @if (currentUser.HP >= currentUser.MaxHP)
-                {
-                    <div class="already-healed">
-                        <p>💚 HPは既に満点です！</p>
+                <div class="status-header">
+                    <div class="player-avatar">🧙</div>
+                    <div class="player-details">
+                        <h2 class="player-name">@currentUser.Username</h2>
+                        <span class="player-level">Lv.@currentUser.Level</span>
                     </div>
-                }
+                    <div class="player-currency">
+                        <div class="currency-gil">
+                            <span class="gil-icon">💰</span>
+                            <span>@currentUser.Gil.ToString("N0") ギル</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hp-bar-container">
+                    <div class="hp-bar-label">
+                        <span class="hp-text">HP</span>
+                        <span class="hp-value">@currentUser.HP / @currentUser.MaxHP</span>
+                    </div>
+                    <div class="hp-track">
+                        <div class="hp-fill @(currentUser.HP >= currentUser.MaxHP ? "full" : "")" 
+                             style="width: @(currentUser.MaxHP > 0 ? (double)currentUser.HP / currentUser.MaxHP * 100 : 0)%"></div>
+                    </div>
+                </div>
             </div>
+
+            <div class="rest-section">
+                <span class="rest-icon">🛏️</span>
+                <h3 class="rest-title">休息する</h3>
+                <div class="rest-cost">
+                    <span>💰</span>
+                    <span>費用: 100 ギル</span>
+                </div>
+                <button class="rest-button @(!canRest ? "disabled" : "")" 
+                        @onclick="Rest" 
+                        disabled="@(!canRest)">
+                    @if (!canRest)
+                    {
+                        <span>ギル不足</span>
+                    }
+                    else
+                    {
+                        <span>休む 💤</span>
+                    }
+                </button>
+            </div>
+
+            @if (currentUser.HP >= currentUser.MaxHP)
+            {
+                <div class="already-healed">
+                    <p>💚 HPは既に満点です！</p>
+                </div>
+            }
 
             @if (lastEvent != null)
             {
@@ -78,13 +92,15 @@ else
                     <p class="event-message">@lastEvent.Message</p>
                     @if (lastEvent.GilChange != 0)
                     {
-                        <p class="event-reward @(lastEvent.GilChange > 0 ? "positive" : "negative")">
+                        <span class="event-reward @(lastEvent.GilChange > 0 ? "positive" : "negative")">
                             @(lastEvent.GilChange > 0 ? "+" : "")@lastEvent.GilChange ギル
-                        </p>
+                        </span>
                     }
-                    @if (lastEvent.ExpGain > 0)
+                    @if (lastEvent.ExpGain != 0)
                     {
-                        <p class="event-reward positive">+@lastEvent.ExpGain EXP</p>
+                        <span class="event-reward @(lastEvent.ExpGain > 0 ? "positive" : "negative")">
+                            @(lastEvent.ExpGain > 0 ? "+" : "")@lastEvent.ExpGain EXP
+                        </span>
                     }
                     <p class="auto-return">@(countdown)秒後に街に戻ります...</p>
                 </div>
@@ -95,29 +111,37 @@ else
                 <div class="info-grid">
                     <div class="info-item">
                         <span class="icon">💤</span>
-                        <span class="name">休息</span>
-                        <span class="desc">HP全回復</span>
+                        <div>
+                            <div class="name">休息</div>
+                            <div class="desc">HP全回復</div>
+                        </div>
                     </div>
                     <div class="info-item">
                         <span class="icon">🎲</span>
-                        <span class="name">ランダムイベント</span>
-                        <span class="desc">様々なことが發生</span>
+                        <div>
+                            <div class="name">ランダムイベント</div>
+                            <div class="desc">様々なことが發生</div>
+                        </div>
                     </div>
                     <div class="info-item">
                         <span class="icon">💬</span>
-                        <span class="name">情報</span>
-                        <span class="desc">最新の情報を得る</span>
+                        <div>
+                            <div class="name">情報</div>
+                            <div class="desc">最新の情報を得る</div>
+                        </div>
                     </div>
                     <div class="info-item">
                         <span class="icon">🍺</span>
-                        <span class="name">交流</span>
-                        <span class="desc">他の冒険者と会う</span>
+                        <div>
+                            <div class="name">交流</div>
+                            <div class="desc">他の冒険者と会う</div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="back-button">
-                <button @onclick="GoBack">← 街に戻る</button>
+            <div class="back-section">
+                <button class="back-button" @onclick="GoBack">← 街に戻る</button>
             </div>
         }
         else
