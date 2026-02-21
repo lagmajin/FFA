@@ -6,7 +6,9 @@ using Microsoft.AspNetCore.Authentication;
 using FFA.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Components.Server.Circuits;
 using MudBlazor.Services;
+using System.Linq;
 
 // スキル習得リクエスト型
 // LearnSkillRequest moved to Models/LearnSkillRequest.cs to avoid top-level declaration ordering issues
@@ -14,8 +16,17 @@ using MudBlazor.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+// NOTE FOR MAINTAINERS:
+// The following call configures Blazor Server's interactive server render mode.
+// - `DetailedErrors` is enabled only in Development to allow SignalR circuit errors
+//   to surface to the browser for debugging. Do NOT enable this in Production.
+// - Avoid changing this block unless you understand Blazor circuit behavior.
 builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
+    .AddInteractiveServerComponents(options =>
+    {
+        // 開発環境では回線エラーの詳細をクライアントに送信する
+        options.DetailedErrors = builder.Environment.IsDevelopment();
+    });
 
 // MudBlazor services for UI components
 builder.Services.AddMudServices();
@@ -26,11 +37,8 @@ builder.Services.AddScoped<GuildEnhancementService>();
 builder.Services.AddSingleton<WorldService>();
 builder.Services.AddSingleton<StaminaService>();
 builder.Services.AddSingleton<ConsumableItemService>();
-builder.Services.AddScoped<DungeonService>();
-builder.Services.AddScoped<QuestService>();
 builder.Services.AddScoped<CountryService>();
 builder.Services.AddScoped<TownService>();
-builder.Services.AddScoped<MapService>();
 builder.Services.AddScoped<MapService>();
 builder.Services.AddScoped<FieldService>();
 builder.Services.AddScoped<MarketService>();
@@ -94,11 +102,17 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     // If your proxy is on a known network, add KnownProxies or KnownNetworks entries here to harden
     // options.KnownProxies.Add(IPAddress.Parse("x.x.x.x"));
 });
-builder.Services.AddHttpClient();
 builder.Services.AddHostedService<BatchService>();
 builder.Services.AddHostedService<TimeWeatherHostedService>();
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<DeveloperExceptionService>();
+// Register StartupLogger so circuit events can be recorded to App_Data/startup.log
+builder.Services.AddSingleton<StartupLogger>();
+// Log Blazor circuit lifecycle events (connections open/close). This is useful for
+// diagnosing SignalR/circuit issues in development. Keep lightweight.
+builder.Services.AddSingleton<CircuitHandler, FFA.Services.BlazorCircuitHandler>();
+// Background task runner for long-running operations with cancellation and logging
+builder.Services.AddSingleton<FFA.Services.BackgroundTaskRunner>();
 builder.Services.AddSingleton<AbilityService>();
 builder.Services.AddSingleton<ChatService>();
 builder.Services.AddScoped<ExplorationService>();
@@ -121,16 +135,23 @@ builder.Services.AddSingleton<CombatService>();
 // Register DungeonService via DI to accept CombatService
 builder.Services.AddScoped<DungeonService>();
 
-// In development bind to standard HTTPS port 443 so https://localhost resolves
+// In development, prefer configured endpoints (launchSettings / ASPNETCORE_URLS).
+// Only apply a forced Kestrel Listen when there are no endpoints configured via IConfiguration
+// to avoid Kestrel warning: "Overriding address(es) ... Binding to endpoints defined via IConfiguration".
 if (builder.Environment.IsDevelopment())
 {
     try
     {
-        builder.WebHost.ConfigureKestrel(options =>
+        var hasUrls = !string.IsNullOrEmpty(builder.Configuration["urls"]);
+        var hasKestrelEndpoints = builder.Configuration.GetSection("Kestrel:Endpoints").GetChildren().Any();
+        if (!hasUrls && !hasKestrelEndpoints)
         {
-            // Listen on 0.0.0.0:443 or localhost:443 depending on environment
-            options.ListenLocalhost(443, listenOptions => listenOptions.UseHttps());
-        });
+            // No endpoints configured via configuration; safely bind to localhost:443 for dev convenience
+            builder.WebHost.ConfigureKestrel(options =>
+            {
+                options.ListenLocalhost(443, listenOptions => listenOptions.UseHttps());
+            });
+        }
     }
     catch
     {
@@ -143,6 +164,29 @@ var app = builder.Build();
 // Attach a simple startup logger to capture initialization issues to App_Data/startup.log
 var startupLogger = new FFA.Services.StartupLogger();
 startupLogger.LogInfo($"Application starting. Environment={builder.Environment.EnvironmentName}");
+
+// MAINTAINER NOTE:
+// Blazor Server runs UI logic over SignalR circuits. Some circuit exceptions do not
+// flow through the normal HTTP middleware pipeline. To help diagnose such errors
+// we register handlers to capture unobserved/task-level exceptions and the
+// AppDomain unhandled exceptions and write them to both ILogger and
+// App_Data/startup.log. This should only affect diagnostics — do not remove
+// these handlers unless you replace them with another diagnostics strategy.
+// Keep logging lightweight to avoid blocking startup.
+var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("BlazorCircuit");
+AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
+{
+    if (args.ExceptionObject is Exception ex)
+    {
+        logger.LogError(ex, "AppDomain UnhandledException");
+        try { startupLogger.LogException(ex, "AppDomain.UnhandledException"); } catch { }
+    }
+};
+TaskScheduler.UnobservedTaskException += (sender, args) =>
+{
+    logger.LogError(args.Exception, "UnobservedTaskException");
+    try { startupLogger.LogException(args.Exception, "TaskScheduler.UnobservedTaskException"); } catch { }
+};
 
 // Middleware to log unhandled exceptions and 5xx responses during requests
 app.Use(async (context, next) =>
@@ -473,6 +517,23 @@ app.MapGet("/signout", async (HttpContext http) =>
 {
     await http.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
     return Results.Redirect("/");
+});
+
+// Client-side error logging endpoint used by global JS handlers (unhandledrejection/window.onerror)
+app.MapPost("/clientlog", async (HttpContext http) =>
+{
+    try
+    {
+        using var reader = new System.IO.StreamReader(http.Request.Body);
+        var body = await reader.ReadToEndAsync();
+        // Log raw payload to startup.log for investigation
+        try { startupLogger.LogInfo($"ClientLog: {body}"); } catch { }
+    }
+    catch (Exception ex)
+    {
+        try { startupLogger.LogException(ex, "ClientLogHandler"); } catch { }
+    }
+    return Results.Ok();
 });
 
 // Admin API: list users (sanitized)

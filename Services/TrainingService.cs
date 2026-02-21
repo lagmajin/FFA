@@ -19,7 +19,7 @@ namespace FFA.Services
             _databasePath = Path.Combine(appDataPath, "training.db");
         }
 
-        public TrainingSession StartTraining(string username, TrainingType type, int durationMinutes)
+        public TrainingSession? StartTraining(string username, TrainingType type, int durationMinutes)
         {
             var userService = new UserService();
             var user = userService.GetByUsername(username);
@@ -31,7 +31,7 @@ namespace FFA.Services
 
             // 日次限制チェック
             var daily = GetDailyTraining(username);
-            if (daily.TotalSessionsToday >= MaxDailySessions) return null;
+            if (daily == null || daily.TotalSessionsToday >= MaxDailySessions) return null;
 
             // 支払い
             user.Gil -= cost;
@@ -193,7 +193,7 @@ namespace FFA.Services
                 .ToList();
         }
 
-        public DailyTraining GetDailyTraining(string username)
+        public DailyTraining? GetDailyTraining(string username)
         {
             using var db = new LiteDatabase(_databasePath);
             var daily = db.GetCollection<DailyTraining>("daily");
@@ -249,7 +249,7 @@ namespace FFA.Services
         public int GetRemainingSessions(string username)
         {
             var daily = GetDailyTraining(username);
-            return Math.Max(0, MaxDailySessions - daily.TotalSessionsToday);
+            return Math.Max(0, MaxDailySessions - (daily?.TotalSessionsToday ?? 0));
         }
 
         public List<TrainingRecord> GetTrainingHistory(string username, int limit = 30)

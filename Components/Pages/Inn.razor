@@ -207,14 +207,18 @@ else
         
         // 5秒後に自動返回
         countdown = 5;
-        autoReturnTimer = new System.Threading.Timer(_ =>
+        autoReturnTimer?.Dispose();
+        autoReturnTimer = new System.Threading.Timer(async _ =>
         {
-            InvokeAsync(() =>
+            // Ensure we are still active
+            if (autoReturnTimer == null) return;
+            await InvokeAsync(() =>
             {
                 countdown--;
                 if (countdown <= 0)
                 {
-                    autoReturnTimer?.Dispose();
+                    try { autoReturnTimer?.Dispose(); } catch { }
+                    autoReturnTimer = null;
                     GoBack();
                 }
                 StateHasChanged();
@@ -226,6 +230,15 @@ else
     {
         Navigation.NavigateTo("/town");
     }
+
+// Ensure timer is disposed if the component is torn down before countdown finishes
+@code {
+    public void Dispose()
+    {
+        try { autoReturnTimer?.Dispose(); } catch { }
+        autoReturnTimer = null;
+    }
+}
 
     private void GoToLogin()
     {

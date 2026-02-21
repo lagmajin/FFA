@@ -8,7 +8,7 @@
       },
       "dotnetRunMessages": true,
       "applicationUrl": "https://localhost:443",
-      "launchUrl": "index.html"
+      "launchUrl": ""
     },
     "http": {
       "commandName": "Project",
@@ -19,7 +19,7 @@
       },
       "dotnetRunMessages": true,
       "applicationUrl": "https://localhost:443",
-      "launchUrl": "index.html"
+      "launchUrl": ""
     },
     "IIS Express": {
       "commandName": "IISExpress",

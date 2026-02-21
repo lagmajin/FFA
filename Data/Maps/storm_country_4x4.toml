@@ -1,0 +1,126 @@
+# Storm Country Map
+# 雷鳴之国（ストーム）のマップデータ
+# 高地 - 山、雷雲平原、草原
+
+[meta]
+country_id = 4
+country_name = "Storm"
+size = "4x4"
+description = "雷鳴が響きわたる国。素早さが上昇する。"
+
+# Storm国town: Thunderhold(0,0), Sparkhill(-1,1), Innovation(2,-1)
+
+[[grid]]
+x = 0
+y = 0
+name = "Thunderhold"
+type = "town"
+description = "雷鳴が響く高地の首都。"
+town_id = 10
+is_capital = true
+
+[[grid]]
+x = -1
+y = 1
+name = "Sparkhill"
+type = "village"
+description = "雷鳴が響く高地の村。"
+town_id = 11
+
+[[grid]]
+x = 2
+y = -1
+name = "Innovation"
+type = "town"
+description = "発明と工学で知られる町。"
+town_id = 12
+
+[[grid]]
+x = 0
+y = -1
+name = "雷雲平原"
+type = "field"
+description = "雷雲が垂れ込める平原。"
+difficulty = 3
+enemies = ["雷雲", "雷狼", "雷鳥"]
+
+[[grid]]
+x = -1
+y = 0
+name = "風鳴高原"
+type = "mountain"
+description = "風の音が響く高原。"
+difficulty = 3
+enemies = ["ガーゴイル", "羽馬", "風精"]
+
+[[grid]]
+x = 1
+y = 0
+name = "雷撃の山"
+type = "mountain"
+description = "雷が落ちる山。"
+difficulty = 4
+enemies = ["雷獣", "雷龍", "雷神"]
+
+[[grid]]
+x = 0
+y = 1
+name = "草原"
+type = "field"
+description = "穏やかな草原。"
+difficulty = 1
+enemies = ["ウサギ", "蝶", "馬"]
+
+[[grid]]
+x = -1
+y = -1
+name = "嵐の海"
+type = "sea"
+description = "荒れた海。"
+difficulty = 4
+enemies = ["海賊", "海獣", "クラーケン"]
+
+[[grid]]
+x = 1
+y = -1
+name = "電撃洞窟"
+type = "dungeon"
+description = "電流が流れる洞窟。"
+difficulty = 4
+enemies = ["電気ゴーレム", "メカスケルトン", "電子精"]
+
+[[grid]]
+x = 2
+y = 0
+name = "工廠都市"
+type = "field"
+description = "工学の町。"
+difficulty = 2
+enemies = ["ホムンクルス", "ガジェット", "メカ"]
+
+[[grid]]
+x = -2
+y = 0
+name = "風の頂"
+type = "mountain"
+description = "最も高い山頂。"
+difficulty = 5
+enemies = ["風龍", "テンペスト", "オーディン"]
+
+[[grid]]
+x = 1
+y = 1
+name = "嵐の城跡"
+type = "dungeon"
+description = "昔滅んだ嵐の城。"
+difficulty = 4
+enemies = ["リッチ", "ヴァンパイア", "デスナイト"]
+
+[[grid]]
+x = 2
+y = 1
+name = "雲海"
+type = "sea"
+description = "雲のような海。"
+difficulty = 3
+enemies = ["雲魚", "天馬", "天使"]

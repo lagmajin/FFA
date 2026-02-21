@@ -25,33 +25,45 @@
     <!-- Blazor Server script for interactive server render mode -->
     <script src="/_framework/blazor.server.js"></script>
     <script>
-        // グローバルエラーハンドリング（Blazor起動後）
-        window.addEventListener('error', function(event) {
-            console.error('Global error:', event.error);
-        });
-
-        // 未処理のPromise拒否をキャッチ
-        window.addEventListener('unhandledrejection', function(event) {
-            console.error('Unhandled rejection:', event.reason);
-        });
-        // ページが隠れた/閉じられたときの代替処理（unload の代替）
-        window.addEventListener('pagehide', function(event) {
+        // Report client-side errors to server for diagnosis (uses navigator.sendBeacon if available)
+        function reportClientError(payload) {
             try {
-                // ここで必要なら navigator.sendBeacon を使って簡易ログ送信を行える
-                console.log('pagehide event detected');
-            } catch (e) {
-                console.warn('pagehide handler error', e);
-            }
-        });
-
-        document.addEventListener('visibilitychange', function() {
-            try {
-                if (document.visibilityState === 'hidden') {
-                    console.log('visibilitychange: hidden');
+                const url = '/clientlog';
+                const body = JSON.stringify(payload);
+                if (navigator.sendBeacon) {
+                    const blob = new Blob([body], { type: 'application/json' });
+                    navigator.sendBeacon(url, blob);
+                } else {
+                    fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', body }).catch(() => { });
                 }
-            } catch (e) {
-                console.warn('visibilitychange handler error', e);
-            }
+            } catch (e) { try { console.warn('reportClientError failed', e); } catch { } }
+        }
+
+        // global error
+        window.addEventListener('error', function (event) {
+            try {
+                console.error('Global error:', event.error || event.message);
+                reportClientError({ level: 'error', message: event.message || String(event.error), stack: (event.error && event.error.stack) || null, source: event.filename || null, lineno: event.lineno || null, colno: event.colno || null, url: location.href, userAgent: navigator.userAgent });
+            } catch (e) { }
+        });
+
+        // unhandled promise rejection
+        window.addEventListener('unhandledrejection', function (event) {
+            try {
+                console.error('Unhandled rejection:', event.reason);
+                var msg = (event.reason && event.reason.message) ? event.reason.message : String(event.reason);
+                var stack = (event.reason && event.reason.stack) ? event.reason.stack : null;
+                reportClientError({ level: 'error', message: msg, stack: stack, url: location.href, userAgent: navigator.userAgent });
+            } catch (e) { }
+        });
+
+        // pagehide visibility
+        window.addEventListener('pagehide', function (event) {
+            try { console.log('pagehide event detected'); } catch (e) { console.warn('pagehide handler error', e); }
+        });
+
+        document.addEventListener('visibilitychange', function () {
+            try { if (document.visibilityState === 'hidden') { console.log('visibilitychange: hidden'); } } catch (e) { console.warn('visibilitychange handler error', e); }
         });
     </script>
 </body>

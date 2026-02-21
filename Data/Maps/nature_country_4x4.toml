@@ -1,0 +1,126 @@
+# Nature Country Map
+# 森林之国（ネイチャー）のマップデータ
+# 森林地帯 - 森、川、草地
+
+[meta]
+country_id = 3
+country_name = "Nature"
+size = "4x4"
+description = "森林之国。自然回復能力が上昇する。"
+
+# Nature国town: Eldoria(0,0), Greenshollow(-1,-1), Herbstone(1,-2)
+
+[[grid]]
+x = 0
+y = 0
+name = "Eldoria"
+type = "town"
+description = "森林の奥の神秘的首都。"
+town_id = 7
+is_capital = true
+
+[[grid]]
+x = -1
+y = -1
+name = "Greenshollow"
+type = "village"
+description = "森林の奥の村。木々と共生。"
+town_id = 8
+
+[[grid]]
+x = 1
+y = -2
+name = "Herbstone"
+type = "town"
+description = "薬草の研究が盛んな町。"
+town_id = 9
+
+[[grid]]
+x = 0
+y = -1
+name = "古之大森"
+type = "forest"
+description = "古い木々が茂る森。"
+difficulty = 2
+enemies = ["ゴブリン", "狼", "毒キノコ"]
+
+[[grid]]
+x = -1
+y = 0
+name = "翡翠森"
+type = "forest"
+description = "翡翠色の美しい森。"
+difficulty = 2
+enemies = ["森精", "鹿", "鳥"]
+
+[[grid]]
+x = 1
+y = -1
+name = "薬草園"
+type = "field"
+description = "薬草が生える草地。"
+difficulty = 1
+enemies = ["ウサギ", "蝶", "蜜蜂"]
+
+[[grid]]
+x = 0
+y = 1
+name = "泉の谷"
+type = "river"
+description = "清らかな泉。"
+difficulty = 2
+enemies = ["水Elemental", "魚人", "アシガエル"]
+
+[[grid]]
+x = -2
+y = 0
+name = "深い森"
+type = "forest"
+description = "奥深い森。"
+difficulty = 3
+enemies = ["トロル", "森の王", "毒蜘蛛"]
+
+[[grid]]
+x = 2
+y = -1
+name = "古代神殿"
+type = "dungeon"
+description = "昔の神殿。"
+difficulty = 4
+enemies = ["スケルトン", "ガーゴイル", "リッチ"]
+
+[[grid]]
+x = 1
+y = 0
+name = "魔法の森"
+type = "forest"
+description = "魔法のオーラがある森。"
+difficulty = 3
+enemies = ["ウィスプ", "フェアリ", "イノセ"]
+
+[[grid]]
+x = -1
+y = -2
+name = "隠された洞窟"
+type = "dungeon"
+description = "隠された地下洞窟。"
+difficulty = 3
+enemies = ["バット", "グール", "スケルトン"]
+
+[[grid]]
+x = 2
+y = 0
+name = "大瀑布"
+type = "river"
+description = "大きな瀑布。"
+difficulty = 3
+enemies = ["水龍", "鱼人王", "水精灵"]
+
+[[grid]]
+x = 0
+y = -2
+name = "神秘の沼"
+type = "lake"
+description = "神秘的な沼地。"
+difficulty = 3
+enemies = ["スライム", "ハーピー", "毒蛙"]

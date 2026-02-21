@@ -1,0 +1,135 @@
+# Neutral Haven Country Map
+# 中立之城（ニュートラルヘイブン）のマップデータ
+# 中立地帯 - 平原、川、森
+
+[meta]
+country_id = 5
+country_name = "Neutral Haven"
+size = "4x4"
+description = "どの国にも属さない中立の都市。バランス型。"
+
+# Neutral Haven town: Centralia(0,0), Outskirts(-1,3), Tradetown(1,3)
+
+[[grid]]
+x = 0
+y = 0
+name = "Centralia"
+type = "town"
+description = "中都に位置する大きな都市。"
+town_id = 13
+is_capital = true
+
+[[grid]]
+x = -1
+y = 3
+name = "Outskirts"
+type = "village"
+description = "都市の郊外の村。"
+town_id = 14
+
+[[grid]]
+x = 1
+y = 3
+name = "Tradetown"
+type = "town"
+description = "商業活動の盛んな町。"
+town_id = 15
+
+[[grid]]
+x = 0
+y = -1
+name = "中立平原"
+type = "field"
+description = "穏やかな平原。"
+difficulty = 1
+enemies = ["スライム", "ウサギ", "蝶"]
+
+[[grid]]
+x = -1
+y = 0
+name = "農地"
+type = "field"
+description = "農作物が広がる。"
+difficulty = 1
+enemies = ["ゴブリン", "モグラ", "カラス"]
+
+[[grid]]
+x = 1
+y = 0
+name = "交易路"
+type = "field"
+description = "商人往来の道路。"
+difficulty = 1
+enemies = ["山賊", "野盗", "旅商人"]
+
+[[grid]]
+x = 0
+y = 1
+name = "大きな川"
+type = "river"
+description = "大きな川。"
+difficulty = 2
+enemies = ["水Elemental", "魚人", "アシガエル"]
+
+[[grid]]
+x = -1
+y = 1
+name = "森の端"
+type = "forest"
+description = "森の端。"
+difficulty = 2
+enemies = ["ゴブリン", "狼", "毒キノコ"]
+
+[[grid]]
+x = 1
+y = 1
+name = "牧场"
+type = "field"
+description = "牛や羊がいる。"
+difficulty = 1
+enemies = ["狼", "山賊", "蜜蜂"]
+
+[[grid]]
+x = 0
+y = 2
+name = "港町"
+type = "town"
+description = "港。"
+difficulty = 2
+enemies = ["海賊", "船乗", "魚人"]
+
+[[grid]]
+x = -1
+y = 2
+name = "古代遗迹"
+type = "dungeon"
+description = "古代の遗迹。"
+difficulty = 3
+enemies = ["スケルトン", "ガーゴイル", "ミイラ"]
+
+[[grid]]
+x = 1
+y = 2
+name = "迷宮"
+type = "dungeon"
+description = "複雑な迷宮。"
+difficulty = 4
+enemies = ["ミストレス", "ゴースト", "ウィッチ"]
+
+[[grid]]
+x = -2
+y = 1
+name = "静かなる森"
+type = "forest"
+description = "静かな森。"
+difficulty = 2
+enemies = ["森精", "鹿", "鳥"]
+
+[[grid]]
+x = 2
+y = 1
+name = "砂漠への道"
+type = "desert"
+description = "砂漠への入口。"
+difficulty = 2
+enemies = ["サソリ", "トカゲ", "ミイラ"]

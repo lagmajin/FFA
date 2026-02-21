@@ -19,6 +19,15 @@ public class UserService
 
     public bool Register(string username, string password, Models.Job job = Models.Job.Warrior, int? countryId = null)
     {
+        // MAINTAINER NOTE:
+        // This method performs several initialization steps (ability assignment, country
+        // defaults, and creating a world grid position) and currently constructs
+        // some services directly (e.g. AbilityService, CountryService, WorldGridService)
+        // using `new`. Prefer injecting services via DI if you refactor this class.
+        // Direct construction may bypass configuration and cause subtle bugs.
+        // Keep database access via LiteDB here; changes to storage should be coordinated
+        // across services to avoid data inconsistency.
+
         try
         {
             using var db = new LiteDatabase(_databasePath);
@@ -132,9 +141,12 @@ public class UserService
             }
 
 
+            // Persist country assignment and bonus changes back to DB
+            users.Update(user);
+
             // record admin log for registration
             var logs = db.GetCollection<AdminLog>("adminlogs");
-            logs.Insert(new AdminLog { Action = "Register", Detail = $"User '{username}' registered as {job}" + (countryId.HasValue ? $" in Country {countryId}" : " (no country)") });
+            logs.Insert(new AdminLog { Action = "Register", Detail = $"User '{username}' registered as {job}" + (user.CountryId.HasValue ? $" in Country {user.CountryId}" : " (no country)") });
 
             // ensure player start position is created on registration
             try
@@ -158,6 +170,13 @@ public class UserService
 
     public User? Login(string username, string password)
     {
+        // MAINTAINER NOTE:
+        // Important: ensure password verification happens before returning a User.
+        // A previous bug returned the user regardless of password check. Do not
+        // move the `return user;` outside the password-verified block.
+        // If you introduce asynchronous password checks, preserve the same
+        // semantics and avoid returning a user without successful verification.
+
         try
         {
             using var db = new LiteDatabase(_databasePath);
@@ -170,8 +189,8 @@ public class UserService
                 user.LastActiveUtc = DateTime.UtcNow;
                 users.Update(user);
                 // Last IP is set by caller via UpdateIpFromContext if available
-            }
                 return user;
+            }
 
             return null;
         }

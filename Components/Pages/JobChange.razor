@@ -58,8 +58,8 @@
 
             <div class="job-change-cost">
                 <p>転職費用: <strong>@changeCost ギル</strong></p>
-                <p>所持ギル: <strong>@user.Gil ギル</strong></p>
-                @if (user.Gil < changeCost)
+                <p>所持ギル: <strong>@(user?.Gil ?? 0) ギル</strong></p>
+                @if ((user?.Gil ?? 0) < changeCost)
                 {
                     <div class="insufficient-funds">
                         <p>⚠️ ギルが不足しています</p>

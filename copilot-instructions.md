@@ -41,3 +41,25 @@
 
 ## 実装済み機能
 実装済み機能は [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) を参照してください。
+
+## ランタイムデバッグと Blazor 固有の注意点 (追記)
+
+以下は開発中に頻出した問題と今後の維持管理で注意すべき点です。ソースを大きく変更する前にチームで合意を取ってください。
+
+- Blazor Server の SignalR 回線エラー:
+  - `ErrorBoundary` はコンポーネント内の例外を捕捉しますが、SignalR 回線（circuit）や transport レイヤのエラーは捕捉できない場合があります。
+  - 開発時に回線エラーの詳細を表示するには、`Program.cs` で `AddInteractiveServerComponents(options => options.DetailedErrors = env.IsDevelopment())` を設定してください。**本番で有効にしないでください。**
+
+- DI 登録の重複・ライフタイム競合:
+  - 同じサービスを複数回登録したり、Scoped と Singleton を混在させると起動時やランタイムに例外が発生します。`Program.cs` のサービス登録は慎重に扱ってください。
+
+- サービスの直接生成 (`new`) の使用:
+  - `UserService` など一部で `new AbilityService()` や `new WorldGridService()` を直接呼び出す実装があります。将来のリファクタでは DI に移行してください。直接生成は設定やスコープをバイパスし、原因追跡を難しくします。
+
+- 認証フローの注意点 (クッキー発行後の反映):
+  - `/signin` を `fetch` で呼んでサーバーが Set-Cookie を返す場合、クライアント側では**フルページリロード**（`Navigation.NavigateTo(url, forceLoad: true)`）が必要です。SPA ナビゲーションだけだと SignalR 回線が古い認証状態のままで、画面に「ログインしてください」が残ることがあります。
+
+- ログ出力と未観測例外:
+  - Blazor 回線内の未観測タスク・AppDomain の例外は `TaskScheduler.UnobservedTaskException` / `AppDomain.UnhandledException` によりバックエンドでログに記録するようにしてください。
+
+-- これらの注記は将来のデバッグ負荷を減らすための運用ルールです。ソースの振る舞いを変える変更（特に `DetailedErrors` やサービス登録周り）は必ずコードレビューを行ってください。

@@ -62,7 +62,8 @@
             var name = doc.RootElement.GetProperty("username").GetString();
             var val = doc.RootElement.GetProperty("value").GetInt32();
             if (name == username) karma = val;
-            StateHasChanged();
+            // Marshal UI update to renderer synchronization context
+            return InvokeAsync(() => { StateHasChanged(); });
         }
         catch { }
         return Task.CompletedTask;

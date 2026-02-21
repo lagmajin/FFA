@@ -1,0 +1,849 @@
+@page "/exploration"
+@rendermode InteractiveServer
+@inject NavigationManager Navigation
+@inject Services.UserService UserService
+@inject Services.DungeonService DungeonService
+@inject Services.QuestService QuestService
+@inject IJSRuntime JS
+
+<PageTitle>探索ダンジョン</PageTitle>
+
+<div class="exploration-container">
+    <h1 class="page-title">🗺️ 探索ダンジョン</h1>
+
+    @if (!isExploring)
+    {
+        <!-- ダンジョン選択画面 -->
+        <div class="dungeon-select-section">
+            <h2>ダンジョンを選択</h2>
+            
+            <div class="dungeon-type-tabs">
+                <button class="tab-btn @(selectedType == "Exploration" ? "active" : "")" 
+                        @onclick='() => SelectType("Exploration")'>
+                    🏰 探索型
+                </button>
+                <button class="tab-btn @(selectedType == "QuickBattle" ? "active" : "")" 
+                        @onclick='() => SelectType("QuickBattle")'>
+                    ⚔️ 戦闘型
+                </button>
+            </div>
+
+            <div class="dungeon-grid">
+                @foreach (var dungeon in GetFilteredDungeons())
+                {
+                    <div class="dungeon-card @(currentUser != null && currentUser.Level >= dungeon.RecommendedLevel ? "" : "locked")">
+                        <div class="dungeon-icon">
+                            @if (dungeon.Type == DungeonType.Exploration)
+                            { <text>🏰</text> }
+                            else
+                            { <text>⚔️</text> }
+                        </div>
+                        <div class="dungeon-name japanese-text">@dungeon.JapaneseName</div>
+                        <div class="dungeon-info">
+                            <p>推奨Lv: @dungeon.RecommendedLevel</p>
+                            @if (dungeon.Type == DungeonType.Exploration)
+                            {
+                                <p>フロア: @dungeon.MaxFloors</p>
+                            }
+                        </div>
+                        <p class="dungeon-desc japanese-text">@dungeon.Description</p>
+                        <button class="enter-btn" 
+                                disabled="@(currentUser != null && currentUser.Level < dungeon.RecommendedLevel)"
+                                @onclick="() => StartDungeon(dungeon)">
+                            入る
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- 探索中画面 -->
+        <div class="exploration-status">
+            <div class="floor-indicator">
+                <h2>🏰 @currentDungeon?.JapaneseName - @currentSession?.CurrentFloor/F @currentDungeon?.MaxFloors フロア</h2>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: @progressPercent%"></div>
+                </div>
+                <p>戦闘進行: @currentSession?.MonstersDefeated / @currentSession?.TotalMonsters</p>
+            </div>
+        </div>
+
+        @if (currentEnemy != null)
+        {
+            <div class="battle-section">
+                <div class="enemy-display">
+                    <h3>👾 @currentEnemy.Name</h3>
+                    <div class="hp-bar">
+                        <div class="hp-fill" style="width: @enemyHpPercent%"></div>
+                    </div>
+                    <p>HP: @currentEnemy.HP / @currentEnemy.MaxHP</p>
+                    <p>ATK: @currentEnemy.Attack | DEF: @currentEnemy.Defense</p>
+                </div>
+
+                <div class="player-display">
+                    <h3>⚔️ @currentUser?.Username</h3>
+                    <div class="hp-bar player-hp">
+                        <div class="hp-fill" style="width: @playerHpPercent%"></div>
+                    </div>
+                    <p>HP: @currentUser?.HP / @currentUser?.MaxHP</p>
+                </div>
+
+                @if (!isPlayerTurn)
+                {
+                    <div class="waiting-message">相手のターン...</div>
+                }
+            </div>
+
+            <div class="action-buttons">
+                <button class="action-btn attack" @onclick="PlayerAttack" disabled="@(!isPlayerTurn)">
+                    ⚔️ 攻撃
+                </button>
+                <button class="action-btn defend" @onclick="PlayerDefend" disabled="@(!isPlayerTurn)">
+                    🛡️ 防御
+                </button>
+                <button class="action-btn flee" @onclick="PlayerFlee" disabled="@(!isPlayerTurn)">
+                    🏃 逃げる
+                </button>
+            </div>
+        }
+
+        <div class="battle-log">
+            @foreach (var log in battleLog)
+            {
+                <p class="@log.Class">@log.Message</p>
+            }
+        </div>
+
+        @if (battleState == ExplorationBattleState.Victory)
+        {
+            <div class="result-modal victory">
+                <h2>🎉 戦闘勝利！</h2>
+                <p>経験値: +@lastExp</p>
+                <p>ギル: +@lastGil</p>
+                @if (!string.IsNullOrEmpty(lastDrop))
+                {
+                    <p class="drop">ドロップ: @lastDrop</p>
+                }
+                <button class="continue-btn" @onclick="ContinueExploration">
+                    @(IsFloorClear ? "次のフロアへ →" : "次の敵へ →")
+                </button>
+            </div>
+        }
+
+        @if (battleState == ExplorationBattleState.Defeat)
+        {
+            <div class="result-modal defeat">
+                <h2>💀 敗北...</h2>
+                <p>@dungeonResultMessage</p>
+                <div class="rewards-summary">
+                    <h3>本次探索の成果</h3>
+                    <p>獲得経験値: @currentSession?.TotalExp</p>
+                    <p>獲得ギル: @currentSession?.TotalGil</p>
+                    @if (currentSession?.Drops.Count > 0)
+                    {
+                        <p>ドロップ: @string.Join(", ", currentSession.Drops)</p>
+                    }
+                </div>
+                <button class="return-btn" @onclick="ReturnToSelect">街に戻る</button>
+            </div>
+        }
+
+        @if (battleState == ExplorationBattleState.DungeonClear)
+        {
+            <div class="result-modal dungeon-clear">
+                <h2>🏆 ダンジョンクリア！</h2>
+                <div class="clear-bonus">
+                    <p>フロアクリア bonus: +@currentDungeon?.FloorClearBonusExp Exp, +@currentDungeon?.FloorClearBonusGil Gil</p>
+                    <p class="big">ダンジョンクリア bonus: +@currentDungeon?.DungeonClearBonusExp Exp, +@currentDungeon?.DungeonClearBonusGil Gil</p>
+                </div>
+                <button class="return-btn" @onclick="ReturnToSelect">街に戻る</button>
+            </div>
+        }
+    }
+</div>
+
+<style>
+    .exploration-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .page-title {
+        text-align: center;
+        color: #4a4a4a;
+        margin-bottom: 30px;
+    }
+
+    .dungeon-type-tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        justify-content: center;
+    }
+
+    .tab-btn {
+        padding: 10px 30px;
+        border: 2px solid #ddd;
+        background: #f5f5f5;
+        cursor: pointer;
+        border-radius: 5px;
+        font-size: 1em;
+    }
+
+    .tab-btn.active {
+        background: #4CAF50;
+        color: white;
+        border-color: #4CAF50;
+    }
+
+    .dungeon-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+        padding: 20px 0;
+    }
+
+    .dungeon-card {
+        background: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+        transition: all 0.3s;
+    }
+
+    .dungeon-card:hover {
+        border-color: #4CAF50;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .dungeon-card.locked {
+        opacity: 0.6;
+    }
+
+    .dungeon-icon {
+        font-size: 3em;
+        margin-bottom: 10px;
+    }
+
+    .dungeon-name {
+        font-size: 1.3em;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    .dungeon-info {
+        color: #666;
+        font-size: 0.9em;
+        margin: 10px 0;
+    }
+
+    .dungeon-desc {
+        color: #888;
+        font-size: 0.85em;
+        margin: 10px 0;
+    }
+
+    .enter-btn {
+        background: #4CAF50;
+        color: white;
+        border: none;
+        padding: 10px 30px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1em;
+        margin-top: 10px;
+    }
+
+    .enter-btn:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+    }
+
+    .exploration-status {
+        background: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+
+    .progress-bar {
+        height: 20px;
+        background: #e0e0e0;
+        border-radius: 10px;
+        overflow: hidden;
+        margin: 10px 0;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #4CAF50, #8BC34A);
+        transition: width 0.3s;
+    }
+
+    .battle-section {
+        background: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+
+    .enemy-display, .player-display {
+        text-align: center;
+        margin: 20px 0;
+    }
+
+    .hp-bar {
+        height: 20px;
+        background: #e0e0e0;
+        border-radius: 10px;
+        overflow: hidden;
+        margin: 10px auto;
+        max-width: 300px;
+    }
+
+    .hp-fill {
+        height: 100%;
+        background: #f44336;
+        transition: width 0.3s;
+    }
+
+    .player-hp .hp-fill {
+        background: #4CAF50;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin: 20px 0;
+    }
+
+    .action-btn {
+        padding: 15px 30px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1.1em;
+        font-weight: bold;
+    }
+
+    .action-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .action-btn.attack {
+        background: #f44336;
+        color: white;
+    }
+
+    .action-btn.defend {
+        background: #2196F3;
+        color: white;
+    }
+
+    .action-btn.flee {
+        background: #9E9E9E;
+        color: white;
+    }
+
+    .battle-log {
+        background: #f5f5f5;
+        padding: 15px;
+        border-radius: 8px;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .battle-log p {
+        margin: 5px 0;
+        font-size: 0.9em;
+    }
+
+    .battle-log .player {
+        color: #4CAF50;
+    }
+
+    .battle-log .enemy {
+        color: #f44336;
+    }
+
+    .battle-log .system {
+        color: #2196F3;
+    }
+
+    .result-modal {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 40px;
+        border-radius: 15px;
+        text-align: center;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        z-index: 100;
+    }
+
+    .result-modal.victory h2 {
+        color: #4CAF50;
+    }
+
+    .result-modal.defeat h2 {
+        color: #f44336;
+    }
+
+    .result-modal.dungeon-clear h2 {
+        color: #FFD700;
+        font-size: 2em;
+    }
+
+    .drop {
+        color: #FF9800;
+        font-weight: bold;
+    }
+
+    .continue-btn, .return-btn {
+        background: #4CAF50;
+        color: white;
+        border: none;
+        padding: 15px 40px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1.1em;
+        margin-top: 20px;
+    }
+
+    .rewards-summary {
+        background: #f5f5f5;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 20px 0;
+    }
+
+    .clear-bonus {
+        font-size: 1.2em;
+    }
+
+    .clear-bonus .big {
+        font-size: 1.5em;
+        color: #FFD700;
+        font-weight: bold;
+    }
+
+    .japanese-text {
+        font-family: "Yu Gothic", "Meiryo", sans-serif;
+    }
+</style>
+
+@code {
+    private User? currentUser;
+    private List<Models.Dungeon> dungeons = new();
+    private string selectedType = "Exploration";
+    
+    // 探索中 state
+    private bool isExploring = false;
+    private Models.Dungeon? currentDungeon;
+    private ExplorationSession? currentSession;
+    private Enemy? currentEnemy;
+    private List<BattleLogEntry> battleLog = new();
+    private ExplorationBattleState battleState = ExplorationBattleState.Idle;
+    private bool isPlayerTurn = true;
+    
+    private int lastExp = 0;
+    private int lastGil = 0;
+    private string lastDrop = "";
+    private string dungeonResultMessage = "";
+    private bool IsFloorClear => currentSession?.MonstersDefeated >= (currentSession?.TotalMonsters ?? 0);
+
+    private int enemyHpPercent => currentEnemy != null ? (currentEnemy.HP * 100 / currentEnemy.MaxHP) : 0;
+    private int playerHpPercent => currentUser != null ? (currentUser.HP * 100 / currentUser.MaxHP) : 100;
+    private int progressPercent => currentDungeon != null && currentSession != null 
+        ? ((currentSession.CurrentFloor - 1) * 100 + (currentSession.MonstersDefeated * 100 / currentSession.TotalMonsters)) / currentDungeon.MaxFloors 
+        : 0;
+
+    protected override void OnInitialized()
+    {
+        LoadDungeons();
+        var users = UserService.GetAllUsers().ToList();
+        currentUser = users.FirstOrDefault();
+    }
+
+    private void LoadDungeons()
+    {
+        // 固定ダンジョンリスト（JSONから読み込む予定）
+        dungeons = new List<Models.Dungeon>
+        {
+            new Models.Dungeon 
+            { 
+                Id = 1, Name = "Slime Cave", JapaneseName = "スライム洞窟", 
+                Type = DungeonType.Exploration, Description = "初心者のためのコラーな洞窟",
+                RecommendedLevel = 1, MaxFloors = 3, MonsterCountPerFloor = 3,
+                FloorClearBonusGil = 50, FloorClearBonusExp = 30,
+                DungeonClearBonusGil = 200, DungeonClearBonusExp = 100,
+                MonsterTypes = new List<string> { "Slime", "Bat", "Spider" }
+            },
+            new Models.Dungeon 
+            { 
+                Id = 2, Name = "Goblin Fortress", JapaneseName = "ゴブリン城塞", 
+                Type = DungeonType.Exploration, Description = "ゴブリンが占領した古い城塞",
+                RecommendedLevel = 5, MaxFloors = 5, MonsterCountPerFloor = 4,
+                FloorClearBonusGil = 100, FloorClearBonusExp = 60,
+                DungeonClearBonusGil = 500, DungeonClearBonusExp = 300,
+                MonsterTypes = new List<string> { "Goblin", "Orc", "Wolf", "Skeleton" }
+            },
+            new Models.Dungeon 
+            { 
+                Id = 3, Name = "Ancient Ruins", JapaneseName = "古代遗迹", 
+                Type = DungeonType.Exploration, Description = "ミステリアスな古代神殿の遗迹",
+                RecommendedLevel = 10, MaxFloors = 7, MonsterCountPerFloor = 5,
+                FloorClearBonusGil = 200, FloorClearBonusExp = 100,
+                DungeonClearBonusGil = 1000, DungeonClearBonusExp = 500,
+                MonsterTypes = new List<string> { "Skeleton", "Ghost", "Mummy", "Golem" }
+            },
+            new Models.Dungeon 
+            { 
+                Id = 4, Name = "Dragon's Lair", JapaneseName = "竜の巢", 
+                Type = DungeonType.Exploration, Description = "恐るべき竜が待つ最深部のダンジョン",
+                RecommendedLevel = 20, MaxFloors = 10, MonsterCountPerFloor = 6,
+                FloorClearBonusGil = 500, FloorClearBonusExp = 250,
+                DungeonClearBonusGil = 3000, DungeonClearBonusExp = 1500,
+                MonsterTypes = new List<string> { "Dragon", "Drake", "Wyvern", "Hydra" }
+            },
+            // クイックバトル
+            new Models.Dungeon 
+            { 
+                Id = 101, Name = "Training Grounds", JapaneseName = "訓練場", 
+                Type = DungeonType.QuickBattle, Description = "腕を試すためのシンプルな闘技場",
+                RecommendedLevel = 1, MaxFloors = 1, MonsterCountPerFloor = 1,
+                FloorClearBonusGil = 20, FloorClearBonusExp = 10,
+                DungeonClearBonusGil = 20, DungeonClearBonusExp = 10,
+                MonsterTypes = new List<string> { "Slime", "Bat" }
+            },
+            new Models.Dungeon 
+            { 
+                Id = 102, Name = "Quick Quest", JapaneseName = "即時クエスト", 
+                Type = DungeonType.QuickBattle, Description = "サクっと戦闘して経験を積みよう",
+                RecommendedLevel = 3, MaxFloors = 1, MonsterCountPerFloor = 1,
+                FloorClearBonusGil = 30, FloorClearBonusExp = 15,
+                DungeonClearBonusGil = 30, DungeonClearBonusExp = 15,
+                MonsterTypes = new List<string> { "Goblin", "Wolf", "Skeleton" }
+            },
+            new Models.Dungeon 
+            { 
+                Id = 103, Name = "Boss Rush", JapaneseName = "ボスラッシュ", 
+                Type = DungeonType.QuickBattle, Description = "強力なボスとの出会い",
+                RecommendedLevel = 10, MaxFloors = 1, MonsterCountPerFloor = 1,
+                FloorClearBonusGil = 200, FloorClearBonusExp = 100,
+                DungeonClearBonusGil = 200, DungeonClearBonusExp = 100,
+                MonsterTypes = new List<string> { "Orc Chief", "Dragon", "Lich" }
+            }
+        };
+    }
+
+    private List<Models.Dungeon> GetFilteredDungeons()
+    {
+        var type = selectedType == "Exploration" ? DungeonType.Exploration : DungeonType.QuickBattle;
+        return dungeons.Where(d => d.Type == type).ToList();
+    }
+
+    private void SelectType(string type)
+    {
+        selectedType = type;
+    }
+
+    private void StartDungeon(Models.Dungeon dungeon)
+    {
+        if (currentUser == null) return;
+        
+        currentDungeon = dungeon;
+        isExploring = true;
+        battleState = ExplorationBattleState.Idle;
+        
+        // セッション初期化
+        currentSession = new ExplorationSession
+        {
+            Username = currentUser.Username,
+            DungeonId = dungeon.Id,
+            DungeonName = dungeon.Name,
+            CurrentFloor = 1,
+            MonstersDefeated = 0,
+            TotalMonsters = dungeon.MonsterCountPerFloor,
+            TotalGil = 0,
+            TotalExp = 0,
+            Drops = new List<string>(),
+            IsActive = true,
+            StartTime = DateTime.UtcNow
+        };
+        
+        battleLog.Clear();
+        AddLog("system", $"🎮 {dungeon.JapaneseName}を開始した！");
+        
+        // 最初の敵を出现
+        SpawnEnemy();
+    }
+
+    private void SpawnEnemy()
+    {
+        if (currentDungeon == null || currentUser == null) return;
+        
+        var playerLevel = currentUser.Exp / 100 + 1;
+        currentEnemy = DungeonService.GenerateRandomEnemy(playerLevel);
+        
+        // ダンジョンの-monsterTypesから选择
+        if (currentDungeon.MonsterTypes.Count > 0)
+        {
+            var monsterName = currentDungeon.MonsterTypes[new Random().Next(currentDungeon.MonsterTypes.Count)];
+            currentEnemy.Name = monsterName;
+        }
+        
+        // フロア数に基づいて敵强化
+        var floorMultiplier = 1.0 + (currentSession!.CurrentFloor - 1) * 0.2;
+        currentEnemy.HP = (int)(currentEnemy.HP * floorMultiplier);
+        currentEnemy.MaxHP = currentEnemy.HP;
+        currentEnemy.Attack = (int)(currentEnemy.Attack * floorMultiplier);
+        currentEnemy.Defense = (int)(currentEnemy.Defense * floorMultiplier);
+        currentEnemy.Exp = (int)(currentEnemy.Exp * floorMultiplier);
+        currentEnemy.Gil = (int)(currentEnemy.Gil * floorMultiplier);
+        
+        battleState = ExplorationBattleState.Battling;
+        isPlayerTurn = true;
+        
+        AddLog("system", $"👾 {currentEnemy.Name}が出现了！ (Floor {currentSession.CurrentFloor})");
+    }
+
+    private async Task PlayerAttack()
+    {
+        if (currentUser == null || currentEnemy == null || currentSession == null) return;
+        
+        isPlayerTurn = false;
+        
+        var result = DungeonService.PlayerAttack(currentUser, currentEnemy, new DungeonService.BattleSession());
+        
+        AddLog("player", result.Message);
+        
+        if (result.BattleEnded && result.PlayerWon)
+        {
+            await HandleVictory();
+        }
+        else
+        {
+            await Task.Delay(500);
+            await EnemyTurn();
+        }
+    }
+
+    private async Task PlayerDefend()
+    {
+        if (currentUser == null || currentEnemy == null) return;
+        
+        isPlayerTurn = false;
+        
+        var session = new DungeonService.BattleSession { IsDefending = true };
+        var result = DungeonService.PlayerDefend(currentUser, currentEnemy, session);
+        
+        AddLog("player", result.Message);
+        
+        await Task.Delay(500);
+        await EnemyTurn();
+    }
+
+    private async Task PlayerFlee()
+    {
+        if (currentUser == null || currentEnemy == null || currentSession == null) return;
+        
+        isPlayerTurn = false;
+        
+        var session = new DungeonService.BattleSession();
+        var result = DungeonService.PlayerFlee(currentUser, currentEnemy, session);
+        
+        AddLog("player", result.Message);
+        
+        if (result.Success)
+        {
+            // 逃走成功 - ダンジョン終了
+            await EndDungeon(false);
+        }
+        else
+        {
+            await Task.Delay(500);
+            await EnemyTurn();
+        }
+    }
+
+    private async Task EnemyTurn()
+    {
+        if (currentUser == null || currentEnemy == null) return;
+        
+        var session = new DungeonService.BattleSession { IsDefending = false };
+        var result = DungeonService.EnemyAttack(currentUser, currentEnemy, session);
+        
+        AddLog("enemy", result.Message);
+        
+        if (result.BattleEnded && !result.PlayerWon)
+        {
+            await HandleDefeat();
+        }
+        else
+        {
+            isPlayerTurn = true;
+        }
+    }
+
+    private async Task HandleVictory()
+    {
+        if (currentUser == null || currentEnemy == null || currentSession == null || currentDungeon == null) return;
+        
+        // 報酬计算
+        lastExp = currentEnemy.Exp;
+        lastGil = currentEnemy.Gil;
+        
+        // ドロップ判定
+        var drop = DungeonService.RollDrop(currentEnemy);
+        if (!string.IsNullOrEmpty(drop))
+        {
+            lastDrop = drop;
+            currentSession.Drops.Add(drop);
+            AddLog("system", $"★ ドロップ: {drop}");
+        }
+        
+        // セッション更新
+        currentSession.MonstersDefeated++;
+        currentSession.TotalExp += lastExp;
+        currentSession.TotalGil += lastGil;
+        
+        currentUser.Exp += lastExp;
+        currentUser.Gil += lastGil;
+        
+        // クエスト進捗更新
+        QuestService.UpdateProgress(currentUser, enemyName: currentEnemy.Name);
+        
+        AddLog("system", $"🎉 {currentEnemy.Name}を倒した！ +{lastExp}Exp, +{lastGil}Gil");
+        
+        battleState = ExplorationBattleState.Victory;
+        
+        UserService.UpdateUser(currentUser);
+    }
+
+    private async Task ContinueExploration()
+    {
+        if (currentDungeon == null || currentSession == null || currentUser == null) return;
+        
+        // フロアクリアチェック
+        if (currentSession.MonstersDefeated >= currentSession.TotalMonsters)
+        {
+            if (currentSession.CurrentFloor >= currentDungeon.MaxFloors)
+            {
+                // ダンジョンクリア
+                await EndDungeon(true);
+                return;
+            }
+            else
+            {
+                // 次のフロア
+                currentSession.CurrentFloor++;
+                currentSession.MonstersDefeated = 0;
+                currentSession.TotalMonsters = currentDungeon.MonsterCountPerFloor;
+                
+                // フロアクリアボーナス
+                currentSession.TotalExp += currentDungeon.FloorClearBonusExp;
+                currentSession.TotalGil += currentDungeon.FloorClearBonusGil;
+                currentUser.Exp += currentDungeon.FloorClearBonusExp;
+                currentUser.Gil += currentDungeon.FloorClearBonusGil;
+                
+                AddLog("system", $"🏰 フロア {currentSession.CurrentFloor - 1} クリア！ bonus: +{currentDungeon.FloorClearBonusExp}Exp, +{currentDungeon.FloorClearBonusGil}Gil");
+                
+                UserService.UpdateUser(currentUser);
+            }
+        }
+        
+        battleState = ExplorationBattleState.Idle;
+        SpawnEnemy();
+    }
+
+    private async Task HandleDefeat()
+    {
+        if (currentUser == null || currentSession == null) return;
+        
+        battleState = ExplorationBattleState.Defeat;
+        
+        // 経験値損失
+        var expLoss = 10 + (currentUser.Exp / 20);
+        currentUser.Exp = Math.Max(0, currentUser.Exp - expLoss);
+        
+        // ギル損失
+        var gilLoss = Math.Max(100, currentUser.Gil / 20);
+        currentUser.Gil = Math.Max(0, currentUser.Gil - gilLoss);
+        
+        // HPを1に
+        currentUser.HP = 1;
+        
+        dungeonResultMessage = $"経験値 -{expLoss}, ギル -{gilLoss} を失った...";
+        
+        AddLog("system", $"💀 倒れた... {dungeonResultMessage}");
+        
+        UserService.UpdateUser(currentUser);
+    }
+
+    private async Task EndDungeon(bool isClear)
+    {
+        if (currentUser == null || currentSession == null || currentDungeon == null) return;
+        
+        if (isClear)
+        {
+            // ダンジョンクリアボーナス
+            currentSession.TotalExp += currentDungeon.DungeonClearBonusExp;
+            currentSession.TotalGil += currentDungeon.DungeonClearBonusGil;
+            currentUser.Exp += currentDungeon.DungeonClearBonusExp;
+            currentUser.Gil += currentDungeon.DungeonClearBonusGil;
+            
+            AddLog("system", $"🏆 ダンジョンクリア！ bonus: +{currentDungeon.DungeonClearBonusExp}Exp, +{currentDungeon.DungeonClearBonusGil}Gil");
+            
+            battleState = ExplorationBattleState.DungeonClear;
+        }
+        
+        currentSession.IsActive = false;
+        currentSession.EndTime = DateTime.UtcNow;
+        
+        UserService.UpdateUser(currentUser);
+    }
+
+    private void ReturnToSelect()
+    {
+        isExploring = false;
+        currentDungeon = null;
+        currentSession = null;
+        currentEnemy = null;
+        battleLog.Clear();
+        battleState = ExplorationBattleState.Idle;
+    }
+
+    private void AddLog(string className, string message)
+    {
+        battleLog.Add(new BattleLogEntry { Class = className, Message = message });
+        if (battleLog.Count > 30)
+        {
+            battleLog.RemoveAt(0);
+        }
+    }
+
+    enum ExplorationBattleState
+    {
+        Idle,
+        Battling,
+        Victory,
+        Defeat,
+        DungeonClear
+    }
+
+    class BattleLogEntry
+    {
+        public string Class { get; set; } = "";
+        public string Message { get; set; } = "";
+    }
+}

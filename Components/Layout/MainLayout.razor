@@ -47,6 +47,7 @@
             <MudNavLink Href="/sky-arena" Icon="@Icons.Material.Filled.SelfImprovement">天空闘技場</MudNavLink>
             <MudNavLink Href="/chat" Icon="@Icons.Material.Filled.Chat">チャット</MudNavLink>
             <MudNavLink Href="/tavern" Icon="@Icons.Material.Filled.LocalBar">酒場</MudNavLink>
+            <MudNavLink Href="/exploration" Icon="@Icons.Material.Filled.Explore">探索</MudNavLink>
         </MudNavMenu>
     </MudDrawer>
 
@@ -88,11 +89,19 @@
             </nav>
         </footer>
 
+        <!-- Compact error UI: show unobtrusive icon; expand details on click -->
         <div id="blazor-error-ui" data-nosnippet style="display:none;">
-            An unhandled error has occurred.
-            <a href="." class="reload">Reload</a>
-            <span class="dismiss">🗙</span>
-            <pre id="blazor-error-details" style="white-space: pre-wrap; display: none; max-width: 30rem; overflow:auto;"> </pre>
+            <div id="blazor-error-compact" style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                <span title="エラーが発生しました">⚠️</span>
+                <span style="font-size:0.9rem;">An error occurred</span>
+                <a href="." class="reload" style="margin-left:8px;">Reload</a>
+                <span class="dismiss" title="閉じる">🗙</span>
+            </div>
+            <div id="blazor-error-brief" style="display:none; font-size:0.85rem; margin-top:6px; max-width:30rem; white-space:pre-wrap; overflow:auto;"></div>
+            <details id="blazor-error-details-panel" style="display:none; margin-top:6px; max-width:30rem;">
+                <summary style="cursor:pointer; font-weight:bold;">詳細を表示</summary>
+                <pre id="blazor-error-details" style="white-space: pre-wrap;"> </pre>
+            </details>
         </div>
 
         <script src="/js/auth.js"></script>
@@ -122,10 +131,46 @@
 
             const ui = document.getElementById('blazor-error-ui');
             if (ui) {
+                const compact = document.getElementById('blazor-error-compact');
+                const brief = document.getElementById('blazor-error-brief');
+                const detailsPanel = document.getElementById('blazor-error-details-panel');
+                const detailsPre = document.getElementById('blazor-error-details');
                 const dismiss = ui.querySelector('.dismiss');
-                if (dismiss) dismiss.addEventListener('click', function () { ui.style.display = 'none'; });
                 const reload = ui.querySelector('.reload');
+
+                // Dismiss hides the compact UI only; details remain logged to console/startup.log
+                if (dismiss) dismiss.addEventListener('click', function () { ui.style.display = 'none'; });
                 if (reload) reload.addEventListener('click', function (ev) { ev.preventDefault(); location.reload(); });
+
+                // Toggle details on compact click
+                if (compact) compact.addEventListener('click', function () {
+                    if (!detailsPanel) return;
+                    const shown = detailsPanel.style.display === 'block';
+                    detailsPanel.style.display = shown ? 'none' : 'block';
+                    brief.style.display = shown ? 'none' : 'block';
+                });
+
+                // When blazor sets the UI visible, keep only compact visible and show brief text
+                const observer = new MutationObserver(function (mutations) {
+                    mutations.forEach(function (m) {
+                        if (m.attributeName === 'style') {
+                            try {
+                                if (ui.style.display !== 'none') {
+                                    // keep compact visible, hide detailed stack by default
+                                    if (detailsPanel) detailsPanel.style.display = 'none';
+                                    if (brief) {
+                                        // copy first line of details into brief
+                                        const full = detailsPre ? detailsPre.innerText || detailsPre.textContent : '';
+                                        const first = full ? full.split('\n')[0] : '';
+                                        brief.textContent = first ? first : 'An error occurred (click to view details)';
+                                        brief.style.display = 'block';
+                                    }
+                                }
+                            } catch (e) { }
+                        }
+                    });
+                });
+                observer.observe(ui, { attributes: true });
             }
         } catch (err) {
             console.error(err);
@@ -191,8 +236,8 @@
                 userService.Register(testUsername, testPassword, Models.Job.Warrior);
             }
 
-            // Call signin API via JavaScript
-            var url = Navigation.ToAbsoluteUri("/signin").ToString();
+            // Call signin API via JavaScript (use relative path without leading '/' to avoid double-slash)
+            var url = Navigation.ToAbsoluteUri("signin").ToString();
             var payload = new { Username = testUsername, Password = testPassword };
             var ok = await JS.InvokeAsync<bool>("fetchSignIn", url, payload);
             if (ok)

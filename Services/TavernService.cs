@@ -10,7 +10,7 @@ namespace FFA.Services
     public class TavernService
     {
         private readonly string _databasePath;
-        private readonly int RumorRefreshHours = 6;
+        //private readonly int RumorRefreshHours = 6;
         
         public TavernService()
         {

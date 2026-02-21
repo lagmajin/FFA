@@ -75,51 +75,54 @@
             </MudTabPanel>
         </MudTabs>
 
-        @* メール詳細ダイアログ *@
-        <MudDialog @bind-IsOpen="showMailDialog">
-            <TitleContent>@selectedMail?.Subject</TitleContent>
-            <DialogContent>
-                @if (selectedMail != null)
-                {
-                    <MudText Typo="Typo.body2" Style="color:#666; margin-bottom:12px;">
-                        送信者: @selectedMail.SenderName | @selectedMail.SentAt.ToString("yyyy/MM/dd HH:mm")
-                    </MudText>
-                    <MudDivider Class="my-2" />
-                    <MudText Typo="Typo.body1" Style="white-space:pre-wrap;">@selectedMail.Body</MudText>
-                    
-                    @if (selectedMail.AttachedGil > 0 || selectedMail.Attachment != null)
+        @* メール詳細オーバーレイ *@
+        @if (showMailDialog)
+        {
+            <div class="mud-dialog-overlay">
+                <MudPaper Class="pa-4" Style="max-width:600px;max-height:80vh;overflow-y:auto;">
+                    <MudText Typo="Typo.h6" Class="mb-2">@selectedMail?.Subject</MudText>
+                    @if (selectedMail != null)
                     {
-                        <MudPaper Class="pa-3 mt-3" Style="background:#fffbe6; border:1px solid #e0d0a0;">
-                            <MudText Typo="Typo.subtitle2">添付品</MudText>
-                            @if (selectedMail.AttachedGil > 0)
-                            {
-                                <div>💰 @selectedMail.AttachedGil ギル</div>
-                            }
-                            @if (selectedMail.Attachment != null)
-                            {
-                                <div>📦 @selectedMail.Attachment.ItemName x@selectedMail.Attachment.Quantity</div>
-                            }
-                            @if (!selectedMail.AttachmentClaimed)
-                            {
-                                <MudButton Variant="Variant.Filled" Color="Color.Warning" Class="mt-2" 
-                                           OnClick="ClaimAttachment">受け取る</MudButton>
-                            }
-                            else
-                            {
-                                <MudText Typo="Typo.caption" Style="color:#666;">受け取り済み</MudText>
-                            }
-                        </MudPaper>
+                        <MudText Typo="Typo.body2" Style="color:#666; margin-bottom:12px;">
+                            送信者: @selectedMail.SenderName | @selectedMail.SentAt.ToString("yyyy/MM/dd HH:mm")
+                        </MudText>
+                        <MudDivider Class="my-2" />
+                        <MudText Typo="Typo.body1" Style="white-space:pre-wrap;">@selectedMail.Body</MudText>
+                        
+                        @if (selectedMail.AttachedGil > 0 || selectedMail.Attachment != null)
+                        {
+                            <MudPaper Class="pa-3 mt-3" Style="background:#fffbe6; border:1px solid #e0d0a0;">
+                                <MudText Typo="Typo.subtitle2">添付品</MudText>
+                                @if (selectedMail.AttachedGil > 0)
+                                {
+                                    <div>💰 @selectedMail.AttachedGil ギル</div>
+                                }
+                                @if (selectedMail.Attachment != null)
+                                {
+                                    <div>📦 @selectedMail.Attachment.ItemName x@selectedMail.Attachment.Quantity</div>
+                                }
+                                @if (!selectedMail.AttachmentClaimed)
+                                {
+                                    <MudButton Variant="Variant.Filled" Color="Color.Warning" Class="mt-2" 
+                                               OnClick="ClaimAttachment">受け取る</MudButton>
+                                }
+                                else
+                                {
+                                    <MudText Typo="Typo.caption" Style="color:#666;">受け取り済み</MudText>
+                                }
+                            </MudPaper>
+                        }
                     }
-                }
-            </DialogContent>
-            <DialogActions>
-                <MudButton OnClick="CloseMailDialog">閉じる</MudButton>
-                @if (selectedMail != null)
-                {
-                    <MudButton Color="Color.Error" OnClick="DeleteCurrentMail">削除</MudButton>
-                }
-            </DialogActions>
-        </MudDialog>
+                    <div Class="mt-4" style="display:flex;justify-content:flex-end;gap:8px;">
+                        <MudButton OnClick="CloseMailDialog">閉じる</MudButton>
+                        @if (selectedMail != null)
+                        {
+                            <MudButton Color="Color.Error" OnClick="DeleteCurrentMail">削除</MudButton>
+                        }
+                    </div>
+                </MudPaper>
+            </div>
+        }
     }
 </MudPaper>
 

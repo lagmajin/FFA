@@ -1,12 +1,18 @@
 @page "/town"
 @rendermode InteractiveServer
+@using MudBlazor
+@using MudBlazor.Services
+@using Microsoft.AspNetCore.Components.Authorization
 
 @inject NavigationManager Navigation
 @inject Services.UserService UserService
+@inject AuthenticationStateProvider AuthStateProvider
 @inject Services.CountryService CountryService
 @inject Services.TownService TownService
 @inject Services.TimeWeatherService TWService
 @inject Services.FieldService FieldService
+@inject Services.MapService MapService
+@inject Services.ChatService ChatService
 @inject Services.GuildService GuildService
 @inject Services.StaminaService StaminaService
 @inject Services.QuestService QuestService
@@ -16,326 +22,354 @@
 
 <PageTitle>街</PageTitle>
 
-<div class="town-container">
-    @* ヘッダーセクション *@
-    <div class="town-header">
-        <div class="town-main-info">
-            <h1 class="town-title">@CurrentTown?.Name</h1>
-            <p class="town-description">@CurrentTown?.Description</p>
+<div class="town-page" style="max-width:1400px; margin:0 auto; padding:16px;">
+    @* ヘッダー *@
+    <div class="town-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <div>
+            <h1 style="margin:0;">@CurrentTown?.Name</h1>
+            <p style="margin:4px 0 0 0; color:#666;">@CurrentTown?.Description</p>
         </div>
-        <div class="town-time-weather">
-            <div class="tw-display @TWService.Phase.ToString().ToLower()">
-                <span class="tw-icon">@GetTimeIcon(TWService.Phase)</span>
-                <span class="tw-time">@FormatTime(TWService.TimeOfDay)</span>
-                <span class="tw-weather">@TWService.Weather</span>
+        <div style="text-align:right;">
+            <div class="tw-display @TWService.Phase.ToString().ToLower()" style="display:inline-flex; align-items:center; gap:8px; padding:8px 16px; background:#f5f5f5; border-radius:8px;">
+                <span>@GetTimeIcon(TWService.Phase)</span>
+                <span>@FormatTime(TWService.TimeOfDay)</span>
+                <span>@TWService.Weather</span>
             </div>
-            <div class="game-date">
-                <span class="date-icon">📅</span>
-                <span class="date-value">@GetGameDate()</span>
-            </div>
-        </div>
-    </div>
-    
-    @* 町の情報バー *@
-    <div class="town-info-bar">
-        <div class="town-type">
-            <span class="type-badge @CurrentTown?.Type">@GetTownTypeName(CurrentTown?.Type)</span>
-        </div>
-        <div class="town-details">
-            <span class="detail-item"><span class="label">人口</span> <span class="value">@CurrentTown?.Population.ToString("N0")</span></span>
-            <span class="detail-item"><span class="label">繁栄度</span> <span class="value">@CurrentTown?.Prosperity/100</span></span>
-            <span class="detail-item coordinate"><span class="label">座標</span> <span class="value">(@CurrentTown?.X, @CurrentTown?.Y)</span></span>
-            @if (CurrentTown?.CountryName != null)
-            {
-                <span class="detail-item"><span class="label">所属国</span> <span class="value">@CurrentTown.CountryName</span></span>
-            }
-            @if (CurrentTown?.HasSpecialShop == true)
-            {
-                <span class="detail-item special-shop"><span class="label">特産</span> <span class="value">@CurrentTown.SpecialShopType</span></span>
-            }
-        </div>
-    </div>
-
-    @* プレイヤーステータス *@
-    <div class="player-status-card">
-        <div class="player-header">
-            <h3>プレイヤー情報</h3>
-            <span class="player-name">@currentUser?.Username</span>
-        </div>
-        <div class="player-stats">
-            <div class="stat-row">
-                <div class="stat">
-                    <span class="stat-label">Lv.</span>
-                    <span class="stat-value level">@currentUser?.Level</span>
-                    <span class="stat-job">@GetJobName(currentUser?.Job)</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-label">💰</span>
-                    <span class="stat-value gold">@currentUser?.Gil.ToString("N0")</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-label">💎</span>
-                    <span class="stat-value premium">@currentUser?.Premium</span>
-                </div>
-            </div>
-            <div class="stat-row hp-row">
-                <div class="hp-bar">
-                    <span class="hp-label">HP</span>
-                    <div class="hp-track">
-                        <div class="hp-fill" style="width: @GetHpPercent()%"></div>
-                    </div>
-                    <span class="hp-value">@currentUser?.HP / @currentUser?.MaxHP</span>
-                </div>
-            </div>
-            <div class="stat-row exp-row">
-                <div class="exp-bar">
-                    <span class="exp-label">EXP</span>
-                    <div class="exp-track">
-                        <div class="exp-fill" style="width: @GetExpPercent()%"></div>
-                    </div>
-                    <span class="exp-value">@currentUser?.Exp / @currentUser?.ExpToNext</span>
-                </div>
-            </div>
-            @* 追加情報: スタミナ *@
-            @if (staminaInfo != null && staminaInfo.Status.TryGetValue(StaminaType.Movement, out var moveStamina))
-            {
-                <div class="stat-row stamina-row">
-                    <div class="stamina-bar">
-                        <span class="stamina-label">⚡</span>
-                        <div class="stamina-track">
-                            <div class="stamina-fill" style="width: @(moveStamina.RecoveryProgress * 100)%"></div>
-                        </div>
-                        <span class="stamina-value">@moveStamina.Current / @moveStamina.Max</span>
-                    </div>
-                </div>
-            }
-        </div>
-        @* クイック情報バー *@
-        <div class="quick-info-bar">
-            <div class="quick-info-item" @onclick="GoToQuests">
-                <span class="quick-icon">📋</span>
-                <span class="quick-label">クエスト</span>
-                <span class="quick-value">@questCount 件</span>
-            </div>
-            <div class="quick-info-item" @onclick="GoToMail">
-                <span class="quick-icon">📧</span>
-                <span class="quick-label">メール</span>
-                <span class="quick-value">@unreadMailCount</span>
-            </div>
-            <div class="quick-info-item" @onclick="GoToFriends">
-                <span class="quick-icon">👥</span>
-                <span class="quick-label">フレンド</span>
-                <span class="quick-value">@friendCount</span>
-            </div>
-            @if (currentGuild != null)
-            {
-                <div class="quick-info-item" @onclick="GoToGuild">
-                    <span class="quick-icon">🎖️</span>
-                    <span class="quick-label">ギルド</span>
-                    <span class="quick-value">@currentGuild.Name</span>
-                </div>
-            }
-            else
-            {
-                <div class="quick-info-item" @onclick="GoToGuild">
-                    <span class="quick-icon">🎖️</span>
-                    <span class="quick-label">ギルド</span>
-                    <span class="quick-value">未加入</span>
-                </div>
-            }
-            <div class="quick-info-item @dailyRewardClass" @onclick="GoToDailyReward">
-                <span class="quick-icon">🎁</span>
-                <span class="quick-label">ログボ</span>
-                <span class="quick-value">@dailyRewardStatus</span>
+            <div style="margin-top:4px; color:#666;">
+                📅 @GetGameDate()
             </div>
         </div>
     </div>
 
-    @if (CurrentTown != null)
-    {
-        <div class="town-content">
-            @* 町の便利情報 *@
-            <div class="frame convenience-section">
-                <div class="frame-header">
-                    <h3>@CurrentTown.Name の情報</h3>
-                </div>
-                <div class="frame-body">
-                    <div class="convenience-grid">
-                        @* 固定インフラ *@
-                        <div class="convenience-item">
-                            <span class="icon">🏨</span>
-                            <span class="name">宿屋</span>
-                            <span class="info">HP全回復</span>
-                        </div>
-                        <div class="convenience-item">
-                            <span class="icon">🏦</span>
-                            <span class="name">銀行</span>
-                            <span class="info">@currentUser?.BankedGil.ToString("N0")G</span>
-                        </div>
-                        
-                        @* 町の施設に基づいて表示 *@
-                        @foreach (var facility in GetTownFacilitiesList(CurrentTown.Facilities))
+    @* メインレイアウト: 左(コンテンツ) + 右(アクション) *@
+    <div style="display:flex; gap:16px; align-items:flex-start;">
+        @* 左側: メインコンテンツ *@
+        <div style="flex:1;">
+            @* 町の情報バー *@
+            <MudPaper Class="pa-4 mb-4">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+                    <div style="display:flex; gap:16px; align-items:center; flex-wrap:wrap;">
+                        <MudChip T="string" Color="Color.Primary">@GetTownTypeName(CurrentTown?.Type)</MudChip>
+                        <span>人口: @CurrentTown?.Population.ToString("N0")</span>
+                        <span>繁栄度: @CurrentTown?.Prosperity/100</span>
+                        <span>(@CurrentTown?.X, @CurrentTown?.Y)</span>
+                        @if (CurrentTown?.CountryName != null)
                         {
-                            <div class="convenience-item">
-                                <span class="icon">@facility.Icon</span>
-                                <span class="name">@facility.Name</span>
-                                <span class="info">@facility.Info</span>
-                            </div>
-                        }
-                        
-                        @* 特殊商店があるなら表示 *@
-                        @if (CurrentTown.HasSpecialShop)
-                        {
-                            <div class="convenience-item highlight">
-                                <span class="icon">⭐</span>
-                                <span class="name">特殊商店</span>
-                                <span class="info">@CurrentTown.SpecialShopType</span>
-                            </div>
+                            <span>所属国: @CurrentTown.CountryName</span>
                         }
                     </div>
-                </div>
-            </div>
-
-            <div class="town-main-sections">
-                @* 町の便利情報 *@
-                <div class="frame fields-section">
-                    <div class="frame-header">
-                        <h3>🗺️ 周辺のフィールド (8方向)</h3>
-                    </div>
-                    <div class="frame-body">
-                        <div class="directions-grid">
-                            @foreach (var dir in GetSurroundingFields())
-                            {
-                                <div class="direction-card @(@dir.Field != null ? "active" : "inactive")" 
-                                     @onclick="() => NavigateToDirection(dir)">
-                                    <div class="direction-icon">@dir.Icon</div>
-                                    <div class="direction-name">@dir.Name</div>
-                                    @if (dir.Field != null)
-                                    {
-                                        <div class="direction-field">🌲 @dir.Field.Name</div>
-                                    }
-                                    else
-                                    {
-                                        <div class="direction-field empty">未探索</div>
-                                    }
-                                </div>
-                            }
-                        </div>
-                    </div>
-                </div>
-
-                <div class="frame facilities-section">
-                    <div class="frame-header">
-                        <h3>施設</h3>
-                    </div>
-                    <div class="frame-body">
-                        <div class="facilities-list">
-                            @foreach (var facility in CurrentTown.Facilities)
-                            {
-                                <div class="facility-item">@facility</div>
-                            }
-                        </div>
-                    </div>
-                </div>
-
-                <div class="frame events-section">
-                    <div class="frame-header">
-                        <h3>イベント</h3>
-                    </div>
-                    <div class="frame-body">
-                        <div class="events-list">
-                            @foreach (var ev in CurrentTown.Events)
-                            {
-                                <div class="event-item">@ev</div>
-                            }
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="frame actions-section">
-                <div class="frame-header">
-                    <h3>アクション</h3>
-                </div>
-                <div class="frame-body">
-                    <div class="town-actions">
-                        @if (CurrentTown.HasSpecialShop)
-                        {
-                            <button class="action-button special" @onclick="GoToSpecialShop">
-                                特殊商店 (@CurrentTown.SpecialShopType)
-                            </button>
-                        }
-                        
-                        <div class="shop-group">
-                            <div class="group-title">商店</div>
-                            <div class="basic-shops">
-                                <button class="action-button" @onclick="GoToWeaponShop">武器屋</button>
-                                <button class="action-button" @onclick="GoToArmorShop">防具屋</button>
-                                <button class="action-button" @onclick="GoToAccessoryShop">装飾品屋</button>
-                                <button class="action-button" @onclick="GoToConsumablesShop">消耗品屋</button>
-                            </div>
-                        </div>
-                        
-                        <div class="service-group">
-                            <div class="group-title">サービス</div>
-                            <div class="other-actions">
-                                <button class="action-button" @onclick="GoToInn">宿屋</button>
-                                <button class="action-button" @onclick="GoToBank">銀行</button>
-                                <button class="action-button" @onclick="GoToTavern">酒場</button>
-                            </div>
-                        </div>
-                        
-                        <div class="management-group">
-                            <div class="group-title">管理</div>
-                            <div class="other-actions">
-                                <button class="action-button" @onclick="GoToAccessoryManagement">装飾品管理</button>
-                                <button class="action-button" @onclick="GoToWeaponManagement">武器管理</button>
-                                <button class="action-button" @onclick="GoToArmorManagement">防具管理</button>
-                            </div>
-                        </div>
-                        
-                        <div class="skill-group">
-                            <div class="group-title">スキル</div>
-                            <div class="other-actions">
-                                <button class="action-button" @onclick="GoToSkillTrees">スキルツリー</button>
-                                <button class="action-button" @onclick="GoToAbilities">アビリティ</button>
-                            </div>
-                        </div>
-                        
-                        <div class="navigation-group">
-                            <div class="group-title">移動</div>
-                            <div class="other-actions">
-                                <button class="action-button primary" @onclick="GoBack">ダッシュボード</button>
-                                <button class="action-button" @onclick="GoToField">フィールド</button>
-                                <button class="action-button" @onclick="GoToMap">マップ</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    }
-
-    @if (OtherTowns.Count > 0)
-    {
-        <div class="frame other-towns-section">
-            <div class="frame-header">
-                <h3>他の街</h3>
-            </div>
-            <div class="frame-body">
-                <div class="other-towns-list">
-                    @foreach (var town in OtherTowns)
+                    @if (CurrentTown?.HasSpecialShop == true)
                     {
-                        <div class="other-town-card" @onclick="() => GoToTown(town.Id)">
-                            <h4>@town.Name</h4>
-                            <p>@GetTownTypeName(town.Type)</p>
-                            <p class="population">人口: @town.Population</p>
-                        </div>
+                        <MudChip T="string" Color="Color.Warning">特産: @CurrentTown.SpecialShopType</MudChip>
                     }
                 </div>
-            </div>
+            </MudPaper>
+
+            @* プレイヤーステータス *@
+            <MudPaper Class="pa-4 mb-4">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                    <div>
+                        <h3 style="margin:0;">プレイヤー情報</h3>
+                        <span style="color:#666;">@currentUser?.Username</span>
+                    </div>
+                    <div style="display:flex; gap:16px;">
+                        <span>Lv.@currentUser?.Level @GetJobName(currentUser?.Job)</span>
+                        <span>💰 @currentUser?.Gil.ToString("N0")</span>
+                        <span>💎 @currentUser?.Premium</span>
+                    </div>
+                </div>
+                
+                <div class="mb-2">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                        <span>HP</span>
+                        <span>@currentUser?.HP / @currentUser?.MaxHP</span>
+                    </div>
+                    <MudProgressBar Color="Color.Error" Value="@GetHpPercent()" />
+                </div>
+                
+                <div class="mb-2">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                        <span>EXP</span>
+                        <span>@currentUser?.Exp / @currentUser?.ExpToNext</span>
+                    </div>
+                    <MudProgressBar Color="Color.Success" Value="@GetExpPercent()" />
+                </div>
+
+                @if (staminaInfo != null && staminaInfo.Status.TryGetValue(StaminaType.Movement, out var moveStamina))
+                {
+                    <div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                            <span>⚡ 移動スタミナ</span>
+                            <span>@moveStamina.Current / @moveStamina.Max</span>
+                        </div>
+                        <MudProgressBar Color="Color.Warning" Value="@(moveStamina.RecoveryProgress * 100)" />
+                    </div>
+                }
+            </MudPaper>
+
+            @* クイックリンク *@
+            <MudPaper Class="pa-4 mb-4">
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <MudButton Variant="Variant.Text" StartIcon="📋" OnClick="GoToQuests">クエスト (@questCount)</MudButton>
+                    <MudButton Variant="Variant.Text" StartIcon="📧" OnClick="GoToMail">メール (@unreadMailCount)</MudButton>
+                    <MudButton Variant="Variant.Text" StartIcon="👥" OnClick="GoToFriends">フレンド (@friendCount)</MudButton>
+                    <MudButton Variant="Variant.Text" StartIcon="🎖️" OnClick="GoToGuild">@(currentGuild?.Name ?? "ギルド未加入")</MudButton>
+                    <MudButton Variant="Variant.Text" StartIcon="🎁" OnClick="GoToDailyReward" Color="@(dailyRewardClass == "available" ? Color.Success : Color.Default)">@dailyRewardStatus</MudButton>
+                </div>
+            </MudPaper>
+
+            @if (CurrentTown != null)
+            {
+                @* 町の施設 *@
+                <MudPaper Class="pa-4 mb-4">
+                    <h3 style="margin:0 0 16px 0;">🏨 @CurrentTown.Name の施設</h3>
+                    <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:12px;">
+                        <div class="convenience-item" style="text-align:center; padding:12px; background:#f9f9f9; border-radius:8px;">
+                            <div style="font-size:24px;">🏨</div>
+                            <div>宿屋</div>
+                            <div style="font-size:12px; color:#666;">HP全回復</div>
+                        </div>
+                        <div class="convenience-item" style="text-align:center; padding:12px; background:#f9f9f9; border-radius:8px;">
+                            <div style="font-size:24px;">🏦</div>
+                            <div>銀行</div>
+                            <div style="font-size:12px; color:#666;">@currentUser?.BankedGil.ToString("N0")G</div>
+                        </div>
+                        @foreach (var facility in GetTownFacilitiesList(CurrentTown.Facilities))
+                        {
+                            <div class="convenience-item" style="text-align:center; padding:12px; background:#f9f9f9; border-radius:8px;">
+                                <div style="font-size:24px;">@facility.Icon</div>
+                                <div>@facility.Name</div>
+                                <div style="font-size:12px; color:#666;">@facility.Info</div>
+                            </div>
+                        }
+                        @if (CurrentTown.HasSpecialShop)
+                        {
+                            <div class="convenience-item" style="text-align:center; padding:12px; background:#fff8e1; border-radius:8px; border:2px solid #ffc107;">
+                                <div style="font-size:24px;">⭐</div>
+                                <div>特殊商店</div>
+                                <div style="font-size:12px; color:#666;">@CurrentTown.SpecialShopType</div>
+                            </div>
+                        }
+                    </div>
+                </MudPaper>
+
+                @* 周辺のフィールド *@
+                <MudPaper Class="pa-4 mb-4">
+                    <h3 style="margin:0 0 16px 0;">🗺️ 周辺のフィールド</h3>
+                    <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px;">
+                        @foreach (var dir in GetSurroundingFields())
+                        {
+                            <MudButton Variant="Variant.Outlined" OnClick="() => NavigateToDirection(dir)"
+                                       Style="display:flex; flex-direction:column; align-items:center; padding:12px; height:auto;">
+                                <span style="font-size:20px;">@dir.Icon</span>
+                                <span>@dir.Name</span>
+                                @if (dir.Field != null)
+                                {
+                                    <span style="font-size:12px; color:green;">🌲 @dir.Field.Name</span>
+                                }
+                                else
+                                {
+                                    <span style="font-size:12px; color:#999;">未探索</span>
+                                }
+                            </MudButton>
+                        }
+                    </div>
+                </MudPaper>
+
+                @* 他の街への移動 *@
+                @if (OtherTowns.Count > 0)
+                {
+                    <MudPaper Class="pa-4">
+                        <h3 style="margin:0 0 16px 0;">🏘️ 他の街</h3>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            @foreach (var town in OtherTowns)
+                            {
+                                <MudButton Variant="Variant.Outlined" OnClick="() => GoToTown(town.Id)">
+                                    @town.Name (@GetTownTypeName(town.Type))
+                                </MudButton>
+                            }
+                        </div>
+                    </MudPaper>
+                }
+
+                @* マップ移動モード *@
+                @if (isMapMode && currentMapLocation != null)
+                {
+                    <MudPaper Class="pa-4 mb-4" style="background:#e8f5e9;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                            <h3 style="margin:0;">🗺️ マップ移動</h3>
+                            <MudButton Variant="Variant.Text" Color="Color.Default" OnClick="ExitMapMode">終了</MudButton>
+                        </div>
+                        
+                        <div style="text-align:center; margin-bottom:16px;">
+                            <h4>@currentMapLocation.Name</h4>
+                            <p style="color:#666; font-size:14px;">@currentMapLocation.Description</p>
+                            <MudChip T="string" Color="Color.Primary">座標: (@currentMapLocation.X, @currentMapLocation.Y)</MudChip>
+                        </div>
+                        
+                        @* 4方向移動ボタン *@
+                        <div style="display:flex; flex-direction:column; align-items:center; gap:8px; margin-bottom:16px;">
+                            <MudButton Variant="Variant.Filled" Color="Color.Success" 
+                                       OnClick="() => MoveMap(FFA.Services.Direction.North)"
+                                       Disabled="@IsMapEdge('N')"
+                                       Style="width:120px;">
+                                ⬆️ 北
+                            </MudButton>
+                            <div style="display:flex; gap:8px;">
+                                <MudButton Variant="Variant.Filled" Color="Color.Success" 
+                                           OnClick="() => MoveMap(FFA.Services.Direction.West)"
+                                           Disabled="@IsMapEdge('W')"
+                                           Style="width:100px;">
+                                    ⬅️ 西
+                                </MudButton>
+                                <MudButton Variant="Variant.Filled" Color="Color.Success" 
+                                           OnClick="() => MoveMap(FFA.Services.Direction.East)"
+                                           Disabled="@IsMapEdge('E')"
+                                           Style="width:100px;">
+                                    ➡️ 東
+                                </MudButton>
+                            </div>
+                            <MudButton Variant="Variant.Filled" Color="Color.Success" 
+                                       OnClick="() => MoveMap(FFA.Services.Direction.South)"
+                                       Disabled="@IsMapEdge('S')"
+                                       Style="width:120px;">
+                                ⬇️ 南
+                            </MudButton>
+                        </div>
+                        
+                        @* 場所タイプ別のアクション *@
+                        <div style="text-align:center;">
+                            @if (currentMapLocation.Type == "town")
+                            {
+                                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="EnterTownFromMap">
+                                    町に入る
+                                </MudButton>
+                            }
+                            else if (currentMapLocation.Type == "field" || currentMapLocation.Type == "forest")
+                            {
+                                <MudButton Variant="Variant.Filled" Color="Color.Warning" OnClick="GoToFieldFromMap">
+                                    フィールドで探索
+                                </MudButton>
+                            }
+                            else if (currentMapLocation.Type == "dungeon")
+                            {
+                                <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="GoToDungeonFromMap">
+                                    ダンジョンに入る
+                                </MudButton>
+                            }
+                            else if (currentMapLocation.Type == "river")
+                            {
+                                <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="GoToFishingFromMap">
+                                    釣りをする
+                                </MudButton>
+                            }
+                            else if (currentMapLocation.Type == "mountain")
+                            {
+                                <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="GoToMiningFromMap">
+                                    採掘する
+                                </MudButton>
+                            }
+                        </div>
+                    </MudPaper>
+                }
+            }
+
+            @* チャット表示 *@
+            <MudPaper Class="pa-4 mb-4">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <h3 style="margin:0;">💬 チャット</h3>
+                    <MudButton Variant="Variant.Text" Size="Size.Small" OnClick="GoToChat">全文</MudButton>
+                </div>
+                <div class="chat-messages" style="max-height:200px; overflow-y:auto; background:#f5f5f5; border-radius:8px; padding:8px;">
+                    @if (chatMessages.Any())
+                    {
+                        @foreach (var msg in chatMessages.Take(10))
+                        {
+                            <div style="font-size:12px; margin-bottom:4px;">
+                                <span style="color:#888;">[@msg.Timestamp.ToString("HH:mm")]</span>
+                                <span style="font-weight:bold;">@msg.Username: </span>
+                                <span>@msg.Message</span>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p style="color:#888; font-size:12px;">メッセージはありません</p>
+                    }
+                </div>
+            </MudPaper>
         </div>
-    }
+
+        @* 右側: アクションボタン *@
+        <div style="width:220px; flex-shrink:0;">
+            <MudPaper Class="pa-4" style="position:sticky; top:16px;">
+                <h3 style="margin:0 0 16px 0; font-size:16px;">⚡ アクション</h3>
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                    @* フィールドへの移動は常に表示 *@
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" OnClick="GoToField" StartIcon="🌲">
+                        フィールド
+                    </MudButton>
+                    <MudButton Variant="Variant.Filled" Color="Color.Success" FullWidth="true" OnClick="EnterMapMode" StartIcon="🗺️">
+                        マップ移動
+                    </MudButton>
+                    <MudButton Variant="Variant.Filled" Color="Color.Success" FullWidth="true" OnClick="GoToInn" StartIcon="🏨">
+                        宿屋
+                    </MudButton>
+                    <MudButton Variant="Variant.Filled" Color="Color.Warning" FullWidth="true" OnClick="GoToBank" StartIcon="🏦">
+                        銀行
+                    </MudButton>
+                    <MudButton Variant="Variant.Filled" Color="Color.Default" FullWidth="true" OnClick="GoToTavern" StartIcon="🍺">
+                        酒場
+                    </MudButton>
+                    
+                    <MudDivider Class="my-2" />
+                    
+                    <MudButton Variant="Variant.Outlined" Color="Color.Default" FullWidth="true" OnClick="GoToWeaponShop" StartIcon="⚔️">
+                        武器屋
+                    </MudButton>
+                    <MudButton Variant="Variant.Outlined" Color="Color.Default" FullWidth="true" OnClick="GoToArmorShop" StartIcon="🛡️">
+                        防具屋
+                    </MudButton>
+                    <MudButton Variant="Variant.Outlined" Color="Color.Default" FullWidth="true" OnClick="GoToAccessoryShop" StartIcon="💍">
+                        装飾品屋
+                    </MudButton>
+                    <MudButton Variant="Variant.Outlined" Color="Color.Default" FullWidth="true" OnClick="GoToConsumablesShop" StartIcon="🧪">
+                        消耗品屋
+                    </MudButton>
+                    
+                    <MudDivider Class="my-2" />
+                    
+                    <MudButton Variant="Variant.Text" Color="Color.Default" FullWidth="true" OnClick="GoToWeaponManagement" StartIcon="⚒️">
+                        武器管理
+                    </MudButton>
+                    <MudButton Variant="Variant.Text" Color="Color.Default" FullWidth="true" OnClick="GoToArmorManagement" StartIcon="🛡️">
+                        防具管理
+                    </MudButton>
+                    <MudButton Variant="Variant.Text" Color="Color.Default" FullWidth="true" OnClick="GoToAccessoryManagement" StartIcon="💎">
+                        装飾品管理
+                    </MudButton>
+                    
+                    <MudDivider Class="my-2" />
+                    
+                    <MudButton Variant="Variant.Text" Color="Color.Default" FullWidth="true" OnClick="GoToSkillTrees" StartIcon="🌳">
+                        スキルツリー
+                    </MudButton>
+                    <MudButton Variant="Variant.Text" Color="Color.Default" FullWidth="true" OnClick="GoToAbilities" StartIcon="✨">
+                        アビリティ
+                    </MudButton>
+                    
+                    <MudDivider Class="my-2" />
+                    
+                    <MudButton Variant="Variant.Filled" Color="Color.Dark" FullWidth="true" OnClick="GoBack" StartIcon="🏠">
+                        ダッシュボード
+                    </MudButton>
+                    <MudButton Variant="Variant.Text" Color="Color.Default" FullWidth="true" OnClick="GoToMap" StartIcon="🗺️">
+                        マップ
+                    </MudButton>
+                </div>
+            </MudPaper>
+        </div>
+    </div>
 </div>
 
 @code {
@@ -345,7 +379,6 @@
     private List<Models.Town> OtherTowns { get; set; } = new List<Models.Town>();
     private List<SurroundingDirection> SurroundingFields { get; set; } = new List<SurroundingDirection>();
     
-    // 追加: スタミナ、ギルド、クエスト、メール、フレンド情報
     private StaminaInfo? staminaInfo;
     private Models.Guild? currentGuild;
     private int questCount;
@@ -354,7 +387,16 @@
     private string dailyRewardStatus = "";
     private string dailyRewardClass = "";
     
-    // 8方向の構造体
+    // マップ移動モード
+    private bool isMapMode = false;
+    private MapLocation? currentMapLocation;
+    private const int MapOffset = 5; // 町の座標(-3~3)をマップ座標(0~10)に変換
+    private int currentCountryId = 5; // デフォルトは中立之城
+    
+    // チャット
+    private List<FFA.Models.ChatMessage> chatMessages = new();
+    private FFA.Models.ChatChannel currentChatChannel = FFA.Models.ChatChannel.World;
+    
     private class SurroundingDirection
     {
         public string Name { get; set; } = "";
@@ -365,32 +407,33 @@
         public Models.Field? Field { get; set; }
     }
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        var users = UserService.GetAllUsers().ToList();
-        currentUser = users.FirstOrDefault();
+        // チャットメッセージを読み込み
+        try {
+            chatMessages = ChatService.GetWorldMessages(50);
+        } catch { }
+
+        // 認証ユーザーを取得
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var authUser = authState.User;
+        var username = authUser?.Identity?.Name;
+        if (username != null)
+        {
+            currentUser = UserService.GetByUsername(username);
+        }
         
         if (currentUser != null)
         {
-            // スタミナを取得
             staminaInfo = StaminaService.GetStaminaInfo(currentUser.Username);
-            
-            // ギルド情報を取得
             currentGuild = GuildService.GetUserGuild(currentUser);
-            
-            // クエスト数を取得（現在進行中のクエスト）
             questCount = currentUser.CurrentQuest != null && !currentUser.CurrentQuest.IsCompleted ? 1 : 0;
-            
-            // メール数を取得
             unreadMailCount = MailService.GetUnreadCount(currentUser.Id);
-            
-            // フレンド数を取得
             friendCount = FriendService.GetFriendCount(currentUser.Id);
             
-            // ログボ状態を取得
             if (DailyRewardService.HasClaimed(currentUser.Username))
             {
-                dailyRewardStatus = "明日\n受取";
+                dailyRewardStatus = "明日受取";
                 dailyRewardClass = "";
             }
             else
@@ -404,17 +447,15 @@
         {
             currentCountry = CountryService.GetCountryById(currentUser.CountryId.Value);
             var towns = TownService.GetTownsByCountryId(currentUser.CountryId.Value);
-            
-            // デフォルトで首都を表示
             CurrentTown = towns.FirstOrDefault(t => t.Type == "capital") ?? towns.FirstOrDefault();
-            
-            // 他の街を取得
             OtherTowns = towns.Where(t => t.Id != CurrentTown?.Id).ToList();
+            
+            // 国のIDを設定
+            currentCountryId = CurrentTown?.CountryId ?? 5;
         }
         else
         {
-            // 国に所属していない場合は中立の都を表示
-            var neutralCountry = CountryService.GetAllCountries().FirstOrDefault(c => c.Name == "中立之城");
+            var neutralCountry = CountryService.GetAllCountries().FirstOrDefault(c => c.Name == "Neutral Haven");
             if (neutralCountry != null)
             {
                 CurrentTown = neutralCountry.Towns.FirstOrDefault(t => t.Type == "capital");
@@ -455,16 +496,10 @@
     
     private string GetGameDate()
     {
-        // ゲーム内日付を計算（現在はまだリアルタイム経過）
-        // 简易的に現在の日付を表示
         var now = DateTime.Now;
-        
-        // 和風の日付表现形式
         int month = now.Month;
         int day = now.Day;
-        
         string[] monthNames = { "", "雪月", "花月", "風月", "鳥月", "虫月", "雨月", "雲月", "霧月", "紅葉月", "神無月", "霜月", "師走" };
-        
         return $"{monthNames[month]} {day}日";
     }
 
@@ -497,7 +532,7 @@
         if (currentUser == null || currentUser.MaxHP == 0) return 0;
         return (int)((double)currentUser.HP / currentUser.MaxHP * 100);
     }
-
+    
     private int GetExpPercent()
     {
         if (currentUser == null || currentUser.ExpToNext == 0) return 0;
@@ -538,7 +573,6 @@
         public string Info { get; set; } = "";
     }
 
-    // 8方向の名前とアイコン
     private static readonly (string Name, string Icon, int DX, int DY)[] Directions = new[]
     {
         ("北", "⬆️", 0, -1),
@@ -551,23 +585,18 @@
         ("北西", "↖️", -1, -1)
     };
 
-    // 8方向のフィールドを取得
     private List<SurroundingDirection> GetSurroundingFields()
     {
         var result = new List<SurroundingDirection>();
         
         if (CurrentTown == null) return result;
         
-        // フィールドのマスターデータを取得
         var allFields = FieldService.GetAllFields();
         
         foreach (var (name, icon, dx, dy) in Directions)
         {
             var targetX = CurrentTown.X + dx;
             var targetY = CurrentTown.Y + dy;
-            
-            // その座標にあるフィールドを探す（名前やIDでマッピング）
-            // ここでは簡易的にAvailableFieldsから取得
             var fieldId = GetFieldIdForDirection(targetX, targetY);
             
             result.Add(new SurroundingDirection
@@ -584,43 +613,14 @@
         return result;
     }
 
-    // 座標からフィールドIDを取得する簡易マッピング
     private int? GetFieldIdForDirection(int x, int y)
     {
-        // フィールドのマスターデータを使用して座標からフィールドIDへのマッピング
-        // ここではAvailableFieldsを基準に返す
         if (CurrentTown?.AvailableFields == null || CurrentTown.AvailableFields.Count == 0)
             return null;
         
-        // 北(0,-1)からは最初のフィールド、南(0,1)からは2番目のフィールド...
-        // 簡易的なマッピング
-        var fieldIndex = (x + 1) + (y + 1) * 3; // -1,-1=0, 0,-1=1, 1,-1=2, etc.
+        var fieldIndex = (x + 1) + (y + 1) * 3;
         fieldIndex = Math.Clamp(fieldIndex, 0, CurrentTown.AvailableFields.Count - 1);
         return CurrentTown.AvailableFields[fieldIndex];
-    }
-
-    private void GoToSpecialShop()
-    {
-        if (CurrentTown == null) return;
-        
-        switch (CurrentTown.SpecialShopType)
-        {
-            case "武器":
-                GoToWeaponShop();
-                break;
-            case "防具":
-                GoToArmorShop();
-                break;
-            case "装飾品":
-                GoToAccessoryShop();
-                break;
-            case "消耗品":
-                GoToConsumablesShop();
-                break;
-            case "特殊":
-                GoToShop();
-                break;
-        }
     }
 
     private void NavigateToDirection(SurroundingDirection dir)
@@ -658,19 +658,87 @@
     private void GoToAbilities() => Navigation.NavigateTo("/abilities");
     private void GoToConsumablesShop() => Navigation.NavigateTo("/consumables-shop");
     private void GoToField() => Navigation.NavigateTo("/field");
+    private void GoToDungeon() => Navigation.NavigateTo("/dungeon");
     private void GoToMap() => Navigation.NavigateTo("/map");
-
-    private Models.Field? GetFieldById(int fieldId)
+    private void GoToFieldWithId(int fieldId) => Navigation.NavigateTo($"/field?id={fieldId}");
+    private void GoToChat() => Navigation.NavigateTo("/chat");
+    
+    // マップ移動モード
+    private void EnterMapMode()
     {
-        return FieldService.GetFieldById(fieldId);
-    }
-
-    private void GoToFieldWithId(int fieldId)
-    {
-        Navigation.NavigateTo($"/field?id={fieldId}");
+        if (CurrentTown == null) return;
+        // 町の座標直接使用
+        currentMapLocation = MapService.GetLocationByCoords(currentCountryId, CurrentTown.X, CurrentTown.Y);
+        isMapMode = true;
     }
     
-    // クイック情報バーのナビゲーション
+    private void ExitMapMode()
+    {
+        isMapMode = false;
+        currentMapLocation = null;
+    }
+    
+    private void MoveMap(FFA.Services.Direction direction)
+    {
+        if (currentMapLocation == null) return;
+        currentMapLocation = MapService.Move(currentCountryId, direction, currentMapLocation.X, currentMapLocation.Y);
+    }
+    
+    private bool IsMapEdge(char direction)
+    {
+        if (currentMapLocation == null) return true;
+        // マップ範囲: -2 から 2
+        return direction switch
+        {
+            'N' => currentMapLocation.Y <= -2,
+            'S' => currentMapLocation.Y >= 2,
+            'W' => currentMapLocation.X <= -2,
+            'E' => currentMapLocation.X >= 2,
+            _ => true
+        };
+    }
+    
+    private void EnterTownFromMap()
+    {
+        // マップ上の町位置から対応する街を探す
+        if (currentMapLocation == null) return;
+        var townX = currentMapLocation.X - MapOffset;
+        var townY = currentMapLocation.Y - MapOffset;
+        
+        // 附近の町を探す
+        var allTowns = TownService.GetAllTowns();
+        var nearestTown = allTowns.FirstOrDefault(t => t.X == townX && t.Y == townY);
+        if (nearestTown != null)
+        {
+            GoToTown(nearestTown.Id);
+        }
+        ExitMapMode();
+    }
+    
+    private void GoToFieldFromMap()
+    {
+        ExitMapMode();
+        GoToField();
+    }
+    
+    private void GoToDungeonFromMap()
+    {
+        ExitMapMode();
+        GoToDungeon();
+    }
+    
+    private void GoToFishingFromMap()
+    {
+        ExitMapMode();
+        Navigation.NavigateTo("/fishing");
+    }
+    
+    private void GoToMiningFromMap()
+    {
+        ExitMapMode();
+        Navigation.NavigateTo("/mining");
+    }
+    
     private void GoToQuests() => Navigation.NavigateTo("/quests");
     private void GoToMail() => Navigation.NavigateTo("/mail");
     private void GoToFriends() => Navigation.NavigateTo("/friend");

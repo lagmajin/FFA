@@ -23,9 +23,8 @@
     [JSInvokable]
     public Task OnWorldUpdated(string json)
     {
-        // simply trigger re-render
-        StateHasChanged();
-        return Task.CompletedTask;
+        // simply trigger re-render on the renderer synchronization context
+        return InvokeAsync(StateHasChanged);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

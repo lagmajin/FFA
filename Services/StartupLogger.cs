@@ -23,7 +23,7 @@ namespace FFA.Services
             catch { }
         }
 
-        public void LogException(Exception ex, string context = null)
+        public void LogException(Exception ex, string? context = null)
         {
             try
             {

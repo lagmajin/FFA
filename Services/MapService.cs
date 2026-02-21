@@ -1,143 +1,224 @@
 using FFA.Models;
+using Tomlyn;
+using Tomlyn.Model;
 
 namespace FFA.Services;
 
 public class MapService
 {
-    private List<Map> maps = new List<Map>();
+    private Dictionary<int, Map> countryMaps = new();
+    private const int MapOffset = 4; // 町の座標(-4~4)をマップ座標(0~8)に変換
     
     public MapService()
     {
-        InitializeMaps();
+        LoadCountryMaps();
     }
     
-    private void InitializeMaps()
+    private void LoadCountryMaps()
     {
-        // 初期マップの作成
-        var initialMap = new Map
-        {
-            Id = 1,
-            Name = "初期マップ",
-            Width = 10,
-            Height = 10,
-            Locations = new List<MapLocation>()
-        };
+        // Data/Maps ディレクトリから国別マップを読み込み
+        var mapsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "Maps");
         
-        // マップの位置を初期化
-        for (int y = 0; y < initialMap.Height; y++)
+        // 開発時はプロジェクトルートからも読み込み
+        if (!Directory.Exists(mapsPath))
         {
-            for (int x = 0; x < initialMap.Width; x++)
+            mapsPath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "Maps");
+        }
+        
+        if (!Directory.Exists(mapsPath))
+            return;
+            
+        var files = Directory.GetFiles(mapsPath, "*_country_*.toml");
+        
+        foreach (var file in files)
+        {
+            try
             {
-                initialMap.Locations.Add(new MapLocation
+                var content = File.ReadAllText(file);
+                var model = Toml.Parse(content);
+                var table = model.ToModel();
+                
+                if (table.ContainsKey("meta"))
                 {
-                    X = x,
-                    Y = y,
-                    Name = GetLocationName(x, y),
-                    Description = GetLocationDescription(x, y),
-                    Type = GetLocationType(x, y),
-                    CanEnter = GetCanEnter(x, y),
-                    Events = GetLocationEvents(x, y)
-                });
+                    var meta = table["meta"] as TomlTable;
+                    if (meta != null)
+                    {
+                        int countryId = GetIntValue(meta, "country_id", 0);
+                        string countryName = GetStringValue(meta, "description", "");
+                        
+                        var map = new Map
+                        {
+                            Id = countryId,
+                            Name = countryName,
+                            Width = 4,
+                            Height = 4,
+                            Locations = new List<MapLocation>()
+                        };
+                        
+                        // グリッドデータを読み込み
+                        if (table.ContainsKey("grid"))
+                        {
+                            var gridArray = table["grid"] as TomlArray;
+                            if (gridArray != null)
+                            {
+                                foreach (var item in gridArray)
+                                {
+                                    var grid = item as TomlTable;
+                                    if (grid == null) continue;
+                                    
+                                    var location = new MapLocation
+                                    {
+                                        X = GetIntValue(grid, "x", 0),
+                                        Y = GetIntValue(grid, "y", 0),
+                                        Name = GetStringValue(grid, "name", ""),
+                                        Description = GetStringValue(grid, "description", ""),
+                                        Type = GetStringValue(grid, "type", "field"),
+                                        CanEnter = true,
+                                        Events = new List<string>()
+                                    };
+                                    
+                                    map.Locations.Add(location);
+                                }
+                            }
+                        }
+                        
+                        countryMaps[countryId] = map;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to load map {file}: {ex.Message}");
             }
         }
-        
-        maps.Add(initialMap);
     }
     
-    private string GetLocationName(int x, int y)
+    private int GetIntValue(TomlTable table, string key, int defaultValue)
     {
-        if (x == 5 && y == 5) return "町の広場";
-        if (x == 3 && y == 3) return "森の入口";
-        if (x == 7 && y == 7) return "山の道";
-        if (x == 5 && y == 8) return "川のほとり";
-        if (x == 1 && y == 1) return "洞窟の入口";
-        
-        return "不明な場所";
-    }
-    
-    private string GetLocationDescription(int x, int y)
-    {
-        if (x == 5 && y == 5) return "町の中心部で、多くの人々が集まる場所です。";
-        if (x == 3 && y == 3) return "深い森の入口。中には様々な動物が住んでいます。";
-        if (x == 7 && y == 7) return "険しい山道。登ると山頂が見えます。";
-        if (x == 5 && y == 8) return "清らかな川のほとり。魚が泳いでいます。";
-        if (x == 1 && y == 1) return "暗い洞窟の入口。中には宝物が眠っているといわれています。";
-        
-        return "平凡な野原です。";
-    }
-    
-    private string GetLocationType(int x, int y)
-    {
-        if (x == 5 && y == 5) return "town";
-        if (x == 3 && y == 3) return "forest";
-        if (x == 7 && y == 7) return "mountain";
-        if (x == 5 && y == 8) return "river";
-        if (x == 1 && y == 1) return "dungeon";
-        
-        return "field";
-    }
-    
-    private bool GetCanEnter(int x, int y)
-    {
-        // すべての場所に入れるとする
-        return true;
-    }
-    
-    private List<string> GetLocationEvents(int x, int y)
-    {
-        var events = new List<string>();
-        
-        if (x == 3 && y == 3)
+        if (table.TryGetValue(key, out var value))
         {
-            events.Add("森の中から何かが動いている音がする...");
-            events.Add("木の下に小さな宝箱がある。");
+            if (value is long l) return (int)l;
+            if (value is int i) return i;
         }
-        if (x == 5 && y == 8)
+        return defaultValue;
+    }
+    
+    private string GetStringValue(TomlTable table, string key, string defaultValue)
+    {
+        if (table.TryGetValue(key, out var value))
         {
-            events.Add("川に魚が泳いでいる。");
+            return value?.ToString() ?? defaultValue;
         }
-        if (x == 1 && y == 1)
+        return defaultValue;
+    }
+    
+    /// <summary>
+    /// 国のマップを取得（デフォルトは中立之城）
+    /// </summary>
+    public Map GetMapByCountryId(int countryId)
+    {
+        if (countryMaps.TryGetValue(countryId, out var map))
+            return map;
+            
+        // デフォルトは中立之城 (id=5)
+        if (countryMaps.TryGetValue(5, out var neutralMap))
+            return neutralMap;
+            
+        // フォールバック
+        return new Map
         {
-            events.Add("洞窟の中から怪しい光が漏れている。");
-        }
+            Id = 0,
+            Name = "Unknown",
+            Width = 4,
+            Height = 4,
+            Locations = new List<MapLocation>()
+        };
+    }
+    
+    /// <summary>
+    /// 国のマップを座標で取得
+    /// </summary>
+    public MapLocation GetLocationByCoords(int countryId, int townX, int townY)
+    {
+        var map = GetMapByCountryId(countryId);
         
-        return events;
+        // 町の座標 directly使用
+        var location = map.Locations.FirstOrDefault(l => l.X == townX && l.Y == townY);
+        
+        if (location != null)
+            return location;
+            
+        // フォールバック:  Generic location
+        return new MapLocation
+        {
+            X = townX,
+            Y = townY,
+            Name = "不明な場所",
+            Description = "ここはどこだろう...",
+            Type = "field"
+        };
     }
     
-    public Map GetCurrentMap()
+    /// <summary>
+    /// 指定座標に移動（4方向）
+    /// </summary>
+    public MapLocation Move(int countryId, Direction direction, int currentX, int currentY)
     {
-        return maps.FirstOrDefault() ?? new Map();
-    }
-    
-    public MapLocation GetLocation(int x, int y)
-    {
-        var map = GetCurrentMap();
-        return map.Locations.FirstOrDefault(l => l.X == x && l.Y == y) ?? new MapLocation { X = x, Y = y, Name = "不明な場所", Description = "ここはどこだろう...", Type = "field" };
-    }
-    
-    public MapLocation Move(Direction direction, int currentX, int currentY)
-    {
-        var map = GetCurrentMap();
+        var map = GetMapByCountryId(countryId);
         int newX = currentX;
         int newY = currentY;
         
         switch (direction)
         {
             case Direction.North:
-                newY = Math.Max(0, currentY - 1);
+                newY = currentY - 1;
                 break;
             case Direction.South:
-                newY = Math.Min(map.Height - 1, currentY + 1);
+                newY = currentY + 1;
                 break;
             case Direction.East:
-                newX = Math.Min(map.Width - 1, currentX + 1);
+                newX = currentX + 1;
                 break;
             case Direction.West:
-                newX = Math.Max(0, currentX - 1);
+                newX = currentX - 1;
                 break;
         }
         
-        return GetLocation(newX, newY);
+        // マップの範囲内かチェック
+        if (newX < -2 || newX > 2 || newY < -2 || newY > 2)
+        {
+            // 範囲外の場合は現在位置を返す
+            return GetLocationByCoords(countryId, currentX, currentY);
+        }
+        
+        return GetLocationByCoords(countryId, newX, newY);
+    }
+    
+    /// <summary>
+    /// 現在のマップを取得（旧バージョン互換性のため）
+    /// </summary>
+    public Map GetCurrentMap()
+    {
+        return GetMapByCountryId(5); // 中立之城
+    }
+    
+    /// <summary>
+    /// 指定座標を取得（旧バージョン互換性のため）
+    /// </summary>
+    public MapLocation GetLocation(int x, int y)
+    {
+        // 旧バージョンとの互換性: オフセット変換
+        int mapX = x - MapOffset;
+        int mapY = y - MapOffset;
+        return GetLocationByCoords(5, mapX, mapY);
+    }
+    
+    /// <summary>
+    /// 移動（旧バージョン互換性のため）
+    /// </summary>
+    public MapLocation Move(Direction direction, int currentX, int currentY)
+    {
+        return Move(5, direction, currentX, currentY);
     }
 }
 

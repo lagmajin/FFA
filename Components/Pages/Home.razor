@@ -10,146 +10,52 @@
 
 <PageTitle>FFA - トップ</PageTitle>
 
-<MudPaper Class="pa-4" Style="font-family: 'MS PGothic', monospace; max-width:1024px; margin:1rem auto; background:#f5f5f5; border:1px solid #ccc;">
-    <div style="text-align:center;">
-        <MudText Typo="Typo.h4" Style="font-size:2.2rem; margin:0; letter-spacing:2px;">FFA — CGI風オンラインRPG</MudText>
-        <MudText Typo="Typo.subtitle2" Style="margin-top:6px; color:#666;">古き良きテキスト式インターフェース風トップページ</MudText>
-    </div>
+<div style="max-width:1024px; margin:1rem auto; padding:1rem;">
+    <div style="min-height:0; margin-bottom:0; padding-bottom:0;"></div>
+    <table border="1" style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr>
+                @* 3カラム分を結合 *@
+                <th colspan="3" style="background-color: #eee; text-align: center;">
+                    ０連勝中！
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                @* 2行目からは通常通り3カラム *@
+                <td>
+                    <table border="1">
+                        <tr>
+                            <th>(武器)</th>
+                            
+                        </tr>
+                        <tr>
+                            <td>(防具）</td>
+                            
+                        </tr>
+                        <tr>
+                            <td>(アクセサリー)</td>
+                            
+                        </tr>
+                        <tr>
+                            <td>(アクセサリー)</td>
 
-    @* Champion & Stats Section *@
-    <MudPaper Class="pa-3 mt-4" Style="background:#fff; border:1px solid #ddd;">
-        <div style="display:flex; align-items:center; gap:16px;">
-            <div style="flex:1; background:#ffffee; padding:12px; border:1px solid #e0e0a0; border-radius:6px;">
-                <MudText Typo="Typo.h6">🏆 現在のチャンピオン</MudText>
-                @if (champion != null)
-                {
-                    <div style="font-size:1.1rem;">
-                        <strong>@champion.Username</strong> @if (champion.Username == "CPU_Champion") { <em>(CPU)</em> }
-                    </div>
-                    <MudText Typo="Typo.body2" Style="margin-top:4px; color:#555;">レベル @champion.Level | 所持金 @champion.Gil ギル</MudText>
-                    <MudText Typo="Typo.body2" Style="margin-top:4px; color:#555;">職業: @champion.Job</MudText>
-                }
-                else
-                {
-                    <MudText Typo="Typo.body2" Style="color:#999;">チャンピオン不在（天空闘技場で挑戦しよう！）</MudText>
-                }
-            </div>
+                        </tr>
+                    </table>
+                </td>
+                <td style="background-color: #ffcccc;">名前</td>
+                <td>(名前）</td>
+            </tr>
+            <tr>
+                <td>データA</td>
+                <td>データB</td>
+                <td>データC</td>
+            </tr>
+        </tbody>
+    </table>
 
-            <MudSpacer />
-
-            <MudPaper Class="pa-2" Style="width:240px; background:#f0f8ff; border:1px solid #d0e0ff; border-radius:6px;">
-                <MudText Typo="Typo.subtitle2">統計情報</MudText>
-                <div style="margin-top:6px;">
-                    <div>総登録冒険者: <strong>@totalUsers</strong></div>
-                    <div>ランキング登録: <strong>@rankedUsers</strong></div>
-                    <div>最高レベル: <strong>@maxLevel</strong></div>
-                </div>
-            </MudPaper>
-        </div>
-    </MudPaper>
-
-    <MudGrid Class="mt-4">
-        <MudItem xs="12" md="3">
-            <MudPaper Class="pa-3" Style="border:1px solid #ddd;">
-                <MudText Typo="Typo.h6">メニュー</MudText>
-                <MudNavMenu>
-                    <MudNavLink Href="/market">マーケット</MudNavLink>
-                    <MudNavLink Href="/sky-arena">天空闘技場</MudNavLink>
-                    <MudNavLink Href="/ranking">ランキング</MudNavLink>
-                    <MudNavLink Href="/chat">チャット</MudNavLink>
-                    @if (isAuth)
-                    {
-                        <MudNavLink Href="/status">ステータス</MudNavLink>
-                        <MudNavLink Href="/town">街</MudNavLink>
-                        <MudNavLink Href="/field">フィールド</MudNavLink>
-                        <MudNavLink Href="/inventory">インベントリ</MudNavLink>
-                        <MudNavLink Href="/quests">クエスト</MudNavLink>
-                    }
-                </MudNavMenu>
-            </MudPaper>
-        </MudItem>
-
-        <MudItem xs="12" md="9">
-            <MudPaper Class="pa-4" Style="border:1px solid #ddd;">
-                <div style="display:flex; align-items:flex-start; gap:12px;">
-                    <div style="flex:1;">
-                        <MudText Typo="Typo.h5">ようこそ、FFAの世界へ</MudText>
-                        <MudText Typo="Typo.body2" Style="color:#444;">テキストベースの世界を探索し、装備を整え、チャンピオンを目指しましょう。</MudText>
-                    </div>
-
-                    <MudSpacer />
-
-                    <div style="width:300px;">
-                        @if (isAuth && currentUser != null)
-                        {
-                            <MudPaper Class="pa-3" Style="background:#f5f5ff; border:1px solid #e0e0ff; border-radius:6px;">
-                                <MudText Typo="Typo.subtitle1">現在の冒険者</MudText>
-                                <div style="margin-top:6px;">
-                                    <div><strong>@currentUser.Username</strong> (レベル @currentUser.Level)</div>
-                                    <div>所持金: @currentUser.Gil ギル</div>
-                                    <div>職業: @currentUser.Job</div>
-                                    <div>未割り振りポイント: @currentUser.Status.PointsAvailable</div>
-                                    <div style="margin-top:8px;"><MudNavLink Href="/status">詳細を見る</MudNavLink></div>
-                                </div>
-                            </MudPaper>
-                        }
-                        else
-                        {
-                            <MudPaper Class="pa-3" Style="background:#fff7f0; border:1px solid #ffe0c0; border-radius:6px;">
-                                <MudText Typo="Typo.subtitle1">はじめての方へ</MudText>
-                                <div style="margin-top:6px;">
-                                    <div>ログインすると冒険を開始できます。</div>
-                                    <div style="margin-top:8px;"><MudNavLink Href="/login">ログイン</MudNavLink> / <MudNavLink Href="/register">新規登録</MudNavLink></div>
-                                    <div style="margin-top:8px;"><MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="TestPlay">テストプレイ</MudButton></div>
-                                </div>
-                            </MudPaper>
-                        }
-                    </div>
-                </div>
-
-                <MudDivider Class="my-4" />
-
-                @* Top ranking table *@
-                <MudPaper Class="pa-4" Style="margin-bottom:12px;">
-                    <MudText Typo="Typo.h6">ランキング（トップ@rankedUsers）</MudText>
-                    <MudTable Items="rankingRows" Dense="true" Elevation="0">
-                        <HeaderContent>
-                            <MudTh>順位</MudTh>
-                            <MudTh>プレイヤー</MudTh>
-                            <MudTh>ギル</MudTh>
-                            <MudTh>レベル</MudTh>
-                        </HeaderContent>
-                        <RowTemplate>
-                            <MudTd>@context.Rank</MudTd>
-                            <MudTd>@context.Username</MudTd>
-                            <MudTd>@context.Gil</MudTd>
-                            <MudTd>@context.Level</MudTd>
-                        </RowTemplate>
-                    </MudTable>
-                </MudPaper>
-
-                <MudGrid>
-                    <MudItem xs="12" md="8">
-                        <MudPaper Class="pa-3" Style="background:#f7f7f7; border:1px solid #eee;">
-                            <MudText Typo="Typo.h6">今日のトピック</MudText>
-                            <MudText Typo="Typo.body2">・新しいダンジョンが近日実装予定。<br/>・天空闘技場のチャンピオンは定期的にリセットされます。<br/>・マーケットで他の冒険者とアイテム取引ができます。</MudText>
-                        </MudPaper>
-                    </MudItem>
-                    <MudItem xs="12" md="4">
-                        <MudPaper Class="pa-3" Style="background:#f7f7f7; border:1px solid #eee;">
-                            <MudText Typo="Typo.h6">クイックリンク</MudText>
-                            <div style="margin-top:6px;"><MudNavLink Href="/market">マーケット</MudNavLink><br/><MudNavLink Href="/ranking">ランキング</MudNavLink><br/><MudNavLink Href="/sky-arena">天空闘技場</MudNavLink></div>
-                        </MudPaper>
-                    </MudItem>
-                </MudGrid>
-
-                <MudPaper Class="pa-3 mt-4" Style="background:#fffbe6;">
-                    <MudText Typo="Typo.body2">ようこそ、冒険者よ。コマンドはメニューから選択してください。（このページはオリジナルのCGI風インターフェースを再現したトップです）</MudText>
-                </MudPaper>
-            </MudPaper>
-        </MudItem>
-    </MudGrid>
-</MudPaper>
+</div>
 
 @code {
     private bool isAuth = false;
@@ -172,6 +78,8 @@
         {
             currentUser = UserService.GetByUsername(username);
         }
+
+    
 
         // Load champion and stats
         try
@@ -204,6 +112,20 @@ public class RankingRow
     public int Level { get; set; }
 }
 
+    private void HomeLoginClicked()
+    {
+        if (isAuth)
+        {
+            // Already authenticated: navigate to dashboard and force full reload to ensure auth cookie/state
+            Navigation.NavigateTo("/dashboard", true);
+        }
+        else
+        {
+            // Not authenticated: go to login page
+            Navigation.NavigateTo("/login");
+        }
+    }
+
     private async Task TestPlay()
     {
         const string testUsername = "testplayer";
@@ -215,7 +137,7 @@ public class RankingRow
             {
                 UserService.Register(testUsername, testPassword, Models.Job.Warrior);
             }
-            var url = Navigation.ToAbsoluteUri("/signin").ToString();
+            var url = Navigation.ToAbsoluteUri("signin").ToString();
             var payload = new { Username = testUsername, Password = testPassword };
             var ok = await JSRuntime.InvokeAsync<bool>("fetchSignIn", url, payload);
             if (ok) Navigation.NavigateTo("/status", true);

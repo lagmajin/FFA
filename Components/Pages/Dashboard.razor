@@ -4,6 +4,7 @@
 @using FFA.Services
 @using FFA.Models
 @using Microsoft.AspNetCore.Components.Authorization
+@using MudBlazor
 @inject KarmaService Karma
 @inject TimeWeatherService TimeWeather
 @inject UserService UserService
@@ -11,11 +12,12 @@
 @inject IJSRuntime JS
 @inject NavigationManager Navigation
 @inject WorldGridService WorldGrid
+@inject Services.TownService TownService
 
 <PageTitle>ダッシュボード</PageTitle>
 
-<div class="dashboard-container">
-    <div class="dashboard-content">
+<div class="dashboard-container" style="display:flex; justify-content:center;">
+    <div class="dashboard-content" style="max-width:1200px; width:100%;">
     @if (!isAuth)
     {
         <div class="auth-required">
@@ -38,110 +40,125 @@
             </div>
         </div>
 
-        @* プレイヤーステータス *@
-        <div class="player-card">
-            <div class="player-header">
-                <div class="player-avatar">
-                    <span class="avatar-icon">🧙</span>
-                </div>
-                <div class="player-info">
-                    <h2>@username</h2>
-                    <div class="player-badges">
-                        <span class="badge job">@GetJobName(job)</span>
-                        <span class="badge level">Lv.@level</span>
-                        <span class="badge karma" title="Karma">@karma</span>
+        @* メインレイアウト: 左側(コンテンツ) + 右側(アクションボタン) *@
+        <div class="dashboard-main-layout" style="display:flex; gap:16px; align-items:flex-start;">
+            @* 左側: プレイヤーカードと位置情報 *@
+            <div class="dashboard-main-content" style="flex:1;">
+                @* プレイヤーステータス *@
+                <div class="player-card">
+                    <div class="player-header">
+                        <div class="player-avatar">
+                            <span class="avatar-icon">🧙</span>
+                        </div>
+                        <div class="player-info">
+                            <h2>@username</h2>
+                            <div class="player-badges">
+                                <span class="badge job">@GetJobName(job)</span>
+                                <span class="badge level">Lv.@level</span>
+                                <span class="badge karma" title="Karma">@karma</span>
+                            </div>
+                        </div>
+                        <div class="player-currency">
+                            <div class="currency-item gold">
+                                <span class="currency-icon">💰</span>
+                                <span class="currency-value">@gil.ToString("N0")</span>
+                            </div>
+                            <div class="currency-item">
+                                <span class="currency-icon">🪙</span>
+                                <span class="currency-value">@oldcoin</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="player-stats-bars">
+                        <div class="stat-bar hp-bar">
+                            <div class="bar-label">
+                                <span>HP</span>
+                                <span class="bar-value">@(user?.HP ?? 0) / @(user?.MaxHP ?? 0)</span>
+                            </div>
+                            <div class="bar-track">
+                                <div class="bar-fill hp" style="width: @GetHpPercent()%"></div>
+                            </div>
+                        </div>
+                        <div class="stat-bar exp-bar">
+                            <div class="bar-label">
+                                <span>EXP</span>
+                                <span class="bar-value">@(user?.Exp ?? 0) / @(user?.ExpToNext ?? 1)</span>
+                            </div>
+                            <div class="bar-track">
+                                <div class="bar-fill exp" style="width: @GetExpPercent()%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="player-attributes">
+                        <div class="attr">
+                            <span class="attr-label">STR</span>
+                            <span class="attr-value">@(status?.Str ?? 0)</span>
+                        </div>
+                        <div class="attr">
+                            <span class="attr-label">DEX</span>
+                            <span class="attr-value">@(status?.Dex ?? 0)</span>
+                        </div>
+                        <div class="attr">
+                            <span class="attr-label">INT</span>
+                            <span class="attr-value">@(status?.Int ?? 0)</span>
+                        </div>
+                        <div class="attr">
+                            <span class="attr-label">VIT</span>
+                            <span class="attr-value">@(status?.Vit ?? 0)</span>
+                        </div>
                     </div>
                 </div>
-                <div class="player-currency">
-                    <div class="currency-item gold">
-                        <span class="currency-icon">💰</span>
-                        <span class="currency-value">@gil.ToString("N0")</span>
+
+                @* 位置情報 *@
+                <div class="location-info">
+                    <div class="location-card">
+                        <span class="location-icon">📍</span>
+                        <div class="location-details">
+                            <span class="location-label">現在地</span>
+                            <span class="location-value">@GetLocationName()</span>
+                            <span class="location-coords">(@currentX, @currentY)</span>
+                        </div>
                     </div>
-                    <div class="currency-item">
-                        <span class="currency-icon">🪙</span>
-                        <span class="currency-value">@oldcoin</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="player-stats-bars">
-                <div class="stat-bar hp-bar">
-                    <div class="bar-label">
-                        <span>HP</span>
-                        <span class="bar-value">@(user?.HP ?? 0) / @(user?.MaxHP ?? 0)</span>
-                    </div>
-                    <div class="bar-track">
-                        <div class="bar-fill hp" style="width: @GetHpPercent()%"></div>
-                    </div>
-                </div>
-                <div class="stat-bar exp-bar">
-                    <div class="bar-label">
-                        <span>EXP</span>
-                        <span class="bar-value">@(user?.Exp ?? 0) / @(user?.ExpToNext ?? 1)</span>
-                    </div>
-                    <div class="bar-track">
-                        <div class="bar-fill exp" style="width: @GetExpPercent()%"></div>
+                    <div class="ip-info">
+                        <span class="ip-label">最終ログインIP</span>
+                        <span class="ip-value">@user?.LastIp</span>
                     </div>
                 </div>
             </div>
 
-            <div class="player-attributes">
-                <div class="attr">
-                    <span class="attr-label">STR</span>
-                    <span class="attr-value">@(status?.Str ?? 0)</span>
+            @* 右側: アクションボタン *@
+            <div class="dashboard-actions-panel" style="width:200px; flex-shrink:0;">
+                <h3 style="margin:0 0 12px 0; font-size:14px; color:#666;">アクション</h3>
+                <div class="action-buttons" style="display:flex; flex-direction:column; gap:8px;">
+                    @if (showTownButton)
+                    {
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" 
+                                   OnClick="GoToTown" StartIcon="@Icons.Material.Filled.Home">
+                            🏠 街へ
+                        </MudButton>
+                    }
+                    else if (showFieldButton)
+                    {
+                        <MudButton Variant="Variant.Filled" Color="Color.Success" FullWidth="true" 
+                                   OnClick="GoToField" StartIcon="@Icons.Material.Filled.Forest">
+                            🌲 フィールド
+                        </MudButton>
+                    }
+                    else
+                    {
+                        @* 未定義位置の場合は救済策として街へ *@
+                        <MudButton Variant="Variant.Filled" Color="Color.Warning" FullWidth="true" 
+                                   OnClick="RescueToTown" StartIcon="@Icons.Material.Filled.Help">
+                            🆘 街へ
+                        </MudButton>
+                    }
+                    <MudButton Variant="Variant.Filled" Color="Color.Info" FullWidth="true" 
+                               OnClick="GoToStatus" StartIcon="@Icons.Material.Filled.Analytics">
+                        📊 ステータス
+                    </MudButton>
                 </div>
-                <div class="attr">
-                    <span class="attr-label">DEX</span>
-                    <span class="attr-value">@(status?.Dex ?? 0)</span>
-                </div>
-                <div class="attr">
-                    <span class="attr-label">INT</span>
-                    <span class="attr-value">@(status?.Int ?? 0)</span>
-                </div>
-                <div class="attr">
-                    <span class="attr-label">VIT</span>
-                    <span class="attr-value">@(status?.Vit ?? 0)</span>
-                </div>
-            </div>
-        </div>
-
-        @* アクションボタン *@
-        <div class="dashboard-actions">
-            <div class="action-card town-action" @onclick="GoToTown">
-                <span class="action-icon">🏘️</span>
-                <span class="action-text">街へ</span>
-                <span class="action-desc">施設を使う・装備整える</span>
-            </div>
-            <div class="action-card field-action" @onclick="GoToField">
-                <span class="action-icon">🌲</span>
-                <span class="action-text">フィールドへ</span>
-                <span class="action-desc">冒険・戦闘・採取</span>
-            </div>
-            <div class="action-card status-action" @onclick="GoToStatus">
-                <span class="action-icon">📊</span>
-                <span class="action-text">ステータス</span>
-                <span class="action-desc">能力値詳細</span>
-            </div>
-            <div class="action-card inventory-action" @onclick="GoToInventory">
-                <span class="action-icon">🎒</span>
-                <span class="action-text">持ち物</span>
-                <span class="action-desc">アイテム管理</span>
-            </div>
-        </div>
-
-        @* 位置情報 *@
-        <div class="location-info">
-            <div class="location-card">
-                <span class="location-icon">📍</span>
-                <div class="location-details">
-                    <span class="location-label">現在地</span>
-                    <span class="location-value">@GetLocationName()</span>
-                    <span class="location-coords">(@currentX, @currentY)</span>
-                </div>
-            </div>
-            <div class="ip-info">
-                <span class="ip-label">最終ログインIP</span>
-                <span class="ip-value">@user?.LastIp</span>
             </div>
         </div>
     }
@@ -174,10 +191,11 @@
         if (isAuth && username != null)
         {
             karma = Karma.GetKarma(username);
-            gil = int.TryParse(auth.FindFirst("Gil")?.Value, out var g) ? g : 0;
-            oldcoin = int.TryParse(auth.FindFirst("OldCoin")?.Value, out var o) ? o : 0;
-            job = auth.FindFirst("Job")?.Value ?? "";
-            level = int.TryParse(auth.FindFirst("Level")?.Value, out var lv) ? lv : 1;
+            var authCopy = auth;
+            gil = int.TryParse(authCopy?.FindFirst("Gil")?.Value, out var g) ? g : 0;
+            oldcoin = int.TryParse(authCopy?.FindFirst("OldCoin")?.Value, out var o) ? o : 0;
+            job = authCopy?.FindFirst("Job")?.Value ?? "";
+            level = int.TryParse(authCopy?.FindFirst("Level")?.Value, out var lv) ? lv : 1;
             user = UserService.GetByUsername(username);
             if (user?.Status != null) status = user.Status;
             if (user != null) level = user.Level;
@@ -261,30 +279,41 @@
     [JSInvokable]
     public Task OnWorldUpdated(string json)
     {
-        StateHasChanged();
-        return Task.CompletedTask;
+        return InvokeAsync(StateHasChanged);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            objRef = DotNetObjectReference.Create(this);
-            moduleRef = await JS.InvokeAsync<IJSObjectReference>("import", "/js/worldhub.js");
-            await moduleRef.InvokeVoidAsync("start", objRef);
+            try
+            {
+                objRef = DotNetObjectReference.Create(this);
+                moduleRef = await JS.InvokeAsync<IJSObjectReference>("import", "/js/worldhub.js");
+                await moduleRef.InvokeVoidAsync("start", objRef);
+            }
+            catch (JSDisconnectedException) { }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Dashboard OnAfterRenderAsync error: {ex.Message}");
+            }
         }
     }
 
     public async ValueTask DisposeAsync()
     {
-        if (moduleRef != null)
+        try
         {
-            await moduleRef.InvokeVoidAsync("stop");
-            await moduleRef.DisposeAsync();
+            if (moduleRef != null)
+            {
+                await moduleRef.InvokeVoidAsync("stop");
+                await moduleRef.DisposeAsync();
+            }
         }
-        if (objRef != null)
+        catch { }
+        finally
         {
-            objRef.Dispose();
+            objRef?.Dispose();
         }
     }
 
@@ -298,6 +327,31 @@
         Navigation.NavigateTo("/field");
     }
 
+    private void GoToDungeon()
+    {
+        Navigation.NavigateTo("/dungeon");
+    }
+
+    private void GoToGuild()
+    {
+        Navigation.NavigateTo("/guild");
+    }
+
+    private void GoToShop()
+    {
+        Navigation.NavigateTo("/shop");
+    }
+
+    private void GoToTavern()
+    {
+        Navigation.NavigateTo("/tavern");
+    }
+
+    private void GoToQuests()
+    {
+        Navigation.NavigateTo("/quests");
+    }
+
     private void GoToStatus()
     {
         Navigation.NavigateTo("/status");
@@ -306,6 +360,39 @@
     private void GoToInventory()
     {
         Navigation.NavigateTo("/inventory");
+    }
+    
+    private void RescueToTown()
+    {
+        // プレイヤーの所属国の街へランダムで飛ばす救済措置
+        try {
+            int? countryId = user?.CountryId;
+            List<Models.Town> towns;
+            
+            if (countryId.HasValue)
+            {
+                towns = TownService.GetTownsByCountryId(countryId.Value);
+            }
+            else
+            {
+                towns = TownService.GetAllTowns();
+            }
+            
+            if (towns.Count > 0)
+            {
+                var random = new Random();
+                var randomTown = towns[random.Next(towns.Count)];
+                Navigation.NavigateTo($"/town?id={randomTown.Id}");
+            }
+            else
+            {
+                Navigation.NavigateTo("/town");
+            }
+        }
+        catch
+        {
+            Navigation.NavigateTo("/town");
+        }
     }
 }
 </div>

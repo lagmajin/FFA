@@ -1,0 +1,133 @@
+# Inferno Country Map
+# 炎之国（インフェルノ）のマップデータ
+# 火山地帯 - 火山、平地、森
+
+[meta]
+country_id = 1
+country_name = "Inferno"
+size = "4x4"
+description = "火山地帯に位置する炎之国。灼热的山脉と森が広がる。"
+
+# 4x4グリッド (x, y): 左上が(0,0)
+# 炎之国town: Vulcanis(0,0), Ashfield(-1,1), Pyrrhus(1,0)
+
+[[grid]]
+x = 0
+y = 0
+name = "Vulcanis"
+type = "town"
+description = "火山の麓の首都。鍛冶技術が発達。"
+town_id = 1
+is_capital = true
+
+[[grid]]
+x = 1
+y = 0
+name = "Pyrrhus"
+type = "town"
+description = "商業都市。武器商人多数。"
+town_id = 3
+
+[[grid]]
+x = -1
+y = 1
+name = "Ashfield"
+type = "village"
+description = "火山の麓の村。"
+town_id = 2
+
+[[grid]]
+x = 0
+y = -1
+name = "溶岩平原"
+type = "field"
+description = "灼热的平原。危険。"
+difficulty = 4
+enemies = ["溶岩ゴーレム", "火織", "炎Elemental"]
+
+[[grid]]
+x = 1
+y = -1
+name = "火山"
+type = "volcano"
+description = "灼热的山脉。最も危険。"
+difficulty = 5
+enemies = ["溶岩ゴーレム", "龍", "炎Elemental"]
+
+[[grid]]
+x = -1
+y = 0
+name = "燃える森"
+type = "forest"
+description = "炎に包まれた森。"
+difficulty = 3
+enemies = ["火精灵", "狼", "魔物"]
+
+[[grid]]
+x = 2
+y = 0
+name = "溶岩洞"
+type = "dungeon"
+description = "地下の溶岩洞窟。"
+difficulty = 5
+enemies = ["スケルトン", "リッチ", "バヘル"]
+
+[[grid]]
+x = 0
+y = 1
+name = "灰の荒野"
+type = "field"
+description = "灰が積もった荒野。"
+difficulty = 2
+enemies = ["グール", "虫", "蝙蝠"]
+
+[[grid]]
+x = 1
+y = 1
+name = "古代战场"
+type = "dungeon"
+description = "古代の戦場跡。"
+difficulty = 4
+enemies = ["スケルトン騎士", "亡霊", "ワイト"]
+
+[[grid]]
+x = -1
+y = -1
+name = "溶岩川"
+type = "lake"
+description = "溶岩が流れる川。"
+difficulty = 3
+enemies = ["火Elemental", "魚人", "溶岩魚"]
+
+# 残りのグリッド
+[[grid]]
+x = 2
+y = -1
+name = "灼熱的山頂"
+type = "mountain"
+description = "火山的最高峰。"
+difficulty = 5
+
+[[grid]]
+x = -2
+y = 0
+name = "燃える森深处"
+type = "forest"
+description = "深い森。"
+difficulty = 3
+
+[[grid]]
+x = 2
+y = 1
+name = "古代遗迹"
+type = "dungeon"
+description = "古代の遗迹。"
+difficulty = 4
+
+[[grid]]
+x = 0
+y = -2
+name = "溶岩湖"
+type = "lake"
+description = "巨大な溶岩湖。"
+difficulty = 5

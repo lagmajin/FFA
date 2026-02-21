@@ -146,10 +146,11 @@
         if (isAuth && username != null)
         {
             karma = Karma.GetKarma(username);
-            gil = int.TryParse(userAuth.FindFirst("Gil")?.Value, out var g) ? g : 0;
-            oldcoin = int.TryParse(userAuth.FindFirst("OldCoin")?.Value, out var o) ? o : 0;
-            job = userAuth.FindFirst("Job")?.Value ?? "";
-            level = int.TryParse(userAuth.FindFirst("Level")?.Value, out var lv) ? lv : 1;
+            var authCopy = userAuth;
+            gil = int.TryParse(authCopy?.FindFirst("Gil")?.Value, out var g) ? g : 0;
+            oldcoin = int.TryParse(authCopy?.FindFirst("OldCoin")?.Value, out var o) ? o : 0;
+            job = authCopy?.FindFirst("Job")?.Value ?? "";
+            level = int.TryParse(authCopy?.FindFirst("Level")?.Value, out var lv) ? lv : 1;
             user = UserService.GetByUsername(username);
             if (user?.Status != null) status = user.Status;
             if (user != null) level = user.Level;
@@ -175,30 +176,40 @@
     [JSInvokable]
     public Task OnWorldUpdated(string json)
     {
-        StateHasChanged();
-        return Task.CompletedTask;
+        return InvokeAsync(StateHasChanged);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            objRef = DotNetObjectReference.Create(this);
-            moduleRef = await JS.InvokeAsync<IJSObjectReference>("import", "/js/worldhub.js");
-            await moduleRef.InvokeVoidAsync("start", objRef);
+            try
+            {
+                objRef = DotNetObjectReference.Create(this);
+                moduleRef = await JS.InvokeAsync<IJSObjectReference>("import", "/js/worldhub.js");
+                await moduleRef.InvokeVoidAsync("start", objRef);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Status OnAfterRenderAsync error: {ex.Message}");
+            }
         }
     }
 
     public async ValueTask DisposeAsync()
     {
-        if (moduleRef != null)
+        try
         {
-            await moduleRef.InvokeVoidAsync("stop");
-            await moduleRef.DisposeAsync();
+            if (moduleRef != null)
+            {
+                await moduleRef.InvokeVoidAsync("stop");
+                await moduleRef.DisposeAsync();
+            }
         }
-        if (objRef != null)
+        catch { }
+        finally
         {
-            objRef.Dispose();
+            objRef?.Dispose();
         }
     }
 

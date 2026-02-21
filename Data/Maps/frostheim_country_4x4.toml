@@ -1,0 +1,117 @@
+# Frostheim Country Map
+# 雪国（フロスト Heim）のマップデータ
+# 雪山地帯 - 雪山、冰湖、森林
+
+[meta]
+country_id = 2
+country_name = "Frostheim"
+size = "4x4"
+description = "雪山之国。美しい氷の世界。"
+
+# 雪国town: Glaciermount(0,0), Snowpeak(-1,1), Frostport(1,1)
+
+[[grid]]
+x = 0
+y = 0
+name = "Glaciermount"
+type = "town"
+description = "雪山の中の美しい首都。氷の彫刻が有名。"
+town_id = 4
+is_capital = true
+
+[[grid]]
+x = -1
+y = 1
+name = "Snowpeak"
+type = "village"
+description = "雪山の麓の村。氷漁が盛ん。"
+town_id = 5
+
+[[grid]]
+x = 1
+y = 1
+name = "Frostport"
+type = "town"
+description = "氷の国の港町。"
+town_id = 6
+
+[[grid]]
+x = 0
+y = -1
+name = "永久凍土"
+type = "snow"
+description = "凍りついた大地。"
+difficulty = 4
+enemies = ["雪だるま", "冰ゴーレム", "白狼"]
+
+[[grid]]
+x = -1
+y = 0
+name = "雪林"
+type = "forest"
+description = "雪に覆われた森。"
+difficulty = 3
+enemies = ["白狼", "雪兔", "冰精灵"]
+
+[[grid]]
+x = 1
+y = 0
+name = "冰湖"
+type = "lake"
+description = "凍りついた湖。"
+difficulty = 3
+enemies = ["冰Elemental", "魚人", "冰魚"]
+
+[[grid]]
+x = 0
+y = 1
+name = "吹雪平原"
+type = "field"
+description = "強い吹雪の見える平原。"
+difficulty = 3
+enemies = ["雪巨人", "風霊", "冰狼"]
+
+[[grid]]
+x = -1
+y = -1
+name = "冰山"
+type = "mountain"
+description = "巨大な氷山。"
+difficulty = 4
+enemies = ["冰ゴーレム", "白狼王", "雪精灵"]
+
+[[grid]]
+x = 1
+y = -1
+name = "凍土洞窟"
+type = "dungeon"
+description = "凍土の下にある洞窟。"
+difficulty = 4
+enemies = ["スケルトン", "アンデッド", "骨龍"]
+
+[[grid]]
+x = 2
+y = 0
+name = "冰雪城跡"
+type = "dungeon"
+description = "昔滅んだ冰雪の城。"
+difficulty = 5
+enemies = ["リッチ", "ウェアウルフ", "リリス"]
+
+[[grid]]
+x = -2
+y = 0
+name = "雪山深处"
+type = "snow"
+description = "雪山奥深く。"
+difficulty = 5
+enemies = ["冰龍", "雪之王", "芬里尔"]
+
+[[grid]]
+x = 0
+y = 2
+name = "海岸冰原"
+type = "field"
+description = "凍る海岸。"
+difficulty = 2
+enemies = ["雪兔", "海鳴り", "冰鳥"]

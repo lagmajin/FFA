@@ -65,8 +65,8 @@
             loginSuccess = true;
             // ログイン成功時の処理（セッションなど）
             await SignInUser(user);
-            // include premium in redirect if needed
-            Navigation.NavigateTo($"/dashboard");
+            // forceLoad: true でフルリロードし、認証クッキーを反映した新しいSignalR回線を確立する
+            Navigation.NavigateTo("/dashboard", forceLoad: true);
         }
         else
         {
@@ -78,7 +78,8 @@
     {
         // Post from the browser so the Set-Cookie sent by /signin is stored in the user's browser
         var payload = new { Username = user.Username, Password = loginModel.Password };
-        var absoluteUri = Navigation.ToAbsoluteUri("/signin").ToString();
+        // Build absolute signin URL using Navigation.ToAbsoluteUri with a relative path (no leading '/')
+        var absoluteUri = Navigation.ToAbsoluteUri("signin").ToString();
         var ok = await JS.InvokeAsync<bool>("fetchSignIn", absoluteUri, payload);
         if (!ok)
         {

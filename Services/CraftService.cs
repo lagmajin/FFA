@@ -173,7 +173,7 @@ public class CraftService
             Price = recipe.ResultItem.SellPrice,
             Attack = recipe.ResultItem.Attack,
             Defense = recipe.ResultItem.Defense,
-            Effect = recipe.ResultItem.Effect
+            Effect = recipe.ResultItem.Effect ?? ""
         };
 
         var existing = user.Inventory.FirstOrDefault(i => i.Name == item.Name && i.Type == item.Type);
