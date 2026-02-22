@@ -1,0 +1,923 @@
+# Event Items Master Data (TOML)
+# イベントアイテムのマスターデータ
+# These are special items used in game events, holidays, and special occasions
+
+# ============================================
+# 季節イベントアイテム (Seasonal Events)
+# ============================================
+
+# ===== 春イベント (Spring Events) =====
+
+[[event_items]]
+id = "spring_001"
+name = "桜の花びら"
+japanese_name = "桜の花びら"
+description = "春を代表する花。特別なイベントで配布される。"
+type = "event"
+rarity = "common"
+price = 10
+season = "spring"
+effects = []
+icon = "cherry_blossom"
+stackable = true
+max_stack = 99
+
+[[event_items]]
+id = "spring_002"
+name = "春の風鈴"
+japanese_name = "春の風鈴"
+description = "春の訪れを告げる風鈴。"
+type = "event"
+rarity = "uncommon"
+price = 50
+season = "spring"
+effects = ["luck_boost"]
+icon = "wind_chime"
+stackable = true
+max_stack = 10
+
+[[event_items]]
+id = "spring_003"
+name = "花見団子"
+japanese_name = "花見団子"
+description = "花見で使える美味しい団子。"
+type = "food"
+rarity = "common"
+price = 30
+season = "spring"
+effects = ["hp_restore_30", "mp_restore_10"]
+icon = "dango"
+stackable = true
+max_stack = 20
+consumable = true
+
+# ===== 夏イベント (Summer Events) =====
+
+[[event_items]]
+id = "summer_001"
+name = "花火"
+japanese_name = "花火"
+description = "夏祭りで使える美しい花火。"
+type = "event"
+rarity = "common"
+price = 20
+season = "summer"
+effects = []
+icon = "firework"
+stackable = true
+max_stack = 50
+
+[[event_items]]
+id = "summer_002"
+name = "浴衣"
+japanese_name = "浴衣"
+description = "夏祭り用の伝統衣装。"
+type = "costume"
+rarity = "rare"
+price = 500
+season = "summer"
+effects = ["charisma_boost", "luck_boost"]
+icon = "yukata"
+stackable = false
+
+[[event_items]]
+id = "summer_003"
+name = "うちわ"
+japanese_name = "うちわ"
+description = "夏を涼しく過ごすためのうちわ。"
+type = "event"
+rarity = "common"
+price = 15
+season = "summer"
+effects = []
+icon = "fan"
+stackable = true
+max_stack = 1
+
+[[event_items]]
+id = "summer_004"
+name = "金魚すくい"
+japanese_name = "金魚すくい"
+description = "金魚すくいでゲットした金魚。"
+type = "pet"
+rarity = "uncommon"
+price = 100
+season = "summer"
+effects = []
+icon = "goldfish"
+stackable = false
+
+[[event_items]]
+id = "summer_005"
+name = "かき氷"
+japanese_name = "かき氷"
+description = "夏の暑さを癒す冷たいかき氷。"
+type = "food"
+rarity = "common"
+price = 25
+season = "summer"
+effects = ["hp_restore_20", "stamina_restore_30"]
+icon = "shaved_ice"
+stackable = true
+max_stack = 10
+consumable = true
+
+[[event_items]]
+id = "summer_006"
+name = "スイカ"
+japanese_name = "スイカ"
+description = "夏の特産品を切る大玉の西瓜。"
+type = "food"
+rarity = "uncommon"
+price = 80
+season = "summer"
+effects = ["hp_restore_50", "mp_restore_20", "stamina_max_temp"]
+icon = "watermelon"
+stackable = true
+max_stack = 5
+consumable = true
+
+# ===== 秋イベント (Autumn Events) =====
+
+[[event_items]]
+id = "autumn_001"
+name = "紅葉"
+japanese_name = "紅葉"
+description = "秋に色づいた紅葉の葉。"
+type = "event"
+rarity = "common"
+price = 15
+season = "autumn"
+effects = []
+icon = "maple_leaf"
+stackable = true
+max_stack = 99
+
+[[event_items]]
+id = "autumn_002"
+name = "おはぎ"
+japanese_name = "おはぎ"
+description = "秋彼岸に登場するおはぎ。"
+type = "food"
+rarity = "common"
+price = 35
+season = "autumn"
+effects = ["hp_restore_35", "mp_restore_15"]
+icon = "rice_ball"
+stackable = true
+max_stack = 15
+consumable = true
+
+[[event_items]]
+id = "autumn_003"
+name = "栗きんとん"
+japanese_name = "栗きんとん"
+description = "栗を使った秋の味覚。"
+type = "food"
+rarity = "uncommon"
+price = 60
+season = "autumn"
+effects = ["hp_restore_45", "exp_boost_10"]
+icon = "chestnut"
+stackable = true
+max_stack = 10
+consumable = true
+
+[[event_items]]
+id = "autumn_004"
+name = "ハロウィーンかぼちゃ"
+japanese_name = "ハロウィーンかぼちゃ"
+description = "ハロウィーンデコレーション用のかぼちゃ。"
+type = "event"
+rarity = "uncommon"
+price = 80
+season = "autumn"
+effects = []
+icon = "pumpkin"
+stackable = true
+max_stack = 5
+
+[[event_items]]
+id = "autumn_005"
+name = "おばけマスク"
+japanese_name = "おばけマスク"
+description = "ハロウィン用の怖いやつ。"
+type = "costume"
+rarity = "common"
+price = 50
+season = "autumn"
+effects = ["intimidation"]
+icon = "ghost_mask"
+stackable = false
+
+# ===== 冬イベント (Winter Events) =====
+
+[[event_items]]
+id = "winter_001"
+name = "雪の結晶"
+japanese_name = "雪の結晶"
+description = "冬を代表する雪の結晶。"
+type = "event"
+rarity = "common"
+price = 20
+season = "winter"
+effects = []
+icon = "snowflake"
+stackable = true
+max_stack = 99
+
+[[event_items]]
+id = "winter_002"
+name = "鏡餅"
+japanese_name = "鏡餅"
+description = "鏡餅として飾る伝統的な餅。"
+type = "food"
+rarity = "common"
+price = 40
+season = "winter"
+effects = ["hp_restore_40", "defense_boost_temp"]
+icon = "rice_cake"
+stackable = true
+max_stack = 10
+consumable = true
+
+[[event_items]]
+id = "winter_003"
+name = "みかん"
+japanese_name = "みかん"
+description = "冬に美味しいみかん。"
+type = "food"
+rarity = "common"
+price = 25
+season = "winter"
+effects = ["hp_restore_25", "vit_boost_temp"]
+icon = "tangerine"
+stackable = true
+max_stack = 20
+consumable = true
+
+[[event_items]]
+id = "winter_004"
+name = "クリスマスケーキ"
+japanese_name = "クリスマスケーキ"
+description = "クリスマスの特別なケーキ。"
+type = "food"
+rarity = "rare"
+price = 300
+season = "winter"
+effects = ["hp_full", "mp_full", "luck_boost", "all_stats_boost"]
+icon = "christmas_cake"
+stackable = true
+max_stack = 3
+consumable = true
+
+[[event_items]]
+id = "winter_005"
+name = "サンタ帽"
+japanese_name = "サンタ帽"
+description = "クリスマス仕様の帽子。"
+type = "costume"
+rarity = "rare"
+price = 500
+season = "winter"
+effects = ["charisma_boost", "luck_boost"]
+icon = "santa_hat"
+stackable = false
+
+[[event_items]]
+id = "winter_006"
+name = "除夜の鐘の鐘"
+japanese_name = "除夜の鐘の鐘"
+description = "大晦日に鳴らす鐘。"
+type = "event"
+rarity = "uncommon"
+price = 100
+season = "winter"
+effects = ["exp_boost_20"]
+icon = "bell"
+stackable = true
+max_stack = 1
+consumable = true
+
+# ============================================
+# ホーリーイベントアイテム (Holiday Events)
+# ============================================
+
+[[event_items]]
+id = "valentine_001"
+name = "チョコレート"
+japanese_name = "チョコレート"
+description = "バレンタインデーのチョコレート。"
+type = "food"
+rarity = "common"
+price = 50
+season = "valentine"
+effects = ["mp_restore_30", "charisma_boost"]
+icon = "chocolate"
+stackable = true
+max_stack = 10
+consumable = true
+
+[[event_items]]
+id = "valentine_002"
+name = "本命チョコレート"
+japanese_name = "本命チョコレート"
+description = "特別な人へのチョコレートの詰め合わせ。"
+type = "food"
+rarity = "rare"
+price = 500
+season = "valentine"
+effects = ["mp_full", "charisma_boost", "luck_boost"]
+icon = "chocolate_box"
+stackable = true
+max_stack = 3
+consumable = true
+
+[[event_items]]
+id = "white_day_001"
+name = "マシュマロ"
+japanese_name = "マシュマロ"
+description = "ホワイトデーの返礼品。"
+type = "food"
+rarity = "common"
+price = 40
+season = "white_day"
+effects = ["hp_restore_30", "mp_restore_20"]
+icon = "marshmallow"
+stackable = true
+max_stack = 15
+consumable = true
+
+[[event_items]]
+id = "white_day_002"
+name = "キャンディーブーケ"
+japanese_name = "キャンディーブーケ"
+description = "特別な人への花の代わりに。"
+type = "food"
+rarity = "rare"
+price = 600
+season = "white_day"
+effects = ["hp_full", "mp_full", "all_stats_boost"]
+icon = "candy_bouquet"
+stackable = true
+max_stack = 3
+consumable = true
+
+[[event_items]]
+id = "easter_001"
+name = "イースタ Eggs"
+japanese_name = "イースタ Eggs"
+description = "イースタータの卵。"
+type = "event"
+rarity = "common"
+price = 30
+season = "easter"
+effects = []
+icon = "easter_egg"
+stackable = true
+max_stack = 20
+
+[[event_items]]
+id = "easter_002"
+name = "ウサギの耳"
+japanese_name = "ウサギの耳"
+description = "ウサギの可爱い耳のカ都是我。"
+type = "costume"
+rarity = "uncommon"
+price = 200
+season = "easter"
+effects = ["luck_boost"]
+icon = "rabbit_ears"
+stackable = false
+
+# ============================================
+# 誕生日イベント (Birthday Events)
+# ============================================
+
+[[event_items]]
+id = "birthday_001"
+name = "誕生日ケーキ"
+japanese_name = "誕生日ケーキ"
+description = "誕生日を祝う特別なケーキ。"
+type = "food"
+rarity = "rare"
+price = 1000
+season = "birthday"
+effects = ["hp_full", "mp_full", "exp_boost_50", "luck_boost"]
+icon = "birthday_cake"
+stackable = true
+max_stack = 1
+consumable = true
+one_time_use = true
+
+[[event_items]]
+id = "birthday_002"
+name = "誕生日ろうそく"
+japanese_name = "誕生日ろうそく"
+description = "ケーキに刺すろうそく。"
+type = "event"
+rarity = "common"
+price = 10
+season = "birthday"
+effects = []
+icon = "candle"
+stackable = true
+max_stack = 10
+
+[[event_items]]
+id = "birthday_003"
+name = "サプライズボックス"
+japanese_name = "サプライズボックス"
+description = "誕生日サプライズ入りボックス。"
+type = "box"
+rarity = "rare"
+price = 500
+season = "birthday"
+effects = []
+icon = "gift_box"
+stackable = true
+max_stack = 1
+openable = true
+contains_random = true
+
+# ============================================
+# キャンペーンイベント (Campaign Events)
+# ============================================
+
+[[event_items]]
+id = "campaign_001"
+name = "記念コイン"
+japanese_name = "記念コイン"
+description = "周年キャンペーンの記念コイン。"
+type = "event"
+rarity = "rare"
+price = 0
+season = "campaign"
+effects = []
+icon = "coin"
+stackable = true
+max_stack = 1
+
+[[event_items]]
+id = "campaign_002"
+name = "福袋"
+japanese_name = "福袋"
+description = "新年の福袋。中身はランダム。"
+type = "box"
+rarity = "rare"
+price = 1000
+season = "campaign"
+effects = []
+icon = "lucky_bag"
+stackable = true
+max_stack = 5
+openable = true
+contains_random = true
+
+[[event_items]]
+id = "campaign_003"
+name = "引換券"
+japanese_name = "引換券"
+description = "景品と交換できる券。"
+type = "ticket"
+rarity = "uncommon"
+price = 0
+season = "campaign"
+effects = []
+icon = "ticket"
+stackable = true
+max_stack = 100
+
+# ============================================
+# ログインボーナス (Login Bonus)
+# ============================================
+
+[[event_items]]
+id = "login_001"
+name = "ログインボーナス宝箱"
+japanese_name = "ログインボーナス宝箱"
+description = "ログインでもらえる宝箱。"
+type = "box"
+rarity = "common"
+price = 0
+season = "login"
+effects = []
+icon = "reward_chest"
+stackable = true
+max_stack = 1
+openable = true
+
+[[event_items]]
+id = "login_002"
+name = "連続ログイン賞品"
+japanese_name = "連続ログイン賞品"
+description = "連続ログインで得られる特別な賞品。"
+type = "event"
+rarity = "rare"
+price = 0
+season = "login"
+effects = ["all_stats_boost"]
+icon = "streak_reward"
+stackable = false
+
+[[event_items]]
+id = "login_003"
+name = "月間ログイン賞品"
+japanese_name = "月間ログイン賞品"
+description = "1ヶ月間ログインし続けるともらえる賞品。"
+type = "event"
+rarity = "epic"
+price = 0
+season = "login"
+effects = ["legendary_item_unlock"]
+icon = "monthly_reward"
+stackable = false
+
+# ============================================
+# ゲーム内ギルドイベント (Guild Events)
+# ============================================
+
+[[event_items]]
+id = "guild_001"
+name = "ギルド旗"
+japanese_name = "ギルド旗"
+description = "ギルドの象徴となる旗。"
+type = "guild_item"
+rarity = "rare"
+price = 1000
+season = "guild"
+effects = []
+icon = "guild_flag"
+stackable = false
+
+[[event_items]]
+id = "guild_002"
+name = "ギルド貢献度"
+japanese_name = "ギルド貢献度"
+description = "ギルドへの貢献度を示すポイント。"
+type = "currency"
+rarity = "common"
+price = 0
+season = "guild"
+effects = []
+icon = "contribution"
+stackable = true
+max_stack = 999999
+
+[[event_items]]
+id = "guild_003"
+name = "ギルド解散の書"
+japanese_name = "ギルド解散の書"
+description = "ギルドを解散するための書。"
+type = "guild_item"
+rarity = "rare"
+price = 5000
+season = "guild"
+effects = []
+icon = "dismissal_book"
+stackable = false
+
+# ============================================
+# レイド/ボス戦イベント (Raid/Boss Events)
+# ============================================
+
+[[event_items]]
+id = "raid_001"
+name = "レイドチケット"
+japanese_name = "レイドチケット"
+description = "レイドダンジョン入場のためのチケット。"
+type = "ticket"
+rarity = "uncommon"
+price = 100
+season = "raid"
+effects = []
+icon = "raid_ticket"
+stackable = true
+max_stack = 10
+
+[[event_items]]
+id = "raid_002"
+name = "伝説の武器箱"
+japanese_name = "伝説の武器箱"
+description = "レイド報酬の伝説の武器が入っている宝箱。"
+type = "box"
+rarity = "legendary"
+price = 0
+season = "raid"
+effects = []
+icon = "legendary_chest"
+stackable = true
+max_stack = 1
+openable = true
+contains_legendary = true
+
+[[event_items]]
+id = "raid_003"
+name = "ボスの討伐証"
+japanese_name = "ボスの討伐証"
+description = "ボスを倒した証拠。"
+type = "event"
+rarity = "common"
+price = 50
+season = "raid"
+effects = []
+icon = "boss_badge"
+stackable = true
+max_stack = 100
+
+[[event_items]]
+id = "raid_004"
+name = "レイドMVP賞"
+japanese_name = "レイドMVP賞"
+description = "レイドで最も貢献したプレイヤーに送られる賞。"
+type = "event"
+rarity = "rare"
+price = 0
+season = "raid"
+effects = ["exp_boost_100", "rare_item_drop"]
+icon = "mvp_award"
+stackable = false
+
+# ============================================
+# PvPイベント (PvP Events)
+# ============================================
+
+[[event_items]]
+id = "pvp_001"
+name = "PvP参加券"
+japanese_name = "PvP参加券"
+description = "PvPアリーナへの参加券。"
+type = "ticket"
+rarity = "common"
+price = 50
+season = "pvp"
+effects = []
+icon = "pvp_ticket"
+stackable = true
+max_stack = 20
+
+[[event_items]]
+id = "pvp_002"
+name = "ランキング上位入り"
+japanese_name = "ランキング上位入り"
+description = "PvPランキング上位入賞者のみが得られる。"
+type = "title"
+rarity = "rare"
+price = 0
+season = "pvp"
+effects = ["pvp_power_boost"]
+icon = "ranking_badge"
+stackable = false
+
+[[event_items]]
+id = "pvp_003"
+name = "勝利の花"
+japanese_name = "勝利の花"
+description = "PvPで勝利した時にくれる花。"
+type = "event"
+rarity = "uncommon"
+price = 0
+season = "pvp"
+effects = ["victory_bonus"]
+icon = "victory_flower"
+stackable = true
+max_stack = 50
+
+# ============================================
+# 毎日イベント (Daily Events)
+# ============================================
+
+[[event_items]]
+id = "daily_001"
+name = "日出汁"
+japanese_name = "日出汁"
+description = "毎朝の元気のもと。"
+type = "food"
+rarity = "common"
+price = 10
+season = "daily"
+effects = ["stamina_max_daily"]
+icon = "soup"
+stackable = true
+max_stack = 1
+consumable = true
+
+[[event_items]]
+id = "daily_002"
+name = "日替わり宝箱"
+japanese_name = "日替わり宝箱"
+description = "毎日開けることができる宝箱。"
+type = "box"
+rarity = "uncommon"
+price = 0
+season = "daily"
+effects = []
+icon = "daily_chest"
+stackable = true
+max_stack = 1
+openable = true
+daily_reset = true
+
+# ============================================
+# 毎週イベント (Weekly Events)
+# ============================================
+
+[[event_items]]
+id = "weekly_001"
+name = "週替わり強化石"
+japanese_name = "週替わり強化石"
+description = "毎週異なる種類の強化石。"
+type = "material"
+rarity = "uncommon"
+price = 200
+season = "weekly"
+effects = []
+icon = "weekly_enhancement"
+stackable = true
+max_stack = 5
+
+[[event_items]]
+id = "weekly_002"
+name = "週間ランキング賞品"
+japanese_name = "週間ランキング賞品"
+description = "週間ランキング上位 入賞者用。"
+type = "event"
+rarity = "rare"
+price = 0
+season = "weekly"
+effects = ["rare_item_guaranteed"]
+icon = "weekly_reward"
+stackable = false
+
+# ============================================
+# 月間イベント (Monthly Events)
+# ============================================
+
+[[event_items]]
+id = "monthly_001"
+name = "月間MVP賞"
+japanese_name = "月間MVP賞"
+description = "月間で最も活躍したプレイヤーに送られる賞。"
+type = "title"
+rarity = "epic"
+price = 0
+season = "monthly"
+effects = ["monthly_bonus", "exclusive_title"]
+icon = "monthly_mvp"
+stackable = false
+
+[[event_items]]
+id = "monthly_002"
+name = "月間ログインボーナス"
+japanese_name = "月間ログインボーナス"
+description = "月間ログイン達成でもらえる特別なログインボーナス。"
+type = "box"
+rarity = "rare"
+price = 0
+season = "monthly"
+effects = []
+icon = "monthly_login"
+stackable = true
+max_stack = 1
+openable = true
+
+# ============================================
+# コラボイベント (Collaboration Events)
+# ============================================
+
+[[event_items]]
+id = "collab_001"
+name = "コラボ武器"
+japanese_name = "コラボ武器"
+description = "コラボレーション event 限定武器。"
+type = "weapon"
+rarity = "legendary"
+price = 0
+season = "collaboration"
+effects = ["special_skill", "collab_bonus"]
+icon = "collab_weapon"
+stackable = false
+limited = true
+
+[[event_items]]
+id = "collab_002"
+name = "コラボ防具"
+japanese_name = "コラボ防具"
+description = "コラボレーション event 限定防具。"
+type = "armor"
+rarity = "epic"
+price = 0
+season = "collaboration"
+effects = ["special_defense", "collab_bonus"]
+icon = "collab_armor"
+stackable = false
+limited = true
+
+[[event_items]]
+id = "collab_003"
+name = "コラボマウント"
+japanese_name = "コラボマウント"
+description = "コラボレーション event 限定マウント。"
+type = "mount"
+rarity = "legendary"
+price = 0
+season = "collaboration"
+effects = ["speed_boost", "collab_bonus"]
+icon = "collab_mount"
+stackable = false
+limited = true
+
+# ============================================
+# 記念日イベント (Anniversary Events)
+# ============================================
+
+[[event_items]]
+id = "anniversary_001"
+name = "1周年ケーキ"
+japanese_name = "1周年ケーキ"
+description = "ゲーム1周年を祝うケーキ。"
+type = "food"
+rarity = "rare"
+price = 0
+season = "anniversary"
+effects = ["hp_full", "mp_full", "exp_double"]
+icon = "anniversary_cake"
+stackable = true
+max_stack = 1
+consumable = true
+
+[[event_items]]
+id = "anniversary_002"
+name = "伝説の宝玉"
+japanese_name = "伝説の宝玉"
+description = "周年のみ手に入る特別な宝玉。"
+type = "material"
+rarity = "legendary"
+price = 0
+season = "anniversary"
+effects = ["weapon_enhance_max"]
+icon = "legendary_gem"
+stackable = true
+max_stack = 1
+limited = true
+
+# ============================================
+# システムイベント (System Events)
+# ============================================
+
+[[event_items]]
+id = "system_001"
+name = "新手指導"
+japanese_name = "新手指導"
+description = "新手プレイヤーを導くための本。"
+type = "book"
+rarity = "common"
+price = 0
+season = "system"
+effects = ["tutorial_skip"]
+icon = "guide_book"
+stackable = false
+
+[[event_items]]
+id = "system_002"
+name = "改名札"
+japanese_name = "改名札"
+description = "プレイヤー名を改名できる。"
+type = "system"
+rarity = "uncommon"
+price = 500
+season = "system"
+effects = ["name_change"]
+icon = "name_tag"
+stackable = true
+max_stack = 1
+
+[[event_items]]
+id = "system_003"
+name = "性別変更の書"
+japanese_name = "性別変更の書"
+description = "キャラクターの性別を変更できる。"
+type = "system"
+rarity = "rare"
+price = 1000
+season = "system"
+effects = ["gender_change"]
+icon = "gender_book"
+stackable = true
+max_stack = 1
+
+[[event_items]]
+id = "system_004"
+name = "外観変更券"
+japanese_name = "外観変更券"
+description = "外観を自由に変更できる。"
+type = "system"
+rarity = "uncommon"
+price = 300
+season = "system"
+effects = ["appearance_change"]
+icon = "appearance_ticket"
+stackable = true
+max_stack = 5
+
+# End of event_items.toml

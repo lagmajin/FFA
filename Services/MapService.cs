@@ -1,4 +1,5 @@
 using FFA.Models;
+using System.Collections.Generic;
 using Tomlyn;
 using Tomlyn.Model;
 
@@ -7,6 +8,7 @@ namespace FFA.Services;
 public class MapService
 {
     private Dictionary<int, Map> countryMaps = new();
+    private Dictionary<string, Map> allMaps = new(); // 全てのマップ
     private const int MapOffset = 4; // 町の座標(-4~4)をマップ座標(0~8)に変換
 
     /// <summary>読み込み診断情報</summary>
@@ -15,6 +17,7 @@ public class MapService
     public MapService()
     {
         LoadCountryMaps();
+        LoadAllMaps(); // 中間地域など全マップを読み込む
     }
 
     private void LoadCountryMaps()
@@ -63,50 +66,53 @@ public class MapService
 
                 bool hasMeta = table.ContainsKey("meta");
                 bool hasGrid = table.ContainsKey("grid");
-                LoadDiagnostics.Add($"  {fileName}: hasMeta={hasMeta}, hasGrid={hasGrid}, keys=[{string.Join(",", table.Keys)}]");
+                bool hasLocations = table.ContainsKey("locations");
+                LoadDiagnostics.Add($"  {fileName}: hasMeta={hasMeta}, hasGrid={hasGrid}, hasLocations={hasLocations}, keys=[{string.Join(",", table.Keys)}]");
 
-                if (!hasMeta)
-                {
-                    LoadDiagnostics.Add($"  {fileName}: SKIP (no [meta])");
-                    continue;
-                }
+                // Use [meta] when present; otherwise fall back to root table for legacy formats
+                TomlTable? meta = null;
+                if (hasMeta && table["meta"] is TomlTable m) meta = m;
+                else meta = table as TomlTable;
 
-                var meta = table["meta"] as TomlTable;
                 if (meta == null)
                 {
-                    LoadDiagnostics.Add($"  {fileName}: SKIP (meta is {table["meta"]?.GetType().Name ?? "null"})");
+                    LoadDiagnostics.Add($"  {fileName}: SKIP (meta is null)");
                     continue;
                 }
 
                 int countryId = GetIntValue(meta, "country_id", 0);
                 string countryName = GetStringValue(meta, "country_name",
-                    GetStringValue(meta, "description", "Unknown"));
+                    GetStringValue(meta, "country",
+                        GetStringValue(meta, "description", Path.GetFileNameWithoutExtension(file))));
+
+                // assign stable fallback id when none provided (negative to avoid colliding with real ids)
+                int assignedId = countryId != 0 ? countryId : -Math.Abs(Path.GetFileNameWithoutExtension(file).GetHashCode());
 
                 var map = new Map
                 {
-                    Id = countryId,
+                    Id = assignedId,
                     Name = countryName,
-                    Width = 4,
-                    Height = 4,
+                    Width = GetIntValue(meta, "width", 4),
+                    Height = GetIntValue(meta, "height", 4),
                     Locations = new List<MapLocation>()
                 };
 
-                // グリッドデータを読み込み
-                if (hasGrid)
+                // Determine which key contains location entries
+                string? entriesKey = hasGrid ? "grid" : (hasLocations ? "locations" : null);
+                if (entriesKey != null && table.ContainsKey(entriesKey))
                 {
-                    var gridRaw = table["grid"];
-                    LoadDiagnostics.Add($"  {fileName}: grid type={gridRaw?.GetType().FullName}");
+                    var gridRaw = table[entriesKey];
+                    LoadDiagnostics.Add($"  {fileName}: entriesKey={entriesKey}, rawType={gridRaw?.GetType().FullName}");
 
-                    var gridArray = gridRaw as TomlArray;
-                    if (gridArray != null)
+                    if (gridRaw is IEnumerable<object> entries)
                     {
-                        LoadDiagnostics.Add($"  {fileName}: grid count={gridArray.Count}");
-                        foreach (var item in gridArray)
+                        int count = 0;
+                        foreach (var item in entries)
                         {
                             var grid = item as TomlTable;
                             if (grid == null)
                             {
-                                LoadDiagnostics.Add($"  {fileName}: grid item is {item?.GetType().Name ?? "null"}, not TomlTable");
+                                LoadDiagnostics.Add($"  {fileName}: entries item is {item?.GetType().Name ?? "null"}, not TomlTable");
                                 continue;
                             }
 
@@ -123,16 +129,18 @@ public class MapService
                             };
 
                             map.Locations.Add(location);
+                            count++;
                         }
+                        LoadDiagnostics.Add($"  {fileName}: entries count={count}");
                     }
                     else
                     {
-                        LoadDiagnostics.Add($"  {fileName}: grid as TomlArray = null (actual type: {gridRaw?.GetType().FullName})");
+                        LoadDiagnostics.Add($"  {fileName}: entries is not enumerable (actual type: {gridRaw?.GetType().FullName})");
                     }
                 }
 
-                countryMaps[countryId] = map;
-                LoadDiagnostics.Add($"  {fileName}: Loaded countryId={countryId} name={countryName} locations={map.Locations.Count}");
+                countryMaps[assignedId] = map;
+                LoadDiagnostics.Add($"  {fileName}: Loaded assignedId={assignedId} name={countryName} locations={map.Locations.Count}");
             }
             catch (Exception ex)
             {
@@ -143,6 +151,173 @@ public class MapService
 
         LoadDiagnostics.Add($"Total maps loaded: {countryMaps.Count} ({string.Join(", ", countryMaps.Keys)})");
     }
+    
+    /// <summary>
+    /// 全てのマップを読み込む（国マップ + 中立地域など）
+    /// </summary>
+    private void LoadAllMaps()
+    {
+        var path1 = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "Maps");
+        var path2 = Path.Combine(Directory.GetCurrentDirectory(), "Data", "Maps");
+        
+        var mapsPath = path1;
+        if (!Directory.Exists(mapsPath))
+        {
+            mapsPath = path2;
+        }
+        
+        if (!Directory.Exists(mapsPath)) return;
+        
+        // 全てのTOMLマップファイルを取得
+        var files = Directory.GetFiles(mapsPath, "*.toml");
+        
+        foreach (var file in files)
+        {
+            var fileName = Path.GetFileName(file);
+            try
+            {
+                var content = File.ReadAllText(file);
+                var doc = Toml.Parse(content);
+                
+                if (doc.HasErrors) continue;
+                
+                var table = doc.ToModel();
+                
+                // start_position または meta から情報を取得
+                Map? map = null;
+                
+                if (table.ContainsKey("start_position") && table["start_position"] is TomlTable startPos)
+                {
+                    map = new Map
+                    {
+                        Id = allMaps.Count,
+                        Name = GetStringValue(startPos, "country", GetStringValue(startPos, "capital", fileName)),
+                        Width = GetIntValue(table, "width", 5),
+                        Height = GetIntValue(table, "height", 5),
+                        Locations = new List<MapLocation>()
+                    };
+                }
+                else if (table.ContainsKey("meta") && table["meta"] is TomlTable meta)
+                {
+                    map = new Map
+                    {
+                        Id = GetIntValue(meta, "country_id", allMaps.Count),
+                        Name = GetStringValue(meta, "country_name", GetStringValue(meta, "country", fileName)),
+                        Width = GetIntValue(meta, "width", GetIntValue(table, "width", 4)),
+                        Height = GetIntValue(meta, "height", GetIntValue(table, "height", 4)),
+                        Locations = new List<MapLocation>()
+                    };
+                }
+                
+                if (map == null) continue;
+                
+                // locations を読み込み
+                if (table.ContainsKey("locations") && table["locations"] is IEnumerable<object> locations)
+                {
+                    foreach (var loc in locations)
+                    {
+                        if (loc is TomlTable t)
+                        {
+                            var location = new MapLocation
+                            {
+                                X = GetIntValue(t, "x", 0),
+                                Y = GetIntValue(t, "y", 0),
+                                Name = GetStringValue(t, "name", ""),
+                                Description = GetStringValue(t, "description", ""),
+                                Type = GetStringValue(t, "type", "field"),
+                                DangerLevel = GetIntValue(t, "difficulty", GetIntValue(t, "enemy_level", 0)),
+                                CanEnter = true,
+                                Connection = GetStringValue(t, "connection", ""),
+                                Events = new List<string>()
+                            };
+                            map.Locations.Add(location);
+                        }
+                    }
+                }
+                
+                // マップを保存（キーはマップ名）
+                allMaps[map.Name] = map;
+                
+                // 国マップとしても保存
+                if (table.ContainsKey("meta") || fileName.Contains("country"))
+                {
+                    if (map.Id > 0) countryMaps[map.Id] = map;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to load map {file}: {ex.Message}");
+            }
+        }
+    }
+    
+    /// <summary>
+    /// 場所から他の地域への接続を取得
+    /// </summary>
+    public MapConnection? GetConnection(int countryId, int x, int y)
+    {
+        var map = GetMapByCountryId(countryId);
+        var location = map.Locations.FirstOrDefault(l => l.X == x && l.Y == y);
+        
+        if (location == null || string.IsNullOrEmpty(location.Connection)) return null;
+        
+        // 接続先マップを探す
+        var targetMap = allMaps.Values.FirstOrDefault(m => 
+            m.Name.Equals(location.Connection, StringComparison.OrdinalIgnoreCase) ||
+            m.Name.Replace("_", " ").Contains(location.Connection, StringComparison.OrdinalIgnoreCase));
+        
+        if (targetMap == null) return null;
+        
+        return new MapConnection
+        {
+            FromMapId = countryId,
+            FromX = x,
+            FromY = y,
+            ToMapId = targetMap.Id,
+            ToMapName = targetMap.Name,
+            ToX = targetMap.Width / 2, // 中央から開始
+            ToY = targetMap.Height / 2
+        };
+    }
+    
+    /// <summary>
+    /// マップの端で接続があるかチェック
+    /// </summary>
+    public MapConnection? CheckEdgeConnection(int countryId, Direction direction, int currentX, int currentY)
+    {
+        var map = GetMapByCountryId(countryId);
+        
+        int checkX = currentX;
+        int checkY = currentY;
+        
+        switch (direction)
+        {
+            case Direction.North: checkY = -1; break;
+            case Direction.South: checkY = map.Height; break;
+            case Direction.East: checkX = map.Width; break;
+            case Direction.West: checkX = -1; break;
+        }
+        
+        // マップ端にあるGateタイプの人を探
+        var gate = map.Locations.FirstOrDefault(l => 
+            l.Type == "Gate" && 
+            ((direction == Direction.North && l.Y == 0) ||
+             (direction == Direction.South && l.Y == map.Height - 1) ||
+             (direction == Direction.East && l.X == map.Width - 1) ||
+             (direction == Direction.West && l.X == 0)));
+        
+        if (gate != null && !string.IsNullOrEmpty(gate.Connection))
+        {
+            return GetConnection(countryId, gate.X, gate.Y);
+        }
+        
+        return null;
+    }
+    
+    /// <summary>
+    /// 全て利用可能なマップを取得
+    /// </summary>
+    public IEnumerable<Map> GetAllMaps() => allMaps.Values;
     
     private int GetIntValue(TomlTable table, string key, int defaultValue)
     {

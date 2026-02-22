@@ -5,90 +5,467 @@
 
 @using FFA.Services
 @using FFA.Models
+@using Microsoft.AspNetCore.Components.Authorization
 @inject UserService UserService
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Navigation
 
-<h2>インベントリ</h2>
+<div class="inventory-container">
+    <div class="inventory-header">
+        <h1>インベントリ</h1>
+        <div class="currency-display">
+            <span class="currency-icon">💰</span>
+            <span class="currency-amount">@user?.Gil ギル</span>
+        </div>
+    </div>
 
-<p>ログイン済みユーザーのインベントリを表示します（デモではdemoユーザー）。</p>
+    @if (user == null)
+    {
+        <div class="auth-required">
+            <p>ログインしてください。</p>
+            <button class="action-button primary" @onclick='() => Navigation.NavigateTo("/login")'>ログイン</button>
+        </div>
+    }
+    else
+    {
+        <div class="inventory-content">
+            <!-- プレイヤーステータス -->
+            <div class="player-status-card">
+                <div class="player-header">
+                    <div class="player-avatar">
+                        <span class="avatar-icon">⚔️</span>
+                    </div>
+                    <div class="player-info">
+                        <h2>@user.Username</h2>
+                        <div class="player-job">Lv.@user.Level @GetJobName(user.Job)</div>
+                    </div>
+                </div>
+                
+                <div class="status-bars">
+                    <div class="status-bar">
+                        <div class="bar-label">
+                            <span>❤️ HP</span>
+                            <span>@user.HP / @user.MaxHP</span>
+                        </div>
+                        <div class="bar-track">
+                            <div class="bar-fill hp" style="width: @HPPercent%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="player-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">STR</span>
+                        <span class="stat-value">@user.Status.Str</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">DEX</span>
+                        <span class="stat-value">@user.Status.Dex</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">INT</span>
+                        <span class="stat-value">@user.Status.Int</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">VIT</span>
+                        <span class="stat-value">@user.Status.Vit</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">AGI</span>
+                        <span class="stat-value">@user.Status.Agi</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">LUK</span>
+                        <span class="stat-value">@user.Status.Luk</span>
+                    </div>
+                </div>
+                
+                <div class="equipment-slots">
+                    <h3>装備</h3>
+                    <div class="slots-grid">
+                        <div class="equip-slot weapon">
+                            <div class="slot-icon">⚔️</div>
+                            <div class="slot-info">
+                                <div class="slot-label">武器</div>
+                                <div class="slot-item">@(user.EquippedWeapon?.Name ?? "なし")</div>
+                            </div>
+                        </div>
+                        <div class="equip-slot armor">
+                            <div class="slot-icon">🛡️</div>
+                            <div class="slot-info">
+                                <div class="slot-label">防具</div>
+                                <div class="slot-item">@(user.EquippedArmor?.Name ?? "なし")</div>
+                            </div>
+                        </div>
+                        <div class="equip-slot accessory">
+                            <div class="slot-icon">💍</div>
+                            <div class="slot-info">
+                                <div class="slot-label">アクセ1</div>
+                                <div class="slot-item">@(user.EquippedAccessory1?.Name ?? user.EquippedAccessory?.Name ?? "なし")</div>
+                            </div>
+                        </div>
+                        <div class="equip-slot accessory">
+                            <div class="slot-icon">💎</div>
+                            <div class="slot-info">
+                                <div class="slot-label">アクセ2</div>
+                                <div class="slot-item">@(user.EquippedAccessory2?.Name ?? "なし")</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-@if (user == null)
-{
-    <p>ユーザーが見つかりません。</p>
-}
-else
-{
-    <p>ユーザー: @user.Username</p>
-    <p>所持金: @user.Gil ギル</p>
-    <p>HP: @user.HP / @user.MaxHP</p>
+            <!-- インベントリ本体 -->
+            <div class="inventory-main">
+                <!-- カテゴリタブ -->
+                <div class="category-tabs">
+                    <button class="tab-button @(selectedCategory == "all" ? "active" : "")" 
+                            @onclick='() => SelectCategory("all")'>
+                        すべて
+                    </button>
+                    <button class="tab-button @(selectedCategory == "weapon" ? "active" : "")" 
+                            @onclick='() => SelectCategory("weapon")'>
+                        ⚔️ 武器
+                    </button>
+                    <button class="tab-button @(selectedCategory == "armor" ? "active" : "")" 
+                            @onclick='() => SelectCategory("armor")'>
+                        🛡️ 防具
+                    </button>
+                    <button class="tab-button @(selectedCategory == "accessory" ? "active" : "")" 
+                            @onclick='() => SelectCategory("accessory")'>
+                        💍 アクセ
+                    </button>
+                    <button class="tab-button @(selectedCategory == "consumable" ? "active" : "")" 
+                            @onclick='() => SelectCategory("consumable")'>
+                        🧪 消耗品
+                    </button>
+                    <button class="tab-button @(selectedCategory == "material" ? "active" : "")" 
+                            @onclick='() => SelectCategory("material")'>
+                        📦 素材
+                    </button>
+                </div>
 
-    <h3>装備</h3>
-    <p>武器: @user.EquippedWeapon?.Name</p>
-    <p>防具: @user.EquippedArmor?.Name</p>
-    <p>アクセサリ: @user.EquippedAccessory?.Name</p>
+                <!-- アイテムグリッド -->
+                <div class="items-grid">
+                    @foreach (var item in GetFilteredItems())
+                    {
+                        <div class="item-card @(selectedItem?.Id == item.Id ? "selected" : "")"
+                             @onclick="() => SelectItem(item)">
+                            <div class="item-icon @GetItemTypeClass(item.Type)">
+                                @GetItemIcon(item.Type)
+                            </div>
+                            <div class="item-details">
+                                <div class="item-name">@item.Name</div>
+                                <div class="item-quantity">x@(item.Quantity)</div>
+                            </div>
+                            <div class="item-type-badge">@GetItemTypeName(item.Type)</div>
+                        </div>
+                    }
+                    
+                    @if (!GetFilteredItems().Any())
+                    {
+                        <div class="empty-message">
+                            <p>このカテゴリにアイテムがありません</p>
+                        </div>
+                    }
+                </div>
 
-    <h3>インベントリ</h3>
-    <ul>
-        @foreach (var it in user.Inventory)
-        {
-            <li>
-                @it.Name x @it.Quantity
-                <button @onclick="() => UseItem(it)">使う</button>
-                <button @onclick="() => EquipItem(it)">装備</button>
-                <button @onclick="() => SellItem(it)">売る (@it.Price ギル)</button>
-            </li>
-        }
-    </ul>
-}
+                <!-- アイテム詳細パネル -->
+                @if (selectedItem != null)
+                {
+                    <div class="item-detail-panel">
+                        <div class="detail-header">
+                            <div class="detail-icon @GetItemTypeClass(selectedItem.Type)">
+                                @GetItemIcon(selectedItem.Type)
+                            </div>
+                            <div class="detail-title">
+                                <h3>@selectedItem.Name</h3>
+                                <span class="detail-type">@GetItemTypeName(selectedItem.Type)</span>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-stats">
+                            @if (selectedItem.Type == "Weapon" && selectedItem.Attack > 0)
+                            {
+                                <div class="stat-row">
+                                    <span class="stat-label">攻撃力</span>
+                                    <span class="stat-value attack">+@selectedItem.Attack</span>
+                                </div>
+                            }
+                            @if (selectedItem.Type == "Armor" && selectedItem.Defense > 0)
+                            {
+                                <div class="stat-row">
+                                    <span class="stat-label">防御力</span>
+                                    <span class="stat-value defense">+@selectedItem.Defense</span>
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(selectedItem.Effect))
+                            {
+                                <div class="stat-row">
+                                    <span class="stat-label">効果</span>
+                                    <span class="stat-value effect">@selectedItem.Effect</span>
+                                </div>
+                            }
+                            @if (selectedItem.Price > 0)
+                            {
+                                <div class="stat-row">
+                                    <span class="stat-label">販売価格</span>
+                                    <span class="stat-value price">@selectedItem.Price ギル</span>
+                                </div>
+                            }
+                        </div>
+
+                        @if (HasRequirements(selectedItem))
+                        {
+                            <div class="requirements">
+                                <h4>必要能力値</h4>
+                                <div class="req-grid">
+                                    @if (selectedItem.RequiredStr > 0)
+                                    {
+                                        <span class="req @(user.Status.Str >= selectedItem.RequiredStr ? "met" : "unmet")">
+                                            STR @selectedItem.RequiredStr
+                                        </span>
+                                    }
+                                    @if (selectedItem.RequiredDex > 0)
+                                    {
+                                        <span class="req @(user.Status.Dex >= selectedItem.RequiredDex ? "met" : "unmet")">
+                                            DEX @selectedItem.RequiredDex
+                                        </span>
+                                    }
+                                    @if (selectedItem.RequiredInt > 0)
+                                    {
+                                        <span class="req @(user.Status.Int >= selectedItem.RequiredInt ? "met" : "unmet")">
+                                            INT @selectedItem.RequiredInt
+                                        </span>
+                                    }
+                                    @if (selectedItem.RequiredVit > 0)
+                                    {
+                                        <span class="req @(user.Status.Vit >= selectedItem.RequiredVit ? "met" : "unmet")">
+                                            VIT @selectedItem.RequiredVit
+                                        </span>
+                                    }
+                                    @if (selectedItem.RequiredAgi > 0)
+                                    {
+                                        <span class="req @(user.Status.Agi >= selectedItem.RequiredAgi ? "met" : "unmet")">
+                                            AGI @selectedItem.RequiredAgi
+                                        </span>
+                                    }
+                                    @if (selectedItem.RequiredLuk > 0)
+                                    {
+                                        <span class="req @(user.Status.Luk >= selectedItem.RequiredLuk ? "met" : "unmet")">
+                                            LUK @selectedItem.RequiredLuk
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+                        }
+
+                        <div class="detail-actions">
+                            @if (selectedItem.Type == "Consumable")
+                            {
+                                <button class="action-button use" @onclick="() => UseItem(selectedItem)">
+                                    🧪 使う
+                                </button>
+                            }
+                            @if (selectedItem.Type == "Weapon" || selectedItem.Type == "Armor" || selectedItem.Type == "Accessory")
+                            {
+                                <button class="action-button equip" @onclick="() => EquipItem(selectedItem)">
+                                    @(IsEquipped(selectedItem) ? "🔄 装備解除" : "⚔️ 装備")
+                                </button>
+                            }
+                            @if (selectedItem.Price > 0)
+                            {
+                                <button class="action-button sell" @onclick="() => SellItem(selectedItem)">
+                                    💰 売却 (@selectedItem.Price ギル)
+                                </button>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
 
 @code {
     private User? user;
+    private string selectedCategory = "all";
+    private InventoryItem? selectedItem;
 
-    protected override void OnInitialized()
+    private double HPPercent => user != null ? (double)user.HP / user.MaxHP * 100 : 0;
+
+    private string GetJobName(Job job) => job switch
     {
-        user = UserService.GetByUsername("demo");
-    }
+        Job.Warrior => "戦士",
+        Job.Monk => "モンク",
+        Job.WhiteMage => "白魔導士",
+        Job.BlackMage => "黒魔導士",
+        Job.Ranger => "レンジャー",
+        Job.Paladin => "パラディン",
+        Job.DarkKnight => "ダークナイト",
+        Job.Bard => "吟遊詩人",
+        Job.Thief => "シーフ",
+        Job.Ninja => "忍者",
+        Job.HolyKnight => "聖騎士",
+        Job.DeathKnight => "死騎",
+        Job.ArchMage => "大魔道師",
+        Job.BeastMaster => "ビーストマスター",
+        Job.Duelist => "剣豪",
+        Job.Grandmaster => "グランドマスター",
+        _ => job.ToString()
+    };
 
-    private void UseItem(InventoryItem it)
+    protected override async Task OnInitializedAsync()
     {
-        if (user == null) return;
-
-        if (it.Name == "ポーション")
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        var userClaim = state.User;
+        if (userClaim.Identity?.IsAuthenticated == true)
         {
-            user.HP = Math.Min(user.MaxHP, user.HP + 50);
-            it.Quantity -= 1;
-        }
-        if (it.Quantity <= 0)
-            user.Inventory.Remove(it);
-        UserService.UpdateUser(user);
-    }
-
-    private void EquipItem(InventoryItem it)
-    {
-        if (user == null) return;
-
-        // simple: if name contains weapon keywords equip as weapon, otherwise armor
-        if (it.Name.Contains("剣") || it.Name.Contains("こんぼう") || it.Name.Contains("Staff") || it.Name.Contains("Wand"))
-        {
-            user.EquippedWeapon = new Weapon { Name = it.Name, Attack = 5 };
+            var username = userClaim.FindFirst("name")?.Value ?? userClaim.Identity.Name;
+            user = UserService.GetByUsername(username ?? "demo");
         }
         else
         {
-            user.EquippedArmor = new Armor { Name = it.Name, Defense = 3 };
+            user = UserService.GetByUsername("demo");
         }
-        it.Quantity -= 1;
-        if (it.Quantity <= 0)
-            user.Inventory.Remove(it);
-        UserService.UpdateUser(user);
     }
 
-    private void SellItem(InventoryItem it)
+    private void SelectCategory(string category)
+    {
+        selectedCategory = category;
+        selectedItem = null;
+    }
+
+    private void SelectItem(InventoryItem item)
+    {
+        selectedItem = item;
+    }
+
+    private List<InventoryItem> GetFilteredItems()
+    {
+        if (user?.Inventory == null) return new List<InventoryItem>();
+        
+        return selectedCategory switch
+        {
+            "weapon" => user.Inventory.Where(i => i.Type == "Weapon").ToList(),
+            "armor" => user.Inventory.Where(i => i.Type == "Armor").ToList(),
+            "accessory" => user.Inventory.Where(i => i.Type == "Accessory").ToList(),
+            "consumable" => user.Inventory.Where(i => i.Type == "Consumable").ToList(),
+            "material" => user.Inventory.Where(i => i.Type == "Material").ToList(),
+            _ => user.Inventory.ToList()
+        };
+    }
+
+    private string GetItemTypeName(string type) => type switch
+    {
+        "Weapon" => "武器",
+        "Armor" => "防具",
+        "Accessory" => "アクセ",
+        "Consumable" => "消耗品",
+        "Material" => "素材",
+        _ => "その他"
+    };
+
+    private string GetItemTypeClass(string type) => type.ToLower();
+
+    private string GetItemIcon(string type) => type switch
+    {
+        "Weapon" => "⚔️",
+        "Armor" => "🛡️",
+        "Accessory" => "💍",
+        "Consumable" => "🧪",
+        "Material" => "📦",
+        _ => "📦"
+    };
+
+    private bool HasRequirements(InventoryItem item) =>
+        item.RequiredStr > 0 || item.RequiredDex > 0 || item.RequiredInt > 0 ||
+        item.RequiredVit > 0 || item.RequiredAgi > 0 || item.RequiredLuk > 0;
+
+    private bool IsEquipped(InventoryItem item)
+    {
+        if (user == null) return false;
+        return (user.EquippedWeapon?.Name == item.Name) ||
+               (user.EquippedArmor?.Name == item.Name) ||
+               (user.EquippedAccessory?.Name == item.Name) ||
+               (user.EquippedAccessory1?.Name == item.Name) ||
+               (user.EquippedAccessory2?.Name == item.Name);
+    }
+
+    private void UseItem(InventoryItem item)
     {
         if (user == null) return;
 
-        user.Gil += it.Price;
-        it.Quantity -= 1;
-        if (it.Quantity <= 0)
-            user.Inventory.Remove(it);
+        switch (item.Name)
+        {
+            case "ポーション":
+            case "草药":
+                user.HP = Math.Min(user.MaxHP, user.HP + 50);
+                break;
+            case "マナポーション":
+            case "魔法药水":
+                user.HP = Math.Min(user.MaxHP, user.HP + 30);
+                break;
+            default:
+                user.HP = Math.Min(user.MaxHP, user.HP + 30);
+                break;
+        }
+
+        item.Quantity -= 1;
+        if (item.Quantity <= 0)
+            user.Inventory.Remove(item);
+        
+        selectedItem = null;
+        UserService.UpdateUser(user);
+    }
+
+    private void EquipItem(InventoryItem item)
+    {
+        if (user == null) return;
+
+        if (item.Type == "Weapon")
+        {
+            if (user.EquippedWeapon?.Name == item.Name)
+                user.EquippedWeapon = null;
+            else
+                user.EquippedWeapon = new Weapon { Name = item.Name, Attack = item.Attack };
+        }
+        else if (item.Type == "Armor")
+        {
+            if (user.EquippedArmor?.Name == item.Name)
+                user.EquippedArmor = null;
+            else
+                user.EquippedArmor = new Armor { Name = item.Name, Defense = item.Defense };
+        }
+        else if (item.Type == "Accessory")
+        {
+            if (user.EquippedAccessory1?.Name == item.Name)
+                user.EquippedAccessory1 = null;
+            else if (user.EquippedAccessory2?.Name == item.Name)
+                user.EquippedAccessory2 = null;
+            else if (user.EquippedAccessory?.Name == item.Name)
+                user.EquippedAccessory = null;
+            else if (user.EquippedAccessory1 == null)
+                user.EquippedAccessory1 = new Accessory { Name = item.Name, Effect = item.Effect };
+            else if (user.EquippedAccessory2 == null)
+                user.EquippedAccessory2 = new Accessory { Name = item.Name, Effect = item.Effect };
+            else
+                user.EquippedAccessory = new Accessory { Name = item.Name, Effect = item.Effect };
+        }
+
+        UserService.UpdateUser(user);
+    }
+
+    private void SellItem(InventoryItem item)
+    {
+        if (user == null) return;
+
+        user.Gil += item.Price;
+        item.Quantity -= 1;
+        if (item.Quantity <= 0)
+            user.Inventory.Remove(item);
+        
+        selectedItem = null;
         UserService.UpdateUser(user);
     }
 }

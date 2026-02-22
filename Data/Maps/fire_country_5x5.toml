@@ -1,0 +1,297 @@
+# Fire Country 5x5 expanded map (TOML)
+# Origin: 火之国 (Inferno)
+# Grid: 5 x 5 (0..4)
+
+width = 5
+height = 5
+
+[start_position]
+x = 2
+y = 2
+country = "Inferno"
+capital = "Vulcanis"
+
+# ============================================
+# 主要施設
+# ============================================
+
+[[locations]]
+# 首都
+x = 2
+y = 2
+name = "Vulcanis"
+type = "Town"
+description = "火の国の首都。鍛冶屋や武器商人が集まる中心地。"
+country = "Inferno"
+population = 10000
+facilities = ["鍛冶屋", "武器屋", "宿屋", "魔法屋"]
+is_capital = true
+
+[[locations]]
+# 村
+x = 0
+y = 2
+name = "Ashfield"
+type = "Village"
+description = "火山の麓にある小さな村。"
+population = 500
+facilities = ["宿屋", "道具屋"]
+
+[[locations]]
+# 村
+x = 4
+y = 2
+name = "Emberfall"
+type = "Village"
+description = "瀑布の麓にある村。"
+population = 800
+facilities = ["宿屋", "素材屋"]
+
+# ============================================
+# フィールド/草原
+# ============================================
+
+[[locations]]
+x = 1
+y = 2
+name = "灼熱の平原"
+type = "Field"
+description = "溶岩流の外縁にある草原。弱いモンスターが点在する。"
+enemies = ["スライム", "ウルフ"]
+enemy_level = 2
+drops = ["草薬"]
+
+[[locations]]
+x = 2
+y = 1
+name = "熔岩の道"
+type = "Field"
+description = "溶岩の道。遭遇率が高い。"
+enemies = ["炎の蝙蝠", "ゴブリン"]
+enemy_level = 3
+
+[[locations]]
+x = 2
+y = 3
+name = "焦土平原"
+type = "Field"
+description = "焼き払われた平原。"
+enemies = ["スケルトン", "ゾンビ"]
+enemy_level = 2
+
+[[locations]]
+x = 3
+y = 2
+name = "黒曜石平原"
+type = "Field"
+description = "黒曜石が広がる平原。"
+enemies = ["岩石ゴーレム"]
+enemy_level = 3
+
+# ============================================
+# 森/林
+# ============================================
+
+[[locations]]
+x = 0
+y = 1
+name = "灰色の森"
+type = "Forest"
+description = "灰に覆われた暗い森。"
+enemies = ["暗黒妖精", "蝙蝠"]
+enemy_level = 3
+
+[[locations]]
+x = 4
+y = 1
+name = "燃える森"
+type = "Forest"
+description = "常時燃えている不思議な森。"
+enemies = ["火の精", "炎狼"]
+enemy_level = 4
+
+# ============================================
+# 砂漠/荒野
+# ============================================
+
+[[locations]]
+x = 3
+y = 4
+name = "焦熱の砂原"
+type = "Desert"
+description = "熱風が吹き荒れる広大な砂地。"
+enemies = ["砂の魔人", "砂蜥蜴"]
+enemy_level = 5
+required_level = 5
+drops = ["砂晶"]
+
+[[locations]]
+x = 4
+y = 4
+name = "灼熱の荒野"
+type = "Desert"
+description = "最も暑い荒野。"
+enemies = ["サソリ", "砂虫"]
+enemy_level = 6
+
+[[locations]]
+x = 0
+y = 4
+name = "灰砂漠"
+type = "Desert"
+description = "灰色の砂漠。"
+enemies = ["ミイラ", "骨馬"]
+enemy_level = 4
+
+# ============================================
+# 川/水
+# ============================================
+
+[[locations]]
+x = 1
+y = 4
+name = "熔岩川"
+type = "River"
+description = "溶岩が流れる川。渡れない。"
+walkable = false
+
+[[locations]]
+x = 3
+y = 0
+name = "熱泉"
+type = "Spring"
+description = "熱い泉。回復できる。"
+effect = "hp_heal_50"
+
+# ============================================
+# 山/洞窟
+# ============================================
+
+[[locations]]
+x = 0
+y = 0
+name = "灰Mount"
+type = "Mountain"
+description = "灰に覆われた山。"
+walkable = false
+
+[[locations]]
+x = 4
+y = 0
+name = "火山Mount"
+type = "Mountain"
+description = "活火山。"
+walkable = false
+
+[[locations]]
+# ダンジョン入口
+x = 1
+y = 0
+name = "赤熱の洞窟入口"
+type = "Dungeon"
+description = "火山の内部へ続く洞窟の入口。"
+enemies = ["オーク", "炎の蝙蝠"]
+enemy_level = 4
+required_level = 4
+special = "dungeon:lava_cavern"
+
+[[locations]]
+# ダンジョン入口
+x = 3
+y = 1
+name = "溶岩洞窟"
+type = "Dungeon"
+description = "溶岩が流れる危険な洞窟。"
+enemies = ["溶岩ゴーレム", "火霊"]
+enemy_level = 6
+required_level = 6
+special = "dungeon:magma_cave"
+
+# ============================================
+# 城/塔
+# ============================================
+
+[[locations]]
+x = 2
+y = 0
+name = "監視塔"
+type = "Tower"
+description = "国の北を守る監視塔。"
+enemies = ["弓兵", "兵卒"]
+enemy_level = 3
+
+# ============================================
+# 接続点（他国へ）
+# ============================================
+
+[[locations]]
+x = 0
+y = 3
+name = "灰色の関所"
+type = "Gate"
+description = "他国と接する前哨。"
+connection = "neutral"
+enemies = ["国境兵"]
+enemy_level = 3
+
+# ============================================
+# スpawnポイント
+# ============================================
+
+[[spawn_points]]
+name = "Plains Spawn"
+x = 1
+y = 2
+monster_templates = ["スライム", "ウルフ"]
+rate = 70
+
+[[spawn_points]]
+name = "Cave Mouth Spawn"
+x = 1
+y = 0
+monster_templates = ["オーク", "炎の蝙蝠"]
+rate = 50
+
+[[spawn_points]]
+name = "Desert Spawn"
+x = 3
+y = 4
+monster_templates = ["砂の魔人", "砂蜥蜴"]
+rate = 40
+
+[[spawn_points]]
+name = "Forest Spawn"
+x = 4
+y = 1
+monster_templates = ["火の精", "炎狼"]
+rate = 45
+
+# ============================================
+# 資源ポイント
+# ============================================
+
+[[resources]]
+name = "火山石"
+x = 3
+y = 0
+rarity = "common"
+
+[[resources]]
+name = "黒曜の結晶"
+x = 4
+y = 2
+rarity = "rare"
+
+[[resources]]
+name = "溶岩の塊"
+x = 2
+y = 4
+rarity = "uncommon"
+
+[[resources]]
+name = "炎の魂"
+x = 3
+y = 1
+rarity = "rare"
+
+# End of fire_country_5x5.toml

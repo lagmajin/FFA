@@ -1,0 +1,221 @@
+# 装飾品マスターデータ
+# ゲーム内で販売・入手可能な装飾品のベースデータ
+
+# === リング（Ring）===
+[[accessories]]
+id = 1
+name = "銅のリング"
+type = "Ring"
+defense = 1
+attack = 2
+magic = 0
+rarity = "White"
+price = 100
+durability = 50
+enhancement_cost = 80
+enhancement_success_rate = 0.9
+repair_cost = 10
+
+[[accessories]]
+id = 2
+name = "銀のリング"
+type = "Ring"
+defense = 3
+attack = 5
+magic = 3
+rarity = "White"
+price = 400
+durability = 80
+enhancement_cost = 150
+enhancement_success_rate = 0.85
+repair_cost = 20
+
+# === アミュレット（Amulet）===
+[[accessories]]
+id = 10
+name = "護りのアミュレット"
+type = "Amulet"
+defense = 5
+attack = 0
+magic = 2
+rarity = "White"
+price = 300
+durability = 60
+enhancement_cost = 100
+enhancement_success_rate = 0.9
+repair_cost = 15
+
+[[accessories]]
+id = 11
+name = "力のアミュレット"
+type = "Amulet"
+defense = 2
+attack = 8
+magic = 0
+rarity = "White"
+price = 500
+durability = 80
+enhancement_cost = 180
+enhancement_success_rate = 0.8
+repair_cost = 25
+
+# === イアリング（Earring）===
+[[accessories]]
+id = 20
+name = "知識のイアリング"
+type = "Earring"
+defense = 1
+attack = 0
+magic = 8
+rarity = "White"
+price = 450
+durability = 60
+enhancement_cost = 150
+enhancement_success_rate = 0.85
+repair_cost = 15
+
+[[accessories]]
+id = 21
+name = "敏捷のイアリング"
+type = "Earring"
+defense = 2
+attack = 3
+magic = 0
+rarity = "White"
+price = 400
+durability = 70
+enhancement_cost = 140
+enhancement_success_rate = 0.85
+repair_cost = 18
+
+# === ブレスレット（Bracelet）===
+[[accessories]]
+id = 30
+name = "体力のブレスレット"
+type = "Bracelet"
+defense = 4
+attack = 2
+magic = 0
+rarity = "White"
+price = 350
+durability = 80
+enhancement_cost = 130
+enhancement_success_rate = 0.85
+repair_cost = 20
+
+[[accessories]]
+id = 31
+name = "魔法のブレスレット"
+type = "Bracelet"
+defense = 2
+attack = 0
+magic = 10
+rarity = "White"
+price = 600
+durability = 80
+enhancement_cost = 200
+enhancement_success_rate = 0.8
+repair_cost = 25
+
+# === 高級装飾品（Purple）===
+[[accessories]]
+id = 100
+name = "精灵のリング"
+type = "Ring"
+defense = 8
+attack = 12
+magic = 8
+rarity = "Purple"
+price = 2500
+durability = 100
+enhancement_cost = 500
+enhancement_success_rate = 0.7
+repair_cost = 80
+
+[[accessories]]
+id = 101
+name = "賢者のアミュレット"
+type = "Amulet"
+defense = 5
+attack = 0
+magic = 20
+rarity = "Purple"
+price = 3000
+durability = 120
+enhancement_cost = 600
+enhancement_success_rate = 0.7
+repair_cost = 100
+
+# === 稀有装飾品（Red）===
+[[accessories]]
+id = 200
+name = "龍眼のリング"
+type = "Ring"
+defense = 15
+attack = 25
+magic = 15
+rarity = "Red"
+price = 15000
+durability = 150
+enhancement_cost = 1500
+enhancement_success_rate = 0.6
+repair_cost = 300
+
+[[accessories]]
+id = 201
+name = "賢王のイアリング"
+type = "Earring"
+defense = 5
+attack = 10
+magic = 35
+rarity = "Red"
+price = 18000
+durability = 150
+enhancement_cost = 1800
+enhancement_success_rate = 0.55
+repair_cost = 350
+
+# === 伝説装飾品（Orange）===
+[[accessories]]
+id = 300
+name = "神的印章"
+type = "Amulet"
+defense = 25
+attack = 30
+magic = 30
+rarity = "Orange"
+price = 60000
+durability = 200
+enhancement_cost = 6000
+enhancement_success_rate = 0.45
+repair_cost = 1200
+
+# === 神話装飾品（Gold）===
+[[accessories]]
+id = 400
+name = "星天使のリング"
+type = "Ring"
+defense = 40
+attack = 50
+magic = 50
+rarity = "Gold"
+price = 250000
+durability = 300
+enhancement_cost = 25000
+enhancement_success_rate = 0.35
+repair_cost = 5000
+
+# === 最上位装飾品（Rainbow）===
+[[accessories]]
+id = 500
+name = "宇宙の統率者"
+type = "Amulet"
+defense = 80
+attack = 100
+magic = 100
+rarity = "Rainbow"
+price = 1000000
+durability = 500
+enhancement_cost = 100000
+enhancement_success_rate = 0.2
+repair_cost = 20000

@@ -1,12 +1,14 @@
 @page "/battle"
 @page "/battle/{FieldId:int}"
 @rendermode InteractiveServer
+@using FFA.Services
 @inject NavigationManager Navigation
 @inject Services.UserService UserService
 @inject Services.FieldService FieldService
 @inject Services.DungeonService DungeonService
 @inject Services.QuestService QuestService
 @inject Services.CombatService Combat
+@inject Services.TimeWeatherService TimeWeatherService
 
 <PageTitle>バトル</PageTitle>
 
@@ -28,6 +30,27 @@
                 <span>難易度: @currentField.Difficulty</span>
                 <span>推奨Lv: @(currentField.Difficulty * 5)</span>
             </div>
+            
+            <!-- 時間・天候表示 -->
+            <div class="time-weather-display">
+                <span class="time-icon">⏰</span>
+                <span class="time-value">@TimeWeatherService.TimeOfDay.ToString("F1")時</span>
+                <span class="phase-badge phase-@TimeWeatherService.Phase.ToString().ToLower()">
+                    @GetPhaseIcon() @TimeWeatherService.Phase.ToString()
+                </span>
+                <span class="weather-badge weather-@TimeWeatherService.Weather.ToString().ToLower()">
+                    @GetWeatherIcon() @TimeWeatherService.Weather.ToString()
+                </span>
+            </div>
+            
+            <!-- 夜間警告 -->
+            @if (TimeWeatherService.IsNight)
+            {
+                <div class="night-warning">
+                    🌙 夜です！モンスターが強化されています！
+                </div>
+            }
+            
             <button class="action-button search-btn" @onclick="SearchEnemy">🔍 敵を探す</button>
             <button class="back-button" @onclick="GoToField">場所を変える</button>
         </div>
@@ -622,7 +645,30 @@
     private Enemy GenerateEnemyForField(Models.Field field, int groupIndex = 0)
     {
         var random = new Random();
-        var enemyName = field.Enemies[random.Next(field.Enemies.Length)];
+        var modifiers = TimeWeatherService.GetModifiers();
+        
+        // 夜間-only monsters chance
+        var isNight = TimeWeatherService.IsNight;
+        string enemyName;
+        
+        if (isNight && random.NextDouble() < 0.15)
+        {
+            // 夜は特別な敵に出逢う可能性がある
+            var nightMonsters = TimeWeatherService.GetNightOnlyMonsters();
+            if (nightMonsters.Count > 0)
+            {
+                enemyName = nightMonsters[random.Next(nightMonsters.Count)];
+            }
+            else
+            {
+                enemyName = field.Enemies[random.Next(field.Enemies.Length)];
+            }
+        }
+        else
+        {
+            enemyName = field.Enemies[random.Next(field.Enemies.Length)];
+        }
+        
         var userLevel = currentUser?.Exp / 100 + 1 ?? 1;
         
         // エリア難易度に基づく基本ステータス
@@ -640,16 +686,27 @@
         var enemyType = EnemyType.Normal;
         var typeMultiplier = 1.0;
         
-        if (typeRoll < 3) // 3% レア
+        // 夜はエリート・レア出現率上昇
+        var eliteChance = isNight ? 15 : 10;
+        var rareChance = isNight ? 8 : 3;
+        
+        if (typeRoll < rareChance) // 8% レア（夜）
         {
             enemyType = EnemyType.Rare;
             typeMultiplier = 2.0;
         }
-        else if (typeRoll < 10) // 7% エリート
+        else if (typeRoll < eliteChance) // 7% エリート（夜）
         {
             enemyType = EnemyType.Elite;
             typeMultiplier = 1.5;
         }
+        
+        // 夜間-débuffs apply
+        var nightHpMult = modifiers.MonsterHPMultiplier;
+        var nightAtkMult = modifiers.MonsterAttackMultiplier;
+        var nightDefMult = modifiers.MonsterDefenseMultiplier;
+        var nightExpMult = modifiers.MonsterExpMultiplier;
+        var nightDropMult = modifiers.MonsterDropRateMultiplier;
         
         // ドロップアイテム生成
         var drops = new List<DropItem>();
@@ -657,7 +714,7 @@
         drops.Add(new DropItem 
         { 
             Name = dropName, 
-            DropRate = 25 + field.Difficulty * 5,
+            DropRate = (int)((25 + field.Difficulty * 5) * nightDropMult),
             MinQuantity = 1,
             MaxQuantity = 1 + field.Difficulty / 2
         });
@@ -669,29 +726,32 @@
             rareDrop = new DropItem
             {
                 Name = GetRareDropForField(field),
-                DropRate = enemyType == EnemyType.Rare ? 30 : 15,
+                DropRate = (int)((enemyType == EnemyType.Rare ? 30 : 15) * nightDropMult),
                 Rarity = enemyType == EnemyType.Rare ? ItemRarity.Epic : ItemRarity.Rare,
                 MinQuantity = 1,
                 MaxQuantity = 1
             };
         }
         
+        // 夜間-warning tag
+        var nightTag = isNight ? " [夜]" : "";
+        
         return new Enemy
         {
-            Name = enemyName,
+            Name = enemyName + nightTag,
             Icon = GetEnemyIcon(enemyName),
             Level = Math.Max(1, field.Difficulty * 3 + random.Next(-1, 2)),
-            HP = (int)(baseHp * levelMultiplier * typeMultiplier),
-            MaxHP = (int)(baseHp * levelMultiplier * typeMultiplier),
-            Attack = (int)(baseAtk * levelMultiplier * typeMultiplier),
-            Defense = (int)(baseDef * levelMultiplier * typeMultiplier),
-            Exp = (int)(baseExp * typeMultiplier),
+            HP = (int)(baseHp * levelMultiplier * typeMultiplier * nightHpMult),
+            MaxHP = (int)(baseHp * levelMultiplier * typeMultiplier * nightHpMult),
+            Attack = (int)(baseAtk * levelMultiplier * typeMultiplier * nightAtkMult),
+            Defense = (int)(baseDef * levelMultiplier * typeMultiplier * nightDefMult),
+            Exp = (int)(baseExp * typeMultiplier * nightExpMult),
             Gil = (int)(baseGil * typeMultiplier),
             Type = enemyType,
             Speed = 10 + field.Difficulty * 2,
             DropItems = drops,
             RareDrop = rareDrop,
-            BonusExp = enemyType != EnemyType.Normal ? (int)(baseExp * 0.5 * (int)typeMultiplier) : 0,
+            BonusExp = enemyType != EnemyType.Normal ? (int)(baseExp * 0.5 * (int)typeMultiplier * nightExpMult) : 0,
             BonusGil = enemyType != EnemyType.Normal ? (int)(baseGil * 0.5 * (int)typeMultiplier) : 0
         };
     }
@@ -753,6 +813,32 @@
     private string GetRarityClass(ItemRarity rarity)
     {
         return $"rarity-{rarity.ToString().ToLower()}";
+    }
+
+    private string GetPhaseIcon()
+    {
+        return TimeWeatherService.Phase switch
+        {
+            DayPhase.Dawn => "🌅",
+            DayPhase.Day => "☀️",
+            DayPhase.Dusk => "🌇",
+            DayPhase.Night => "🌙",
+            _ => "⏰"
+        };
+    }
+
+    private string GetWeatherIcon()
+    {
+        return TimeWeatherService.Weather switch
+        {
+            WeatherType.Clear => "☀️",
+            WeatherType.Cloudy => "☁️",
+            WeatherType.Rain => "🌧️",
+            WeatherType.Storm => "⛈️",
+            WeatherType.Snow => "❄️",
+            WeatherType.Fog => "🌫️",
+            _ => "🌤️"
+        };
     }
 
     private async Task PlayerAttack()

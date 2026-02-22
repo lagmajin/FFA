@@ -1,0 +1,149 @@
+@inject Services.UserService UserService
+@inject AuthenticationStateProvider AuthStateProvider
+
+<div class="region-container">
+    <div class="region-header">
+        <span class="region-title">📍 @RegionName</span>
+        <span class="region-size">5x5</span>
+    </div>
+    
+    <div class="region-grid">
+        @for (int y = 0; y < 5; y++)
+        {
+            <div class="region-row">
+                @for (int x = 0; x < 5; x++)
+                {
+                    var tileType = GetTileType(RegionX * 5 + x, RegionY * 5 + y);
+                    var isPlayerHere = IsPlayerHere(x, y);
+                    <div class="region-tile @tileType @(isPlayerHere ? "player-here" : "")"
+                         title="@GetTileDescription(tileType)">
+                        @if (isPlayerHere)
+                        {
+                            <span class="player-marker">🧙</span>
+                        }
+                        else
+                        {
+                            <span class="tile-symbol">@GetTileSymbol(tileType)</span>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    </div>
+    
+    <div class="region-info">
+        <div class="info-item">
+            <span class="info-label">現在地:</span>
+            <span class="info-value">(@LocalX, @LocalY)</span>
+        </div>
+    </div>
+    
+    <div class="region-legend">
+        <div class="legend-title">■ タイル</div>
+        <div class="legend-items">
+            <div class="legend-item"><span>🏠</span> 町</div>
+            <div class="legend-item"><span>🌾</span> 草原</div>
+            <div class="legend-item"><span>🌲</span> 森</div>
+            <div class="legend-item"><span>💧</span> 水</div>
+            <div class="legend-item"><span>🏔️</span> 山</div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string RegionName { get; set; } = "中央平原";
+    
+    [Parameter]
+    public int RegionX { get; set; } = 0;
+    
+    [Parameter]
+    public int RegionY { get; set; } = 0;
+    
+    private int LocalX => PlayerX % 5;
+    private int LocalY => PlayerY % 5;
+    private int PlayerX { get; set; } = 2;
+    private int PlayerY { get; set; } = 2;
+    
+    private string GetTileType(int x, int y)
+    {
+        // 简单区域定义
+        int regionKey = RegionY * 10 + RegionX;
+        
+        // 中央城镇区域
+        if (regionKey == 0)
+        {
+            if (x == 2 && y == 2) return "town";
+            if (x == 2 && y == 1) return "road";
+            if (x == 2 && y == 3) return "road";
+            if (x == 1 && y == 2) return "road";
+            if (x == 3 && y == 2) return "road";
+            return "grass";
+        }
+        
+        // 默认草地
+        return "grass";
+    }
+    
+    private string GetTileSymbol(string tileType)
+    {
+        return tileType switch
+        {
+            "town" => "🏠",
+            "village" => "🏘️",
+            "grass" => "🌾",
+            "forest" => "🌲",
+            "deep_forest" => "🌳",
+            "mountain" => "🏔️",
+            "water" => "💧",
+            "river" => "🏞️",
+            "road" => "🛤️",
+            "dungeon" => "🚪",
+            "castle" => "🏰",
+            "field" => "🌻",
+            _ => "🌾"
+        };
+    }
+    
+    private string GetTileDescription(string tileType)
+    {
+        return tileType switch
+        {
+            "town" => "町 - 休息と交易",
+            "village" => "村 - 宿泊可能",
+            "grass" => "草原 - エンカウント",
+            "forest" => "森 - 木材と採取",
+            "deep_forest" => "深い森 - 稀有",
+            "mountain" => "山 - 登攀不可",
+            "water" => "水 - 泳げない",
+            "river" => "川 - 釣り可能",
+            "road" => "道 - 移動可能",
+            "dungeon" => "ダンジョン - 冒険",
+            "castle" => "城 - 王宮",
+            "field" => "野原 - 探索",
+            _ => "不明"
+        };
+    }
+    
+    private bool IsPlayerHere(int x, int y)
+    {
+        return x == LocalX && y == LocalY;
+    }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        var isAuth = state.User?.Identity?.IsAuthenticated ?? false;
+        var username = state.User?.Identity?.Name;
+        
+        if (isAuth && !string.IsNullOrEmpty(username))
+        {
+            var user = UserService.GetByUsername(username);
+            if (user != null)
+            {
+                PlayerX = user.MapX;
+                PlayerY = user.MapY;
+            }
+        }
+    }
+}

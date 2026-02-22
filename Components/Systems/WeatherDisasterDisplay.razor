@@ -1,0 +1,270 @@
+@inject Services.TimeWeatherService TimeWeatherService
+@inject Services.WeatherEffectService WeatherEffectService
+
+<div class="weather-disaster-panel">
+    <div class="panel-header">
+        <span class="panel-title">🌤️ 天候 & 災害情報</span>
+    </div>
+    
+    <div class="region-info">
+        <span class="region-label">現在地:</span>
+        <span class="region-name">@CurrentRegionName</span>
+    </div>
+    
+    <div class="weather-section">
+        <div class="weather-current">
+            <span class="weather-icon">@CurrentWeatherIcon</span>
+            <span class="weather-name">@CurrentWeatherName</span>
+        </div>
+        
+        @if (CurrentDisaster != null)
+        {
+            <div class="disaster-alert @CurrentDisaster.SeverityClass">
+                <span class="disaster-icon">@CurrentDisaster.Icon</span>
+                <span class="disaster-name">@CurrentDisaster.JapaneseName</span>
+                <span class="disaster-duration">残り @CurrentDisaster.RemainingHours 時間</span>
+            </div>
+        }
+        else if (HasActiveDisaster)
+        {
+            <div class="disaster-warning">
+                <span class="warning-icon">⚠️</span>
+                <span class="warning-text">現在災害が発生中！</span>
+            </div>
+        }
+    </div>
+    
+    <div class="effects-section">
+        <h4>📊 現在の効果</h4>
+        
+        @if (ActiveEffects.Any())
+        {
+            <div class="effects-list">
+                @foreach (var effect in ActiveEffects)
+                {
+                    <div class="effect-item @effect.Class">
+                        <span class="effect-icon">@effect.Icon</span>
+                        <span class="effect-text">@effect.Description</span>
+                        <span class="effect-value">@effect.Value</span>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="effects-empty">
+                <span>特に効果は 없습니다</span>
+            </div>
+        }
+    </div>
+    
+    <div class="active-buffs">
+        <h4>✨ バフ効果</h4>
+        @if (ActiveBuffs.Any())
+        {
+            <div class="buff-list">
+                @foreach (var buff in ActiveBuffs)
+                {
+                    <div class="buff-item positive">
+                        <span class="buff-icon">@buff.Icon</span>
+                        <span class="buff-name">@buff.Name</span>
+                        <span class="buff-effect">@buff.Effect</span>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="buff-empty">
+                <span>バフ効果なし</span>
+            </div>
+        }
+    </div>
+    
+    <div class="active-debuffs">
+        <h4>💢 デバフ効果</h4>
+        @if (ActiveDebuffs.Any())
+        {
+            <div class="debuff-list">
+                @foreach (var debuff in ActiveDebuffs)
+                {
+                    <div class="debuff-item negative">
+                        <span class="debuff-icon">@debuff.Icon</span>
+                        <span class="debuff-name">@debuff.Name</span>
+                        <span class="debuff-effect">@debuff.Effect</span>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="debuff-empty">
+                <span>デバフ効果なし</span>
+            </div>
+        }
+    </div>
+    
+    @if (UnlockedLocations.Any())
+    {
+        <div class="unlocked-section">
+            <h4>🔓 解放された場所</h4>
+            <div class="unlocked-list">
+                @foreach (var loc in UnlockedLocations)
+                {
+                    <div class="unlocked-item">
+                        <span class="loc-icon">@loc.Icon</span>
+                        <span class="loc-name">@loc.Name</span>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+    
+    <div class="panel-footer">
+        <button class="refresh-btn" @onclick="RefreshData">
+            🔄 更新
+        </button>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string CurrentRegionName { get; set; } = "ワールド";
+    
+    [Parameter]
+    public int PlayerLevel { get; set; } = 1;
+    
+    private string CurrentWeatherIcon => GetWeatherIcon(WeatherEffectService.GetCurrentExtendedWeather());
+    private string CurrentWeatherName => GetWeatherName(WeatherEffectService.GetCurrentExtendedWeather());
+    
+    private DisasterData? CurrentDisaster { get; set; }
+    private bool HasActiveDisaster => CurrentDisaster != null;
+    
+    private List<EffectDisplay> ActiveEffects { get; set; } = new();
+    private List<BuffDisplay> ActiveBuffs { get; set; } = new();
+    private List<DebuffDisplay> ActiveDebuffs { get; set; } = new();
+    private List<LocationDisplay> UnlockedLocations { get; set; } = new();
+    
+    protected override void OnInitialized()
+    {
+        LoadWeatherData();
+    }
+    
+    private void RefreshData()
+    {
+        LoadWeatherData();
+    }
+    
+    private void LoadWeatherData()
+    {
+        // サンプルデータ（実際はサービスから取得）
+        ActiveEffects = new List<EffectDisplay>
+        {
+            new() { Icon = "⚔️", Description = "攻撃力", Value = "+15%", Class = "positive" },
+            new() { Icon = "🎯", Description = "命中率", Value = "+10%", Class = "positive" }
+        };
+        
+        ActiveBuffs = new List<BuffDisplay>
+        {
+            new() { Icon = "🔥", Name = "火属性強化", Effect = "火傷+30%" },
+            new() { Icon = "💎", Name = "鉱石追加", Effect = "ドロップ率+50%" }
+        };
+        
+        ActiveDebuffs = new List<DebuffDisplay>
+        {
+            new() { Icon = "💊", Name = "回復低下", Effect = "回復量-20%" }
+        };
+        
+        UnlockedLocations = new List<LocationDisplay>
+        {
+            new() { Icon = "🏜️", Name = "砂漠のダンジョン" },
+            new() { Icon = "⛏️", Name = "秘密の鉱山" }
+        };
+        
+        // 災害情報はランダム（デモ用）
+        CurrentDisaster = new DisasterData
+        {
+            Id = 1,
+            Name = "Drought",
+            JapaneseName = "干ばつ",
+            Icon = "🏜️",
+            SeverityClass = "warning",
+            RemainingHours = 18
+        };
+    }
+    
+    private string GetWeatherIcon(ExtendedWeatherType weather)
+    {
+        return weather switch
+        {
+            ExtendedWeatherType.Clear => "☀️",
+            ExtendedWeatherType.Cloudy => "☁️",
+            ExtendedWeatherType.Rain => "🌧️",
+            ExtendedWeatherType.Storm => "⛈️",
+            ExtendedWeatherType.Snow => "❄️",
+            ExtendedWeatherType.Fog => "🌫️",
+            ExtendedWeatherType.Blizzard => "🌨️",
+            ExtendedWeatherType.Thunder => "⚡",
+            ExtendedWeatherType.HeatWave => "🔥",
+            ExtendedWeatherType.ColdWave => "🥶",
+            _ => "🌤️"
+        };
+    }
+    
+    private string GetWeatherName(ExtendedWeatherType weather)
+    {
+        return weather switch
+        {
+            ExtendedWeatherType.Clear => "晴れ",
+            ExtendedWeatherType.Cloudy => "曇り",
+            ExtendedWeatherType.Rain => "雨",
+            ExtendedWeatherType.Storm => "嵐",
+            ExtendedWeatherType.Snow => "雪",
+            ExtendedWeatherType.Fog => "霧",
+            ExtendedWeatherType.Blizzard => "吹雪",
+            ExtendedWeatherType.Thunder => "雷雨",
+            ExtendedWeatherType.HeatWave => "猛暑",
+            ExtendedWeatherType.ColdWave => "寒波",
+            _ => "不明"
+        };
+    }
+    
+    // データクラス
+    private class DisasterData
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = "";
+        public string JapaneseName { get; set; } = "";
+        public string Icon { get; set; } = "";
+        public string SeverityClass { get; set; } = "";
+        public int RemainingHours { get; set; }
+    }
+    
+    private class EffectDisplay
+    {
+        public string Icon { get; set; } = "";
+        public string Description { get; set; } = "";
+        public string Value { get; set; } = "";
+        public string Class { get; set; } = "";
+    }
+    
+    private class BuffDisplay
+    {
+        public string Icon { get; set; } = "";
+        public string Name { get; set; } = "";
+        public string Effect { get; set; } = "";
+    }
+    
+    private class DebuffDisplay
+    {
+        public string Icon { get; set; } = "";
+        public string Name { get; set; } = "";
+        public string Effect { get; set; } = "";
+    }
+    
+    private class LocationDisplay
+    {
+        public string Icon { get; set; } = "";
+        public string Name { get; set; } = "";
+    }
+}

@@ -1,0 +1,348 @@
+# Neutral Border Regions Map (TOML)
+# 国と国の中間地域マップデータ
+# 中立地帯 - 各国につながる anúncio地域
+
+[width] = 5
+height = 5
+
+[start_position]
+x = 2
+y = 2
+country = "Neutral"
+capital = "Haven"
+
+# ============================================
+# 主要施設
+# ============================================
+
+[[locations]]
+# 中立地帯の首都/ハブ
+x = 2
+y = 2
+name = "Haven"
+type = "Town"
+description = "中立地帯の首都。全ての国からの 여행者が集まる安全な港。"
+country = "Neutral"
+population = 15000
+facilities = ["宿屋", "銀行", "ギルド本部", "交易所", "武器屋", "防具屋"]
+is_capital = true
+
+[[locations]]
+# 村
+x = 0
+y = 2
+name = "Crossroads"
+type = "Village"
+description = "四つの道が交わる十字路の村。"
+population = 800
+facilities = ["宿屋", "材料屋"]
+
+[[locations]]
+# 村
+x = 4
+y = 2
+name = "Gateway"
+type = "Village"
+description = "東への門がある村。"
+population = 600
+facilities = ["宿屋", "通貨両替"]
+
+[[locations]]
+# 村
+x = 2
+y = 0
+name = "Highland"
+type = "Village"
+description = "高台にある小さな村。"
+population = 400
+facilities = ["宿屋", "材料屋"]
+
+# ============================================
+# フィールド/平原
+# ============================================
+
+[[locations]]
+x = 1
+y = 2
+name = "中央平原"
+type = "Field"
+description = "中立地帯の中心にある広い平原。"
+enemies = ["ウサギ", "鹿", "蝶"]
+enemy_level = 1
+
+[[locations]]
+x = 2
+y = 1
+name = "風の草原"
+type = "Field"
+description = "常に穏やかな風が吹く草原。"
+enemies = ["馬", "羊", "風鳥"]
+enemy_level = 2
+
+[[locations]]
+x = 2
+y = 3
+name = "名のりの野"
+type = "Field"
+description = "古い時代に名を刻んだ野。"
+enemies = ["スライム", "ネズミ"]
+enemy_level = 1
+
+[[locations]]
+x = 3
+y = 2
+name = "商人街道"
+type = "Field"
+description = "商人が往来する街道。"
+enemies = ["ゴブリン", "ねずみ"]
+enemy_level = 2
+
+# ============================================
+# 森/林
+# ============================================
+
+[[locations]]
+x = 0
+y = 1
+name = "謎の森"
+type = "Forest"
+description = "詳細な不明な森。地元でも足を踏み入れない。"
+enemies = ["蝙蝠", "狼", "毒キノコ"]
+enemy_level = 3
+
+[[locations]]
+x = 4
+y = 1
+name = "月光の森"
+type = "Forest"
+description = "夜になると月光が降り注ぐ美しい森。"
+enemies = ["森精", "月光妖精", "白鹿"]
+enemy_level = 3
+
+[[locations]]
+x = 1
+y = 1
+name = "小報告の森"
+type = "Forest"
+description = "小さな动物がたくさんの森。"
+enemies = ["リス", "ウサギ", "キツネ"]
+enemy_level = 2
+
+# ============================================
+# 川/水
+# ============================================
+
+[[locations]]
+x = 3
+y = 1
+name = "境の川"
+type = "River"
+description = "中立地帯を流れる川。"
+enemies = ["魚", "カエル", "水馬"]
+enemy_level = 2
+
+[[locations]]
+x = 0
+y = 3
+name = "清泉"
+type = "Spring"
+description = "清らかな泉。回復できる。"
+effect = "hp_heal_30"
+
+[[locations]]
+x = 4
+y = 3
+name = "湖のほとり"
+type = "Lake"
+description = "静かな湖のほとり。"
+enemies = ["水鳥", "魚人", "蓮"]
+enemy_level = 2
+
+# ============================================
+# 山/洞窟
+# ============================================
+
+[[locations]]
+x = 1
+y = 0
+name = "石の山"
+type = "Mountain"
+description = "石がちな山。"
+walkable = false
+
+[[locations]]
+x = 3
+y = 0
+name = "鐘の台山"
+type = "Mountain"
+description = "頂上に古い祠がある山。"
+enemies = ["山妖怪", "蝙蝠"]
+enemy_level = 3
+
+[[locations]]
+x = 0
+y = 0
+name = "古の洞穴"
+type = "Dungeon"
+description = "昔話の洞穴。冒険心が試される。"
+enemies = ["蝙蝠", "スケルトン", "ゴーレム"]
+enemy_level = 3
+
+[[locations]]
+x = 4
+y = 0
+name = "迷宮の入口"
+type = "Dungeon"
+description = "複雑な迷宮の入口。"
+enemies = ["ミラー", "魔法生物", "トラップ"]
+enemy_level = 4
+required_level = 4
+
+# ============================================
+# 塔
+# ============================================
+
+[[locations]]
+x = 3
+y = 3
+name = "監視塔"
+type = "Tower"
+description = "中立地帯を見渡す監視塔。"
+enemies = ["塔の守護者", "弓箭兵"]
+enemy_level = 3
+
+# ============================================
+# 国境門（他国へ）
+# ============================================
+
+[[locations]]
+x = 0
+y = 4
+name = "火之国門"
+type = "Gate"
+description = "火之国へ続く門。"
+connection = "Inferno"
+enemies = ["国境兵"]
+enemy_level = 2
+
+[[locations]]
+x = 1
+y = 4
+name = "自然之門"
+type = "Gate"
+description = "自然之国へ続く門。"
+connection = "Nature"
+enemies = ["国境兵"]
+enemy_level = 2
+
+[[locations]]
+x = 2
+y = 4
+name = "雪国門"
+type = "Gate"
+description = "雪之国へ続く門。"
+connection = "Frostheim"
+enemies = ["国境兵"]
+enemy_level = 2
+
+[[locations]]
+x = 3
+y = 4
+name = "雷鳴之門"
+type = "Gate"
+description = "雷鳴之国へ続く門。"
+connection = "Storm"
+enemies = ["国境兵"]
+enemy_level = 2
+
+[[locations]]
+x = 4
+y = 4
+name = "闇之国門"
+type = "Gate"
+description = "闇之国へ続く門。"
+connection = "Underworld"
+enemies = ["闇の哨兵"]
+enemy_level = 4
+required_level = 5
+
+# ============================================
+# Spawn Points
+# ============================================
+
+[[spawn_points]]
+name = "Central Plains Spawn"
+x = 1
+y = 2
+monster_templates = ["ウサギ", "鹿", "蝶"]
+rate = 70
+
+[[spawn_points]]
+name = "Mystery Forest Spawn"
+x = 0
+y = 1
+monster_templates = ["蝙蝠", "狼", "毒キノコ"]
+rate = 50
+
+[[spawn_points]]
+name = "Moonlight Forest Spawn"
+x = 4
+y = 1
+monster_templates = ["森精", "月光妖精", "白鹿"]
+rate = 45
+
+[[spawn_points]]
+name = "Ancient Cave Spawn"
+x = 0
+y = 0
+monster_templates = ["蝙蝠", "スケルトン", "ゴーレム"]
+rate = 40
+
+[[spawn_points]]
+name = "Labyrinth Spawn"
+x = 4
+y = 0
+monster_templates = ["ミラー", "魔法生物", "トラップ"]
+rate = 35
+
+# ============================================
+# Resources
+# ============================================
+
+[[resources]]
+name = "薬草"
+x = 1
+y = 2
+rarity = "common"
+
+[[resources]]
+name = "木材"
+x = 1
+y = 1
+rarity = "common"
+
+[[resources]]
+name = "石"
+x = 3
+y = 0
+rarity = "common"
+
+[[resources]]
+name = "月光石"
+x = 4
+y = 1
+rarity = "rare"
+
+[[resources]]
+name = "魔法の結晶"
+x = 4
+y = 0
+rarity = "rare"
+
+[[resources]]
+name = "古の宝珠"
+x = 0
+y = 0
+rarity = "epic"
+
+# End of neutral_border_5x5.toml

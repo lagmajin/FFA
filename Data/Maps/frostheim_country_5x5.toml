@@ -1,0 +1,327 @@
+# Frostheim Country 5x5 expanded map (TOML)
+# Origin: 雪国 (Frostheim)
+# Grid: 5 x 5 (0..4)
+
+width = 5
+height = 5
+
+[start_position]
+x = 2
+y = 2
+country = "Frostheim"
+capital = "Glaciermount"
+
+# ============================================
+# 主要施設
+# ============================================
+
+[[locations]]
+# 首都
+x = 2
+y = 2
+name = "Glaciermount"
+type = "Town"
+description = "雪山の中の美しい首都。氷の彫刻が有名。"
+country = "Frostheim"
+population = 10000
+facilities = ["氷晶屋", "防具屋", "宿屋", "魔法屋"]
+is_capital = true
+
+[[locations]]
+# 村
+x = 0
+y = 3
+name = "Snowpeak"
+type = "Village"
+description = "雪山の麓の村。氷漁が盛ん。"
+population = 500
+facilities = ["宿屋", "素材屋"]
+
+[[locations]]
+# 町
+x = 4
+y = 3
+name = "Frostport"
+type = "Town"
+description = "氷の国の港町。"
+population = 2500
+facilities = ["武器屋", "宿屋", "商人"]
+
+[[locations]]
+# 村
+x = 2
+y = 4
+name = "Iceberg"
+type = "Village"
+description = "氷山に浮かぶ小さな村。"
+population = 300
+facilities = ["宿屋", "漁師"]
+
+# ============================================
+# 雪山/雪原
+# ============================================
+
+[[locations]]
+x = 1
+y = 2
+name = "吹雪平原"
+type = "Field"
+description = "強い吹雪の見える平原。"
+enemies = ["雪巨人", "風霊", "冰狼"]
+enemy_level = 3
+
+[[locations]]
+x = 2
+y = 1
+name = "永久凍土"
+type = "Snow"
+description = "凍りついた大地。"
+enemies = ["雪だるま", "冰ゴーレム", "白狼"]
+enemy_level = 4
+
+[[locations]]
+x = 2
+y = 3
+name = "海岸冰原"
+type = "Field"
+description = "凍る海岸。"
+enemies = ["雪兔", "海鳴り", "冰鳥"]
+enemy_level = 2
+
+[[locations]]
+x = 3
+y = 2
+name = "白銀平原"
+type = "Snow"
+description = "一面雪に覆われた平原。"
+enemies = ["雪巨人", "白狼", "冰精灵"]
+enemy_level = 3
+
+# ============================================
+# 森林
+# ============================================
+
+[[locations]]
+x = 0
+y = 2
+name = "雪林"
+type = "Forest"
+description = "雪に覆われた森。"
+enemies = ["白狼", "雪兔", "冰精灵"]
+enemy_level = 3
+
+[[locations]]
+x = 1
+y = 1
+name = "霧氷森"
+type = "Forest"
+description = "霧氷が降りる美しい森。"
+enemies = ["冰精", "雪妖精", "白鹿"]
+enemy_level = 3
+
+[[locations]]
+x = 0
+y = 1
+name = "氷樹林"
+type = "Forest"
+description = "凍った木々が立つ森。"
+enemies = ["樹妖", "根妖", "雪狼"]
+enemy_level = 4
+
+# ============================================
+# 湖/氷海
+# ============================================
+
+[[locations]]
+x = 3
+y = 1
+name = "冰湖"
+type = "Lake"
+description = "凍りついた湖。"
+enemies = ["冰Elemental", "魚人", "冰魚"]
+enemy_level = 3
+
+[[locations]]
+x = 4
+y = 1
+name = "凍海"
+type = "Ocean"
+description = "凍りついた海。"
+enemies = ["海霊", "冰魚", "海獣"]
+enemy_level = 4
+
+[[locations]]
+x = 4
+y = 2
+name = "氷晶海岸"
+type = "Beach"
+description = "氷晶が光る海岸。"
+enemies = ["雪鳥", "冰貝", "海霊"]
+enemy_level = 2
+
+[[locations]]
+x = 3
+y = 3
+name = "内海"
+type = "Lake"
+description = "サーリ安全に囲まれた海。"
+enemies = ["水霊", "魚人", "冰魚"]
+enemy_level = 3
+
+# ============================================
+# 山/氷山
+# ============================================
+
+[[locations]]
+x = 1
+y = 0
+name = "冰山"
+type = "Mountain"
+description = "巨大な氷山。"
+enemies = ["冰ゴーレム", "白狼王", "雪精灵"]
+enemy_level = 4
+
+[[locations]]
+x = 0
+y = 0
+name = "大氷壁"
+type = "Mountain"
+description = "とても高い氷の壁。"
+walkable = false
+
+[[locations]]
+x = 4
+y = 0
+name = "万年雪峰"
+type = "Mountain"
+description = "常に雪に覆われた高い峰。"
+walkable = false
+
+# ============================================
+# 洞窟/ダンジョン
+# ============================================
+
+[[locations]]
+x = 2
+y = 0
+name = "凍土洞窟"
+type = "Dungeon"
+description = "凍土の下にある洞窟。"
+enemies = ["スケルトン", "アンデッド", "骨龍"]
+enemy_level = 4
+
+[[locations]]
+x = 3
+y = 0
+name = "冰雪城跡"
+type = "Dungeon"
+description = "昔滅んだ冰雪の城。"
+enemies = ["リッチ", "ウェアウルフ", "リリス"]
+enemy_level = 5
+
+[[locations]]
+x = 0
+y = 4
+name = "雪山深处"
+type = "Dungeon"
+description = "雪山奥深く。"
+enemies = ["冰龍", "雪之王", "芬里尔"]
+enemy_level = 5
+
+[[locations]]
+x = 1
+y = 3
+name = "氷穴"
+type = "Dungeon"
+description = "氷の洞窟。"
+enemies = ["冰蝙蝠", "雪虫", "骨魚"]
+enemy_level = 3
+
+# ============================================
+# 塔
+# ============================================
+
+[[locations]]
+x = 4
+y = 4
+name = "氷晶の塔"
+type = "Tower"
+description = "氷の魔法が宿る塔。"
+enemies = ["塔の守護者", "氷霊", "雪魔"]
+enemy_level = 4
+
+# ============================================
+# 接続点（他国へ）
+# ============================================
+
+[[locations]]
+x = 3
+y = 4
+name = "北の関所"
+type = "Gate"
+description = "他国と接する前哨。"
+connection = "neutral"
+enemies = ["国境兵"]
+enemy_level = 3
+
+# ============================================
+# スpawnポイント
+# ============================================
+
+[[spawn_points]]
+name = "Plains Spawn"
+x = 1
+y = 2
+monster_templates = ["雪巨人", "風霊", "冰狼"]
+rate = 60
+
+[[spawn_points]]
+name = "Frozen Wastes Spawn"
+x = 2
+y = 1
+monster_templates = ["雪だるま", "冰ゴーレム", "白狼"]
+rate = 50
+
+[[spawn_points]]
+name = "Ice Mountain Spawn"
+x = 1
+y = 0
+monster_templates = ["冰ゴーレム", "白狼王", "雪精灵"]
+rate = 40
+
+[[spawn_points]]
+name = "Frozen Castle Spawn"
+x = 3
+y = 0
+monster_templates = ["リッチ", "ウェアウルフ", "リリス"]
+rate = 30
+
+# ============================================
+# 資源ポイント
+# ============================================
+
+[[resources]]
+name = "氷晶石"
+x = 2
+y = 1
+rarity = "common"
+
+[[resources]]
+name = "雪の結晶"
+x = 1
+y = 0
+rarity = "common"
+
+[[resources]]
+name = "冰宝珠"
+x = 3
+y = 1
+rarity = "rare"
+
+[[resources]]
+name = "氷龍の鱗"
+x = 0
+y = 4
+rarity = "epic"
+
+# End of frostheim_country_5x5.toml

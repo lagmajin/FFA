@@ -1,0 +1,330 @@
+# Nature Country 5x5 expanded map (TOML)
+# Origin: 森林之国 (Nature)
+# Grid: 5 x 5 (0..4)
+
+width = 5
+height = 5
+
+[start_position]
+x = 2
+y = 2
+country = "Nature"
+capital = "Eldoria"
+
+# ============================================
+# 主要施設
+# ============================================
+
+[[locations]]
+# 首都
+x = 2
+y = 2
+name = "Eldoria"
+type = "Town"
+description = "森林の奥の神秘的首都。"
+country = "Nature"
+population = 12000
+facilities = ["道具屋", "薬屋", "宿屋", "職業訓練所"]
+is_capital = true
+
+[[locations]]
+# 村
+x = 0
+y = 2
+name = "Greenshollow"
+type = "Village"
+description = "森林の奥の村。木々と共生。"
+population = 600
+facilities = ["宿屋", "素材屋"]
+
+[[locations]]
+# 町
+x = 4
+y = 2
+name = "Herbstone"
+type = "Town"
+description = "薬草の研究が盛んな町。"
+population = 3000
+facilities = ["薬屋", "宿屋", "錬金術師"]
+
+[[locations]]
+# 村
+x = 2
+y = 0
+name = "Moonvale"
+type = "Village"
+description = "月明かりが美しい谷の村。"
+population = 400
+facilities = ["宿屋", "雑貨屋"]
+
+# ============================================
+# フィールド/草原
+# ============================================
+
+[[locations]]
+x = 1
+y = 2
+name = "薬草園"
+type = "Field"
+description = "薬草が生える草地。"
+enemies = ["ウサギ", "蝶", "蜜蜂"]
+enemy_level = 1
+
+[[locations]]
+x = 2
+y = 1
+name = "風の草原"
+type = "Field"
+description = "穏やかな風が吹く草原。"
+enemies = ["馬", "羊", "鳥"]
+enemy_level = 2
+
+[[locations]]
+x = 2
+y = 3
+name = "緑の大地"
+type = "Field"
+description = "広大な緑の平原。"
+enemies = ["ウサギ", "鹿", "狼"]
+enemy_level = 2
+
+[[locations]]
+x = 3
+y = 2
+name = "花の名所"
+type = "Field"
+description = "様々な花々が咲く場所。"
+enemies = ["蝶", "蜜蜂", "妖精"]
+enemy_level = 2
+
+# ============================================
+# 森/林
+# ============================================
+
+[[locations]]
+x = 0
+y = 1
+name = "翡翠森"
+type = "Forest"
+description = "翡翠色の美しい森。"
+enemies = ["森精", "鹿", "鳥"]
+enemy_level = 2
+
+[[locations]]
+x = 1
+y = 0
+name = "古之大森"
+type = "Forest"
+description = "古い木々が茂る森。"
+enemies = ["ゴブリン", "狼", "毒キノコ"]
+enemy_level = 2
+
+[[locations]]
+x = 0
+y = 3
+name = "深い森"
+type = "Forest"
+description = "奥深い森。"
+enemies = ["トロル", "森の王", "毒蜘蛛"]
+enemy_level = 3
+
+[[locations]]
+x = 1
+y = 1
+name = "魔法の森"
+type = "Forest"
+description = "魔法のオーラがある森。"
+enemies = ["ウィスプ", "フェアリ", "イノセ"]
+enemy_level = 3
+
+[[locations]]
+x = 3
+y = 1
+name = "謎霧の森"
+type = "Forest"
+description = "常に霧に覆われた森。"
+enemies = ["霧妖精", "幽霊", "蝙蝠"]
+enemy_level = 3
+
+[[locations]]
+x = 4
+y = 1
+name = "古代樹林"
+type = "Forest"
+description = "太古の樹々が立つ森。"
+enemies = ["樹精", "根妖", "森の巨人"]
+enemy_level = 4
+
+# ============================================
+# 川/水
+# ============================================
+
+[[locations]]
+x = 3
+y = 3
+name = "泉の谷"
+type = "River"
+description = "清らかな泉。"
+enemies = ["水Elemental", "魚人", "アシガエル"]
+enemy_level = 2
+
+[[locations]]
+x = 4
+y = 3
+name = "大瀑布"
+type = "River"
+description = "大きな瀑布。"
+enemies = ["水龍", "魚人王", "水精灵"]
+enemy_level = 3
+
+[[locations]]
+x = 0
+y = 4
+name = "清流"
+type = "River"
+description = "透き通った川。"
+enemies = ["魚", "カエル", "水馬"]
+enemy_level = 2
+
+# ============================================
+# 沼地
+# ============================================
+
+[[locations]]
+x = 4
+y = 0
+name = "神秘の沼"
+type = "Lake"
+description = "神秘的な沼地。"
+enemies = ["スライム", "ハーピー", "毒蛙"]
+enemy_level = 3
+
+[[locations]]
+x = 3
+y = 0
+name = "毒沼"
+type = "Lake"
+description = "毒氣が漂う危険な沼。"
+enemies = ["毒泥", "毒蛇", "毒蛙"]
+enemy_level = 4
+
+# ============================================
+# 山/洞窟
+# ============================================
+
+[[locations]]
+x = 1
+y = 3
+name = "隠された洞窟"
+type = "Dungeon"
+description = "隠された地下洞窟。"
+enemies = ["バット", "グール", "スケルトン"]
+enemy_level = 3
+
+[[locations]]
+x = 3
+y = 4
+name = "古代神殿"
+type = "Dungeon"
+description = "昔の神殿。"
+enemies = ["スケルトン", "ガーゴイル", "リッチ"]
+enemy_level = 4
+
+[[locations]]
+x = 4
+y = 4
+name = "地下聖堂"
+type = "Dungeon"
+description = "地下に眠る聖堂。"
+enemies = ["聖職者亡霊", "ガーゴイル", "デーモン"]
+enemy_level = 5
+required_level = 5
+
+# ============================================
+# 塔
+# ============================================
+
+[[locations]]
+x = 0
+y = 0
+name = "、自然の塔"
+type = "Tower"
+description = "自然の力を感じる塔。"
+enemies = ["塔の守護者", "エ霊"]
+enemy_level = 3
+
+# ============================================
+# 接続点（他国へ）
+# ============================================
+
+[[locations]]
+x = 2
+y = 4
+name = "風の関所"
+type = "Gate"
+description = "他国と接する前哨。"
+connection = "neutral"
+enemies = ["国境兵"]
+enemy_level = 3
+
+# ============================================
+# スpawnポイント
+# ============================================
+
+[[spawn_points]]
+name = "Herb Garden Spawn"
+x = 1
+y = 2
+monster_templates = ["ウサギ", "蝶", "蜜蜂"]
+rate = 70
+
+[[spawn_points]]
+name = "Forest Spawn"
+x = 0
+y = 1
+monster_templates = ["森精", "鹿", "鳥"]
+rate = 60
+
+[[spawn_points]]
+name = "Deep Forest Spawn"
+x = 0
+y = 3
+monster_templates = ["トロル", "森の王", "毒蜘蛛"]
+rate = 40
+
+[[spawn_points]]
+name = "Ancient Temple Spawn"
+x = 3
+y = 4
+monster_templates = ["スケルトン", "ガーゴイル", "リッチ"]
+rate = 35
+
+# ============================================
+# 資源ポイント
+# ============================================
+
+[[resources]]
+name = "薬草"
+x = 1
+y = 2
+rarity = "common"
+
+[[resources]]
+name = "森の inúmer"
+x = 0
+y = 1
+rarity = "common"
+
+[[resources]]
+name = "魔法のツタ"
+x = 1
+y = 1
+rarity = "uncommon"
+
+[[resources]]
+name = "精霊の花"
+x = 3
+y = 2
+rarity = "rare"
+
+# End of nature_country_5x5.toml

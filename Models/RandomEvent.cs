@@ -15,6 +15,22 @@ public enum RandomEventType
     Festival,       // 祭り
     Storm,          // 嵐
     LuckyDay,       // 幸运の日
+    
+    // 新しいイベントタイプ
+    FoundMoney,     // お金を発見
+    LostItem,       // 落とし物を拾う
+    Herbalist,      // 薬草師
+    Miner,          // 坑夫
+    Fisher,         // 漁師
+    Oasis,          // オアシス
+    FrozenTreasure, // 凍った寶藏
+    Chest,          // 宝箱
+    Mermaid,        // 人魚
+    Spirit,         // 精霊
+    Boss,           // ボス出現
+    Sandstorm,      // 砂嵐
+    Avalanche,      // 雪崩
+    Trap,           // トラップ
 }
 
 /// <summary>

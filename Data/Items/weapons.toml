@@ -1,0 +1,215 @@
+# 武器マスターデータ
+# ゲーム内で販売・入手可能な武器のベースデータ
+
+# === 基本武器（コモン）===
+[[weapons]]
+id = 1
+name = "練習用木剣"
+type = "Sword"
+attack = 5
+rarity = "White"
+price = 100
+durability = 50
+enhancement_cost = 100
+enhancement_success_rate = 0.9
+repair_cost = 10
+
+[[weapons]]
+id = 2
+name = "鉄の剣"
+type = "Sword"
+attack = 10
+rarity = "White"
+price = 300
+durability = 80
+enhancement_cost = 150
+enhancement_success_rate = 0.85
+repair_cost = 20
+
+[[weapons]]
+id = 3
+name = "鋼の剣"
+type = "Sword"
+attack = 15
+rarity = "White"
+price = 500
+durability = 100
+enhancement_cost = 200
+enhancement_success_rate = 0.8
+repair_cost = 30
+
+# === 斧 ===
+[[weapons]]
+id = 10
+name = "手斧"
+type = "Axe"
+attack = 8
+rarity = "White"
+price = 200
+durability = 60
+enhancement_cost = 120
+enhancement_success_rate = 0.85
+repair_cost = 15
+
+[[weapons]]
+id = 11
+name = "戦斧"
+type = "Axe"
+attack = 18
+rarity = "White"
+price = 600
+durability = 100
+enhancement_cost = 250
+enhancement_success_rate = 0.75
+repair_cost = 35
+
+# === 槍 ===
+[[weapons]]
+id = 20
+name = "竹枪"
+type = "Spear"
+attack = 7
+rarity = "White"
+price = 150
+durability = 50
+enhancement_cost = 100
+enhancement_success_rate = 0.9
+repair_cost = 10
+
+[[weapons]]
+id = 21
+name = "鉄の槍"
+type = "Spear"
+attack = 14
+rarity = "White"
+price = 450
+durability = 90
+enhancement_cost = 180
+enhancement_success_rate = 0.8
+repair_cost = 25
+
+# === 刀 ===
+[[weapons]]
+id = 30
+name = "竹刀"
+type = "Katana"
+attack = 9
+rarity = "White"
+price = 250
+durability = 60
+enhancement_cost = 130
+enhancement_success_rate = 0.85
+repair_cost = 15
+
+[[weapons]]
+id = 31
+name = "打刀"
+type = "Katana"
+attack = 16
+rarity = "White"
+price = 550
+durability = 100
+enhancement_cost = 220
+enhancement_success_rate = 0.8
+repair_cost = 30
+
+# === 高級武器（Purple）===
+[[weapons]]
+id = 100
+name = "騎士団の剣"
+type = "Sword"
+attack = 25
+rarity = "Purple"
+price = 2000
+durability = 120
+enhancement_cost = 500
+enhancement_success_rate = 0.75
+repair_cost = 100
+
+[[weapons]]
+id = 101
+name = "氷の斧"
+type = "Axe"
+attack = 28
+rarity = "Purple"
+price = 2500
+durability = 120
+enhancement_cost = 600
+enhancement_success_rate = 0.7
+repair_cost = 120
+
+# === 稀有武器（Red）===
+[[weapons]]
+id = 200
+name = "龙泉剑"
+type = "Sword"
+attack = 40
+rarity = "Red"
+price = 10000
+durability = 150
+enhancement_cost = 1500
+enhancement_success_rate = 0.65
+repair_cost = 300
+
+[[weapons]]
+id = 201
+name = "雷霆戦斧"
+type = "Axe"
+attack = 45
+rarity = "Red"
+price = 12000
+durability = 150
+enhancement_cost = 1800
+enhancement_success_rate = 0.6
+repair_cost = 350
+
+# === 伝説武器（Orange）===
+[[weapons]]
+id = 300
+name = "エクスカリバー"
+type = "Sword"
+attack = 80
+rarity = "Orange"
+price = 50000
+durability = 200
+enhancement_cost = 5000
+enhancement_success_rate = 0.5
+repair_cost = 1000
+
+[[weapons]]
+id = 301
+name = "天狼牙"
+type = "Axe"
+attack = 90
+rarity = "Orange"
+price = 60000
+durability = 200
+enhancement_cost = 6000
+enhancement_success_rate = 0.45
+repair_cost = 1200
+
+# === 神話武器（Gold）===
+[[weapons]]
+id = 400
+name = "神剣トライデント"
+type = "Sword"
+attack = 150
+rarity = "Gold"
+price = 200000
+durability = 300
+enhancement_cost = 20000
+enhancement_success_rate = 0.35
+repair_cost = 5000
+
+# === 最上位武器（Rainbow）===
+[[weapons]]
+id = 500
+name = "創世の剣"
+type = "Sword"
+attack = 300
+rarity = "Rainbow"
+price = 1000000
+durability = 500
+enhancement_cost = 100000
+enhancement_success_rate = 0.2
+repair_cost = 25000

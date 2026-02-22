@@ -37,13 +37,14 @@ public class WeaponService
             if (weapon.EnhancementLevel >= weapon.MaxEnhancementLevel)
                 return new EnhancementResult { Success = false, Message = "これ以上強化できません" };
 
-            if (user.Gil < weapon.EnhancementCost)
-                return new EnhancementResult { Success = false, Message = "ギルが不足しています" };
+            // レアリティと強化レベルに基づく強化費用と成功率を計算
+            var (enhancedCost, enhancedSuccessRate) = CalculateEnhancementParams(weapon);
+            
+            if (user.Gil < enhancedCost)
+                return new EnhancementResult { Success = false, Message = $"ギルが不足しています（必要: {enhancedCost}ギル）" };
 
-            // 成功率を計算
-            double successRate = weapon.EnhancementSuccessRate;
-            if (weapon.IsEnhancementSafe)
-                successRate = 1.0; // 安全強化は100%成功
+            // 成功率を計算（安全強化の場合は100%）
+            double successRate = weapon.IsEnhancementSafe ? 1.0 : enhancedSuccessRate;
 
             Random rand = new Random();
             bool isSuccess = rand.NextDouble() < successRate;
@@ -53,14 +54,14 @@ public class WeaponService
                 // 成功時の処理
                 weapon.EnhancementLevel++;
                 weapon.Attack += 2; // 攻撃力を2上昇
-                user.Gil -= weapon.EnhancementCost;
+                user.Gil -= enhancedCost;
                 weapons.Update(weapon);
                 userService.UpdateUser(user);
 
                 return new EnhancementResult
                 {
                     Success = true,
-                    Message = $"強化成功！Lv.{weapon.EnhancementLevel}になりました",
+                    Message = $"強化成功！Lv.{weapon.EnhancementLevel}になりました（-{enhancedCost}ギル）",
                     NewLevel = weapon.EnhancementLevel,
                     NewAttack = weapon.Attack
                 };
@@ -73,14 +74,14 @@ public class WeaponService
                     weapon.EnhancementLevel--;
                     weapon.Attack -= 2; // 攻撃力を2低下
                 }
-                user.Gil -= weapon.EnhancementCost;
+                user.Gil -= enhancedCost;
                 weapons.Update(weapon);
                 userService.UpdateUser(user);
 
                 return new EnhancementResult
                 {
                     Success = false,
-                    Message = $"強化失敗...Lv.{weapon.EnhancementLevel}になりました",
+                    Message = $"強化失敗...Lv.{weapon.EnhancementLevel}になりました（-{enhancedCost}ギル）",
                     NewLevel = weapon.EnhancementLevel,
                     NewAttack = weapon.Attack
                 };
@@ -91,6 +92,58 @@ public class WeaponService
             Console.WriteLine($"WeaponService.EnhanceWeapon 例外: {ex.Message} - {ex.StackTrace}");
             return new EnhancementResult { Success = false, Message = "強化中にエラーが発生しました" };
         }
+    }
+    
+    /// <summary>
+    /// レアリティと強化レベルに基づいて強化費用と成功率を計算
+    /// </summary>
+    public (int cost, double successRate) CalculateEnhancementParams(Weapon weapon)
+    {
+        // ベース費用と成功率（武器の設定値を使用）
+        int baseCost = weapon.EnhancementCost;
+        double baseSuccessRate = weapon.EnhancementSuccessRate;
+        
+        // 現在の強化レベルに基づく補正
+        int currentLevel = weapon.EnhancementLevel;
+        
+        // レアリティによる補正
+        double rarityMultiplier = weapon.Rarity switch
+        {
+            Rarity.White => 1.0,      // 一般: 基本
+            Rarity.Purple => 1.5,     // 高級: 費用1.5倍
+            Rarity.Red => 2.0,       // 稀有: 費用2倍
+            Rarity.Orange => 3.0,     // 伝説: 費用3倍
+            Rarity.Gold => 5.0,       // 神話: 費用5倍
+            Rarity.Rainbow => 10.0,   // 最上位: 費用10倍
+            _ => 1.0
+        };
+        
+        // 成功率のレアリティ補正（高いレアリティほど成功率高め）
+        double raritySuccessBonus = weapon.Rarity switch
+        {
+            Rarity.White => 0.0,
+            Rarity.Purple => 0.05,
+            Rarity.Red => 0.10,
+            Rarity.Orange => 0.15,
+            Rarity.Gold => 0.20,
+            Rarity.Rainbow => 0.25,
+            _ => 0.0
+        };
+        
+        // 強化レベルに基づく費用増加（Lvが上がるほど費用が高く）
+        int levelCostIncrease = currentLevel * 50; // レベルごとに+50ギル
+        
+        // 強化レベルに基づく成功率減少（Lvが上がるほど失敗しやすく）
+        double levelFailurePenalty = currentLevel * 0.03; // レベルごとに-3%
+        
+        // 最終的な費用
+        int finalCost = (int)((baseCost + levelCostIncrease) * rarityMultiplier);
+        
+        // 最終的な成功率
+        double finalSuccessRate = Math.Max(0.1, Math.Min(0.95, 
+            baseSuccessRate + raritySuccessBonus - levelFailurePenalty));
+        
+        return (finalCost, finalSuccessRate);
     }
 
     // 武器を修理する

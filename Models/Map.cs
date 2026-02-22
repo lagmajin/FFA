@@ -37,6 +37,7 @@ public class MapLocation
     public bool IsDungeonEntrance { get; set; } = false; // ダンジョン入口か
     public int? ConnectedDungeonId { get; set; } = null; // 接続されたダンジョンのID
     public int RequiredLevel { get; set; } = 1; // 必要レベル
+    public string Connection { get; set; } = ""; // 他のマップへの接続
 }
 
 public class Map
@@ -46,4 +47,18 @@ public class Map
     public int Width { get; set; } = 10;
     public int Height { get; set; } = 10;
     public List<MapLocation> Locations { get; set; } = new List<MapLocation>();
+}
+
+/// <summary>
+/// マップ間の接続情報
+/// </summary>
+public class MapConnection
+{
+    public int FromMapId { get; set; }
+    public int FromX { get; set; }
+    public int FromY { get; set; }
+    public int ToMapId { get; set; }
+    public string ToMapName { get; set; } = "";
+    public int ToX { get; set; }
+    public int ToY { get; set; }
 }

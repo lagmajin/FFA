@@ -22,14 +22,29 @@ else
             <h2>@weapon.Name</h2>
             <div class="weapon-info">
                 <div>タイプ: @GetWeaponTypeName(weapon.Type)</div>
-                <div>攻撃: @weapon.Attack</div>
-                <div>現在の強化レベル: @weapon.EnhancementLevel / @weapon.MaxEnhancementLevel</div>
-                <div>強化成功率: @(weapon.EnhancementSuccessRate * 100)%</div>
+                <div>攻撃力: @weapon.Attack</div>
+                <div>レアリティ: @GetRarityName(weapon.Rarity)</div>
+                <div class="enhancement-level">
+                    強化レベル: <span class="level">+@weapon.EnhancementLevel</span> / @weapon.MaxEnhancementLevel
+                </div>
+                
+                <!-- 計算後の強化費用と成功率 -->
+                <div class="enhancement-params">
+                    <div class="param-item">
+                        <span class="label">強化費用:</span>
+                        <span class="value cost">@calculatedCost ギル</span>
+                    </div>
+                    <div class="param-item">
+                        <span class="label">成功率:</span>
+                        <span class="value rate">@(calculatedSuccessRate * 100)%</span>
+                    </div>
+                </div>
+                
                 @if (weapon.IsEnhancementSafe)
                 {
-                    <div>安全強化: はい</div>
+                    <div class="safe-badge">🛡️ 安全強化: 有効 (100%)</div>
                 }
-                <div>強化費用: @weapon.EnhancementCost ギル</div>
+                
                 <div>あなたの所持金: @(user?.Gil ?? 0) ギル</div>
             </div>
 
@@ -41,7 +56,7 @@ else
                     @if (enhancementResult.Success)
                     {
                         <div>新しい攻撃力: @(enhancementResult?.NewAttack ?? 0)</div>
-                        <div>新しい強化レベル: @(enhancementResult?.NewLevel ?? 0)</div>
+                        <div>新しい強化レベル: +@(enhancementResult?.NewLevel ?? 0)</div>
                     }
                 </div>
             }
@@ -65,6 +80,10 @@ else
     private User? user;
     private Weapon? weapon;
     private EnhancementResult? enhancementResult;
+    
+    // 計算された強化費用と成功率
+    private int calculatedCost = 0;
+    private double calculatedSuccessRate = 0.8;
 
     protected override async Task OnInitializedAsync()
     {
@@ -77,6 +96,12 @@ else
         {
             user = UserService.GetByUsername(username);
             weapon = WeaponService.GetWeaponsByUser(username).FirstOrDefault(w => w.Id == weaponId);
+            
+            // 強化費用と成功率を計算
+            if (weapon != null)
+            {
+                (calculatedCost, calculatedSuccessRate) = WeaponService.CalculateEnhancementParams(weapon);
+            }
         }
     }
 
@@ -95,6 +120,20 @@ else
             _ => "その他"
         };
     }
+    
+    private string GetRarityName(Rarity rarity)
+    {
+        return rarity switch
+        {
+            Rarity.White => "一般",
+            Rarity.Purple => "高級",
+            Rarity.Red => "稀有",
+            Rarity.Orange => "伝説",
+            Rarity.Gold => "神話",
+            Rarity.Rainbow => "最上位",
+            _ => "不明"
+        };
+    }
 
     private async Task EnhanceWeapon()
     {
@@ -103,6 +142,12 @@ else
         enhancementResult = WeaponService.EnhanceWeapon(username!, weapon.Id);
         user = UserService.GetByUsername(username!);
         weapon = WeaponService.GetWeaponsByUser(username!).FirstOrDefault(w => w.Id == weaponId);
+        
+        // 再度計算
+        if (weapon != null)
+        {
+            (calculatedCost, calculatedSuccessRate) = WeaponService.CalculateEnhancementParams(weapon);
+        }
     }
 
     private void NavigateBack()

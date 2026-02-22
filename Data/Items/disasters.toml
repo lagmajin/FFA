@@ -1,0 +1,525 @@
+# ============================================
+# 自然災害マスターデータ
+# ============================================
+# 天气システム基础上追加の特殊災害
+# 基本的にはデメリットがあるが、大きいメリットもある
+
+# ============================================
+# 干ばつ (Drought)
+# ============================================
+
+[[disasters]]
+id = 1
+name = "干ばつ"
+japanese_name = "干ばつ"
+icon = "🏜️"
+description = "長引く日照り。水不足になり、作物が枯れる。"
+base_weather = "HeatWave"
+duration_hours = 24
+rarity_weight = 15
+
+# デメリット
+[[disasters.effects]]
+type = "debuff"
+target = "all"
+description = "全回復アイテムの効果-20%"
+heal_modifier = -0.20
+
+[[disasters.effects]]
+type = "debuff"
+target = "water"
+description = "水辺での回復不可"
+disable_water_heal = true
+
+[[disasters.effects]]
+type = "debuff"
+target = "field"
+description = "草原でのドロップ率-30%"
+drop_rate_modifier = -0.30
+
+# メリット
+[[disasters.effects]]
+type = "buff"
+target = "fire"
+description = "火属性ダメージ+30%"
+element_damage_modifier = 0.30
+
+[[disasters.effects]]
+type = "buff"
+target = "special"
+description = "隠された砂漠のダンジョンが開かれる"
+unlocks_location = "desert_dungeon"
+
+[[disasters.effects]]
+type = "buff"
+target = "special"
+description = "貴重矿石出現率+50%"
+ore_drop_rate_modifier = 0.50
+
+# ============================================
+# 大雨 (HeavyRain)
+# ============================================
+
+[[disasters]]
+id = 2
+name = "大雨"
+japanese_name = "大雨"
+icon = "🌧️"
+description = "記録的な大雨。川が増水し、危険な状態。"
+base_weather = "Rain"
+duration_hours = 18
+rarity_weight = 20
+
+# デメリット
+[[disasters.effects]]
+type = "debuff"
+target = "combat"
+description = "命中率-15%"
+accuracy_modifier = -0.15
+
+[[disasters.effects]]
+type = "debuff"
+target = "movement"
+description = "移動速度-20%"
+speed_modifier = -0.20
+
+[[disasters.effects]]
+type = "debuff"
+target = "special"
+description = " некоторые места недоступны"
+inaccessible_locations = ["mountain", "peak"]
+
+# メリット
+[[disasters.effects]]
+type = "buff"
+target = "water"
+description = "水属性ダメージ+25%"
+element_damage_modifier = 0.25
+
+[[disasters.effects]]
+type = "buff"
+target = "special"
+description = "魚獲量+50%"
+fishing_success_modifier = 0.50
+
+[[disasters.effects]]
+type = "buff"
+target = "special"
+description = "隠された水中ダンジョンが開かれる"
+unlocks_location = "underwater_ruins"
+
+# ============================================
+# 嵐 (Tempest)
+# ============================================
+
+[[disasters]]
+id = 3
+name = "嵐"
+japanese_name = "嵐"
+icon = "🌀"
+description = "激しい嵐。船や飛行が危険になる。"
+base_weather = "Storm"
+duration_hours = 12
+rarity_weight = 10
+
+# メリット（嵐だけはこの恩恵が大きい）
+[[disasters.effects]]
+type = "buff"
+target = "electric"
+description = "雷属性ダメージ+50%"
+element_damage_modifier = 0.50
+
+[[disasters.effects]]
+type = "buff"
+target = "special"
+description = "龍系出現率+100%"
+monster_spawn_modifier = 1.0
+monster_type = "Dragon"
+
+[[disasters.effects]]
+type = "buff"
+target = "special"
+description = "ドロップアイテム2倍"
+drop_rate_modifier = 1.0
+
+# デメリット
+[[disasters.effects]]
+type = "debuff"
+target = "combat"
+description = "被ダメージ+20%"
+damage_taken_modifier = 0.20
+
+[[disasters.effects]]
+type = "debuff"
+target = "special"
+description = "一部の Locations 不可"
+inaccessible_locations = ["flying", "peak"]
+
+# ============================================
+# 吹雪 (Blizzard)
+# ============================================
+
+[[disasters]]
+id = 4
+name = "吹雪"
+japanese_name = "吹雪"
+icon = "🌨️"
+description = "猛吹雪。視界不良で極寒の状態。"
+base_weather = "Blizzard"
+duration_hours = 15
+rarity_weight = 12
+
+# メリット
+[[disasters.effects]]
+type = "buff"
+target = "ice"
+description = "氷属性ダメージ+40%"
+element_damage_modifier = 0.40
+
+[[disasters.effects]]
+type = "buff"
+target = "special"
+description = "冰晶採取可能"
+special_item_available = "ice_crystal"
+
+[[disasters.effects]]
+type = "buff"
+target = "special"
+description = "隠された氷のダンジョンが開かれる"
+unlocks_location = "ice_cave"
+
+# デメリット
+[[disasters.effects]]
+type = "debuff"
+target = "movement"
+description = "移動速度-30%"
+speed_modifier = -0.30
+
+[[disasters.effects]]
+type = "debuff"
+target = "combat"
+description = "回避率-20%"
+evasion_modifier = -0.20
+
+# ============================================
+# 雷雨 (ThunderStorm)
+# ============================================
+
+[[disasters]]
+id = 5
+name = "雷雨"
+japanese_name = "雷雨"
+icon = "⚡"
+description = "落雷频発。非常に危険な状態。"
+base_weather = "Thunder"
+duration_hours = 8
+rarity_weight = 8
+
+# メリット
+[[disasters.effects]]
+type = "buff"
+target = "electric"
+description = "雷属性ダメージ+60%（大）"
+element_damage_modifier = 0.60
+
+[[disasters.effects]]
+type = "buff"
+target = "special"
+description = "雷撃の護符を獲得できる"
+special_item_available = "thunder_charm"
+
+[[disasters.effects]]
+type = "buff"
+target = "special"
+description = "宝の山出現"
+rare_location_spawn = "treasure_mountain"
+
+# デメリット
+[[disasters.effects]]
+type = "debuff"
+target = "combat"
+description = "被雷撃概率でダメージ+30%"
+lightning_damage_chance = 0.30
+
+[[disasters.effects]]
+type = "debuff"
+target = "special"
+description = "魔法使用不可（雷鳴で集中できない）"
+disable_magic = true
+
+# ============================================
+# 霧 (DenseFog)
+# ============================================
+
+[[disasters]]
+id = 6
+name = "濃霧"
+japanese_name = "濃霧"
+icon = "🌫️"
+description = "濃い霧。方向感覚を失う。"
+base_weather = "Fog"
+duration_hours = 20
+rarity_weight = 18
+
+# メリット
+[[disasters.effects]]
+type = "buff"
+target = "ghost"
+description = "ゴースト系出現率+80%"
+monster_spawn_modifier = 0.80
+monster_type = "Ghost"
+
+[[disasters.effects]]
+type = "buff"
+target = "special"
+description = "忍者の修練場にへ行ける"
+unlocks_location = "ninja_training"
+
+[[disasters.effects]]
+type = "buff"
+target = "special"
+description = "逃亡成功率+30%"
+escape_success_modifier = 0.30
+
+# デメリット
+[[disasters.effects]]
+type = "debuff"
+target = "combat"
+description = "命中率-25%"
+accuracy_modifier = -0.25
+
+[[disasters.effects]]
+type = "debuff"
+target = "special"
+description = "モブ обнаружен範囲-50%"
+detection_range_modifier = -0.50
+
+# ============================================
+# 地震 (Earthquake)
+# ============================================
+
+[[disasters]]
+id = 7
+name = "地震"
+japanese_name = "地震"
+icon = "💥"
+description = "大地震。建物を損なう危険な状態。"
+base_weather = "HeatWave"
+duration_hours = 2
+rarity_weight = 5
+
+# メリット
+[[disasters.effects]]
+type = "buff"
+target = "earth"
+description = "土属性ダメージ+50%"
+element_damage_modifier = 0.50
+
+[[disasters.effects]]
+type = "buff"
+target = "special"
+description = "隠し鉱山が出現"
+unlocks_location = "secret_mine"
+
+[[disasters.effects]]
+type = "buff"
+target = "special"
+description = "レア矿石大量出現"
+ore_drop_rate_modifier = 1.5
+
+# デメリット
+[[disasters.effects]]
+type = "debuff"
+target = "combat"
+description = "防御力-15%"
+defense_modifier = -0.15
+
+[[disasters.effects]]
+type = "debuff"
+target = "special"
+description = "一部の建物を雰囲入れない"
+inaccessible_locations = ["castle", "tower"]
+
+# ============================================
+# 熱波 (HeatWave)
+# ============================================
+
+[[disasters]]
+id = 8
+name = "熱波"
+japanese_name = "熱波"
+icon = "🥵"
+description = "極度の暑さ。体力を消耗する。"
+base_weather = "HeatWave"
+duration_hours = 36
+rarity_weight = 15
+
+# メリット
+[[disasters.effects]]
+type = "buff"
+target = "fire"
+description = "火属性ダメージ+35%"
+element_damage_modifier = 0.35
+
+[[disasters.effects]]
+type = "buff"
+target = "special"
+description = "火山地帯でエ火山クリスタル入手可能"
+special_item_available = "volcanic_crystal"
+
+[[disasters.effects]]
+type = "buff"
+target = "special"
+description = "隠された火山ダンジョンが開かれる"
+unlocks_location = "volcanic_ruins"
+
+# デメリット
+[[disasters.effects]]
+type = "debuff"
+target = "stamina"
+description = "スタミナ消費+30%"
+stamina_cost_modifier = 0.30
+
+[[disasters.effects]]
+type = "debuff"
+target = "combat"
+description = "継続的にHP減少（熱疲労）"
+hp_drain_per_minute = 5
+
+# ============================================
+# 寒波 (ColdWave)
+# ============================================
+
+[[disasters]]
+id = 9
+name = "寒波"
+japanese_name = "寒波"
+icon = "🥶"
+description = "極寒。凍えしまう。"
+base_weather = "ColdWave"
+duration_hours = 30
+rarity_weight = 15
+
+# メリット
+[[disasters.effects]]
+type = "buff"
+target = "ice"
+description = "氷属性ダメージ+35%"
+element_damage_modifier = 0.35
+
+[[disasters.effects]]
+type = "buff"
+target = "special"
+description = "凍った湖で冰の結晶入手"
+special_item_available = "frozen_crystal"
+
+[[disasters.effects]]
+type = "buff"
+target = "special"
+description = "隠された凍土のダンジョン"
+unlocks_location = "frozen_wastes"
+
+# デメリット
+[[disasters.effects]]
+type = "debuff"
+target = "stamina"
+description = "スタミナ回復-25%"
+stamina_recovery_modifier = -0.25
+
+[[disasters.effects]]
+type = "debuff"
+target = "water"
+description = "水泳/水辺アクション不可"
+disable_water_actions = true
+
+# ============================================
+# 蝗害 (LocustPlague)
+# ============================================
+
+[[disasters]]
+id = 10
+name = "蝗害"
+japanese_name = "蝗害"
+icon = "🦗"
+description = "蝗大量発生。作物人被奪われる。"
+base_weather = "Clear"
+duration_hours = 48
+rarity_weight = 10
+
+# メリット
+[[disasters.effects]]
+type = "buff"
+target = "bug"
+description = "虫属性ダメージ+45%"
+element_damage_modifier = 0.45
+
+[[disasters.effects]]
+type = "buff"
+target = "special"
+description = "虫獲りで経験値+50%"
+exp_from_bug_modifier = 0.50
+
+[[disasters.effects]]
+type = "buff"
+target = "special"
+description = "珍深い森へのアクセス"
+unlocks_location = "deep_forest"
+
+# デメリット
+[[disasters.effects]]
+type = "debuff"
+target = "farming"
+description = "農場収益-70%"
+farming_yield_modifier = -0.70
+
+[[disasters.effects]]
+type = "debuff"
+target = "special"
+description = "草原でのドロップ率-40%"
+field_drop_rate_modifier = -0.40
+
+# ============================================
+# 火山噴火 (VolcanicEruption)
+# ============================================
+
+[[disasters]]
+id = 11
+name = "火山噴火"
+japanese_name = "火山噴火"
+icon = "🌋"
+description = "火山が大噴火。周囲は危険地域。"
+base_weather = "HeatWave"
+duration_hours = 6
+rarity_weight = 3
+
+# メリット
+[[disasters.effects]]
+type = "buff"
+target = "fire"
+description = "火属性ダメージ+80%（超大）"
+element_damage_modifier = 0.80
+
+[[disasters.effects]]
+type = "buff"
+target = "special"
+description = "溶岩から神々の武器の材料"
+special_item_available = "god_forge_material"
+
+[[disasters.effects]]
+type = "buff"
+target = "special"
+description = "隠し火山天空の城が出現"
+unlocks_location = "sky_volcano"
+
+# デメリット
+[[disasters.effects]]
+type = "debuff"
+target = "combat"
+description = "被ダメージ+40%"
+damage_taken_modifier = 0.40
+
+[[disasters.effects]]
+type = "debuff"
+target = "special"
+description = "火山地帯以外ではavel移動不可"
+confine_to_volcano = true

@@ -7,6 +7,32 @@
 - 特別な指示がない限り、C#ファイル（.cs）のみ編集する
 - UIファイル（.razor, .css, .jsなど）は特別な指示がない限り編集禁止
 
+## コーディングルール - API Layerについて
+
+### 重要: 作成したAPIはまだ使用禁止
+API Layerを расширитьため、以下のファイルを作成した。これらは**現時点では使用禁止**。
+
+#### 作成したAPI関連ファイル
+- `Models/ApiResponse.cs` - 統一レスポンスモデル
+- `Services/ApiService.cs` - API抽象化サービス
+- `Controllers/ApiController.cs` - APIコントローラー
+
+#### APIエンドポイント（使用禁止）
+```
+GET  /api/game/time          - 時間・天候情報取得
+POST /api/game/enemy/stats   - 敵ステータス計算（夜間buff込み）
+GET  /api/game/enemies/night - 夜間専用敵リスト
+GET  /api/map/all           - 全マップリスト
+GET  /api/map/country/{id}  - 国別マップ取得
+GET  /api/map/neutral       - 中立边境マップ
+GET  /api/map/connection    - ゲート接続情報
+```
+
+#### 理由
+- 現時点では直接サービス呼び出し（`@inject` DI）を使用
+- 将来的にDBアクセスや外部APIへの切り替えに備えて基盤だけ作成
+- **使用时机は今後の指示があるまで待つこと**
+
 ## UI / Implementation Rules for this project
 
 ### 重要: 上部メニューの変更ポリシー

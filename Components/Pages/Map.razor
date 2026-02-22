@@ -2,8 +2,10 @@
 @rendermode InteractiveServer
 @inject Services.UserService UserService
 @inject Services.MapService MapService
+@inject Services.MapMovementEventService MapEventService
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthStateProvider
+@inject IJSRuntime JSRuntime
 
 <PageTitle>ワールドマップ</PageTitle>
 
@@ -33,14 +35,25 @@
                 </div>
             }
             <div style="margin-top:16px; padding:12px; background:#fffbeb; border:1px solid #fcd34d; border-radius:8px; color:#78350f; text-align:left; font-size:11px; font-family:monospace; max-width:600px; margin-left:auto; margin-right:auto;">
-                <div style="font-weight:bold; margin-bottom:4px;">📋 MapService Diagnostics:</div>
-                @foreach (var line in MapService.LoadDiagnostics)
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+                    <div style="font-weight:bold; margin-bottom:4px;">📋 MapService Diagnostics:</div>
+                    <div>
+                        <button @onclick="CopyDiagnostics" style="padding:6px 10px; background:#2563eb; color:white; border:none; border-radius:4px; cursor:pointer; font-size:12px;">コピー</button>
+                    </div>
+                </div>
+                <div style="margin-top:6px;">
+                    @foreach (var line in MapService.LoadDiagnostics)
+                    {
+                        <div>@line</div>
+                    }
+                    @if (MapService.LoadDiagnostics.Count == 0)
+                    {
+                        <div>（診断情報なし - MapServiceが初期化されていない可能性）</div>
+                    }
+                </div>
+                @if (!string.IsNullOrEmpty(copyStatus))
                 {
-                    <div>@line</div>
-                }
-                @if (MapService.LoadDiagnostics.Count == 0)
-                {
-                    <div>（診断情報なし - MapServiceが初期化されていない可能性）</div>
+                    <div style="margin-top:8px; font-size:12px; color:#064e3b;">@copyStatus</div>
                 }
             </div>
             <div style="margin-top:12px;">
@@ -216,6 +229,59 @@
     }
 </div>
 
+        @* ランダムイベントポップアップ *@
+        @if (showEventPopup && currentEvent != null)
+        {
+            <div style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:1000;"
+                 @onclick="CloseEventPopup">
+                <div style="background:@(currentEvent.Type == Services.EventType.Good ? "#dcfce7" : currentEvent.Type == Services.EventType.Bad ? "#fee2e2" : "#fef3c7"); border:3px solid @(currentEvent.Type == Services.EventType.Good ? "#22c55e" : currentEvent.Type == Services.EventType.Bad ? "#ef4444" : "#f59e0b"); border-radius:12px; padding:20px; max-width:350px; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.3);"
+                     @onclick:stopPropagation="true">
+                    <div style="font-size:28px; margin-bottom:8px;">@currentEvent.Title</div>
+                    <div style="font-size:14px; color:#374151; margin-bottom:16px; line-height:1.5;">@currentEvent.Message</div>
+                    
+                    @if (currentEvent.Type == Services.EventType.Good)
+                    {
+                        <div style="display:flex; justify-content:center; gap:16px; flex-wrap:wrap; margin-bottom:12px;">
+                            @if (currentEvent.GilReward > 0)
+                            {
+                                <span style="background:#fef9c3; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:bold; color:#854d0e;">💰 +@currentEvent.GilReward G</span>
+                            }
+                            @if (currentEvent.ExpReward > 0)
+                            {
+                                <span style="background:#dbeafe; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:bold; color:#1e40af;">✨ +@currentEvent.ExpReward EXP</span>
+                            }
+                            @if (currentEvent.HpRestore > 0)
+                            {
+                                <span style="background:#dcfce7; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:bold; color:#166534;">❤️ +@currentEvent.HpRestore HP</span>
+                            }
+                        </div>
+                    }
+                    else if (currentEvent.Type == Services.EventType.Bad)
+                    {
+                        <div style="display:flex; justify-content:center; gap:16px; flex-wrap:wrap; margin-bottom:12px;">
+                            @if (currentEvent.HpDamage > 0)
+                            {
+                                <span style="background:#fee2e2; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:bold; color:#991b1b;">❤️ -@currentEvent.HpDamage HP</span>
+                            }
+                            @if (currentEvent.GilLoss > 0)
+                            {
+                                <span style="background:#fef9c3; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:bold; color:#854d0e;">💰 -@currentEvent.GilLoss G</span>
+                            }
+                            @if (currentEvent.StaminaDamage > 0)
+                            {
+                                <span style="background:#e0e7ff; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:bold; color:#3730a3;">⚡ -@currentEvent.StaminaDamage ST</span>
+                            }
+                        </div>
+                    }
+                    
+                    <button @onclick="CloseEventPopup"
+                            style="padding:10px 24px; background:#78350f; border:none; border-radius:6px; color:white; font-weight:bold; cursor:pointer; font-size:14px;">
+                        了解
+                    </button>
+                </div>
+            </div>
+        }
+
 @code {
     // マップ座標範囲（マスターデータから動的計算）
     private int mapMinX, mapMaxX, mapMinY, mapMaxY;
@@ -223,6 +289,10 @@
     // プレイヤー位置
     private int PlayerX { get; set; }
     private int PlayerY { get; set; }
+    
+    // ランダムイベント用
+    private Services.MapMovementEvent? currentEvent;
+    private bool showEventPopup;
 
     // 認証
     private bool isAuth;
@@ -318,9 +388,9 @@
         // 保存位置がマップ上に存在しない場合は首都（最初の town）へ移動
         if (!locationLookup.ContainsKey((PlayerX, PlayerY)))
         {
-            var capital = countryMap.Locations
+            var capital = countryMap.Locations?
                               .FirstOrDefault(l => l.Type.Equals("town", StringComparison.OrdinalIgnoreCase))
-                          ?? countryMap.Locations.FirstOrDefault();
+                          ?? countryMap.Locations?.FirstOrDefault();
             if (capital != null)
             {
                 PlayerX = capital.X;
@@ -388,6 +458,7 @@
             PlayerX = newX;
             PlayerY = newY;
             SavePlayerPosition();
+            TryTriggerMovementEvent();
         }
     }
 
@@ -398,7 +469,47 @@
             PlayerX = wx;
             PlayerY = wy;
             SavePlayerPosition();
+            TryTriggerMovementEvent();
         }
+    }
+
+    private void TryTriggerMovementEvent()
+    {
+        if (MapEventService.ShouldTriggerEvent())
+        {
+            currentEvent = MapEventService.GenerateEvent();
+            if (currentEvent != null)
+            {
+                ApplyEventEffects(currentEvent);
+                showEventPopup = true;
+            }
+        }
+    }
+
+    private void ApplyEventEffects(Services.MapMovementEvent evt)
+    {
+        if (currentUser == null) return;
+        
+        if (evt.Type == Services.EventType.Good)
+        {
+            if (evt.GilReward > 0) currentUser.Gil += evt.GilReward;
+            if (evt.ExpReward > 0) currentUser.Exp += evt.ExpReward;
+            if (evt.HpRestore > 0) currentUser.HP = Math.Min(currentUser.HP + evt.HpRestore, currentUser.MaxHP);
+        }
+        else if (evt.Type == Services.EventType.Bad)
+        {
+            if (evt.HpDamage > 0) currentUser.HP = Math.Max(currentUser.HP - evt.HpDamage, 1);
+            if (evt.GilLoss > 0) currentUser.Gil = Math.Max(currentUser.Gil - evt.GilLoss, 0);
+            // Note: Stamina damage requires PlayerStamina service - simplified for now
+        }
+        
+        UserService.UpdateUser(currentUser);
+    }
+
+    private void CloseEventPopup()
+    {
+        showEventPopup = false;
+        currentEvent = null;
     }
 
     private void HandleKeyDown(KeyboardEventArgs e)
@@ -429,4 +540,33 @@
     private void Search() { }
     private void Gather() { }
     private void Fish()   { }
+
+    private string? copyStatus;
+
+    private async Task CopyDiagnostics()
+    {
+        try
+        {
+            var lines = new List<string>();
+            if (!string.IsNullOrEmpty(loadError))
+            {
+                lines.Add($"Error: {loadError}");
+                lines.Add("");
+            }
+            if (MapService?.LoadDiagnostics != null && MapService.LoadDiagnostics.Count > 0)
+                lines.AddRange(MapService.LoadDiagnostics);
+            var text = string.Join("\n", lines);
+            if (string.IsNullOrEmpty(text))
+            {
+                copyStatus = "コピーする診断情報がありません";
+                return;
+            }
+            await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", text);
+            copyStatus = "クリップボードにコピーしました";
+        }
+        catch (Exception ex)
+        {
+            copyStatus = $"コピー失敗: {ex.Message}";
+        }
+    }
 }

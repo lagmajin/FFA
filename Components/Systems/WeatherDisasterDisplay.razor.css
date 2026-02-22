@@ -1,0 +1,283 @@
+.weather-disaster-panel {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border: 2px solid #3a3a5a;
+    border-radius: 12px;
+    padding: 1rem;
+    max-width: 350px;
+    margin: 0 auto;
+}
+
+.panel-header {
+    text-align: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #3a3a5a;
+}
+
+.panel-title {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #fff;
+}
+
+/* 地域情報 */
+.region-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.region-label {
+    color: #aaa;
+    font-size: 0.85rem;
+}
+
+.region-name {
+    color: #fdcb6e;
+    font-weight: bold;
+    font-size: 0.95rem;
+}
+
+/* 天候セクション */
+.weather-section {
+    margin-bottom: 1rem;
+}
+
+.weather-current {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+}
+
+.weather-icon {
+    font-size: 1.75rem;
+}
+
+.weather-name {
+    font-weight: bold;
+    color: #fff;
+    font-size: 1rem;
+}
+
+/* 災害アラート */
+.disaster-alert {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.75rem;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.disaster-alert.warning {
+    background: linear-gradient(135deg, #4a3018 0%, #3a2510 100%);
+    border: 2px solid #e17055;
+}
+
+.disaster-alert.danger {
+    background: linear-gradient(135deg, #4a1818 0%, #3a1010 100%);
+    border: 2px solid #ef4444;
+}
+
+.disaster-icon {
+    font-size: 2rem;
+}
+
+.disaster-name {
+    font-weight: bold;
+    color: #e17055;
+    font-size: 1rem;
+}
+
+.disaster-duration {
+    font-size: 0.8rem;
+    color: #aaa;
+}
+
+.disaster-warning {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: rgba(239, 68, 68, 0.2);
+    border-radius: 6px;
+}
+
+.warning-icon {
+    font-size: 1.25rem;
+}
+
+.warning-text {
+    color: #ef4444;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+/* 効果セクション */
+.effects-section {
+    margin-bottom: 1rem;
+}
+
+.effects-section h4,
+.active-buffs h4,
+.active-debuffs h4,
+.unlocked-section h4 {
+    font-size: 0.85rem;
+    color: #aaa;
+    margin: 0 0 0.5rem 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.effects-list,
+.buff-list,
+.debuff-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.effect-item,
+.buff-item,
+.debuff-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+}
+
+.effect-item.positive {
+    background: rgba(74, 222, 128, 0.1);
+    border: 1px solid rgba(74, 222, 128, 0.3);
+}
+
+.effect-item.negative {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.effect-icon,
+.buff-icon,
+.debuff-icon {
+    font-size: 1rem;
+}
+
+.effect-text,
+.buff-name,
+.debuff-name {
+    flex: 1;
+    color: #fff;
+}
+
+.effect-value,
+.buff-effect,
+.debuff-effect {
+    color: #aaa;
+    font-size: 0.8rem;
+}
+
+.effects-empty,
+.buff-empty,
+.debuff-empty {
+    padding: 0.5rem;
+    text-align: center;
+    color: #666;
+    font-size: 0.85rem;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 6px;
+}
+
+/* バフ/デバフリスト */
+.buff-item.positive {
+    background: linear-gradient(135deg, rgba(74, 222, 128, 0.15) 0%, rgba(74, 222, 128, 0.05) 100%);
+    border: 1px solid #27ae60;
+}
+
+.debuff-item.negative {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0.05) 100%);
+    border: 1px solid #c0392b;
+}
+
+/* 解放された場所 */
+.unlocked-section {
+    margin-bottom: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #3a3a5a;
+}
+
+.unlocked-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.unlocked-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.6rem;
+    background: rgba(253, 203, 110, 0.1);
+    border: 1px solid rgba(253, 203, 110, 0.3);
+    border-radius: 6px;
+}
+
+.loc-icon {
+    font-size: 1.1rem;
+}
+
+.loc-name {
+    color: #fdcb6e;
+    font-size: 0.85rem;
+}
+
+/* フッター */
+.panel-footer {
+    text-align: center;
+    padding-top: 0.75rem;
+    border-top: 1px solid #3a3a5a;
+}
+
+.refresh-btn {
+    background: linear-gradient(135deg, #4a4a6a 0%, #3a3a5a 100%);
+    color: white;
+    border: 1px solid #6a6a8a;
+    padding: 0.4rem 1.25rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.refresh-btn:hover {
+    background: linear-gradient(135deg, #5a5a7a 0%, #4a4a6a 100%);
+}
+
+/* レスポンシブ */
+@media (max-width: 400px) {
+    .weather-disaster-panel {
+        padding: 0.75rem;
+    }
+    
+    .panel-title {
+        font-size: 1rem;
+    }
+    
+    .weather-icon {
+        font-size: 1.5rem;
+    }
+    
+    .weather-name {
+        font-size: 0.9rem;
+    }
+}
