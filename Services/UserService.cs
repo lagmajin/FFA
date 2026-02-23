@@ -245,6 +245,21 @@ public class UserService
         }
     }
 
+    public User? GetUser(string username)
+    {
+        try
+        {
+            using var db = new LiteDatabase(_databasePath);
+            var users = db.GetCollection<User>("users");
+            return users.FindOne(u => u.Username == username);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"UserService.GetUser 例外: {ex.Message} - {ex.StackTrace}");
+            return null;
+        }
+    }
+
     public void UpdateUser(User user)
     {
         try

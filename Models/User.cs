@@ -86,4 +86,9 @@ public class User
     
     // 釣りシステム
     public List<int> OwnedRodIds { get; set; } = new() { 1 }; // 所有釣り竿リスト（初期は竹の釣り竿）
+    
+    // 仲間システム（パーティシステム基盤）
+    public List<int> CompanionIds { get; set; } = new(); // 所有仲間IDリスト
+    public int MaxCompanions { get; set; } = 10; // 最大仲間所持数
+    public int MaxPartySize { get; set; } = 3; // パーティ最大人数
 }
