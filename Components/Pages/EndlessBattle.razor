@@ -1,0 +1,605 @@
+@page "/endlessbattle"
+@rendermode InteractiveServer
+@using FFA.Services
+@using FFA.Models
+@using MudBlazor
+@using Microsoft.AspNetCore.Components.Authorization
+@inject NavigationManager Navigation
+@inject UserService UserService
+@inject EndlessBattleService EndlessBattleService
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject AuthenticationStateProvider AuthStateProvider
+
+<PageTitle>連戦バトル - FFA</PageTitle>
+
+<div class="endless-battle-container">
+    @if (currentUser == null)
+    {
+        <MudText Typo="Typo.h4" Align="Align.Center">ログインしてください</MudText>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="GoToLogin">ログインページへ</MudButton>
+    }
+    else if (currentSession == null)
+    {
+        // セッション選択画面
+        <MudCard Elevation="4" Class="mb-4">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h4" Align="Align.Center">⚔️ 連戦バトル ⚔️</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudText Typo="Typo.body1" Align="Align.Center" Class="mb-4">
+                    次々と現れるモンスターを倒し続けろ！<br/>
+                    ウェーブが進むほど敵は強くなり、報酬も増える！<br/>
+                    いつでも離脱可能だが、敗北すると報酬が半減する。
+                </MudText>
+                
+                @if (userStats != null)
+                {
+                    <MudPaper Elevation="2" Class="pa-3 mb-4">
+                        <MudText Typo="Typo.h6">📊 戦績</MudText>
+                        <MudGrid>
+                            <MudItem xs="6" sm="3">
+                                <MudText>総セッション: @userStats.TotalSessions</MudText>
+                            </MudItem>
+                            <MudItem xs="6" sm="3">
+                                <MudText>勝利: @userStats.TotalVictories</MudText>
+                            </MudItem>
+                            <MudItem xs="6" sm="3">
+                                <MudText>最高Wave: @userStats.MaxWaveReached</MudText>
+                            </MudItem>
+                            <MudItem xs="6" sm="3">
+                                <MudText>撃破数: @userStats.TotalMonstersDefeated</MudText>
+                            </MudItem>
+                        </MudGrid>
+                    </MudPaper>
+                }
+                
+                <MudText Typo="Typo.h6" Align="Align.Center" Class="mt-4 mb-2">難易度を選択</MudText>
+                
+                <MudGrid Class="difficulty-grid">
+                    <MudItem xs="12" sm="6" md="3">
+                        <MudCard Elevation="2" Class="difficulty-card easy">
+                            <MudCardContent>
+                                <MudText Typo="Typo.h5" Align="Align.Center">🟢 簡単</MudText>
+                                <MudText Align="Align.Center" Class="mt-2">推奨Lv: 5+</MudText>
+                                <MudText Align="Align.Center" Typo="Typo.body2">少し強いモンスター</MudText>
+                                <MudButton Variant="Variant.Filled" Color="Color.Success" FullWidth Class="mt-3" 
+                                           OnClick="() => StartBattle(EndlessBattleDifficulty.Easy)">開始</MudButton>
+                            </MudCardContent>
+                        </MudCard>
+                    </MudItem>
+                    
+                    <MudItem xs="12" sm="6" md="3">
+                        <MudCard Elevation="2" Class="difficulty-card normal">
+                            <MudCardContent>
+                                <MudText Typo="Typo.h5" Align="Align.Center">🟡 普通</MudText>
+                                <MudText Align="Align.Center" Class="mt-2">推奨Lv: 15+</MudText>
+                                <MudText Align="Align.Center" Typo="Typo.body2">エリート級モンスター</MudText>
+                                <MudButton Variant="Variant.Filled" Color="Color.Warning" FullWidth Class="mt-3"
+                                           OnClick="() => StartBattle(EndlessBattleDifficulty.Normal)">開始</MudButton>
+                            </MudCardContent>
+                        </MudCard>
+                    </MudItem>
+                    
+                    <MudItem xs="12" sm="6" md="3">
+                        <MudCard Elevation="2" Class="difficulty-card hard">
+                            <MudCardContent>
+                                <MudText Typo="Typo.h5" Align="Align.Center">🔴 難しい</MudText>
+                                <MudText Align="Align.Center" Class="mt-2">推奨Lv: 30+</MudText>
+                                <MudText Align="Align.Center" Typo="Typo.body2">レア級モンスター</MudText>
+                                <MudButton Variant="Variant.Filled" Color="Color.Error" FullWidth Class="mt-3"
+                                           OnClick="() => StartBattle(EndlessBattleDifficulty.Hard)">開始</MudButton>
+                            </MudCardContent>
+                        </MudCard>
+                    </MudItem>
+                    
+                    <MudItem xs="12" sm="6" md="3">
+                        <MudCard Elevation="2" Class="difficulty-card extreme">
+                            <MudCardContent>
+                                <MudText Typo="Typo.h5" Align="Align.Center">💀 激難</MudText>
+                                <MudText Align="Align.Center" Class="mt-2">推奨Lv: 50+</MudText>
+                                <MudText Align="Align.Center" Typo="Typo.body2">ボス級モンスター</MudText>
+                                <MudButton Variant="Variant.Filled" Color="Color.Secondary" FullWidth Class="mt-3"
+                                           OnClick="() => StartBattle(EndlessBattleDifficulty.Extreme)">開始</MudButton>
+                            </MudCardContent>
+                        </MudCard>
+                    </MudItem>
+                </MudGrid>
+            </MudCardContent>
+        </MudCard>
+    }
+    else if (showBattleResult)
+    {
+        // 戦闘結果表示
+        <MudCard Elevation="4" Class="battle-result-card">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h4" Align="Align.Center">
+                        @if (lastBattleResult?.Victory == true)
+                        {
+                            <span class="victory-text">🎉 勝利！ 🎉</span>
+                        }
+                        else
+                        {
+                            <span class="defeat-text">💀 敗北... 💀</span>
+                        }
+                    </MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                @if (lastBattleResult != null)
+                {
+                    <MudPaper Elevation="2" Class="pa-3 mb-3">
+                        <MudText Typo="Typo.h6">戦闘ログ</MudText>
+                        <div class="battle-log">
+                            @foreach (var log in lastBattleResult.BattleLog)
+                            {
+                                <MudText Typo="Typo.body2">@log</MudText>
+                            }
+                        </div>
+                    </MudPaper>
+                    
+                    @if (lastBattleResult.Victory)
+                    {
+                        <MudPaper Elevation="2" Class="pa-3 mb-3 reward-paper">
+                            <MudText Typo="Typo.h6">獲得報酬</MudText>
+                            <MudGrid>
+                                <MudItem xs="6">
+                                    <MudText>経験値: <span class="reward-value">+@lastBattleResult.ExpEarned</span></MudText>
+                                </MudItem>
+                                <MudItem xs="6">
+                                    <MudText>ギル: <span class="reward-value">+@lastBattleResult.GilEarned</span></MudText>
+                                </MudItem>
+                            </MudGrid>
+                            @if (lastBattleResult.ItemsDropped.Any())
+                            {
+                                <MudText Class="mt-2">ドロップアイテム:</MudText>
+                                @foreach (var item in lastBattleResult.ItemsDropped)
+                                {
+                                    <MudChip T="string" Color="Color.Info" Size="Size.Small" Class="ma-1">@item</MudChip>
+                                }
+                            }
+                        </MudPaper>
+                        
+                        <MudStack Row Justify="Justify.Center" Spacing="2">
+                            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ContinueBattle">
+                                次のウェーブへ ⚔️
+                            </MudButton>
+                            <MudButton Variant="Variant.Outlined" Color="Color.Warning" OnClick="RetreatFromBattle">
+                                離脱して報酬を受け取る 🏃
+                            </MudButton>
+                        </MudStack>
+                    }
+                    else
+                    {
+                        <MudText Align="Align.Center" Class="mb-3">HPが0になりました...</MudText>
+                        <MudButton Variant="Variant.Filled" Color="Color.Error" FullWidth OnClick="AcceptDefeat">
+                            敗北を受け入れる
+                        </MudButton>
+                    }
+                }
+            </MudCardContent>
+        </MudCard>
+    }
+    else if (showRetreatResult)
+    {
+        // 離脱結果表示
+        <MudCard Elevation="4" Class="retreat-result-card">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h4" Align="Align.Center">🏃 離脱成功 🏃</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudText Align="Align.Center" Class="mb-3">
+                    Wave @(currentSession?.CurrentWave - 1 ?? 0) までクリア！
+                </MudText>
+                
+                @if (retreatReward != null)
+                {
+                    <MudPaper Elevation="2" Class="pa-3 mb-3 reward-paper">
+                        <MudText Typo="Typo.h6">最終報酬</MudText>
+                        <MudGrid>
+                            <MudItem xs="6">
+                                <MudText>経験値: <span class="reward-value">+@retreatReward.Exp</span></MudText>
+                            </MudItem>
+                            <MudItem xs="6">
+                                <MudText>ギル: <span class="reward-value">+@retreatReward.Gil</span></MudText>
+                            </MudItem>
+                            <MudItem xs="6">
+                                <MudText>ウェーブボーナス: <span class="reward-value">+@retreatReward.BonusExp</span></MudText>
+                            </MudItem>
+                            <MudItem xs="6">
+                                <MudText>ギルボーナス: <span class="reward-value">+@retreatReward.BonusGil</span></MudText>
+                            </MudItem>
+                        </MudGrid>
+                        <MudText Class="mt-2">総獲得経験値: <span class="total-reward">@retreatReward.TotalExp</span></MudText>
+                        <MudText>総獲得ギル: <span class="total-reward">@retreatReward.TotalGil</span></MudText>
+                        
+                        @if (retreatReward.Items.Any())
+                        {
+                            <MudText Class="mt-2">獲得アイテム:</MudText>
+                            <div class="item-list">
+                                @foreach (var item in retreatReward.Items.Distinct())
+                                {
+                                    var count = retreatReward.Items.Count(i => i == item);
+                                    <MudChip T="string" Color="Color.Info" Size="Size.Small" Class="ma-1">@(count > 1 ? $"{item} x{count}" : item)</MudChip>
+                                }
+                            </div>
+                        }
+                    </MudPaper>
+                }
+                
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth OnClick="ReturnToMenu">
+                    メニューに戻る
+                </MudButton>
+            </MudCardContent>
+        </MudCard>
+    }
+    else
+    {
+        // バトル中
+        <MudCard Elevation="4" Class="battle-card">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                        <MudText Typo="Typo.h5">⚔️ Wave @currentSession.CurrentWave</MudText>
+                        <MudChip T="string" Color="Color.Secondary">難易度倍率: x@currentSession.DifficultyMultiplier.ToString("F2")</MudChip>
+                    </MudStack>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <!-- プレイヤーステータス -->
+                <MudPaper Elevation="2" Class="pa-3 mb-3 player-status">
+                    <MudGrid>
+                        <MudItem xs="12" sm="6">
+                            <MudText Typo="Typo.h6">@currentUser.Username (Lv.@currentUser.Level)</MudText>
+                            <MudText Typo="Typo.body2">HP: @currentSession.PlayerHP / @currentSession.PlayerMaxHP</MudText>
+                            <MudProgressLinear Value="@((double)currentSession.PlayerHP / currentSession.PlayerMaxHP * 100)" 
+                                               Color="Color.Error" Class="mb-2" />
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudText Typo="Typo.body2">獲得経験値: @currentSession.TotalExpEarned</MudText>
+                            <MudText Typo="Typo.body2">獲得ギル: @currentSession.TotalGilEarned</MudText>
+                            <MudText Typo="Typo.body2">撃破数: @currentSession.BattleRecords.Count(r => r.Victory)</MudText>
+                        </MudItem>
+                    </MudGrid>
+                </MudPaper>
+                
+                <!-- 敵情報 -->
+                @if (currentEnemy != null)
+                {
+                    <MudPaper Elevation="3" Class="pa-3 mb-3 enemy-status">
+                        <MudStack Row Justify="Justify.Center" AlignItems="AlignItems.Center" Spacing="2">
+                            <span class="enemy-icon-large">@currentEnemy.Icon</span>
+                            <div>
+                                <MudText Typo="Typo.h5">@currentEnemy.Name</MudText>
+                                <MudText Typo="Typo.body1">Lv.@currentEnemy.Level</MudText>
+                                @if (currentEnemy.Type != EnemyType.Normal)
+                                {
+                                    <MudChip T="string" Color="@GetEnemyTypeColor(currentEnemy.Type)" Size="Size.Small">
+                                        @GetEnemyTypeLabel(currentEnemy.Type)
+                                    </MudChip>
+                                }
+                            </div>
+                        </MudStack>
+                        
+                        <div class="enemy-stats mt-3">
+                            <MudText>HP: @currentEnemy.HP / @currentEnemy.MaxHP</MudText>
+                            <MudProgressLinear Value="@((double)currentEnemy.HP / currentEnemy.MaxHP * 100)" 
+                                               Color="Color.Error" Class="mb-2" />
+                            <MudGrid>
+                                <MudItem xs="6" sm="3">
+                                    <MudText Typo="Typo.body2">ATK: @currentEnemy.Attack</MudText>
+                                </MudItem>
+                                <MudItem xs="6" sm="3">
+                                    <MudText Typo="Typo.body2">DEF: @currentEnemy.Defense</MudText>
+                                </MudItem>
+                                <MudItem xs="6" sm="3">
+                                    <MudText Typo="Typo.body2">SPD: @currentEnemy.Speed</MudText>
+                                </MudItem>
+                                <MudItem xs="6" sm="3">
+                                    <MudText Typo="Typo.body2">報酬: @currentEnemy.Exp EXP</MudText>
+                                </MudItem>
+                            </MudGrid>
+                        </div>
+                    </MudPaper>
+                }
+                
+                <!-- アクションボタン -->
+                <MudStack Row Justify="Justify.Center" Spacing="2">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" 
+                               OnClick="ExecuteBattle" Disabled="isProcessing">
+                        @if (isProcessing)
+                        {
+                            <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                        }
+                        戦う ⚔️
+                    </MudButton>
+                    <MudButton Variant="Variant.Outlined" Color="Color.Warning" Size="Size.Large"
+                               OnClick="ShowRetreatConfirm" Disabled="isProcessing">
+                        離脱する 🏃
+                    </MudButton>
+                </MudStack>
+            </MudCardContent>
+        </MudCard>
+    }
+</div>
+
+<style>
+    .endless-battle-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .difficulty-card {
+        text-align: center;
+        transition: transform 0.2s;
+    }
+    
+    .difficulty-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .difficulty-card.easy {
+        border-top: 4px solid #4CAF50;
+    }
+    
+    .difficulty-card.normal {
+        border-top: 4px solid #FF9800;
+    }
+    
+    .difficulty-card.hard {
+        border-top: 4px solid #F44336;
+    }
+    
+    .difficulty-card.extreme {
+        border-top: 4px solid #9C27B0;
+    }
+    
+    .enemy-icon-large {
+        font-size: 4rem;
+    }
+    
+    .player-status {
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    }
+    
+    .enemy-status {
+        background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+    }
+    
+    .reward-paper {
+        background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+    }
+    
+    .reward-value {
+        color: #4CAF50;
+        font-weight: bold;
+    }
+    
+    .total-reward {
+        color: #FF9800;
+        font-weight: bold;
+        font-size: 1.2rem;
+    }
+    
+    .victory-text {
+        color: #4CAF50;
+    }
+    
+    .defeat-text {
+        color: #F44336;
+    }
+    
+    .battle-log {
+        max-height: 200px;
+        overflow-y: auto;
+        padding: 10px;
+        background: #f5f5f5;
+        border-radius: 4px;
+    }
+    
+    .item-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-top: 10px;
+    }
+</style>
+
+@code {
+    private User? currentUser;
+    private EndlessBattleSession? currentSession;
+    private EndlessBattleStats? userStats;
+    private EndlessBattleResult? lastBattleResult;
+    private EndlessBattleReward? retreatReward;
+    private EndlessBattleDifficulty selectedDifficulty;
+    
+    private bool showBattleResult = false;
+    private bool showRetreatResult = false;
+    private bool isProcessing = false;
+    
+    private Enemy? currentEnemy => currentSession?.CurrentEnemies.FirstOrDefault();
+    
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        var authUser = state.User;
+        var username = authUser?.Identity?.Name;
+        
+        if (!string.IsNullOrEmpty(username))
+        {
+            currentUser = UserService.GetByUsername(username);
+            if (currentUser != null)
+            {
+                userStats = EndlessBattleService.GetUserStats(currentUser.Id.ToString());
+                
+                // 既存のアクティブセッションをチェック
+                var existingSession = EndlessBattleService.GetUserActiveSession(currentUser.Id.ToString());
+                if (existingSession != null)
+                {
+                    currentSession = existingSession;
+                }
+            }
+        }
+    }
+    
+    private async Task StartBattle(EndlessBattleDifficulty difficulty)
+    {
+        if (currentUser == null) return;
+        
+        selectedDifficulty = difficulty;
+        currentSession = EndlessBattleService.StartSession(currentUser, difficulty);
+        showBattleResult = false;
+        showRetreatResult = false;
+        
+        StateHasChanged();
+    }
+    
+    private async Task ExecuteBattle()
+    {
+        if (currentSession == null || currentUser == null) return;
+        
+        isProcessing = true;
+        StateHasChanged();
+        
+        // 少し遅延を入れて演出
+        await Task.Delay(300);
+        
+        lastBattleResult = EndlessBattleService.ExecuteBattle(currentSession, currentUser);
+        
+        // プレイヤーのHPを更新
+        EndlessBattleService.UpdatePlayerStatus(currentSession, currentSession.PlayerHP, 0);
+        
+        if (lastBattleResult.Victory)
+        {
+            // 報酬をセッションに追加
+            currentSession.TotalExpEarned += lastBattleResult.ExpEarned;
+            currentSession.TotalGilEarned += lastBattleResult.GilEarned;
+            
+            // ユーザーに即時反映（HPは除く）
+            currentUser.Exp += lastBattleResult.ExpEarned;
+            currentUser.Gil += lastBattleResult.GilEarned;
+        }
+        
+        showBattleResult = true;
+        isProcessing = false;
+        
+        StateHasChanged();
+    }
+    
+    private async Task ContinueBattle()
+    {
+        if (currentSession == null) return;
+        
+        showBattleResult = false;
+        EndlessBattleService.NextWave(currentSession, selectedDifficulty);
+        
+        StateHasChanged();
+    }
+    
+    private async Task ShowRetreatConfirm()
+    {
+        var result = await DialogService.ShowMessageBox(
+            "離脱確認",
+            "本当に離脱しますか？現在の報酬を受け取って終了します。",
+            yesText: "離脱する",
+            cancelText: "キャンセル"
+        );
+        
+        if (result == true)
+        {
+            RetreatFromBattle();
+        }
+    }
+    
+    private void RetreatFromBattle()
+    {
+        if (currentSession == null || currentUser == null) return;
+        
+        retreatReward = EndlessBattleService.Retreat(currentSession);
+        
+        // ユーザーに報酬を反映
+        currentUser.Exp += retreatReward.TotalExp;
+        currentUser.Gil += retreatReward.TotalGil;
+        
+        // HPを反映
+        currentUser.HP = currentSession.PlayerHP;
+        
+        showBattleResult = false;
+        showRetreatResult = true;
+        currentSession = null;
+        
+        StateHasChanged();
+    }
+    
+    private void AcceptDefeat()
+    {
+        if (currentSession == null || currentUser == null) return;
+        
+        retreatReward = EndlessBattleService.Defeat(currentSession);
+        
+        // ユーザーに報酬を反映（敗北時は半減済み）
+        currentUser.Exp += retreatReward.TotalExp;
+        currentUser.Gil += retreatReward.TotalGil;
+        
+        // HPは1にする（敗北後）
+        currentUser.HP = 1;
+        
+        showBattleResult = false;
+        showRetreatResult = true;
+        currentSession = null;
+        
+        StateHasChanged();
+    }
+    
+    private void ReturnToMenu()
+    {
+        currentSession = null;
+        showBattleResult = false;
+        showRetreatResult = false;
+        retreatReward = null;
+        lastBattleResult = null;
+        
+        // 統計を更新
+        if (currentUser != null)
+        {
+            userStats = EndlessBattleService.GetUserStats(currentUser.Id.ToString());
+        }
+        
+        StateHasChanged();
+    }
+    
+    private void GoToLogin()
+    {
+        Navigation.NavigateTo("/login");
+    }
+    
+    private Color GetEnemyTypeColor(EnemyType type)
+    {
+        return type switch
+        {
+            EnemyType.Elite => Color.Warning,
+            EnemyType.Rare => Color.Info,
+            EnemyType.Boss => Color.Error,
+            EnemyType.Event => Color.Secondary,
+            _ => Color.Default
+        };
+    }
+    
+    private string GetEnemyTypeLabel(EnemyType type)
+    {
+        return type switch
+        {
+            EnemyType.Elite => "エリート",
+            EnemyType.Rare => "レア",
+            EnemyType.Boss => "ボス",
+            EnemyType.Event => "イベント",
+            _ => ""
+        };
+    }
+}

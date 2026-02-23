@@ -55,6 +55,8 @@ builder.Services.AddScoped<TitleService>();
 // Register AuctionService and CountryWarService
 builder.Services.AddScoped<AuctionService>();
 builder.Services.AddSingleton<CountryWarService>();
+// Register EndlessBattleService for consecutive battles
+builder.Services.AddScoped<EndlessBattleService>();
 
 // MasterDataService for JSON data loading
 builder.Services.AddHttpClient();
