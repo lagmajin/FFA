@@ -1,5 +1,6 @@
 # 装飾品マスターデータ
 # ゲーム内で販売・入手可能な装飾品のベースデータ
+# weight: 装飾品の重量（kg）- 素早さやスタミナ消費に影響
 
 # === リング（Ring）===
 [[accessories]]
@@ -15,6 +16,7 @@ durability = 50
 enhancement_cost = 80
 enhancement_success_rate = 0.9
 repair_cost = 10
+weight = 0.05
 
 [[accessories]]
 id = 2
@@ -29,6 +31,7 @@ durability = 80
 enhancement_cost = 150
 enhancement_success_rate = 0.85
 repair_cost = 20
+weight = 0.08
 
 # === アミュレット（Amulet）===
 [[accessories]]
@@ -44,6 +47,7 @@ durability = 60
 enhancement_cost = 100
 enhancement_success_rate = 0.9
 repair_cost = 15
+weight = 0.1
 
 [[accessories]]
 id = 11
@@ -58,6 +62,7 @@ durability = 80
 enhancement_cost = 180
 enhancement_success_rate = 0.8
 repair_cost = 25
+weight = 0.15
 
 # === イアリング（Earring）===
 [[accessories]]
@@ -73,6 +78,7 @@ durability = 60
 enhancement_cost = 150
 enhancement_success_rate = 0.85
 repair_cost = 15
+weight = 0.02
 
 [[accessories]]
 id = 21
@@ -87,6 +93,7 @@ durability = 70
 enhancement_cost = 140
 enhancement_success_rate = 0.85
 repair_cost = 18
+weight = 0.02
 
 # === ブレスレット（Bracelet）===
 [[accessories]]
@@ -102,6 +109,7 @@ durability = 80
 enhancement_cost = 130
 enhancement_success_rate = 0.85
 repair_cost = 20
+weight = 0.1
 
 [[accessories]]
 id = 31
@@ -116,6 +124,7 @@ durability = 80
 enhancement_cost = 200
 enhancement_success_rate = 0.8
 repair_cost = 25
+weight = 0.12
 
 # === 高級装飾品（Purple）===
 [[accessories]]
@@ -131,6 +140,7 @@ durability = 100
 enhancement_cost = 500
 enhancement_success_rate = 0.7
 repair_cost = 80
+weight = 0.03
 
 [[accessories]]
 id = 101
@@ -145,6 +155,7 @@ durability = 120
 enhancement_cost = 600
 enhancement_success_rate = 0.7
 repair_cost = 100
+weight = 0.08
 
 # === 稀有装飾品（Red）===
 [[accessories]]
@@ -160,6 +171,7 @@ durability = 150
 enhancement_cost = 1500
 enhancement_success_rate = 0.6
 repair_cost = 300
+weight = 0.1
 
 [[accessories]]
 id = 201
@@ -174,6 +186,7 @@ durability = 150
 enhancement_cost = 1800
 enhancement_success_rate = 0.55
 repair_cost = 350
+weight = 0.05
 
 # === 伝説装飾品（Orange）===
 [[accessories]]
@@ -189,6 +202,7 @@ durability = 200
 enhancement_cost = 6000
 enhancement_success_rate = 0.45
 repair_cost = 1200
+weight = 0.2
 
 # === 神話装飾品（Gold）===
 [[accessories]]
@@ -204,6 +218,7 @@ durability = 300
 enhancement_cost = 25000
 enhancement_success_rate = 0.35
 repair_cost = 5000
+weight = 0.05
 
 # === 最上位装飾品（Rainbow）===
 [[accessories]]
@@ -219,3 +234,4 @@ durability = 500
 enhancement_cost = 100000
 enhancement_success_rate = 0.2
 repair_cost = 20000
+weight = 0.1

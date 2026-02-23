@@ -10,6 +10,7 @@
 @inject Services.CombatService Combat
 @inject Services.TimeWeatherService TimeWeatherService
 @inject Services.AppraisalService AppraisalService
+@inject Services.BattleEventService BattleEventService
 
 <PageTitle>バトル</PageTitle>
 
@@ -123,6 +124,24 @@
                     </div>
                 }
             </div>
+
+            <!-- アクティブイベント表示 -->
+            @if (activeEvents.Count > 0)
+            {
+                <div class="active-events">
+                    <h4>🎲 発動中のイベント</h4>
+                    <div class="event-list">
+                        @foreach (var activeEvent in activeEvents)
+                        {
+                            <div class="event-badge @(activeEvent.Event.IsPositive ? "positive" : "negative")">
+                                <span class="event-icon">@activeEvent.Event.Icon</span>
+                                <span class="event-name">@activeEvent.Event.Name</span>
+                                <span class="event-duration">(@activeEvent.RemainingTurns ターン)</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
 
             <!-- バトルログ -->
             @if (battleLog.Count > 0)
@@ -507,6 +526,60 @@
         border-radius: 6px;
         cursor: pointer;
     }
+    
+    /* アクティブイベント表示 */
+    .active-events {
+        margin: 15px 0;
+        padding: 10px;
+        background: rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
+    
+    .active-events h4 {
+        margin: 0 0 10px 0;
+        font-size: 0.9rem;
+        color: var(--mud-palette-text-secondary);
+    }
+    
+    .event-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .event-badge {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 0.85rem;
+    }
+    
+    .event-badge.positive {
+        background: rgba(76, 175, 80, 0.2);
+        border: 1px solid #4caf50;
+        color: #4caf50;
+    }
+    
+    .event-badge.negative {
+        background: rgba(244, 67, 54, 0.2);
+        border: 1px solid #f44336;
+        color: #f44336;
+    }
+    
+    .event-icon {
+        font-size: 1rem;
+    }
+    
+    .event-name {
+        font-weight: 500;
+    }
+    
+    .event-duration {
+        font-size: 0.75rem;
+        opacity: 0.8;
+    }
 </style>
 
 @code {
@@ -567,6 +640,11 @@
     }
     private DungeonService.BattleSession? battleSession;
     
+    // バトルイベント関連
+    private List<ActiveBattleEvent> activeEvents = new();
+    private EventModifiers eventModifiers = new();
+    private string? lastEventMessage;
+    
     private bool isProcessing = false;
     private int gainedExp = 0;
     private int gainedGil = 0;
@@ -610,6 +688,11 @@
         bonusExp = 0;
         bonusGil = 0;
         
+        // バトルイベント初期化
+        activeEvents.Clear();
+        eventModifiers = new EventModifiers();
+        lastEventMessage = null;
+        
         // 複数モンスター出現基盤: 1〜MaxConcurrentEnemies体の敵を出現
         var rand = new Random();
         var enemyCount = rand.Next(1, Math.Min(MaxConcurrentEnemies, (currentField.Enemies?.Length ?? 1)) + 1);
@@ -640,6 +723,9 @@
         
         var enemyNames = string.Join("、", currentEnemies.Select(e => $"{e.Icon}{e.Name}"));
         battleLog.Add($"{currentField.Name}で {enemyNames} が現れた！");
+        
+        // バトル開始時イベントチェック
+        CheckBattleEvent();
     }
     
     // 複数敵生成対応
@@ -918,6 +1004,9 @@
     {
         if (currentEnemy == null || currentUser == null || battleSession == null) return;
         
+        // 持続イベントのターン経過処理
+        ProcessActiveEvents();
+        
         var result = DungeonService.EnemyAttack(currentUser, currentEnemy, battleSession);
         battleLog.Add(result.Message);
         
@@ -931,6 +1020,9 @@
         {
             // プレイヤーのターンへ
             battleSession.IsPlayerTurn = true;
+            
+            // ターン開始時イベントチェック
+            CheckBattleEvent();
         }
         
         StateHasChanged();
@@ -946,6 +1038,12 @@
         gainedGil = baseGil;
         bonusExp = bExp;
         bonusGil = bGil;
+        
+        // イベント修飾子を適用
+        gainedExp = (int)(gainedExp * eventModifiers.ExpMultiplier);
+        gainedGil = (int)(gainedGil * eventModifiers.GilMultiplier);
+        bonusExp = (int)(bonusExp * eventModifiers.ExpMultiplier);
+        bonusGil = (int)(bonusGil * eventModifiers.GilMultiplier);
         
         // 経験値・ギル付与
         currentUser.Exp += gainedExp + bonusExp;
@@ -1033,5 +1131,92 @@
         battleLog.Clear();
         
         UserService.UpdateUser(currentUser);
+    }
+    
+    /// <summary>
+    /// バトルイベントをチェック
+    /// </summary>
+    private void CheckBattleEvent()
+    {
+        if (battleSession == null) return;
+        
+        var eventResult = BattleEventService.CheckForEvent(battleSession.Turn, currentField?.Name);
+        if (eventResult != null)
+        {
+            lastEventMessage = eventResult.Message;
+            battleLog.Add(eventResult.Message);
+            
+            // イベント効果を適用
+            var effectResult = BattleEventService.ApplyEventEffect(eventResult.Event, currentUser!, currentEnemy);
+            
+            // 即時効果の処理
+            if (effectResult.HPChange != 0 && currentUser != null)
+            {
+                currentUser.HP = Math.Clamp(currentUser.HP + effectResult.HPChange, 0, currentUser.MaxHP);
+                battleLog.Add(effectResult.Message);
+            }
+            
+            if (effectResult.Gil > 0 && currentUser != null)
+            {
+                currentUser.Gil += effectResult.Gil;
+                battleLog.Add($"💰 {effectResult.Gil}ギルを入手！");
+            }
+            
+            if (effectResult.Items.Count > 0 && currentUser != null)
+            {
+                foreach (var item in effectResult.Items)
+                {
+                    currentUser.Inventory.Add(item);
+                    battleLog.Add($"📦 {item.Name}x{item.Quantity}を入手！");
+                }
+            }
+            
+            if (effectResult.SpawnEnemy && currentField != null)
+            {
+                var reinforcement = GenerateEnemyForField(currentField, currentEnemies.Count);
+                currentEnemies.Add(reinforcement);
+                battleLog.Add($"👥 {reinforcement.Icon}{reinforcement.Name}が現れた！");
+            }
+            
+            // 持続効果のあるイベントを追加
+            if (eventResult.Event.Duration > 0)
+            {
+                activeEvents.Add(new ActiveBattleEvent
+                {
+                    Event = eventResult.Event,
+                    RemainingTurns = eventResult.Event.Duration
+                });
+            }
+            
+            // 修飾子を再計算
+            eventModifiers = BattleEventService.CalculateEventModifiers(activeEvents);
+        }
+    }
+    
+    /// <summary>
+    /// 持続イベントのターン経過処理
+    /// </summary>
+    private void ProcessActiveEvents()
+    {
+        var expiredEvents = BattleEventService.ProcessActiveEvents(activeEvents);
+        
+        foreach (var expired in expiredEvents)
+        {
+            if (!string.IsNullOrEmpty(expired.Event.EndMessage))
+            {
+                battleLog.Add(expired.Event.EndMessage);
+            }
+        }
+        
+        // 修飾子を再計算
+        eventModifiers = BattleEventService.CalculateEventModifiers(activeEvents);
+        
+        // 毒ダメージ処理
+        if (eventModifiers.PoisonDamagePercent > 0 && currentUser != null)
+        {
+            var poisonDamage = currentUser.MaxHP * eventModifiers.PoisonDamagePercent / 100;
+            currentUser.HP = Math.Max(0, currentUser.HP - poisonDamage);
+            battleLog.Add($"☠️ 毒の霧で{poisonDamage}ダメージ！");
+        }
     }
 }

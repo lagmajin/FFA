@@ -20,6 +20,7 @@ public class Weapon
     public int Attack { get; set; }
     public Rarity Rarity { get; set; } = Rarity.White;
     public int Price { get; set; } = 0; // 販売価格
+    public double Weight { get; set; } = 1.0; // 重量（kg）
 public int EnhancementLevel { get; set; } = 0; // 強化レベル
 public WeaponType Type { get; set; } = WeaponType.Sword; // 武器タイプ
 

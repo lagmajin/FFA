@@ -1,5 +1,6 @@
 # 防具マスターデータ
 # ゲーム内で販売・入手可能な防具のベースデータ
+# weight: 防具の重量（kg）- 素早さやスタミナ消費に影響
 
 # === 軽装（Light）===
 [[armors]]
@@ -13,6 +14,7 @@ durability = 50
 enhancement_cost = 80
 enhancement_success_rate = 0.9
 repair_cost = 10
+weight = 1.5
 
 [[armors]]
 id = 2
@@ -25,6 +27,7 @@ durability = 80
 enhancement_cost = 120
 enhancement_success_rate = 0.85
 repair_cost = 20
+weight = 3.0
 
 # === 中装（Medium） ===
 [[armors]]
@@ -38,6 +41,7 @@ durability = 100
 enhancement_cost = 180
 enhancement_success_rate = 0.8
 repair_cost = 30
+weight = 8.0
 
 [[armors]]
 id = 11
@@ -50,6 +54,7 @@ durability = 120
 enhancement_cost = 250
 enhancement_success_rate = 0.75
 repair_cost = 40
+weight = 12.0
 
 # === 重装（Heavy） ===
 [[armors]]
@@ -63,6 +68,7 @@ durability = 150
 enhancement_cost = 300
 enhancement_success_rate = 0.7
 repair_cost = 50
+weight = 20.0
 
 [[armors]]
 id = 21
@@ -75,6 +81,7 @@ durability = 180
 enhancement_cost = 400
 enhancement_success_rate = 0.65
 repair_cost = 70
+weight = 25.0
 
 # === ローブ（Robe） ===
 [[armors]]
@@ -88,6 +95,7 @@ durability = 50
 enhancement_cost = 80
 enhancement_success_rate = 0.9
 repair_cost = 10
+weight = 0.8
 
 [[armors]]
 id = 31
@@ -100,6 +108,7 @@ durability = 80
 enhancement_cost = 150
 enhancement_success_rate = 0.85
 repair_cost = 20
+weight = 1.0
 
 # === 兜 ===
 [[armors]]
@@ -113,6 +122,7 @@ durability = 40
 enhancement_cost = 60
 enhancement_success_rate = 0.9
 repair_cost = 8
+weight = 0.5
 
 # === 盾 ===
 [[armors]]
@@ -126,6 +136,7 @@ durability = 60
 enhancement_cost = 100
 enhancement_success_rate = 0.85
 repair_cost = 15
+weight = 2.0
 
 # === 高級防具（Purple） ===
 [[armors]]
@@ -139,6 +150,7 @@ durability = 150
 enhancement_cost = 600
 enhancement_success_rate = 0.7
 repair_cost = 100
+weight = 1.0
 
 [[armors]]
 id = 101
@@ -151,6 +163,7 @@ durability = 200
 enhancement_cost = 800
 enhancement_success_rate = 0.65
 repair_cost = 150
+weight = 22.0
 
 # === 稀有防具（Red） ===
 [[armors]]
@@ -164,6 +177,7 @@ durability = 250
 enhancement_cost = 2000
 enhancement_success_rate = 0.55
 repair_cost = 400
+weight = 18.0
 
 [[armors]]
 id = 201
@@ -176,6 +190,7 @@ durability = 200
 enhancement_cost = 1800
 enhancement_success_rate = 0.6
 repair_cost = 350
+weight = 0.5
 
 # === 伝説防具（Orange） ===
 [[armors]]
@@ -189,6 +204,7 @@ durability = 300
 enhancement_cost = 8000
 enhancement_success_rate = 0.45
 repair_cost = 1500
+weight = 5.0
 
 # === 神話防具（Gold） ===
 [[armors]]
@@ -202,6 +218,7 @@ durability = 400
 enhancement_cost = 30000
 enhancement_success_rate = 0.3
 repair_cost = 6000
+weight = 15.0
 
 # === 最上位防具（Rainbow） ===
 [[armors]]
@@ -215,3 +232,4 @@ durability = 600
 enhancement_cost = 150000
 enhancement_success_rate = 0.15
 repair_cost = 30000
+weight = 10.0

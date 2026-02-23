@@ -1,5 +1,6 @@
 # 武器マスターデータ
 # ゲーム内で販売・入手可能な武器のベースデータ
+# weight: 武器の重量（kg）- 素早さやスタミナ消費に影響
 
 # === 基本武器（コモン）===
 [[weapons]]
@@ -13,6 +14,7 @@ durability = 50
 enhancement_cost = 100
 enhancement_success_rate = 0.9
 repair_cost = 10
+weight = 0.8
 
 [[weapons]]
 id = 2
@@ -25,6 +27,7 @@ durability = 80
 enhancement_cost = 150
 enhancement_success_rate = 0.85
 repair_cost = 20
+weight = 1.5
 
 [[weapons]]
 id = 3
@@ -37,6 +40,7 @@ durability = 100
 enhancement_cost = 200
 enhancement_success_rate = 0.8
 repair_cost = 30
+weight = 1.8
 
 # === 斧 ===
 [[weapons]]
@@ -50,6 +54,7 @@ durability = 60
 enhancement_cost = 120
 enhancement_success_rate = 0.85
 repair_cost = 15
+weight = 2.0
 
 [[weapons]]
 id = 11
@@ -62,6 +67,7 @@ durability = 100
 enhancement_cost = 250
 enhancement_success_rate = 0.75
 repair_cost = 35
+weight = 3.5
 
 # === 槍 ===
 [[weapons]]
@@ -75,6 +81,7 @@ durability = 50
 enhancement_cost = 100
 enhancement_success_rate = 0.9
 repair_cost = 10
+weight = 0.6
 
 [[weapons]]
 id = 21
@@ -87,6 +94,7 @@ durability = 90
 enhancement_cost = 180
 enhancement_success_rate = 0.8
 repair_cost = 25
+weight = 2.2
 
 # === 刀 ===
 [[weapons]]
@@ -100,6 +108,7 @@ durability = 60
 enhancement_cost = 130
 enhancement_success_rate = 0.85
 repair_cost = 15
+weight = 0.5
 
 [[weapons]]
 id = 31
@@ -112,6 +121,7 @@ durability = 100
 enhancement_cost = 220
 enhancement_success_rate = 0.8
 repair_cost = 30
+weight = 1.2
 
 # === 高級武器（Purple）===
 [[weapons]]
@@ -125,6 +135,7 @@ durability = 120
 enhancement_cost = 500
 enhancement_success_rate = 0.75
 repair_cost = 100
+weight = 2.0
 
 [[weapons]]
 id = 101
@@ -137,6 +148,7 @@ durability = 120
 enhancement_cost = 600
 enhancement_success_rate = 0.7
 repair_cost = 120
+weight = 4.0
 
 # === 稀有武器（Red）===
 [[weapons]]
@@ -150,6 +162,7 @@ durability = 150
 enhancement_cost = 1500
 enhancement_success_rate = 0.65
 repair_cost = 300
+weight = 1.5
 
 [[weapons]]
 id = 201
@@ -162,6 +175,7 @@ durability = 150
 enhancement_cost = 1800
 enhancement_success_rate = 0.6
 repair_cost = 350
+weight = 5.0
 
 # === 伝説武器（Orange）===
 [[weapons]]
@@ -175,6 +189,7 @@ durability = 200
 enhancement_cost = 5000
 enhancement_success_rate = 0.5
 repair_cost = 1000
+weight = 2.5
 
 [[weapons]]
 id = 301
@@ -187,6 +202,7 @@ durability = 200
 enhancement_cost = 6000
 enhancement_success_rate = 0.45
 repair_cost = 1200
+weight = 6.0
 
 # === 神話武器（Gold）===
 [[weapons]]
@@ -200,6 +216,7 @@ durability = 300
 enhancement_cost = 20000
 enhancement_success_rate = 0.35
 repair_cost = 5000
+weight = 3.0
 
 # === 最上位武器（Rainbow）===
 [[weapons]]
@@ -213,3 +230,4 @@ durability = 500
 enhancement_cost = 100000
 enhancement_success_rate = 0.2
 repair_cost = 25000
+weight = 2.0

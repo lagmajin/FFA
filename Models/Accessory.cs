@@ -12,6 +12,7 @@ public class Accessory
     public int Magic { get; set; } // 魔法力
     public Rarity Rarity { get; set; } = Rarity.White;
     public int Price { get; set; } = 0; // 販売価格
+    public double Weight { get; set; } = 0.1; // 重量（kg）
     public int EnhancementLevel { get; set; } = 0;
 
     // 耐久度関連

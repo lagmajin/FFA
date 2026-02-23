@@ -9,6 +9,7 @@ public class Armor
     public int Defense { get; set; }
     public Rarity Rarity { get; set; } = Rarity.White;
     public int Price { get; set; } = 0; // 販売価格
+    public double Weight { get; set; } = 5.0; // 重量（kg）
     public int EnhancementLevel { get; set; } = 0;
 
 // 耐久度関連
