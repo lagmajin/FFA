@@ -79,4 +79,11 @@ public class User
     public int MapX { get; set; } = 10;
     public int MapY { get; set; } = 7;
     public string CurrentMapId { get; set; } = "world";
+    
+    // 称号システム
+    public int? EquippedTitleId { get; set; } // 装備中の称号ID
+    public List<int> OwnedTitleIds { get; set; } = new(); // 所有称号リスト
+    
+    // 釣りシステム
+    public List<int> OwnedRodIds { get; set; } = new() { 1 }; // 所有釣り竿リスト（初期は竹の釣り竿）
 }

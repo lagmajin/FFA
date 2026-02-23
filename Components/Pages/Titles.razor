@@ -1,0 +1,192 @@
+@page "/titles"
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Components.Authorization
+@using MudBlazor
+@inject NavigationManager Navigation
+@inject Services.UserService UserService
+@inject Services.TitleService TitleService
+@inject AuthenticationStateProvider AuthStateProvider
+
+<PageTitle>称号 - FFA</PageTitle>
+
+<AuthorizeView>
+    <Authorized>
+        <MudPaper Class="pa-4" Style="max-width:900px; margin:1rem auto;">
+            <MudText Typo="Typo.h4" Class="mb-4">称号システム</MudText>
+            
+            @if (!string.IsNullOrEmpty(message))
+            {
+                <MudAlert Severity="@messageSeverity" Class="mb-3">@message</MudAlert>
+            }
+
+            @* 現在の称号 *@
+            <MudPaper Class="pa-3 mb-4" Style="background:#f5f5f5;">
+                <MudText Typo="Typo.h6" Class="mb-2">現在の称号</MudText>
+                @if (equippedTitle != null)
+                {
+                    <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                        <MudText Style="color:#1976d2; font-weight:bold;">@equippedTitle.Name</MudText>
+                        <MudButton Variant="Variant.Outlined" Color="Color.Default" OnClick="UnequipTitle">称号をはずす</MudButton>
+                    </MudStack>
+                    <MudText Typo="Typo.body2" Class="mt-1" Style="color:#666;">@equippedTitle.Description</MudText>
+                }
+                else
+                {
+                    <MudText Style="color:#999;">称号が装備されていません</MudText>
+                }
+            </MudPaper>
+
+            @* 所有称号リスト *@
+            <MudText Typo="Typo.h6" Class="mb-2">所有称号 (@ownedTitles.Count)</MudText>
+            @if (ownedTitles.Any())
+            {
+                <MudGrid Class="mb-4">
+                    @foreach (var title in ownedTitles)
+                    {
+                        <MudItem xs="12" sm="6" md="4">
+                            <MudPaper Class="pa-3" Style="@(equippedTitle?.Id == title.Id ? "border:2px solid #1976d2;background:#e3f2fd;" : "border:1px solid #ddd;")">
+                                <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                                    <div>
+                                        <MudText Typo="Typo.subtitle1" Style="font-weight:600;">@title.Name</MudText>
+                                        <MudText Typo="Typo.caption" Style="color:#666;">@title.Description</MudText>
+                                    </div>
+                                    @if (equippedTitle?.Id != title.Id)
+                                    {
+                                        <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small" OnClick="() => EquipTitle(title.Id)">装備</MudButton>
+                                    }
+                                    else
+                                    {
+                                        <MudText Style="color:#4caf50;">装備中</MudText>
+                                    }
+                                </MudStack>
+                            </MudPaper>
+                        </MudItem>
+                    }
+                </MudGrid>
+            }
+            else
+            {
+                <MudAlert Severity="Severity.Info" Class="mb-4">まだ称号を獲得していません</MudAlert>
+            }
+
+            @* 獲得可能な称号 *@
+            <MudText Typo="Typo.h6" Class="mb-2">獲得可能な称号 (@availableTitles.Count)</MudText>
+            @if (availableTitles.Any())
+            {
+                <MudGrid>
+                    @foreach (var title in availableTitles)
+                    {
+                        <MudItem xs="12" sm="6" md="4">
+                            <MudPaper Class="pa-3" Style="border:1px solid #ddd;opacity:0.8;">
+                                <MudText Typo="Typo.subtitle1" Style="font-weight:600;">@title.Name</MudText>
+                                <MudText Typo="Typo.caption" Style="color:#666;">@title.Description</MudText>
+                                <MudText Typo="Typo.caption" Style="color:#999;">カテゴリ: @GetCategoryName(title.Category)</MudText>
+                            </MudPaper>
+                        </MudItem>
+                    }
+                </MudGrid>
+            }
+            else
+            {
+                <MudText Style="color:#999;">現在獲得可能な称号はありません</MudText>
+            }
+
+            @* シークレット称号 *@
+            @if (secretTitles.Any())
+            {
+                <MudText Typo="Typo.h6" Class="mt-4 mb-2">シークレット称号 (@secretTitles.Count 未確認)</MudText>
+                <MudAlert Severity="Severity.Info">シークレット称号の内容は未確認です。条件を达成して確認しましょう！</MudAlert>
+            }
+
+            <MudDivider Class="my-4" />
+
+            <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.ArrowBack" OnClick="GoBack">戻る</MudButton>
+        </MudPaper>
+    </Authorized>
+    <NotAuthorized>
+        <MudPaper Class="pa-4" Style="max-width:600px; margin:2rem auto; text-align:center;">
+            <MudText Typo="Typo.h5" Class="mb-4">ログインが必要です</MudText>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/login">ログイン</MudButton>
+        </MudPaper>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private string? username;
+    private List<Title> ownedTitles = new();
+    private List<Title> availableTitles = new();
+    private List<Title> secretTitles = new();
+    private Title? equippedTitle;
+    private string? message;
+    private Severity messageSeverity = Severity.Info;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        username = authState.User.Identity?.Name;
+        if (!string.IsNullOrEmpty(username))
+        {
+            LoadTitles();
+        }
+    }
+
+    private void LoadTitles()
+    {
+        if (string.IsNullOrEmpty(username)) return;
+
+        ownedTitles = TitleService.GetOwnedTitles(username);
+        availableTitles = TitleService.GetAvailableTitles(username);
+        secretTitles = TitleService.GetSecretTitles(username);
+        equippedTitle = TitleService.GetEquippedTitle(username);
+    }
+
+    private void EquipTitle(int titleId)
+    {
+        if (string.IsNullOrEmpty(username)) return;
+
+        if (TitleService.EquipTitle(username, titleId))
+        {
+            message = "称号を装備しました";
+            messageSeverity = Severity.Success;
+            LoadTitles();
+        }
+        else
+        {
+            message = "称号の装備に失敗しました";
+            messageSeverity = Severity.Error;
+        }
+    }
+
+    private void UnequipTitle()
+    {
+        if (string.IsNullOrEmpty(username)) return;
+
+        if (TitleService.UnequipTitle(username))
+        {
+            message = "称号をはずしました";
+            messageSeverity = Severity.Success;
+            LoadTitles();
+        }
+    }
+
+    private string GetCategoryName(TitleCategory category)
+    {
+        return category switch
+        {
+            TitleCategory.Achievement => "実績",
+            TitleCategory.Level => "レベル",
+            TitleCategory.Combat => "戦闘",
+            TitleCategory.Collection => "収集",
+            TitleCategory.Exploration => "探索",
+            TitleCategory.Social => "社交",
+            TitleCategory.Special => "特殊",
+            TitleCategory.Seasonal => "季節",
+            _ => "その他"
+        };
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/status");
+    }
+}

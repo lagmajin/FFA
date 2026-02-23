@@ -1,0 +1,580 @@
+# 未鑑定アイテムテンプレートマスターデータ
+# Unidentified Item Templates Master Data
+
+[[templates]]
+id = 1
+display_name = "古びた剣"
+description = "錆びついた古い剣。本来の姿は不明。"
+item_type = "Weapon"
+apparent_rarity = 1
+base_appraisal_cost = 100
+drop_rate = 0.15
+required_source_level = 1
+
+[[templates.possible_items]]
+item_id = 1
+item_type = "Weapon"
+weight = 50
+item_name = "錆びた短剣"
+actual_rarity = 1
+
+[[templates.possible_items]]
+item_id = 2
+item_type = "Weapon"
+weight = 30
+item_name = "鉄の剣"
+actual_rarity = 2
+
+[[templates.possible_items]]
+item_id = 3
+item_type = "Weapon"
+weight = 15
+item_name = "鋼の剣"
+actual_rarity = 3
+
+[[templates.possible_items]]
+item_id = 4
+item_type = "Weapon"
+weight = 5
+item_name = "ミスリルソード"
+actual_rarity = 4
+
+
+[[templates]]
+id = 2
+display_name = "謎の武器"
+description = "何かの武器のようだが、詳細は不明。"
+item_type = "Weapon"
+apparent_rarity = 2
+base_appraisal_cost = 200
+drop_rate = 0.10
+required_source_level = 5
+
+[[templates.possible_items]]
+item_id = 2
+item_type = "Weapon"
+weight = 40
+item_name = "鉄の剣"
+actual_rarity = 2
+
+[[templates.possible_items]]
+item_id = 3
+item_type = "Weapon"
+weight = 35
+item_name = "鋼の剣"
+actual_rarity = 3
+
+[[templates.possible_items]]
+item_id = 4
+item_type = "Weapon"
+weight = 20
+item_name = "ミスリルソード"
+actual_rarity = 4
+
+[[templates.possible_items]]
+item_id = 5
+item_type = "Weapon"
+weight = 5
+item_name = "炎の剣"
+actual_rarity = 5
+
+
+[[templates]]
+id = 3
+display_name = "輝く剣"
+description = "淡い光を放つ剣。魔法がかかっている可能性がある。"
+item_type = "Weapon"
+apparent_rarity = 3
+base_appraisal_cost = 500
+drop_rate = 0.05
+required_source_level = 10
+
+[[templates.possible_items]]
+item_id = 3
+item_type = "Weapon"
+weight = 30
+item_name = "鋼の剣"
+actual_rarity = 3
+
+[[templates.possible_items]]
+item_id = 4
+item_type = "Weapon"
+weight = 40
+item_name = "ミスリルソード"
+actual_rarity = 4
+
+[[templates.possible_items]]
+item_id = 5
+item_type = "Weapon"
+weight = 25
+item_name = "炎の剣"
+actual_rarity = 5
+
+[[templates.possible_items]]
+item_id = 6
+item_type = "Weapon"
+weight = 5
+item_name = "氷の剣"
+actual_rarity = 5
+
+
+[[templates]]
+id = 4
+display_name = "英雄の遺物"
+description = "かつて英雄が使ったと言われる武器。"
+item_type = "Weapon"
+apparent_rarity = 4
+base_appraisal_cost = 1000
+drop_rate = 0.02
+required_source_level = 20
+
+[[templates.possible_items]]
+item_id = 4
+item_type = "Weapon"
+weight = 20
+item_name = "ミスリルソード"
+actual_rarity = 4
+
+[[templates.possible_items]]
+item_id = 5
+item_type = "Weapon"
+weight = 40
+item_name = "炎の剣"
+actual_rarity = 5
+
+[[templates.possible_items]]
+item_id = 6
+item_type = "Weapon"
+weight = 30
+item_name = "氷の剣"
+actual_rarity = 5
+
+[[templates.possible_items]]
+item_id = 7
+item_type = "Weapon"
+weight = 10
+item_name = "光の剣"
+actual_rarity = 5
+
+
+[[templates]]
+id = 5
+display_name = "伝説の武器片"
+description = "伝説の武器の一部と思われる破片。"
+item_type = "Weapon"
+apparent_rarity = 5
+base_appraisal_cost = 5000
+drop_rate = 0.005
+required_source_level = 30
+
+[[templates.possible_items]]
+item_id = 5
+item_type = "Weapon"
+weight = 10
+item_name = "炎の剣"
+actual_rarity = 5
+
+[[templates.possible_items]]
+item_id = 6
+item_type = "Weapon"
+weight = 30
+item_name = "氷の剣"
+actual_rarity = 5
+
+[[templates.possible_items]]
+item_id = 7
+item_type = "Weapon"
+weight = 40
+item_name = "光の剣"
+actual_rarity = 5
+
+[[templates.possible_items]]
+item_id = 8
+item_type = "Weapon"
+weight = 20
+item_name = "伝説の剣"
+actual_rarity = 5
+
+
+# 防具系テンプレート
+
+[[templates]]
+id = 6
+display_name = "古びた鎧"
+description = "ボロボロの鎧。まだ使えるかもしれない。"
+item_type = "Armor"
+apparent_rarity = 1
+base_appraisal_cost = 100
+drop_rate = 0.15
+required_source_level = 1
+
+[[templates.possible_items]]
+item_id = 1
+item_type = "Armor"
+weight = 50
+item_name = "ボロ布の服"
+actual_rarity = 1
+
+[[templates.possible_items]]
+item_id = 2
+item_type = "Armor"
+weight = 30
+item_name = "革の鎧"
+actual_rarity = 2
+
+[[templates.possible_items]]
+item_id = 3
+item_type = "Armor"
+weight = 15
+item_name = "鎖帷子"
+actual_rarity = 3
+
+[[templates.possible_items]]
+item_id = 4
+item_type = "Armor"
+weight = 5
+item_name = "プレートアーマー"
+actual_rarity = 4
+
+
+[[templates]]
+id = 7
+display_name = "謎の防具"
+description = "何かの防具のようだ。"
+item_type = "Armor"
+apparent_rarity = 2
+base_appraisal_cost = 200
+drop_rate = 0.10
+required_source_level = 5
+
+[[templates.possible_items]]
+item_id = 2
+item_type = "Armor"
+weight = 40
+item_name = "革の鎧"
+actual_rarity = 2
+
+[[templates.possible_items]]
+item_id = 3
+item_type = "Armor"
+weight = 35
+item_name = "鎖帷子"
+actual_rarity = 3
+
+[[templates.possible_items]]
+item_id = 4
+item_type = "Armor"
+weight = 20
+item_name = "プレートアーマー"
+actual_rarity = 4
+
+[[templates.possible_items]]
+item_id = 5
+item_type = "Armor"
+weight = 5
+item_name = "ミスリルアーマー"
+actual_rarity = 5
+
+
+[[templates]]
+id = 8
+display_name = "光る鎧"
+description = "神秘的な光を放つ鎧。"
+item_type = "Armor"
+apparent_rarity = 3
+base_appraisal_cost = 500
+drop_rate = 0.05
+required_source_level = 10
+
+[[templates.possible_items]]
+item_id = 3
+item_type = "Armor"
+weight = 30
+item_name = "鎖帷子"
+actual_rarity = 3
+
+[[templates.possible_items]]
+item_id = 4
+item_type = "Armor"
+weight = 40
+item_name = "プレートアーマー"
+actual_rarity = 4
+
+[[templates.possible_items]]
+item_id = 5
+item_type = "Armor"
+weight = 25
+item_name = "ミスリルアーマー"
+actual_rarity = 5
+
+[[templates.possible_items]]
+item_id = 6
+item_type = "Armor"
+weight = 5
+item_name = "ドラゴンアーマー"
+actual_rarity = 5
+
+
+# アクセサリー系テンプレート
+
+[[templates]]
+id = 9
+display_name = "古びた指輪"
+description = "装飾が薄れた指輪。"
+item_type = "Accessory"
+apparent_rarity = 1
+base_appraisal_cost = 150
+drop_rate = 0.12
+required_source_level = 1
+
+[[templates.possible_items]]
+item_id = 1
+item_type = "Accessory"
+weight = 50
+item_name = "石の指輪"
+actual_rarity = 1
+
+[[templates.possible_items]]
+item_id = 2
+item_type = "Accessory"
+weight = 30
+item_name = "銅の指輪"
+actual_rarity = 2
+
+[[templates.possible_items]]
+item_id = 3
+item_type = "Accessory"
+weight = 15
+item_name = "銀の指輪"
+actual_rarity = 3
+
+[[templates.possible_items]]
+item_id = 4
+item_type = "Accessory"
+weight = 5
+item_name = "金の指輪"
+actual_rarity = 4
+
+
+[[templates]]
+id = 10
+display_name = "謎の首飾り"
+description = "何かの力を秘めていそうな首飾り。"
+item_type = "Accessory"
+apparent_rarity = 2
+base_appraisal_cost = 300
+drop_rate = 0.08
+required_source_level = 5
+
+[[templates.possible_items]]
+item_id = 2
+item_type = "Accessory"
+weight = 40
+item_name = "銅の指輪"
+actual_rarity = 2
+
+[[templates.possible_items]]
+item_id = 3
+item_type = "Accessory"
+weight = 35
+item_name = "銀の指輪"
+actual_rarity = 3
+
+[[templates.possible_items]]
+item_id = 4
+item_type = "Accessory"
+weight = 20
+item_name = "金の指輪"
+actual_rarity = 4
+
+[[templates.possible_items]]
+item_id = 5
+item_type = "Accessory"
+weight = 5
+item_name = "ルビーの指輪"
+actual_rarity = 5
+
+
+[[templates]]
+id = 11
+display_name = "輝く宝石"
+description = "美しい輝きを放つ宝石。"
+item_type = "Accessory"
+apparent_rarity = 4
+base_appraisal_cost = 800
+drop_rate = 0.03
+required_source_level = 15
+
+[[templates.possible_items]]
+item_id = 4
+item_type = "Accessory"
+weight = 30
+item_name = "金の指輪"
+actual_rarity = 4
+
+[[templates.possible_items]]
+item_id = 5
+item_type = "Accessory"
+weight = 40
+item_name = "ルビーの指輪"
+actual_rarity = 5
+
+[[templates.possible_items]]
+item_id = 6
+item_type = "Accessory"
+weight = 25
+item_name = "ダイヤの指輪"
+actual_rarity = 5
+
+[[templates.possible_items]]
+item_id = 7
+item_type = "Accessory"
+weight = 5
+item_name = "伝説の指輪"
+actual_rarity = 5
+
+
+# 素材系テンプレート
+
+[[templates]]
+id = 12
+display_name = "謎の鉱石"
+description = "未知の鉱石。何かの素材になりそう。"
+item_type = "Material"
+apparent_rarity = 2
+base_appraisal_cost = 100
+drop_rate = 0.20
+required_source_level = 1
+
+[[templates.possible_items]]
+item_id = 1
+item_type = "Material"
+weight = 60
+item_name = "鉄鉱石"
+actual_rarity = 1
+
+[[templates.possible_items]]
+item_id = 2
+item_type = "Material"
+weight = 30
+item_name = "銅鉱石"
+actual_rarity = 2
+
+[[templates.possible_items]]
+item_id = 3
+item_type = "Material"
+weight = 10
+item_name = "ミスリル鉱石"
+actual_rarity = 3
+
+
+[[templates]]
+id = 13
+display_name = "不思議な結晶"
+description = "魔法の力を感じる結晶。"
+item_type = "Material"
+apparent_rarity = 3
+base_appraisal_cost = 250
+drop_rate = 0.10
+required_source_level = 8
+
+[[templates.possible_items]]
+item_id = 2
+item_type = "Material"
+weight = 30
+item_name = "銅鉱石"
+actual_rarity = 2
+
+[[templates.possible_items]]
+item_id = 3
+item_type = "Material"
+weight = 45
+item_name = "ミスリル鉱石"
+actual_rarity = 3
+
+[[templates.possible_items]]
+item_id = 4
+item_type = "Material"
+weight = 20
+item_name = "オリハルコン"
+actual_rarity = 4
+
+[[templates.possible_items]]
+item_id = 5
+item_type = "Material"
+weight = 5
+item_name = "ドラゴンの鱗"
+actual_rarity = 5
+
+
+# レアアイテム拡張テンプレート
+
+[[templates]]
+id = 14
+display_name = "????"
+description = "正体不明の物体。何かが封印されているようだ。"
+item_type = "Weapon"
+apparent_rarity = 1
+base_appraisal_cost = 3000
+drop_rate = 0.01
+required_source_level = 25
+
+[[templates.possible_items]]
+item_id = 6
+item_type = "Weapon"
+weight = 25
+item_name = "氷の剣"
+actual_rarity = 5
+
+[[templates.possible_items]]
+item_id = 7
+item_type = "Weapon"
+weight = 30
+item_name = "光の剣"
+actual_rarity = 5
+
+[[templates.possible_items]]
+item_id = 8
+item_type = "Weapon"
+weight = 35
+item_name = "伝説の剣"
+actual_rarity = 5
+
+[[templates.possible_items]]
+item_id = 5
+item_type = "Weapon"
+weight = 10
+item_name = "炎の剣"
+actual_rarity = 5
+
+
+[[templates]]
+id = 15
+display_name = "呪われた装備"
+description = "不気味なオーラを放つ装備。鑑定で呪いを解く必要がある。"
+item_type = "Armor"
+apparent_rarity = 2
+base_appraisal_cost = 2000
+drop_rate = 0.02
+required_source_level = 15
+
+[[templates.possible_items]]
+item_id = 4
+item_type = "Armor"
+weight = 30
+item_name = "プレートアーマー"
+actual_rarity = 4
+
+[[templates.possible_items]]
+item_id = 5
+item_type = "Armor"
+weight = 40
+item_name = "ミスリルアーマー"
+actual_rarity = 5
+
+[[templates.possible_items]]
+item_id = 6
+item_type = "Armor"
+weight = 30
+item_name = "ドラゴンアーマー"
+actual_rarity = 5

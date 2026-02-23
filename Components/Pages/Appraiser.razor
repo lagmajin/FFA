@@ -1,0 +1,343 @@
+@page "/appraiser"
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Components.Authorization
+@using MudBlazor
+@inject AuthenticationStateProvider AuthStateProvider
+@inject Services.AppraisalService AppraisalService
+@inject Services.UserService UserService
+@inject ISnackbar Snackbar
+
+<PageTitle>鑑定士 - FFA</PageTitle>
+
+<MudPaper Class="pa-4" Style="max-width:1000px; margin:1rem auto;">
+    <MudText Typo="Typo.h4" Class="mb-4">🔍 鑑定士</MudText>
+    
+    @if (!isAuth)
+    {
+        <MudAlert Severity="Severity.Warning">ログインが必要です。</MudAlert>
+    }
+    else
+    {
+        <MudGrid>
+            <MudItem xs="12">
+                <MudPaper Class="pa-3 mb-4" Style="background:#f5f5f5;">
+                    <MudText Typo="Typo.h6">💰 所持ギル: @currentUser?.Gil G</MudText>
+                    <MudText Typo="Typo.body2" Style="color:#666;">
+                        鑑定士レベル: @appraiserLevel (割引: @GetDiscountText(appraiserLevel))
+                    </MudText>
+                </MudPaper>
+            </MudItem>
+
+            @* 未鑑定アイテム一覧 *@
+            <MudItem xs="12" md="6">
+                <MudText Typo="Typo.h6" Class="mb-3">📦 未鑑定アイテム (@unidentifiedItems.Count(i => !i.IsIdentified))</MudText>
+                
+                @if (unidentifiedItems.Any(i => !i.IsIdentified))
+                {
+                    @foreach (var item in unidentifiedItems.Where(i => !i.IsIdentified))
+                    {
+                        <MudCard Elevation="2" Class="mb-3">
+                            <MudCardHeader>
+                                <CardHeaderContent>
+                                    <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                                        <span style="color:@GetRarityColor(item.ApparentRarity); font-size:1.5rem;">@GetItemIcon(item.ItemType)</span>
+                                        <div>
+                                            <MudText Typo="Typo.h6">@item.DisplayName</MudText>
+                                            <MudText Typo="Typo.caption" Style="color:#666;">@item.ItemType</MudText>
+                                        </div>
+                                    </MudStack>
+                                </CardHeaderContent>
+                            </MudCardHeader>
+                            <MudCardContent>
+                                <MudText Typo="Typo.body2">@item.Description</MudText>
+                                @if (!string.IsNullOrEmpty(item.Source))
+                                {
+                                    <MudText Typo="Typo.caption" Style="color:#999;">入手元: @item.Source</MudText>
+                                }
+                                <MudDivider Class="my-2" />
+                                <MudText Typo="Typo.body2">
+                                    <strong>鑑定費用:</strong> 
+                                    <span style="color:@(CanAfford(item) ? "#4caf50" : "#f44336")">
+                                        @GetActualCost(item.AppraisalCost) G
+                                    </span>
+                                </MudText>
+                                <MudText Typo="Typo.caption" Style="color:#666;">
+                                    見た目のレアリティ: @GetRarityStars(item.ApparentRarity)
+                                </MudText>
+                            </MudCardContent>
+                            <MudCardActions>
+                                <MudButton Variant="Variant.Filled" Color="Color.Primary" 
+                                           Disabled="@(!CanAfford(item))"
+                                           OnClick="() => AppraiseItem(item.Id)">
+                                    🔍 鑑定する
+                                </MudButton>
+                                <MudButton Variant="Variant.Outlined" Color="Color.Error"
+                                           OnClick="() => DiscardItem(item.Id)">
+                                    🗑️ 捨てる
+                                </MudButton>
+                            </MudCardActions>
+                        </MudCard>
+                    }
+                }
+                else
+                {
+                    <MudAlert Severity="Severity.Info">未鑑定のアイテムはありません。</MudAlert>
+                }
+            </MudItem>
+
+            @* 鑑定済みアイテム一覧 *@
+            <MudItem xs="12" md="6">
+                <MudText Typo="Typo.h6" Class="mb-3">✅ 鑑定済みアイテム (@unidentifiedItems.Count(i => i.IsIdentified))</MudText>
+                
+                @if (unidentifiedItems.Any(i => i.IsIdentified))
+                {
+                    @foreach (var item in unidentifiedItems.Where(i => i.IsIdentified))
+                    {
+                        var rarityColor = GetRarityColor(GetActualRarity(item));
+                        <MudCard Elevation="2" Class="mb-3" Style="@($"border-left:4px solid {rarityColor}")">
+                            <MudCardHeader>
+                                <CardHeaderContent>
+                                    <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                                        <span style="@($"color:{rarityColor}; font-size:1.5rem;")">@GetItemIcon(item.ItemType)</span>
+                                        <div>
+                                            <MudText Typo="Typo.h6" Style="@($"color:{rarityColor}")">
+                                                @item.ActualItemName
+                                            </MudText>
+                                            <MudText Typo="Typo.caption" Style="color:#666;">
+                                                元: @item.DisplayName → @item.ActualItemType
+                                            </MudText>
+                                        </div>
+                                    </MudStack>
+                                </CardHeaderContent>
+                            </MudCardHeader>
+                            <MudCardContent>
+                                <MudText Typo="Typo.body2">@item.Description</MudText>
+                                <MudDivider Class="my-2" />
+                                <MudText Typo="Typo.body2">
+                                    <strong>実際のレアリティ:</strong> @GetRarityStars(GetActualRarity(item))
+                                </MudText>
+                                <MudText Typo="Typo.caption" Style="color:#666;">
+                                    鑑定日時: @item.IdentifiedAt?.ToString("yyyy/MM/dd HH:mm")
+                                </MudText>
+                            </MudCardContent>
+                            <MudCardActions>
+                                <MudButton Variant="Variant.Filled" Color="Color.Success" 
+                                           OnClick="() => ClaimItem(item.Id)">
+                                    📥 受け取る
+                                </MudButton>
+                            </MudCardActions>
+                        </MudCard>
+                    }
+                }
+                else
+                {
+                    <MudAlert Severity="Severity.Info">鑑定済みのアイテムはありません。</MudAlert>
+                }
+            </MudItem>
+        </MudGrid>
+
+        @* 鑑定結果モーダル *@
+        @if (showResult && lastResult != null)
+        {
+            <MudDialog @bind-IsOpen="showResult">
+                <TitleContent>
+                    <MudText Typo="Typo.h6">🔍 鑑定結果</MudText>
+                </TitleContent>
+                <DialogContent>
+                    @if (lastResult.Success)
+                    {
+                        var resultColor = GetRarityColor(lastResult.ActualRarity);
+                        var outcomeColor = lastResult.IsGoodResult ? "#4caf50" : "#ff9800";
+                        <div style="text-align:center; padding:20px;">
+                            <MudText Typo="Typo.h4" Style="@($"color:{resultColor}")">
+                                @lastResult.Item?.ActualItemName
+                            </MudText>
+                            <MudText Typo="Typo.body1" Class="mt-3">
+                                「@lastResult.Item?.DisplayName」は...
+                            </MudText>
+                            <MudText Typo="Typo.h5" Class="mt-2" Style="@($"color:{outcomeColor}")">
+                                @if (lastResult.IsGoodResult)
+                                {
+                                    <span>🎉 予想以上の結果！</span>
+                                }
+                                else
+                                {
+                                    <span>普通の結果でした</span>
+                                }
+                            </MudText>
+                            <MudText Typo="Typo.body2" Class="mt-2">
+                                実際のレアリティ: @GetRarityStars(lastResult.ActualRarity)
+                            </MudText>
+                            <MudText Typo="Typo.caption" Style="color:#666;">
+                                鑑定費用: @lastResult.Cost G
+                            </MudText>
+                        </div>
+                    }
+                    else
+                    {
+                        <MudAlert Severity="Severity.Error">@lastResult.Message</MudAlert>
+                    }
+                </DialogContent>
+                <DialogActions>
+                    <MudButton OnClick="() => showResult = false">閉じる</MudButton>
+                </DialogActions>
+            </MudDialog>
+        }
+    }
+</MudPaper>
+
+@code {
+    private bool isAuth = false;
+    private User? currentUser;
+    private List<UnidentifiedItem> unidentifiedItems = new();
+    private AppraiserLevel appraiserLevel = AppraiserLevel.Novice;
+    private bool showResult = false;
+    private AppraisalResult? lastResult;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        isAuth = state.User?.Identity?.IsAuthenticated ?? false;
+        
+        if (isAuth)
+        {
+            var username = state.User?.Identity?.Name;
+            if (username != null)
+            {
+                currentUser = UserService.GetByUsername(username);
+                LoadData();
+            }
+        }
+    }
+
+    private void LoadData()
+    {
+        if (currentUser == null) return;
+        unidentifiedItems = AppraisalService.GetUserItems(currentUser.Username);
+        
+        // 鑑定士レベルを計算（鑑定回数に基づく）
+        int totalAppraisals = unidentifiedItems.Count(i => i.IsIdentified);
+        appraiserLevel = totalAppraisals switch
+        {
+            >= 100 => AppraiserLevel.Master,
+            >= 50 => AppraiserLevel.Expert,
+            >= 25 => AppraiserLevel.Journeyman,
+            >= 10 => AppraiserLevel.Apprentice,
+            _ => AppraiserLevel.Novice
+        };
+    }
+
+    private void AppraiseItem(int itemId)
+    {
+        if (currentUser == null) return;
+        
+        lastResult = AppraisalService.AppraiseItem(currentUser.Username, itemId, appraiserLevel);
+        showResult = true;
+        
+        if (lastResult.Success)
+        {
+            currentUser = UserService.GetByUsername(currentUser.Username);
+        }
+        
+        LoadData();
+    }
+
+    private void ClaimItem(int itemId)
+    {
+        if (currentUser == null) return;
+        
+        var (success, message) = AppraisalService.ClaimItem(currentUser.Username, itemId);
+        if (success)
+        {
+            Snackbar.Add(message, Severity.Success);
+            currentUser = UserService.GetByUsername(currentUser.Username);
+            LoadData();
+        }
+        else
+        {
+            Snackbar.Add(message, Severity.Error);
+        }
+    }
+
+    private void DiscardItem(int itemId)
+    {
+        if (currentUser == null) return;
+        
+        if (AppraisalService.DiscardItem(currentUser.Username, itemId))
+        {
+            Snackbar.Add("アイテムを捨てました。", Severity.Info);
+            LoadData();
+        }
+    }
+
+    private bool CanAfford(UnidentifiedItem item)
+    {
+        if (currentUser == null) return false;
+        return currentUser.Gil >= GetActualCost(item.AppraisalCost);
+    }
+
+    private int GetActualCost(int baseCost)
+    {
+        return appraiserLevel switch
+        {
+            AppraiserLevel.Novice => baseCost,
+            AppraiserLevel.Apprentice => (int)(baseCost * 0.9),
+            AppraiserLevel.Journeyman => (int)(baseCost * 0.75),
+            AppraiserLevel.Expert => (int)(baseCost * 0.5),
+            AppraiserLevel.Master => Math.Max(0, baseCost - 500),
+            _ => baseCost
+        };
+    }
+
+    private string GetDiscountText(AppraiserLevel level)
+    {
+        return level switch
+        {
+            AppraiserLevel.Novice => "なし",
+            AppraiserLevel.Apprentice => "10%OFF",
+            AppraiserLevel.Journeyman => "25%OFF",
+            AppraiserLevel.Expert => "50%OFF",
+            AppraiserLevel.Master => "500G割引",
+            _ => "なし"
+        };
+    }
+
+    private string GetRarityColor(int rarity)
+    {
+        return rarity switch
+        {
+            1 => "#9E9E9E",
+            2 => "#4CAF50",
+            3 => "#2196F3",
+            4 => "#9C27B0",
+            5 => "#FF9800",
+            _ => "#9E9E9E"
+        };
+    }
+
+    private string GetRarityStars(int rarity)
+    {
+        return new string('★', Math.Min(rarity, 5)) + new string('☆', Math.Max(5 - rarity, 0));
+    }
+
+    private string GetItemIcon(UnidentifiedItemType type)
+    {
+        return type switch
+        {
+            UnidentifiedItemType.Weapon => "⚔️",
+            UnidentifiedItemType.Armor => "🛡️",
+            UnidentifiedItemType.Accessory => "💍",
+            UnidentifiedItemType.Material => "💎",
+            _ => "❓"
+        };
+    }
+
+    private int GetActualRarity(UnidentifiedItem item)
+    {
+        // 実際のレアリティを計算（アイテムIDから推定）
+        if (item.ActualItemId == null) return item.ApparentRarity;
+        
+        // 簡易的な計算
+        return Math.Min(5, (item.ActualItemId.Value / 2) + 1);
+    }
+}

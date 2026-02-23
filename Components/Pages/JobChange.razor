@@ -4,6 +4,7 @@
 @using FFA.Models
 @using Microsoft.AspNetCore.Components.Authorization
 @inject Services.UserService UserService
+@inject Services.JobService JobService
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager Navigation
 
@@ -34,6 +35,9 @@
                         <h3>@currentJobInfo.Name</h3>
                         <p class="job-role">@currentJobInfo.Role</p>
                         <p class="job-description">@currentJobInfo.Description</p>
+                        <div class="job-level">
+                            <span>レベル: <strong>@(user?.Level ?? 1)</strong></span>
+                        </div>
                             <div class="job-stats">
                                 <div class="stat-item">
                                     <span class="stat-label">STR</span>
@@ -70,11 +74,14 @@
 
         <div class="job-options">
             <h2>転職可能な職業</h2>
+            
+            @* 基本職セクション *@
+            <h3 class="job-category">基本職</h3>
             <div class="job-grid">
-                @foreach (var jobInfo in allJobs)
+                @foreach (var jobInfo in allJobs.Where(j => !j.IsAdvanced))
                 {
                     var isCurrentJob = jobInfo.Job.ToString() == currentJob;
-                    var canAfford = (user?.Gil ?? 0) >= changeCost;
+                    var requirement = jobRequirements.GetValueOrDefault(jobInfo.Job);
 
                     <div class="job-card @(isCurrentJob ? "current" : "")">
                         <div class="job-card-header">
@@ -144,14 +151,160 @@
                                     <span>現在の職業です</span>
                                 </div>
                             }
-                            else
+                            else if (requirement != null && requirement.CanChange)
                             {
-                                <button class="change-button @(canAfford ? "enabled" : "disabled")" 
-                                        @onclick="() => ChangeTo(jobInfo.Job)"
-                                        disabled="@(canAfford == false)">
+                                <button class="change-button enabled" 
+                                        @onclick="() => ChangeTo(jobInfo.Job)">
                                     <span class="button-icon">✨</span>
                                     職業転換
                                 </button>
+                            }
+                            else
+                            {
+                                <button class="change-button disabled" disabled>
+                                    <span class="button-icon">🔒</span>
+                                    条件不足
+                                </button>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+
+            @* 上級職セクション *@
+            <h3 class="job-category advanced">上級職</h3>
+            <div class="job-grid">
+                @foreach (var jobInfo in allJobs.Where(j => j.IsAdvanced))
+                {
+                    var isCurrentJob = jobInfo.Job.ToString() == currentJob;
+                    var requirement = jobRequirements.GetValueOrDefault(jobInfo.Job);
+
+                    <div class="job-card advanced @(isCurrentJob ? "current" : "") @(!requirement?.CanChange ?? true ? "locked" : "")">
+                        <div class="job-card-header">
+                            <div class="job-icon" style="color: @jobInfo.Color">
+                                @jobInfo.Icon
+                            </div>
+                            <div class="job-header-content">
+                                <h3>@jobInfo.Name</h3>
+                                <p class="job-role">@jobInfo.Role</p>
+                                @if (jobInfo.IsAdvanced)
+                                {
+                                    <span class="advanced-badge">⭐ 上級職</span>
+                                }
+                            </div>
+                        </div>
+
+                        <p class="job-description">@jobInfo.Description</p>
+
+                        @* 転職条件表示 *@
+                        <div class="job-requirements">
+                            <h4>📋 転職条件</h4>
+                            @if (requirement != null)
+                            {
+                                <div class="requirement-list">
+                                    <div class="requirement-item @(requirement.HasEnoughGil ? "met" : "unmet")">
+                                        <span class="requirement-icon">@(requirement.HasEnoughGil ? "✅" : "❌")</span>
+                                        <span>ギル: @requirement.RequiredGil G</span>
+                                    </div>
+                                    @if (requirement.IsAdvancedJob)
+                                    {
+                                        @if (requirement.RequiredJob.HasValue)
+                                        {
+                                            <div class="requirement-item @(requirement.HasRequiredJob ? "met" : "unmet")">
+                                                <span class="requirement-icon">@(requirement.HasRequiredJob ? "✅" : "❌")</span>
+                                                <span>前提職業: @requirement.RequiredJobName</span>
+                                            </div>
+                                        }
+                                        @if (requirement.RequiredLevel > 0)
+                                        {
+                                            <div class="requirement-item @(requirement.HasRequiredLevel ? "met" : "unmet")">
+                                                <span class="requirement-icon">@(requirement.HasRequiredLevel ? "✅" : "❌")</span>
+                                                <span>レベル: @requirement.RequiredLevel 以上 (現在: Lv.@(user?.Level ?? 1))</span>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            }
+                        </div>
+
+                        <div class="job-bonus">
+                            <h4>職業ボーナス</h4>
+                            <div class="bonus-stats">
+                                @if (jobInfo.BonusStatus.Str > 0)
+                                {
+                                    <div class="stat-item">
+                                        <span class="stat-label">STR</span>
+                                        <span class="stat-value">+@jobInfo.BonusStatus.Str</span>
+                                    </div>
+                                }
+                                @if (jobInfo.BonusStatus.Dex > 0)
+                                {
+                                    <div class="stat-item">
+                                        <span class="stat-label">DEX</span>
+                                        <span class="stat-value">+@jobInfo.BonusStatus.Dex</span>
+                                    </div>
+                                }
+                                @if (jobInfo.BonusStatus.Int > 0)
+                                {
+                                    <div class="stat-item">
+                                        <span class="stat-label">INT</span>
+                                        <span class="stat-value">+@jobInfo.BonusStatus.Int</span>
+                                    </div>
+                                }
+                                @if (jobInfo.BonusStatus.Vit > 0)
+                                {
+                                    <div class="stat-item">
+                                        <span class="stat-label">VIT</span>
+                                        <span class="stat-value">+@jobInfo.BonusStatus.Vit</span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="job-weapon">
+                            <p>使用武器: <strong>@jobInfo.WeaponType</strong></p>
+                        </div>
+
+                        <div class="job-skills">
+                            <h4>得意技能</h4>
+                            <div class="skill-list">
+                                @foreach (var skill in jobInfo.Skills)
+                                {
+                                    <span class="skill-tag">@skill</span>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="job-action">
+                            @if (isCurrentJob)
+                            {
+                                <div class="current-job-indicator">
+                                    <span>現在の職業です</span>
+                                </div>
+                            }
+                            else if (requirement != null && requirement.CanChange)
+                            {
+                                <button class="change-button enabled" 
+                                        @onclick="() => ChangeTo(jobInfo.Job)">
+                                    <span class="button-icon">✨</span>
+                                    職業転換
+                                </button>
+                            }
+                            else
+                            {
+                                <button class="change-button disabled" disabled>
+                                    <span class="button-icon">🔒</span>
+                                    条件不足
+                                </button>
+                                @if (requirement != null && requirement.FailureReasons.Any())
+                                {
+                                    <div class="failure-reasons">
+                                        @foreach (var reason in requirement.FailureReasons)
+                                        {
+                                            <p class="failure-reason">⚠️ @reason</p>
+                                        }
+                                    </div>
+                                }
                             }
                         </div>
                     </div>
@@ -161,6 +314,98 @@
     }
 </div>
 
+<style>
+    .job-category {
+        margin: 20px 0 10px 0;
+        padding-bottom: 5px;
+        border-bottom: 2px solid #444;
+        color: #ccc;
+    }
+    
+    .job-category.advanced {
+        color: #ffd700;
+        border-bottom-color: #ffd700;
+    }
+    
+    .job-card.advanced {
+        border: 2px solid #ffd700;
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    }
+    
+    .job-card.locked {
+        opacity: 0.8;
+    }
+    
+    .advanced-badge {
+        background: linear-gradient(135deg, #ffd700, #ff8c00);
+        color: #000;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+    
+    .job-requirements {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 8px;
+        padding: 10px;
+        margin: 10px 0;
+    }
+    
+    .job-requirements h4 {
+        margin: 0 0 8px 0;
+        font-size: 14px;
+        color: #aaa;
+    }
+    
+    .requirement-list {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .requirement-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        padding: 3px 0;
+    }
+    
+    .requirement-item.met {
+        color: #4caf50;
+    }
+    
+    .requirement-item.unmet {
+        color: #f44336;
+    }
+    
+    .requirement-icon {
+        font-size: 14px;
+    }
+    
+    .failure-reasons {
+        margin-top: 8px;
+        padding: 8px;
+        background: rgba(244, 67, 54, 0.1);
+        border-radius: 4px;
+    }
+    
+    .failure-reason {
+        margin: 2px 0;
+        font-size: 12px;
+        color: #f44336;
+    }
+    
+    .job-level {
+        margin: 10px 0;
+        padding: 5px 10px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+        display: inline-block;
+    }
+</style>
+
 @code {
     private bool isAuth = false;
     private string? username;
@@ -169,6 +414,7 @@
     private User? user;
     private int changeCost = 500;
     private List<JobInfo> allJobs = new();
+    private Dictionary<Job, JobChangeRequirementResult> jobRequirements = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -185,6 +431,12 @@
             {
                 currentJob = user.Job.ToString();
                 currentJobInfo = JobDatabase.GetJobInfo(user.Job);
+                
+                // 全職業の転職条件をチェック
+                foreach (var job in allJobs)
+                {
+                    jobRequirements[job.Job] = JobService.CheckJobChangeRequirements(username, job.Job);
+                }
             }
         }
     }
@@ -194,6 +446,14 @@
         try
         {
             if (string.IsNullOrEmpty(username) || user == null) return;
+            
+            // 転職条件を再チェック
+            var requirement = JobService.CheckJobChangeRequirements(username, newJob);
+            if (!requirement.CanChange)
+            {
+                Console.WriteLine($"転職条件を満たしていません: {string.Join(", ", requirement.FailureReasons)}");
+                return;
+            }
             
             var ok = UserService.ChangeJob(username, newJob, changeCost);
             if (ok)

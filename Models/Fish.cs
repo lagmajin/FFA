@@ -142,6 +142,8 @@ public class FishingStaminaInfo
 /// </summary>
 public class FishingStats
 {
+    public int Id { get; set; }
+    public string Username { get; set; } = "";
     public int TotalCatches { get; set; }
     public int TotalWeight { get; set; } // 総重量
     public int BiggestWeight { get; set; } // 最大魚重量
@@ -158,6 +160,8 @@ public class FishingStats
 /// </summary>
 public class FishingRecord
 {
+    public int Id { get; set; }
+    public string Username { get; set; } = "";
     public int FishId { get; set; }
     public string FishName { get; set; } = "";
     public int Count { get; set; } // 釣った回数

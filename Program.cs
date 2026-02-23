@@ -50,6 +50,8 @@ builder.Services.AddSingleton<QuestService>();
 builder.Services.AddSingleton<DailyRewardService>();
 // Register RockSmashService
 builder.Services.AddScoped<RockSmashService>();
+// Register TitleService
+builder.Services.AddScoped<TitleService>();
 // Register AuctionService and CountryWarService
 builder.Services.AddScoped<AuctionService>();
 builder.Services.AddSingleton<CountryWarService>();
@@ -134,6 +136,7 @@ builder.Services.AddSingleton<WorldGridService>();
 builder.Services.AddSingleton<CombatService>();
 // Register DungeonService via DI to accept CombatService
 builder.Services.AddScoped<DungeonService>();
+builder.Services.AddScoped<AppraisalService>();
 
 // In development, prefer configured endpoints (launchSettings / ASPNETCORE_URLS).
 // Only apply a forced Kestrel Listen when there are no endpoints configured via IConfiguration

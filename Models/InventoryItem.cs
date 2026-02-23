@@ -6,7 +6,8 @@ public class InventoryItem
     public string Name { get; set; } = "";
     public int Quantity { get; set; } = 1;
     public int Price { get; set; } = 0; // gil price
-    public string Type { get; set; } = ""; // Weapon, Armor, Accessory, Consumable
+    public string Type { get; set; } = ""; // Weapon, Armor, Accessory, Consumable, Fish, Bait
+    public int ItemId { get; set; } = 0; // アイテムの元ID（餌など）
     
     // Weapon properties
     public int Attack { get; set; } = 0;

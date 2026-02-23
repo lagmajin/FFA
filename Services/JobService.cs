@@ -77,8 +77,9 @@ public class JobService
     /// </summary>
     /// <param name="username">ユーザー名</param>
     /// <param name="cost">転職費用</param>
+    /// <param name="targetJob">転職先の職業（オプション）</param>
     /// <returns>転職可能ならtrue</returns>
-    public bool CanChangeJob(string username, int cost)
+    public bool CanChangeJob(string username, int cost, Job? targetJob = null)
     {
         try
         {
@@ -86,13 +87,96 @@ public class JobService
             if (user == null)
                 return false;
 
-            return user.Gil >= cost;
+            // ギルチェック
+            if (user.Gil < cost)
+                return false;
+
+            // 上級職の条件チェック
+            if (targetJob.HasValue)
+            {
+                var jobInfo = JobDatabase.GetJobInfo(targetJob.Value);
+                if (jobInfo.IsAdvanced)
+                {
+                    // 前提職業チェック
+                    if (jobInfo.RequiredJob.HasValue && user.Job != jobInfo.RequiredJob.Value)
+                        return false;
+
+                    // 必要レベルチェック
+                    if (user.Level < jobInfo.RequiredJobLevel)
+                        return false;
+                }
+            }
+
+            return true;
         }
         catch (Exception ex)
         {
             Console.WriteLine($"JobService.CanChangeJob 例外: {ex.Message} - {ex.StackTrace}");
             return false;
         }
+    }
+
+    /// <summary>
+    /// 転職条件の詳細を取得
+    /// </summary>
+    /// <param name="username">ユーザー名</param>
+    /// <param name="targetJob">転職先の職業</param>
+    /// <returns>転職条件の結果</returns>
+    public JobChangeRequirementResult CheckJobChangeRequirements(string username, Job targetJob)
+    {
+        var result = new JobChangeRequirementResult { Job = targetJob };
+        
+        try
+        {
+            var user = _userService.GetByUsername(username);
+            if (user == null)
+            {
+                result.CanChange = false;
+                result.FailureReasons.Add("ユーザーが見つかりません");
+                return result;
+            }
+
+            var jobInfo = JobDatabase.GetJobInfo(targetJob);
+            result.JobInfo = jobInfo;
+
+            // ギルチェック
+            result.RequiredGil = 500; // 基本転職費用
+            result.HasEnoughGil = user.Gil >= result.RequiredGil;
+            if (!result.HasEnoughGil)
+                result.FailureReasons.Add($"ギルが不足しています（必要: {result.RequiredGil}G、所持: {user.Gil}G）");
+
+            // 上級職の条件チェック
+            if (jobInfo.IsAdvanced)
+            {
+                result.IsAdvancedJob = true;
+
+                // 前提職業チェック
+                if (jobInfo.RequiredJob.HasValue)
+                {
+                    result.RequiredJob = jobInfo.RequiredJob.Value;
+                    result.RequiredJobName = JobDatabase.GetJobInfo(jobInfo.RequiredJob.Value).Name;
+                    result.HasRequiredJob = user.Job == jobInfo.RequiredJob.Value;
+                    if (!result.HasRequiredJob)
+                        result.FailureReasons.Add($"前提職業「{result.RequiredJobName}」が必要です（現在: {JobDatabase.GetJobInfo(user.Job).Name}）");
+                }
+
+                // 必要レベルチェック
+                result.RequiredLevel = jobInfo.RequiredJobLevel;
+                result.HasRequiredLevel = user.Level >= jobInfo.RequiredJobLevel;
+                if (!result.HasRequiredLevel)
+                    result.FailureReasons.Add($"レベル{result.RequiredLevel}以上が必要です（現在: Lv.{user.Level}）");
+            }
+
+            result.CanChange = result.FailureReasons.Count == 0;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"JobService.CheckJobChangeRequirements 例外: {ex.Message} - {ex.StackTrace}");
+            result.CanChange = false;
+            result.FailureReasons.Add("エラーが発生しました");
+        }
+
+        return result;
     }
 
     /// <summary>
@@ -266,4 +350,34 @@ public class JobService
             return string.Empty;
         }
     }
+}
+
+/// <summary>
+/// 転職条件チェック結果
+/// </summary>
+public class JobChangeRequirementResult
+{
+    public Job Job { get; set; }
+    public JobInfo? JobInfo { get; set; }
+    public bool CanChange { get; set; }
+    public List<string> FailureReasons { get; set; } = new();
+    
+    // ギル条件
+    public int RequiredGil { get; set; }
+    public bool HasEnoughGil { get; set; }
+    
+    // 上級職条件
+    public bool IsAdvancedJob { get; set; }
+    public Job? RequiredJob { get; set; }
+    public string? RequiredJobName { get; set; }
+    public bool HasRequiredJob { get; set; }
+    public int RequiredLevel { get; set; }
+    public bool HasRequiredLevel { get; set; }
+    
+    // 場所制限
+    public bool IsLocationRestricted { get; set; }
+    public List<string> RequiredLocations { get; set; } = new();
+    public string? CurrentLocation { get; set; }
+    public bool HasRequiredLocation { get; set; }
+    public string? LocationRestrictionMessage { get; set; }
 }

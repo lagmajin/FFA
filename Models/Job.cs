@@ -44,6 +44,11 @@ public class JobInfo
     public bool IsAdvanced { get; set; } = false; // 上級職かどうか
     public Job? RequiredJob { get; set; } = null; // 必要職業
     public int RequiredJobLevel { get; set; } = 0; // 必要職業レベル
+    
+    // 場所制限
+    public bool IsLocationRestricted { get; set; } = false; // 場所制限があるか
+    public List<string> RequiredLocations { get; set; } = new(); // 必要な場所（町名やエリア名）
+    public string? LocationRestrictionMessage { get; set; } // 場所制限のメッセージ
 }
 
 /// <summary>
@@ -142,7 +147,10 @@ public static class JobDatabase
             WeaponType = "大剣、刀",
             BonusStatus = new PlayerStatus { Str = 7, Vit = 4 },
             Skills = new List<string> { "ダークインパクト", "生命吸収", "呪い" },
-            PassiveSkills = new List<string> { "与ダメージ+5%", "HP 吸収効果+3%" }
+            PassiveSkills = new List<string> { "与ダメージ+5%", "HP 吸収効果+3%" },
+            IsLocationRestricted = true,
+            RequiredLocations = new List<string> { "闇の神殿", "暗黒の祭壇", "魔界の門" },
+            LocationRestrictionMessage = "闇の力が満ちる場所でのみ転職できます"
         },
         new JobInfo
         {
@@ -214,7 +222,10 @@ public static class JobDatabase
             PassiveSkills = new List<string> { "与ダメージ+7%", "復活時HP回復+10%" },
             IsAdvanced = true,
             RequiredJob = Job.DarkKnight,
-            RequiredJobLevel = 20
+            RequiredJobLevel = 20,
+            IsLocationRestricted = true,
+            RequiredLocations = new List<string> { "冥界の門", "死者の神殿", "闇の深淵" },
+            LocationRestrictionMessage = "冥界に近い場所でのみ転職できます"
         },
         new JobInfo
         {
