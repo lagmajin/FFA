@@ -955,11 +955,14 @@
         droppedItems = DungeonService.GenerateDrops(currentEnemy, battleSession.ComboCount);
         
         // 未鑑定アイテムドロップ判定
-        var unidentifiedItem = AppraisalService.GenerateItem(currentField.Difficulty, $"バトル: {currentEnemy.Name}");
-        if (unidentifiedItem != null)
+        if (currentField != null)
         {
-            AppraisalService.AddItemToUser(currentUser.Username, unidentifiedItem);
-            battleLog.Add($"🔮 未鑑定アイテム「{unidentifiedItem.DisplayName}」を入手！");
+            var unidentifiedItem = AppraisalService.GenerateItem(currentField.Difficulty, $"バトル: {currentEnemy.Name}");
+            if (unidentifiedItem != null)
+            {
+                AppraisalService.AddItemToUser(currentUser.Username, unidentifiedItem);
+                battleLog.Add($"🔮 未鑑定アイテム「{unidentifiedItem.DisplayName}」を入手！");
+            }
         }
         
         // インベントリに追加

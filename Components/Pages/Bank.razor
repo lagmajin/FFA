@@ -1,66 +1,639 @@
 @page "/bank"
 @rendermode InteractiveServer
+@using Microsoft.AspNetCore.Components.Authorization
 @inject NavigationManager Navigation
 @inject Services.UserService UserService
+@inject Services.InvestmentService InvestmentService
+@inject AuthenticationStateProvider AuthStateProvider
 
-<PageTitle>銀行</PageTitle>
+<PageTitle>銀行 - 投資センター</PageTitle>
 
 <div class="bank-container">
-    <h1 class="bank-title">銀行</h1>
-    <p class="bank-desc">ギルを預けたり引き上げたりできます。</p>
-
-    @if (currentUser != null)
+    <h1 class="bank-title">🏦 銀行 - 投資センター</h1>
+    
+    @if (!isAuth)
     {
+        <div class="auth-warning">
+            <p>🔐 ログインして銀行サービスを利用してください</p>
+        </div>
+    }
+    else if (currentUser != null)
+    {
+        <!-- 残高セクション -->
         <div class="balance-section">
             <div class="balance-card">
-                <h2>手持</h2>
-                <p class="gil-amount">@currentUser.Gil ギル</p>
+                <h3>💰 手持ギル</h3>
+                <p class="gil-amount">@currentUser.Gil.ToString("N0") G</p>
             </div>
             <div class="balance-card">
-                <h2>銀行</h2>
-                <p class="gil-amount">@currentUser.BankedGil ギル</p>
+                <h3>🏦 預金</h3>
+                <p class="gil-amount">@currentUser.BankedGil.ToString("N0") G</p>
+            </div>
+            <div class="balance-card investment">
+                <h3>📈 投資中</h3>
+                <p class="gil-amount">@stats.TotalInvested.ToString("N0") G</p>
+                <small>評価額: @stats.CurrentValue.ToString("N0") G</small>
             </div>
         </div>
 
-        <div class="transaction-section">
-            <h2>預け入れ</h2>
-            <div class="input-group">
-                <input type="number" @bind="depositAmount" placeholder="金額" min="1" />
-                <button class="action-button" @onclick="Deposit">預ける</button>
-            </div>
-            <p class="hint">手持: @currentUser.Gil ギル</p>
+        <!-- タブ -->
+        <div class="tab-container">
+            <button class="tab-button @(currentTab == "bank" ? "active" : "")" @onclick='() => currentTab = "bank"'>
+                🏦 預金
+            </button>
+            <button class="tab-button @(currentTab == "invest" ? "active" : "")" @onclick='() => currentTab = "invest"'>
+                📈 投資
+            </button>
+            <button class="tab-button @(currentTab == "portfolio" ? "active" : "")" @onclick='() => currentTab = "portfolio"'>
+                📊 ポートフォリオ
+            </button>
         </div>
 
-        <div class="transaction-section">
-            <h2>引き出し</h2>
-            <div class="input-group">
-                <input type="number" @bind="withdrawAmount" placeholder="金額" min="1" />
-                <button class="action-button" @onclick="Withdraw">引き出す</button>
+        @if (currentTab == "bank")
+        {
+            <!-- 預金タブ -->
+            <div class="tab-content">
+                <div class="transaction-section">
+                    <h3>📥 預け入れ</h3>
+                    <div class="input-group">
+                        <input type="number" @bind="depositAmount" placeholder="金額" min="1" />
+                        <button class="action-button deposit" @onclick="Deposit">預ける</button>
+                    </div>
+                </div>
+
+                <div class="transaction-section">
+                    <h3>📤 引き出し</h3>
+                    <div class="input-group">
+                        <input type="number" @bind="withdrawAmount" placeholder="金額" min="1" />
+                        <button class="action-button withdraw" @onclick="Withdraw">引き出す</button>
+                    </div>
+                </div>
             </div>
-            <p class="hint">銀行: @currentUser.BankedGil ギル</p>
-        </div>
+        }
+        else if (currentTab == "invest")
+        {
+            <!-- 投資タブ -->
+            <div class="tab-content">
+                <div class="investment-products">
+                    <h3>📋 投資商品一覧</h3>
+                    
+                    @foreach (var product in availableProducts)
+                    {
+                        <div class="product-card">
+                            <div class="product-header">
+                                <span class="product-icon">@product.Icon</span>
+                                <div class="product-info">
+                                    <h4>@product.Name</h4>
+                                    <p class="product-desc">@product.Description</p>
+                                </div>
+                            </div>
+                            
+                            <div class="product-stats">
+                                <div class="stat">
+                                    <span class="label">期待リターン</span>
+                                    <span class="value positive">+@product.BaseReturnRate%</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="label">リスク</span>
+                                    <span class="value risk-@product.RiskLevel">
+                                        @for (int i = 0; i < product.RiskLevel; i++)
+                                        {
+                                            <span>⚡</span>
+                                        }
+                                    </span>
+                                </div>
+                                <div class="stat">
+                                    <span class="label">期間</span>
+                                    <span class="value">@($"{product.MinDurationDays}〜{product.MaxDurationDays}日")</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="label">投資額</span>
+                                    <span class="value">@product.MinInvestment〜@product.MaxInvestment G</span>
+                                </div>
+                            </div>
+                            
+                            <div class="product-action">
+                                <input type="number" placeholder="投資額" @bind="investmentAmounts[product.Id]" min="@product.MinInvestment" max="@product.MaxInvestment" />
+                                <select @bind="investmentDurations[product.Id]">
+                                    @for (int d = product.MinDurationDays; d <= product.MaxDurationDays; d++)
+                                    {
+                                        <option value="@d">@($"{d}日")</option>
+                                    }
+                                </select>
+                                <button class="invest-button" @onclick="() => Invest(product.Id)">
+                                    投資する
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+        else if (currentTab == "portfolio")
+        {
+            <!-- ポートフォリオタブ -->
+            <div class="tab-content">
+                <div class="portfolio-stats">
+                    <div class="stat-card">
+                        <h4>投資中</h4>
+                        <p>@stats.ActiveInvestments 件</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>満期待ち</h4>
+                        <p>@stats.MaturedInvestments 件</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>総リターン</h4>
+                        <p class="@(stats.TotalReturns >= 0 ? "positive" : "negative")">
+                            @stats.TotalReturns.ToString("+#,##0;-#,##0;0") G
+                        </p>
+                    </div>
+                </div>
+
+                @if (userInvestments.Any())
+                {
+                    <div class="investments-list">
+                        <h3>📊 投資一覧</h3>
+                        
+                        @foreach (var inv in userInvestments.OrderByDescending(i => i.InvestedAt))
+                        {
+                            var product = InvestmentDatabase.GetProduct(inv.ProductId);
+                            var returnRate = (int)((double)inv.CurrentValue / inv.InvestedAmount * 100) - 100;
+                            var daysRemaining = (inv.MaturesAt - DateTime.UtcNow).Days;
+                            
+                            <div class="investment-card @(inv.Status.ToString().ToLower())">
+                                <div class="investment-header">
+                                    <span class="investment-icon">@product?.Icon</span>
+                                    <div class="investment-info">
+                                        <h4>@product?.Name</h4>
+                                        <span class="status-badge @inv.Status.ToString().ToLower()">
+                                            @GetStatusText(inv.Status)
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <div class="investment-details">
+                                    <div class="detail">
+                                        <span class="label">投資額</span>
+                                        <span class="value">@inv.InvestedAmount.ToString("N0") G</span>
+                                    </div>
+                                    <div class="detail">
+                                        <span class="label">現在価値</span>
+                                        <span class="value @(returnRate >= 0 ? "positive" : "negative")">
+                                            @inv.CurrentValue.ToString("N0") G
+                                        </span>
+                                    </div>
+                                    <div class="detail">
+                                        <span class="label">リターン</span>
+                                        <span class="value @(returnRate >= 0 ? "positive" : "negative")">
+                                            @returnRate.ToString("+#,##0;-#,##0;0")%
+                                        </span>
+                                    </div>
+                                    @if (inv.Status == InvestmentStatus.Active)
+                                    {
+                                        <div class="detail">
+                                            <span class="label">残り日数</span>
+                                            <span class="value">@daysRemaining 日</span>
+                                        </div>
+                                    }
+                                </div>
+                                
+                                <div class="investment-action">
+                                    @if (inv.Status == InvestmentStatus.Matured)
+                                    {
+                                        <button class="claim-button" @onclick="() => ClaimInvestment(inv.Id)">
+                                            💰 受け取る
+                                        </button>
+                                    }
+                                    else if (inv.Status == InvestmentStatus.Active)
+                                    {
+                                        <button class="liquidate-button" @onclick="() => LiquidateInvestment(inv.Id)">
+                                            ⚠️ 早期清算
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="no-investments">
+                        <p>まだ投資していません</p>
+                    </div>
+                }
+            </div>
+        }
 
         @if (!string.IsNullOrEmpty(message))
         {
-            <div class="message">@message</div>
+            <div class="message @messageType">@message</div>
         }
     }
 
     <div class="back-section">
-        <button class="back-button" @onclick="GoBack">戻る</button>
+        <button class="back-button" @onclick="GoBack">← 戻る</button>
     </div>
 </div>
 
+<style>
+    .bank-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        min-height: 100vh;
+        color: #fff;
+    }
+    
+    .bank-title {
+        text-align: center;
+        font-size: 2rem;
+        margin-bottom: 20px;
+        color: #ffd700;
+    }
+    
+    .auth-warning {
+        text-align: center;
+        padding: 40px;
+        background: rgba(255, 0, 0, 0.1);
+        border-radius: 10px;
+    }
+    
+    .balance-section {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .balance-card {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        padding: 15px;
+        text-align: center;
+    }
+    
+    .balance-card h3 {
+        margin: 0 0 10px 0;
+        font-size: 0.9rem;
+        color: #aaa;
+    }
+    
+    .balance-card.investment {
+        background: rgba(255, 215, 0, 0.1);
+        border: 1px solid rgba(255, 215, 0, 0.3);
+    }
+    
+    .gil-amount {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #ffd700;
+        margin: 0;
+    }
+    
+    .balance-card small {
+        color: #888;
+    }
+    
+    .tab-container {
+        display: flex;
+        gap: 5px;
+        margin-bottom: 20px;
+    }
+    
+    .tab-button {
+        flex: 1;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        color: #aaa;
+        cursor: pointer;
+        border-radius: 8px 8px 0 0;
+        transition: all 0.3s;
+    }
+    
+    .tab-button.active {
+        background: rgba(255, 215, 0, 0.2);
+        color: #ffd700;
+        border-bottom: 2px solid #ffd700;
+    }
+    
+    .tab-content {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 0 0 10px 10px;
+        padding: 20px;
+    }
+    
+    .transaction-section {
+        margin-bottom: 20px;
+    }
+    
+    .transaction-section h3 {
+        margin-bottom: 10px;
+        color: #ccc;
+    }
+    
+    .input-group {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .input-group input {
+        flex: 1;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #444;
+        background: rgba(0, 0, 0, 0.3);
+        color: #fff;
+    }
+    
+    .action-button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.3s;
+    }
+    
+    .action-button.deposit {
+        background: #4caf50;
+        color: #fff;
+    }
+    
+    .action-button.withdraw {
+        background: #2196f3;
+        color: #fff;
+    }
+    
+    .product-card {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .product-header {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .product-icon {
+        font-size: 2rem;
+    }
+    
+    .product-info h4 {
+        margin: 0;
+        color: #ffd700;
+    }
+    
+    .product-desc {
+        margin: 5px 0 0 0;
+        font-size: 0.85rem;
+        color: #888;
+    }
+    
+    .product-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+    
+    .product-stats .stat {
+        text-align: center;
+    }
+    
+    .product-stats .label {
+        display: block;
+        font-size: 0.75rem;
+        color: #666;
+    }
+    
+    .product-stats .value {
+        font-weight: bold;
+    }
+    
+    .value.positive { color: #4caf50; }
+    .value.negative { color: #f44336; }
+    .risk-1 { color: #4caf50; }
+    .risk-2 { color: #8bc34a; }
+    .risk-3 { color: #ff9800; }
+    .risk-4 { color: #ff5722; }
+    .risk-5 { color: #f44336; }
+    
+    .product-action {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+    
+    .product-action input,
+    .product-action select {
+        padding: 8px;
+        border-radius: 5px;
+        border: 1px solid #444;
+        background: rgba(0, 0, 0, 0.3);
+        color: #fff;
+    }
+    
+    .product-action input { width: 120px; }
+    .product-action select { width: 80px; }
+    
+    .invest-button {
+        padding: 8px 20px;
+        background: linear-gradient(135deg, #ffd700, #ff8c00);
+        border: none;
+        border-radius: 5px;
+        color: #000;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    
+    .portfolio-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .stat-card {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        padding: 15px;
+        text-align: center;
+    }
+    
+    .stat-card h4 {
+        margin: 0 0 5px 0;
+        font-size: 0.85rem;
+        color: #888;
+    }
+    
+    .stat-card p {
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+    
+    .investment-card {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-left: 4px solid #666;
+    }
+    
+    .investment-card.active { border-left-color: #2196f3; }
+    .investment-card.matured { border-left-color: #ffd700; }
+    .investment-card.completed { border-left-color: #4caf50; }
+    .investment-card.liquidated { border-left-color: #ff9800; }
+    
+    .investment-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    
+    .investment-icon {
+        font-size: 1.5rem;
+        margin-right: 10px;
+    }
+    
+    .investment-info {
+        flex: 1;
+    }
+    
+    .investment-info h4 {
+        margin: 0;
+    }
+    
+    .status-badge {
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 0.75rem;
+    }
+    
+    .status-badge.active { background: #2196f3; }
+    .status-badge.matured { background: #ffd700; color: #000; }
+    .status-badge.completed { background: #4caf50; }
+    .status-badge.liquidated { background: #ff9800; }
+    
+    .investment-details {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+    
+    .investment-details .detail {
+        text-align: center;
+    }
+    
+    .investment-details .label {
+        display: block;
+        font-size: 0.75rem;
+        color: #666;
+    }
+    
+    .investment-action {
+        text-align: right;
+    }
+    
+    .claim-button {
+        padding: 8px 20px;
+        background: #4caf50;
+        border: none;
+        border-radius: 5px;
+        color: #fff;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    
+    .liquidate-button {
+        padding: 8px 20px;
+        background: #ff9800;
+        border: none;
+        border-radius: 5px;
+        color: #fff;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    
+    .message {
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 15px;
+        text-align: center;
+    }
+    
+    .message.success { background: rgba(76, 175, 80, 0.2); color: #4caf50; }
+    .message.error { background: rgba(244, 67, 54, 0.2); color: #f44336; }
+    
+    .no-investments {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+    }
+    
+    .back-section {
+        text-align: center;
+        margin-top: 20px;
+    }
+    
+    .back-button {
+        padding: 10px 30px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid #444;
+        border-radius: 5px;
+        color: #aaa;
+        cursor: pointer;
+    }
+</style>
+
 @code {
+    private bool isAuth = false;
+    private string? username;
     private User? currentUser;
+    private string currentTab = "bank";
+    
     private int depositAmount = 0;
     private int withdrawAmount = 0;
     private string message = "";
+    private string messageType = "success";
+    
+    private List<InvestmentProduct> availableProducts = new();
+    private List<UserInvestment> userInvestments = new();
+    private InvestmentStats stats = new();
+    
+    private Dictionary<int, int> investmentAmounts = new();
+    private Dictionary<int, int> investmentDurations = new();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        var users = UserService.GetAllUsers().ToList();
-        currentUser = users.FirstOrDefault();
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        var authUser = state.User;
+        isAuth = authUser?.Identity?.IsAuthenticated ?? false;
+        username = authUser?.Identity?.Name;
+
+        if (isAuth && username != null)
+        {
+            currentUser = UserService.GetByUsername(username);
+            availableProducts = InvestmentService.GetAvailableProducts(username);
+            userInvestments = InvestmentService.GetUserInvestments(username);
+            stats = InvestmentService.GetUserStats(username);
+            
+            // 初期化
+            foreach (var product in availableProducts)
+            {
+                investmentAmounts[product.Id] = product.MinInvestment;
+                investmentDurations[product.Id] = product.MinDurationDays;
+            }
+        }
     }
 
     private void Deposit()
@@ -69,7 +642,8 @@
 
         if (depositAmount > currentUser.Gil)
         {
-            message = "手持的金ルが足りません";
+            message = "手持ちギルが足りません";
+            messageType = "error";
             return;
         }
 
@@ -77,7 +651,8 @@
         currentUser.BankedGil += depositAmount;
         UserService.UpdateUser(currentUser);
         
-        message = $"{depositAmount} ギルを預けました";
+        message = $"{depositAmount:N0} ギルを預けました";
+        messageType = "success";
         depositAmount = 0;
     }
 
@@ -87,7 +662,8 @@
 
         if (withdrawAmount > currentUser.BankedGil)
         {
-            message = "銀行の金が足りません";
+            message = "預金が足りません";
+            messageType = "error";
             return;
         }
 
@@ -95,9 +671,71 @@
         currentUser.Gil += withdrawAmount;
         UserService.UpdateUser(currentUser);
         
-        message = $"{withdrawAmount} ギルを引き出しました";
+        message = $"{withdrawAmount:N0} ギルを引き出しました";
+        messageType = "success";
         withdrawAmount = 0;
     }
+
+    private void Invest(int productId)
+    {
+        if (currentUser == null || username == null) return;
+        
+        var amount = investmentAmounts.GetValueOrDefault(productId, 0);
+        var duration = investmentDurations.GetValueOrDefault(productId, 1);
+        
+        var result = InvestmentService.Invest(username, productId, amount, duration);
+        message = result.Message;
+        messageType = result.Success ? "success" : "error";
+        
+        if (result.Success)
+        {
+            currentUser = UserService.GetByUsername(username);
+            userInvestments = InvestmentService.GetUserInvestments(username);
+            stats = InvestmentService.GetUserStats(username);
+        }
+    }
+
+    private void ClaimInvestment(int investmentId)
+    {
+        if (username == null) return;
+        
+        var result = InvestmentService.ClaimInvestment(username, investmentId);
+        message = result.Message;
+        messageType = result.Success ? "success" : "error";
+        
+        if (result.Success)
+        {
+            currentUser = UserService.GetByUsername(username);
+            userInvestments = InvestmentService.GetUserInvestments(username);
+            stats = InvestmentService.GetUserStats(username);
+        }
+    }
+
+    private void LiquidateInvestment(int investmentId)
+    {
+        if (username == null) return;
+        
+        var result = InvestmentService.LiquidateInvestment(username, investmentId);
+        message = result.Message;
+        messageType = result.Success ? "success" : "error";
+        
+        if (result.Success)
+        {
+            currentUser = UserService.GetByUsername(username);
+            userInvestments = InvestmentService.GetUserInvestments(username);
+            stats = InvestmentService.GetUserStats(username);
+        }
+    }
+
+    private string GetStatusText(InvestmentStatus status) => status switch
+    {
+        InvestmentStatus.Active => "投資中",
+        InvestmentStatus.Matured => "満期",
+        InvestmentStatus.Completed => "完了",
+        InvestmentStatus.Liquidated => "清算",
+        InvestmentStatus.Failed => "失敗",
+        _ => status.ToString()
+    };
 
     private void GoBack()
     {

@@ -23,6 +23,7 @@ public enum Job
     BeastMaster,   // ビーストマスター
     Duelist,       // 剣豪
     Grandmaster,   //  GrandMaster
+    GraveRobber,   // 墓荒らし
 }
 
 /// <summary>
@@ -134,7 +135,10 @@ public static class JobDatabase
             WeaponType = "剣、斧",
             BonusStatus = new PlayerStatus { Str = 4, Vit = 6, Int = 3 },
             Skills = new List<string> { "聖光攻撃", "庇護", "ヒール" },
-            PassiveSkills = new List<string> { "被ダメージ-3%", "味方回復効果+5%" }
+            PassiveSkills = new List<string> { "被ダメージ-3%", "味方回復効果+5%" },
+            IsLocationRestricted = true,
+            RequiredLocations = new List<string> { "聖堂", "光の神殿", "聖なる祭壇", "大聖堂" },
+            LocationRestrictionMessage = "聖なる場所でのみ転職できます"
         },
         new JobInfo
         {
@@ -206,7 +210,10 @@ public static class JobDatabase
             PassiveSkills = new List<string> { "被ダメージ-8%", "周囲味方の防御+3%" },
             IsAdvanced = true,
             RequiredJob = Job.Paladin,
-            RequiredJobLevel = 20
+            RequiredJobLevel = 20,
+            IsLocationRestricted = true,
+            RequiredLocations = new List<string> { "聖堂", "光の神殿", "聖なる祭壇", "大聖堂", "天界の門" },
+            LocationRestrictionMessage = "光に満ちた聖なる場所でのみ転職できます"
         },
         new JobInfo
         {
@@ -290,6 +297,25 @@ public static class JobDatabase
             IsAdvanced = true,
             RequiredJob = Job.Warrior,
             RequiredJobLevel = 30
+        },
+        new JobInfo
+        {
+            Job = Job.GraveRobber,
+            Name = "墓荒らし",
+            Description = "墓地を彷徨う暗黒の盗賊。死者の遺品を漁り、闇の力を操る。シーフのダーク進化系。",
+            Icon = "⚰️",
+            Color = "#4A4A4A",
+            Role = "暗黒盗賊",
+            WeaponType = "短剣、鎌",
+            BonusStatus = new PlayerStatus { Dex = 10, Int = 6 },
+            Skills = new List<string> { "死体漁り", "闇歩き", "魂の略奪" },
+            PassiveSkills = new List<string> { "ドロップ率+5%", "闇属性耐性+10%" },
+            IsAdvanced = true,
+            RequiredJob = Job.Thief,
+            RequiredJobLevel = 15,
+            IsLocationRestricted = true,
+            RequiredLocations = new List<string> { "墓地", "死者の神殿", "闇の深淵", "廃墟の墓所" },
+            LocationRestrictionMessage = "死者が眠る場所でのみ転職できます"
         }
     };
 

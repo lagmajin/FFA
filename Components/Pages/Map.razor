@@ -386,11 +386,12 @@
         PlayerY = currentUser.MapY;
 
         // 保存位置がマップ上に存在しない場合は首都（最初の town）へ移動
-        if (!locationLookup.ContainsKey((PlayerX, PlayerY)))
+        if (!locationLookup.ContainsKey((PlayerX, PlayerY)) && countryMap?.Locations != null)
         {
-            var capital = countryMap.Locations?
+            var locations = countryMap.Locations;
+            var capital = locations?
                               .FirstOrDefault(l => l.Type.Equals("town", StringComparison.OrdinalIgnoreCase))
-                          ?? countryMap.Locations?.FirstOrDefault();
+                          ?? locations?.FirstOrDefault();
             if (capital != null)
             {
                 PlayerX = capital.X;

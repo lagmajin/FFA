@@ -139,49 +139,53 @@
         @* 鑑定結果モーダル *@
         @if (showResult && lastResult != null)
         {
-            <MudDialog @bind-IsOpen="showResult">
-                <TitleContent>
-                    <MudText Typo="Typo.h6">🔍 鑑定結果</MudText>
-                </TitleContent>
-                <DialogContent>
-                    @if (lastResult.Success)
-                    {
-                        var resultColor = GetRarityColor(lastResult.ActualRarity);
-                        var outcomeColor = lastResult.IsGoodResult ? "#4caf50" : "#ff9800";
-                        <div style="text-align:center; padding:20px;">
-                            <MudText Typo="Typo.h4" Style="@($"color:{resultColor}")">
-                                @lastResult.Item?.ActualItemName
-                            </MudText>
-                            <MudText Typo="Typo.body1" Class="mt-3">
-                                「@lastResult.Item?.DisplayName」は...
-                            </MudText>
-                            <MudText Typo="Typo.h5" Class="mt-2" Style="@($"color:{outcomeColor}")">
-                                @if (lastResult.IsGoodResult)
-                                {
-                                    <span>🎉 予想以上の結果！</span>
-                                }
-                                else
-                                {
-                                    <span>普通の結果でした</span>
-                                }
-                            </MudText>
-                            <MudText Typo="Typo.body2" Class="mt-2">
-                                実際のレアリティ: @GetRarityStars(lastResult.ActualRarity)
-                            </MudText>
-                            <MudText Typo="Typo.caption" Style="color:#666;">
-                                鑑定費用: @lastResult.Cost G
-                            </MudText>
+            <div class="mud-overlay mud-overlay-absolute mud-overlay-dark" style="position:fixed; z-index:1300; inset:0;">
+                <div class="mud-dialog-container" style="display:flex; align-items:center; justify-content:center; min-height:100%;">
+                    <div class="mud-dialog mud-dialog-width-sm mud-elevation-24" style="background:var(--mud-palette-background); border-radius:8px; max-width:400px; width:100%;">
+                        <div class="mud-dialog-title" style="padding:16px;">
+                            <MudText Typo="Typo.h6">🔍 鑑定結果</MudText>
                         </div>
-                    }
-                    else
-                    {
-                        <MudAlert Severity="Severity.Error">@lastResult.Message</MudAlert>
-                    }
-                </DialogContent>
-                <DialogActions>
-                    <MudButton OnClick="() => showResult = false">閉じる</MudButton>
-                </DialogActions>
-            </MudDialog>
+                        <div class="mud-dialog-content" style="padding:16px;">
+                            @if (lastResult.Success)
+                            {
+                                var resultColor = GetRarityColor(lastResult.ActualRarity);
+                                var outcomeColor = lastResult.IsGoodResult ? "#4caf50" : "#ff9800";
+                                <div style="text-align:center; padding:20px;">
+                                    <MudText Typo="Typo.h4" Style="@($"color:{resultColor}")">
+                                        @lastResult.Item?.ActualItemName
+                                    </MudText>
+                                    <MudText Typo="Typo.body1" Class="mt-3">
+                                        「@lastResult.Item?.DisplayName」は...
+                                    </MudText>
+                                    <MudText Typo="Typo.h5" Class="mt-2" Style="@($"color:{outcomeColor}")">
+                                        @if (lastResult.IsGoodResult)
+                                        {
+                                            <span>🎉 予想以上の結果！</span>
+                                        }
+                                        else
+                                        {
+                                            <span>普通の結果でした</span>
+                                        }
+                                    </MudText>
+                                    <MudText Typo="Typo.body2" Class="mt-2">
+                                        実際のレアリティ: @GetRarityStars(lastResult.ActualRarity)
+                                    </MudText>
+                                    <MudText Typo="Typo.caption" Style="color:#666;">
+                                        鑑定費用: @lastResult.Cost G
+                                    </MudText>
+                                </div>
+                            }
+                            else
+                            {
+                                <MudAlert Severity="Severity.Error">@lastResult.Message</MudAlert>
+                            }
+                        </div>
+                        <div class="mud-dialog-actions" style="padding:16px; justify-content:flex-end;">
+                            <MudButton OnClick="() => showResult = false">閉じる</MudButton>
+                        </div>
+                    </div>
+                </div>
+            </div>
         }
     }
 </MudPaper>

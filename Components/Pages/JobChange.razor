@@ -223,6 +223,22 @@
                                             </div>
                                         }
                                     }
+                                    @if (requirement.IsLocationRestricted)
+                                    {
+                                        <div class="requirement-item @(requirement.HasRequiredLocation ? "met" : "unmet")">
+                                            <span class="requirement-icon">@(requirement.HasRequiredLocation ? "✅" : "❌")</span>
+                                            <span>場所: @string.Join("、", requirement.RequiredLocations)</span>
+                                        </div>
+                                        @if (!string.IsNullOrEmpty(requirement.LocationRestrictionMessage))
+                                        {
+                                            <div class="location-message">
+                                                <small>@requirement.LocationRestrictionMessage</small>
+                                            </div>
+                                        }
+                                        <div class="current-location">
+                                            <small>現在の場所: @requirement.CurrentLocation</small>
+                                        </div>
+                                    }
                                 </div>
                             }
                         </div>
@@ -403,6 +419,22 @@
         background: rgba(255, 255, 255, 0.1);
         border-radius: 4px;
         display: inline-block;
+    }
+    
+    .location-message {
+        margin-top: 5px;
+        padding: 4px 8px;
+        background: rgba(156, 39, 176, 0.2);
+        border-radius: 4px;
+        color: #ce93d8;
+    }
+    
+    .current-location {
+        margin-top: 3px;
+        padding: 4px 8px;
+        background: rgba(33, 150, 243, 0.2);
+        border-radius: 4px;
+        color: #90caf9;
     }
 </style>
 

@@ -9,10 +9,12 @@ namespace FFA.Services;
 public class JobService
 {
     private readonly UserService _userService;
+    private readonly WorldService _worldService;
 
     public JobService()
     {
         _userService = new UserService();
+        _worldService = new WorldService();
     }
 
     /// <summary>
@@ -165,6 +167,24 @@ public class JobService
                 result.HasRequiredLevel = user.Level >= jobInfo.RequiredJobLevel;
                 if (!result.HasRequiredLevel)
                     result.FailureReasons.Add($"レベル{result.RequiredLevel}以上が必要です（現在: Lv.{user.Level}）");
+            }
+
+            // 場所制限チェック
+            if (jobInfo.IsLocationRestricted && jobInfo.RequiredLocations.Any())
+            {
+                result.IsLocationRestricted = true;
+                result.RequiredLocations = jobInfo.RequiredLocations;
+                result.LocationRestrictionMessage = jobInfo.LocationRestrictionMessage;
+                
+                // 現在の場所を取得
+                result.CurrentLocation = _worldService.GetCurrentLocationName(username);
+                result.HasRequiredLocation = jobInfo.RequiredLocations.Contains(result.CurrentLocation);
+                
+                if (!result.HasRequiredLocation)
+                {
+                    var locationsStr = string.Join("、", jobInfo.RequiredLocations);
+                    result.FailureReasons.Add($"特定の場所でのみ転職できます（必要場所: {locationsStr}、現在: {result.CurrentLocation}）");
+                }
             }
 
             result.CanChange = result.FailureReasons.Count == 0;
