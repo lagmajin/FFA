@@ -40,6 +40,8 @@ public class JobInfo
     public List<string> Skills { get; set; } = new();
     // パッシブスキル（常時効果）
     public List<string> PassiveSkills { get; set; } = new();
+    // 戦闘以外のパッシブスキル
+    public List<NonCombatPassiveSkill> NonCombatPassiveSkills { get; set; } = new();
     public string Role { get; set; } = ""; // Tank, Healer, DPS, etc.
     public string WeaponType { get; set; } = "";
     public bool IsAdvanced { get; set; } = false; // 上級職かどうか
@@ -70,7 +72,12 @@ public static class JobDatabase
             WeaponType = "剣、斧、槍",
             BonusStatus = new PlayerStatus { Str = 5, Vit = 8 },
             Skills = new List<string> { "タンクスタンス", "挑発", "防衛姿勢" },
-            PassiveSkills = new List<string> { "被ダメージ-5%（常時）", "挑発成功率+5%" }
+            PassiveSkills = new List<string> { "被ダメージ-5%（常時）", "挑発成功率+5%" },
+            NonCombatPassiveSkills = new List<NonCombatPassiveSkill>
+            {
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.HPRegenBonus, 5),
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.TravelSpeedBonus, 3)
+            }
         },
         new JobInfo
         {
@@ -83,7 +90,12 @@ public static class JobDatabase
             WeaponType = "拳套、指虎",
             BonusStatus = new PlayerStatus { Str = 7, Dex = 6, Vit = 4 },
             Skills = new List<string> { "連撃", "会心の一撃", "風の拳" },
-            PassiveSkills = new List<string> { "クリティカル率+3%", "連撃時ダメージ+5%" }
+            PassiveSkills = new List<string> { "クリティカル率+3%", "連撃時ダメージ+5%" },
+            NonCombatPassiveSkills = new List<NonCombatPassiveSkill>
+            {
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.HPRegenBonus, 10),
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.StaminaRegenBonus, 8)
+            }
         },
         new JobInfo
         {
@@ -96,7 +108,12 @@ public static class JobDatabase
             WeaponType = "杖、聖書",
             BonusStatus = new PlayerStatus { Int = 6 },
             Skills = new List<string> { "回復魔法", "聖なる光", "状態回復" },
-            PassiveSkills = new List<string> { "回復効果+10%", "状態異常耐性+5%" }
+            PassiveSkills = new List<string> { "回復効果+10%", "状態異常耐性+5%" },
+            NonCombatPassiveSkills = new List<NonCombatPassiveSkill>
+            {
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.MPRegenBonus, 8),
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.StatusRecoveryBonus, 10)
+            }
         },
         new JobInfo
         {
@@ -109,7 +126,12 @@ public static class JobDatabase
             WeaponType = "魔杖、魔道書",
             BonusStatus = new PlayerStatus { Int = 8 },
             Skills = new List<string> { "火球術", "氷結魔法", "雷撃" },
-            PassiveSkills = new List<string> { "魔法攻撃力+8%", "MP 回復速度+5%" }
+            PassiveSkills = new List<string> { "魔法攻撃力+8%", "MP 回復速度+5%" },
+            NonCombatPassiveSkills = new List<NonCombatPassiveSkill>
+            {
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.MPRegenBonus, 5),
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.CraftingSuccessBonus, 5)
+            }
         },
         new JobInfo
         {
@@ -122,7 +144,13 @@ public static class JobDatabase
             WeaponType = "弓、クロスボー",
             BonusStatus = new PlayerStatus { Dex = 8, Agi = 6 },
             Skills = new List<string> { "精密射撃", "罠", "野生の呼び声" },
-            PassiveSkills = new List<string> { "遠距離会心率+5%", "移動速度+5%" }
+            PassiveSkills = new List<string> { "遠距離会心率+5%", "移動速度+5%" },
+            NonCombatPassiveSkills = new List<NonCombatPassiveSkill>
+            {
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.TravelSpeedBonus, 8),
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.ExplorationFindBonus, 5),
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.FishingSpeedBonus, 5)
+            }
         },
         new JobInfo
         {
@@ -136,6 +164,11 @@ public static class JobDatabase
             BonusStatus = new PlayerStatus { Str = 4, Vit = 6, Int = 3 },
             Skills = new List<string> { "聖光攻撃", "庇護", "ヒール" },
             PassiveSkills = new List<string> { "被ダメージ-3%", "味方回復効果+5%" },
+            NonCombatPassiveSkills = new List<NonCombatPassiveSkill>
+            {
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.HPRegenBonus, 5),
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.StatusRecoveryBonus, 5)
+            },
             IsLocationRestricted = true,
             RequiredLocations = new List<string> { "聖堂", "光の神殿", "聖なる祭壇", "大聖堂" },
             LocationRestrictionMessage = "聖なる場所でのみ転職できます"
@@ -152,6 +185,11 @@ public static class JobDatabase
             BonusStatus = new PlayerStatus { Str = 7, Vit = 4 },
             Skills = new List<string> { "ダークインパクト", "生命吸収", "呪い" },
             PassiveSkills = new List<string> { "与ダメージ+5%", "HP 吸収効果+3%" },
+            NonCombatPassiveSkills = new List<NonCombatPassiveSkill>
+            {
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.HPRegenBonus, 3),
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.GoldBonus, 5)
+            },
             IsLocationRestricted = true,
             RequiredLocations = new List<string> { "闇の神殿", "暗黒の祭壇", "魔界の門" },
             LocationRestrictionMessage = "闇の力が満ちる場所でのみ転職できます"
@@ -167,7 +205,12 @@ public static class JobDatabase
             WeaponType = "杖、楽器",
             BonusStatus = new PlayerStatus { Int = 5, Dex = 4 },
             Skills = new List<string> { "戦いの歌", "癒しの旋律", "rally" },
-            PassiveSkills = new List<string> { "味方の攻撃力+3%（範囲）", "MP 回復効果+3%" }
+            PassiveSkills = new List<string> { "味方の攻撃力+3%（範囲）", "MP 回復効果+3%" },
+            NonCombatPassiveSkills = new List<NonCombatPassiveSkill>
+            {
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.ShopSellPriceBonus, 10),
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.ExperienceBonus, 5)
+            }
         },
         new JobInfo
         {
@@ -180,7 +223,13 @@ public static class JobDatabase
             WeaponType = "短剣、ダガー",
             BonusStatus = new PlayerStatus { Agi = 8, Luk = 5 },
             Skills = new List<string> { "背中攻撃", "盗み", "毒攻撃" },
-            PassiveSkills = new List<string> { "回避率+5%", "ドロップ率+3%" }
+            PassiveSkills = new List<string> { "回避率+5%", "ドロップ率+3%" },
+            NonCombatPassiveSkills = new List<NonCombatPassiveSkill>
+            {
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.DropRateBonus, 8),
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.ShopSellPriceBonus, 5),
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.TravelSpeedBonus, 5)
+            }
         },
         new JobInfo
         {
@@ -193,7 +242,13 @@ public static class JobDatabase
             WeaponType = "手里剣、刀",
             BonusStatus = new PlayerStatus { Str = 4, Dex = 6, Agi = 6 },
             Skills = new List<string> { "影分身", "手里剣", "煙玉" },
-            PassiveSkills = new List<string> { "初手回避率+5%", "手裏剣ダメージ+4%" }
+            PassiveSkills = new List<string> { "初手回避率+5%", "手裏剣ダメージ+4%" },
+            NonCombatPassiveSkills = new List<NonCombatPassiveSkill>
+            {
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.TravelSpeedBonus, 10),
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.EncounterRateAdjust, -15),
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.DropRateBonus, 3)
+            }
         },
         // 上級職
         new JobInfo
@@ -208,6 +263,12 @@ public static class JobDatabase
             BonusStatus = new PlayerStatus { Str = 10, Vit = 10, Int = 5 },
             Skills = new List<string> { "神圣之光", "剛光", "天地葬送" },
             PassiveSkills = new List<string> { "被ダメージ-8%", "周囲味方の防御+3%" },
+            NonCombatPassiveSkills = new List<NonCombatPassiveSkill>
+            {
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.HPRegenBonus, 8),
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.StatusRecoveryBonus, 10),
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.BankInterestBonus, 3)
+            },
             IsAdvanced = true,
             RequiredJob = Job.Paladin,
             RequiredJobLevel = 20,
@@ -227,6 +288,12 @@ public static class JobDatabase
             BonusStatus = new PlayerStatus { Str = 12, Vit = 8 },
             Skills = new List<string> { "屍剣", "死の舞踏", "冥府門" },
             PassiveSkills = new List<string> { "与ダメージ+7%", "復活時HP回復+10%" },
+            NonCombatPassiveSkills = new List<NonCombatPassiveSkill>
+            {
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.HPRegenBonus, 5),
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.GoldBonus, 10),
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.DropRateBonus, 5)
+            },
             IsAdvanced = true,
             RequiredJob = Job.DarkKnight,
             RequiredJobLevel = 20,
@@ -246,6 +313,12 @@ public static class JobDatabase
             BonusStatus = new PlayerStatus { Int = 15, Dex = 5 },
             Skills = new List<string> { "元素合一", "禁呪解放", "魔法之源" },
             PassiveSkills = new List<string> { "魔法威力+10%", "詠唱速度+5%" },
+            NonCombatPassiveSkills = new List<NonCombatPassiveSkill>
+            {
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.MPRegenBonus, 15),
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.CraftingSuccessBonus, 10),
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.CraftingQualityBonus, 5)
+            },
             IsAdvanced = true,
             RequiredJob = Job.BlackMage,
             RequiredJobLevel = 20
@@ -262,6 +335,13 @@ public static class JobDatabase
             BonusStatus = new PlayerStatus { Str = 8, Agi = 10 },
             Skills = new List<string> { "獣召喚", "野性化", "共有感知" },
             PassiveSkills = new List<string> { "ペット攻撃力+8%", "ペットHP+10%" },
+            NonCombatPassiveSkills = new List<NonCombatPassiveSkill>
+            {
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.TravelSpeedBonus, 10),
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.ExplorationFindBonus, 10),
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.FishingSpeedBonus, 8),
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.MiningSpeedBonus, 5)
+            },
             IsAdvanced = true,
             RequiredJob = Job.Ranger,
             RequiredJobLevel = 20
@@ -278,6 +358,11 @@ public static class JobDatabase
             BonusStatus = new PlayerStatus { Str = 10, Agi = 12 },
             Skills = new List<string> { "一刀両断", "居合斬", "剣意" },
             PassiveSkills = new List<string> { "会心率+6%", "回避時反撃+3%" },
+            NonCombatPassiveSkills = new List<NonCombatPassiveSkill>
+            {
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.TravelSpeedBonus, 12),
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.CraftingQualityBonus, 8)
+            },
             IsAdvanced = true,
             RequiredJob = Job.Ninja,
             RequiredJobLevel = 20
@@ -294,6 +379,14 @@ public static class JobDatabase
             BonusStatus = new PlayerStatus { Str = 8, Vit = 8, Dex = 8, Int = 8 },
             Skills = new List<string> { " Ultimate", "全能の光", "Infinity" },
             PassiveSkills = new List<string> { "全能力+5%", "全属性耐性+3%" },
+            NonCombatPassiveSkills = new List<NonCombatPassiveSkill>
+            {
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.ExperienceBonus, 10),
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.GoldBonus, 10),
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.DropRateBonus, 5),
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.HPRegenBonus, 5),
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.MPRegenBonus, 5)
+            },
             IsAdvanced = true,
             RequiredJob = Job.Warrior,
             RequiredJobLevel = 30
@@ -310,6 +403,12 @@ public static class JobDatabase
             BonusStatus = new PlayerStatus { Dex = 10, Int = 6 },
             Skills = new List<string> { "死体漁り", "闇歩き", "魂の略奪" },
             PassiveSkills = new List<string> { "ドロップ率+5%", "闇属性耐性+10%" },
+            NonCombatPassiveSkills = new List<NonCombatPassiveSkill>
+            {
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.DropRateBonus, 15),
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.ExplorationFindBonus, 10),
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.GoldBonus, 8)
+            },
             IsAdvanced = true,
             RequiredJob = Job.Thief,
             RequiredJobLevel = 15,

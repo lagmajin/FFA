@@ -137,6 +137,8 @@ builder.Services.AddSingleton<CombatService>();
 // Register DungeonService via DI to accept CombatService
 builder.Services.AddScoped<DungeonService>();
 builder.Services.AddScoped<AppraisalService>();
+builder.Services.AddSingleton<NonCombatPassiveService>();
+builder.Services.AddSingleton<TownEventService>();
 
 // In development, prefer configured endpoints (launchSettings / ASPNETCORE_URLS).
 // Only apply a forced Kestrel Listen when there are no endpoints configured via IConfiguration
