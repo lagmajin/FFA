@@ -3,6 +3,8 @@
 # weight: 防具の重量（kg）- 素早さやスタミナ消費に影響
 
 # === 軽装（Light）===
+
+# --- 軽装（Light）White ---
 [[armors]]
 id = 1
 name = "革の背心"
@@ -29,7 +31,120 @@ enhancement_success_rate = 0.85
 repair_cost = 20
 weight = 3.0
 
+[[armors]]
+id = 3
+name = "皮铠"
+type = "Light"
+defense = 12
+rarity = "White"
+price = 600
+durability = 100
+enhancement_cost = 200
+enhancement_success_rate = 0.8
+repair_cost = 30
+weight = 4.0
+
+# --- 軽装（Light）Green ---
+[[armors]]
+id = 102
+name = "精霊の衣"
+type = "Light"
+defense = 18
+rarity = "Green"
+price = 1500
+durability = 110
+enhancement_cost = 380
+enhancement_success_rate = 0.75
+repair_cost = 65
+weight = 2.5
+
+# --- 軽装（Light）Blue ---
+[[armors]]
+id = 202
+name = "強化皮铠"
+type = "Light"
+defense = 22
+rarity = "Blue"
+price = 2200
+durability = 115
+enhancement_cost = 480
+enhancement_success_rate = 0.72
+repair_cost = 85
+weight = 3.2
+
+# --- 軽装（Light）Purple ---
+[[armors]]
+id = 302
+name = "影の衣"
+type = "Light"
+defense = 28
+rarity = "Purple"
+price = 3500
+durability = 125
+enhancement_cost = 620
+enhancement_success_rate = 0.68
+repair_cost = 120
+weight = 2.0
+
+# --- 軽装（Light）Red ---
+[[armors]]
+id = 402
+name = "龍皮の铠"
+type = "Light"
+defense = 45
+rarity = "Red"
+price = 15000
+durability = 160
+enhancement_cost = 1600
+enhancement_success_rate = 0.6
+repair_cost = 300
+weight = 2.8
+
+# --- 軽装（Light）Orange ---
+[[armors]]
+id = 502
+name = "天翔の衣"
+type = "Light"
+defense = 80
+rarity = "Orange"
+price = 60000
+durability = 220
+enhancement_cost = 5500
+enhancement_success_rate = 0.48
+repair_cost = 1100
+weight = 1.5
+
+# --- 軽装（Light）Gold ---
+[[armors]]
+id = 602
+name = "神々の羽衣"
+type = "Light"
+defense = 150
+rarity = "Gold"
+price = 250000
+durability = 320
+enhancement_cost = 22000
+enhancement_success_rate = 0.32
+repair_cost = 5000
+weight = 1.0
+
+# --- 軽装（Light）Rainbow ---
+[[armors]]
+id = 702
+name = "宇宙のakarui"
+type = "Light"
+defense = 300
+rarity = "Rainbow"
+price = 1200000
+durability = 500
+enhancement_cost = 100000
+enhancement_success_rate = 0.18
+repair_cost = 25000
+weight = 0.5
+
 # === 中装（Medium） ===
+
+# --- 中装（Medium）White ---
 [[armors]]
 id = 10
 name = "鎖帷子"
@@ -56,7 +171,120 @@ enhancement_success_rate = 0.75
 repair_cost = 40
 weight = 12.0
 
+[[armors]]
+id = 12
+name = "籠手"
+type = "Medium"
+defense = 15
+rarity = "White"
+price = 650
+durability = 90
+enhancement_cost = 200
+enhancement_success_rate = 0.78
+repair_cost = 35
+weight = 6.5
+
+# --- 中装（Medium）Green ---
+[[armors]]
+id = 112
+name = "鉄鎖帷子"
+type = "Medium"
+defense = 25
+rarity = "Green"
+price = 1800
+durability = 130
+enhancement_cost = 420
+enhancement_success_rate = 0.72
+repair_cost = 75
+weight = 10.0
+
+# --- 中装（Medium）Blue ---
+[[armors]]
+id = 212
+name = "合金装甲"
+type = "Medium"
+defense = 32
+rarity = "Blue"
+price = 2800
+durability = 140
+enhancement_cost = 550
+enhancement_success_rate = 0.7
+repair_cost = 100
+weight = 11.0
+
+# --- 中装（Medium）Purple ---
+[[armors]]
+id = 312
+name = "黒鱗の铠"
+type = "Medium"
+defense = 40
+rarity = "Purple"
+price = 4200
+durability = 150
+enhancement_cost = 700
+enhancement_success_rate = 0.65
+repair_cost = 140
+weight = 10.5
+
+# --- 中装（Medium）Red ---
+[[armors]]
+id = 412
+name = "紅蓮の装甲"
+type = "Medium"
+defense = 60
+rarity = "Red"
+price = 18000
+durability = 180
+enhancement_cost = 1900
+enhancement_success_rate = 0.58
+repair_cost = 350
+weight = 9.5
+
+# --- 中装（Medium）Orange ---
+[[armors]]
+id = 512
+name = "天上の装甲"
+type = "Medium"
+defense = 100
+rarity = "Orange"
+price = 70000
+durability = 250
+enhancement_cost = 6500
+enhancement_success_rate = 0.45
+repair_cost = 1300
+weight = 8.0
+
+# --- 中装（Medium）Gold ---
+[[armors]]
+id = 612
+name = "神甲"
+type = "Medium"
+defense = 180
+rarity = "Gold"
+price = 280000
+durability = 350
+enhancement_cost = 25000
+enhancement_success_rate = 0.3
+repair_cost = 5500
+weight = 7.0
+
+# --- 中装（Medium）Rainbow ---
+[[armors]]
+id = 712
+name = "宇宙の守護"
+type = "Medium"
+defense = 350
+rarity = "Rainbow"
+price = 1400000
+durability = 550
+enhancement_cost = 120000
+enhancement_success_rate = 0.15
+repair_cost = 30000
+weight = 5.0
+
 # === 重装（Heavy） ===
+
+# --- 重装（Heavy）White ---
 [[armors]]
 id = 20
 name = "鉄の铠"
@@ -83,12 +311,126 @@ enhancement_success_rate = 0.65
 repair_cost = 70
 weight = 25.0
 
+[[armors]]
+id = 22
+name = "大铠"
+type = "Heavy"
+defense = 25
+rarity = "White"
+price = 1500
+durability = 160
+enhancement_cost = 350
+enhancement_success_rate = 0.68
+repair_cost = 55
+weight = 22.0
+
+# --- 重装（Heavy）Green ---
+[[armors]]
+id = 122
+name = "戦鎧"
+type = "Heavy"
+defense = 38
+rarity = "Green"
+price = 2500
+durability = 190
+enhancement_cost = 500
+enhancement_success_rate = 0.62
+repair_cost = 90
+weight = 24.0
+
+# --- 重装（Heavy）Blue ---
+[[armors]]
+id = 222
+name = "騎士铠"
+type = "Heavy"
+defense = 48
+rarity = "Blue"
+price = 3500
+durability = 200
+enhancement_cost = 650
+enhancement_success_rate = 0.6
+repair_cost = 120
+weight = 23.0
+
+# --- 重装（Heavy）Purple ---
+[[armors]]
+id = 322
+name = "騎士団の铠"
+type = "Heavy"
+defense = 55
+rarity = "Purple"
+price = 5000
+durability = 210
+enhancement_cost = 800
+enhancement_success_rate = 0.58
+repair_cost = 160
+weight = 22.0
+
+# --- 重装（Heavy）Red ---
+[[armors]]
+id = 422
+name = "龍鱗の铠"
+type = "Heavy"
+defense = 80
+rarity = "Red"
+price = 20000
+durability = 280
+enhancement_cost = 2200
+enhancement_success_rate = 0.5
+repair_cost = 450
+weight = 20.0
+
+# --- 重装（Heavy）Orange ---
+[[armors]]
+id = 522
+name = "天狼の铠"
+type = "Heavy"
+defense = 130
+rarity = "Orange"
+price = 80000
+durability = 350
+enhancement_cost = 7500
+enhancement_success_rate = 0.42
+repair_cost = 1600
+weight = 18.0
+
+# --- 重装（Heavy）Gold ---
+[[armors]]
+id = 622
+name = "神々の鎧"
+type = "Heavy"
+defense = 200
+rarity = "Gold"
+price = 300000
+durability = 450
+enhancement_cost = 30000
+enhancement_success_rate = 0.28
+repair_cost = 7000
+weight = 15.0
+
+# --- 重装（Heavy）Rainbow ---
+[[armors]]
+id = 722
+name = "宇宙の鎧"
+type = "Heavy"
+defense = 380
+rarity = "Rainbow"
+price = 1500000
+durability = 650
+enhancement_cost = 150000
+enhancement_success_rate = 0.12
+repair_cost = 35000
+weight = 12.0
+
 # === ローブ（Robe） ===
+
+# --- ローブ（Robe）White ---
 [[armors]]
 id = 30
 name = "法衣"
 type = "Robe"
 defense = 5
+magic_defense = 5
 rarity = "White"
 price = 200
 durability = 50
@@ -102,6 +444,7 @@ id = 31
 name = "魔法袍"
 type = "Robe"
 defense = 10
+magic_defense = 10
 rarity = "White"
 price = 600
 durability = 80
@@ -110,7 +453,128 @@ enhancement_success_rate = 0.85
 repair_cost = 20
 weight = 1.0
 
-# === 兜 ===
+[[armors]]
+id = 32
+name = "賢者ローブ"
+type = "Robe"
+defense = 8
+magic_defense = 15
+rarity = "White"
+price = 800
+durability = 70
+enhancement_cost = 180
+enhancement_success_rate = 0.82
+repair_cost = 25
+weight = 0.9
+
+# --- ローブ（Robe）Green ---
+[[armors]]
+id = 132
+name = "森のローブ"
+type = "Robe"
+defense = 15
+magic_defense = 20
+rarity = "Green"
+price = 1800
+durability = 95
+enhancement_cost = 400
+enhancement_success_rate = 0.78
+repair_cost = 65
+weight = 0.7
+
+# --- ローブ（Robe）Blue ---
+[[armors]]
+id = 232
+name = "大海のローブ"
+type = "Robe"
+defense = 20
+magic_defense = 28
+rarity = "Blue"
+price = 2600
+durability = 100
+enhancement_cost = 520
+enhancement_success_rate = 0.75
+repair_cost = 90
+weight = 0.8
+
+# --- ローブ（Robe）Purple ---
+[[armors]]
+id = 332
+name = "神秘のローブ"
+type = "Robe"
+defense = 25
+magic_defense = 38
+rarity = "Purple"
+price = 4000
+durability = 110
+enhancement_cost = 680
+enhancement_success_rate = 0.72
+repair_cost = 130
+weight = 0.6
+
+# --- ローブ（Robe）Red ---
+[[armors]]
+id = 432
+name = "賢者のローブ"
+type = "Robe"
+defense = 35
+magic_defense = 55
+rarity = "Red"
+price = 18000
+durability = 150
+enhancement_cost = 1800
+enhancement_success_rate = 0.62
+repair_cost = 350
+weight = 0.5
+
+# --- ローブ（Robe）Orange ---
+[[armors]]
+id = 532
+name = "天書のローブ"
+type = "Robe"
+defense = 55
+magic_defense = 90
+rarity = "Orange"
+price = 70000
+durability = 200
+enhancement_cost = 6000
+enhancement_success_rate = 0.48
+repair_cost = 1200
+weight = 0.4
+
+# --- ローブ（Robe）Gold ---
+[[armors]]
+id = 632
+name = "神々の知恵のローブ"
+type = "Robe"
+defense = 90
+magic_defense = 150
+rarity = "Gold"
+price = 280000
+durability = 300
+enhancement_cost = 24000
+enhancement_success_rate = 0.32
+repair_cost = 5500
+weight = 0.3
+
+# --- ローブ（Robe）Rainbow ---
+[[armors]]
+id = 732
+name = "宇宙の賢者ローブ"
+type = "Robe"
+defense = 160
+magic_defense = 280
+rarity = "Rainbow"
+price = 1400000
+durability = 450
+enhancement_cost = 120000
+enhancement_success_rate = 0.15
+repair_cost = 28000
+weight = 0.2
+
+# === 兜（Helmet） ===
+
+# --- 兜（Helmet）White ---
 [[armors]]
 id = 40
 name = "革帽子"
@@ -124,7 +588,136 @@ enhancement_success_rate = 0.9
 repair_cost = 8
 weight = 0.5
 
-# === 盾 ===
+[[armors]]
+id = 41
+name = "鉄兜"
+type = "Helmet"
+defense = 5
+rarity = "White"
+price = 250
+durability = 60
+enhancement_cost = 100
+enhancement_success_rate = 0.85
+repair_cost = 15
+weight = 1.5
+
+[[armors]]
+id = 42
+name = "三角帽子"
+type = "Helmet"
+defense = 3
+rarity = "White"
+price = 150
+durability = 45
+enhancement_cost = 80
+enhancement_success_rate = 0.88
+repair_cost = 10
+weight = 0.3
+
+# --- 兜（Helmet）Green ---
+[[armors]]
+id = 142
+name = "精霊の帽子"
+type = "Helmet"
+defense = 8
+rarity = "Green"
+price = 800
+durability = 75
+enhancement_cost = 200
+enhancement_success_rate = 0.8
+repair_cost = 35
+weight = 0.8
+
+# --- 兜（Helmet）Blue ---
+[[armors]]
+id = 242
+name = "騎士兜"
+type = "Helmet"
+defense = 12
+rarity = "Blue"
+price = 1500
+durability = 85
+enhancement_cost = 320
+enhancement_success_rate = 0.78
+repair_cost = 55
+weight = 2.0
+
+# --- 兜（Helmet）Purple ---
+[[armors]]
+id = 342
+name = "賢者の帽子"
+type = "Helmet"
+defense = 18
+magic_defense = 10
+rarity = "Purple"
+price = 2500
+durability = 95
+enhancement_cost = 450
+enhancement_success_rate = 0.75
+repair_cost = 85
+weight = 0.6
+
+# --- 兜（Helmet）Red ---
+[[armors]]
+id = 442
+name = "龍頭盔"
+type = "Helmet"
+defense = 28
+rarity = "Red"
+price = 10000
+durability = 120
+enhancement_cost = 1000
+enhancement_success_rate = 0.65
+repair_cost = 200
+weight = 2.5
+
+# --- 兜（Helmet）Orange ---
+[[armors]]
+id = 542
+name = "天冠"
+type = "Helmet"
+defense = 45
+rarity = "Orange"
+price = 40000
+durability = 160
+enhancement_cost = 3500
+enhancement_success_rate = 0.5
+repair_cost = 800
+weight = 1.8
+
+# --- 兜（Helmet）Gold ---
+[[armors]]
+id = 642
+name = "神の頭巾"
+type = "Helmet"
+defense = 80
+magic_defense = 50
+rarity = "Gold"
+price = 150000
+durability = 250
+enhancement_cost = 15000
+enhancement_success_rate = 0.35
+repair_cost = 3500
+weight = 0.5
+
+# --- 兜（Helmet）Rainbow ---
+[[armors]]
+id = 742
+name = "宇宙の知恵"
+type = "Helmet"
+defense = 150
+magic_defense = 100
+rarity = "Rainbow"
+price = 800000
+durability = 400
+enhancement_cost = 80000
+enhancement_success_rate = 0.18
+repair_cost = 18000
+weight = 0.3
+
+# === 盾（Shield） ===
+
+# --- 盾（Shield）White ---
 [[armors]]
 id = 50
 name = "木盾"
@@ -138,98 +731,269 @@ enhancement_success_rate = 0.85
 repair_cost = 15
 weight = 2.0
 
-# === 高級防具（Purple） ===
 [[armors]]
-id = 100
-name = "精灵の衣"
-type = "Light"
-defense = 25
-rarity = "Purple"
-price = 3000
-durability = 150
-enhancement_cost = 600
-enhancement_success_rate = 0.7
-repair_cost = 100
-weight = 1.0
-
-[[armors]]
-id = 101
-name = "騎士団の铠"
-type = "Heavy"
-defense = 45
-rarity = "Purple"
-price = 5000
-durability = 200
-enhancement_cost = 800
-enhancement_success_rate = 0.65
-repair_cost = 150
-weight = 22.0
-
-# === 稀有防具（Red） ===
-[[armors]]
-id = 200
-name = "龍鱗の铠"
-type = "Heavy"
-defense = 70
-rarity = "Red"
-price = 20000
-durability = 250
-enhancement_cost = 2000
-enhancement_success_rate = 0.55
-repair_cost = 400
-weight = 18.0
-
-[[armors]]
-id = 201
-name = "賢者のローブ"
-type = "Robe"
-defense = 35
-rarity = "Red"
-price = 18000
-durability = 200
-enhancement_cost = 1800
-enhancement_success_rate = 0.6
-repair_cost = 350
-weight = 0.5
-
-# === 伝説防具（Orange） ===
-[[armors]]
-id = 300
-name = "イージスの盾"
+id = 51
+name = "鉄盾"
 type = "Shield"
-defense = 100
-rarity = "Orange"
-price = 80000
-durability = 300
-enhancement_cost = 8000
-enhancement_success_rate = 0.45
-repair_cost = 1500
+defense = 10
+rarity = "White"
+price = 400
+durability = 80
+enhancement_cost = 150
+enhancement_success_rate = 0.8
+repair_cost = 25
+weight = 4.0
+
+[[armors]]
+id = 52
+name = "革盾"
+type = "Shield"
+defense = 7
+rarity = "White"
+price = 250
+durability = 70
+enhancement_cost = 120
+enhancement_success_rate = 0.82
+repair_cost = 18
+weight = 1.5
+
+# --- 盾（Shield）Green ---
+[[armors]]
+id = 152
+name = "強化盾"
+type = "Shield"
+defense = 15
+rarity = "Green"
+price = 1000
+durability = 100
+enhancement_cost = 280
+enhancement_success_rate = 0.75
+repair_cost = 45
+weight = 3.5
+
+# --- 盾（Shield）Blue ---
+[[armors]]
+id = 252
+name = "騎士盾"
+type = "Shield"
+defense = 20
+rarity = "Blue"
+price = 1800
+durability = 110
+enhancement_cost = 380
+enhancement_success_rate = 0.72
+repair_cost = 65
 weight = 5.0
 
-# === 神話防具（Gold） ===
+# --- 盾（Shield）Purple ---
 [[armors]]
-id = 400
-name = "神々の鎧"
-type = "Heavy"
-defense = 180
-rarity = "Gold"
-price = 300000
-durability = 400
-enhancement_cost = 30000
-enhancement_success_rate = 0.3
-repair_cost = 6000
-weight = 15.0
+id = 352
+name = "魔法盾"
+type = "Shield"
+defense = 18
+magic_defense = 20
+rarity = "Purple"
+price = 2800
+durability = 120
+enhancement_cost = 500
+enhancement_success_rate = 0.7
+repair_cost = 90
+weight = 3.0
 
-# === 最上位防具（Rainbow） ===
+# --- 盾（Shield）Red ---
 [[armors]]
-id = 500
-name = "宇宙の鎧"
-type = "Heavy"
-defense = 350
+id = 452
+name = "龍盾"
+type = "Shield"
+defense = 35
+rarity = "Red"
+price = 12000
+durability = 160
+enhancement_cost = 1200
+enhancement_success_rate = 0.6
+repair_cost = 250
+weight = 6.0
+
+# --- 盾（Shield）Orange ---
+[[armors]]
+id = 552
+name = "イージスの盾"
+type = "Shield"
+defense = 60
+rarity = "Orange"
+price = 50000
+durability = 220
+enhancement_cost = 4500
+enhancement_success_rate = 0.48
+repair_cost = 1000
+weight = 4.5
+
+# --- 盾（Shield）Gold ---
+[[armors]]
+id = 652
+name = "神の守護盾"
+type = "Shield"
+defense = 100
+magic_defense = 60
+rarity = "Gold"
+price = 200000
+durability = 320
+enhancement_cost = 20000
+enhancement_success_rate = 0.32
+repair_cost = 4500
+weight = 3.5
+
+# --- 盾（Shield）Rainbow ---
+[[armors]]
+id = 752
+name = "宇宙の屏障"
+type = "Shield"
+defense = 180
+magic_defense = 120
 rarity = "Rainbow"
-price = 1500000
-durability = 600
-enhancement_cost = 150000
+price = 1000000
+durability = 500
+enhancement_cost = 100000
 enhancement_success_rate = 0.15
-repair_cost = 30000
-weight = 10.0
+repair_cost = 22000
+weight = 2.5
+
+# === 靴（Boots） ===
+
+# --- 靴（Boots）White ---
+[[armors]]
+id = 60
+name = "革靴"
+type = "Boots"
+defense = 2
+rarity = "White"
+price = 100
+durability = 40
+enhancement_cost = 60
+enhancement_success_rate = 0.9
+repair_cost = 8
+weight = 0.5
+
+[[armors]]
+id = 61
+name = "鉄靴"
+type = "Boots"
+defense = 5
+rarity = "White"
+price = 300
+durability = 60
+enhancement_cost = 120
+enhancement_success_rate = 0.85
+repair_cost = 18
+weight = 2.0
+
+[[armors]]
+id = 62
+name = "草鞋"
+type = "Boots"
+defense = 1
+rarity = "White"
+price = 50
+durability = 30
+enhancement_cost = 40
+enhancement_success_rate = 0.92
+repair_cost = 5
+weight = 0.2
+
+# --- 靴（Boots）Green ---
+[[armors]]
+id = 162
+name = "敏者の靴"
+type = "Boots"
+defense = 8
+rarity = "Green"
+price = 900
+durability = 75
+enhancement_cost = 220
+enhancement_success_rate = 0.8
+repair_cost = 40
+weight = 1.2
+
+# --- 靴（Boots）Blue ---
+[[armors]]
+id = 262
+name = "疾風の靴"
+type = "Boots"
+defense = 12
+rarity = "Blue"
+price = 1600
+durability = 85
+enhancement_cost = 340
+enhancement_success_rate = 0.78
+repair_cost = 60
+weight = 1.5
+
+# --- 靴（Boots）Purple ---
+[[armors]]
+id = 362
+name = "空翔の靴"
+type = "Boots"
+defense = 18
+rarity = "Purple"
+price = 2800
+durability = 95
+enhancement_cost = 480
+enhancement_success_rate = 0.75
+repair_cost = 95
+weight = 1.0
+
+# --- 靴（Boots）Red ---
+[[armors]]
+id = 462
+name = "瞬間移動靴"
+type = "Boots"
+defense = 28
+rarity = "Red"
+price = 11000
+durability = 120
+enhancement_cost = 1100
+enhancement_success_rate = 0.65
+repair_cost = 220
+weight = 0.8
+
+# --- 靴（Boots）Orange ---
+[[armors]]
+id = 562
+name = "天雲の靴"
+type = "Boots"
+defense = 45
+rarity = "Orange"
+price = 45000
+durability = 160
+enhancement_cost = 3800
+enhancement_success_rate = 0.5
+repair_cost = 850
+weight = 0.5
+
+# --- 靴（Boots）Gold ---
+[[armors]]
+id = 662
+name = "神々の速度"
+type = "Boots"
+defense = 80
+rarity = "Gold"
+price = 180000
+durability = 250
+enhancement_cost = 18000
+enhancement_success_rate = 0.32
+repair_cost = 4000
+weight = 0.3
+
+# --- 靴（Boots）Rainbow ---
+[[armors]]
+id = 762
+name = "宇宙の領域"
+type = "Boots"
+defense = 150
+rarity = "Rainbow"
+price = 900000
+durability = 400
+enhancement_cost = 90000
+enhancement_success_rate = 0.15
+repair_cost = 20000
+weight = 0.1

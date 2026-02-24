@@ -111,6 +111,10 @@
   - クラフト実行、成功率判定
   - 素材消費、アイテム生成
   - 初期レシピデータ投入
+- [Components/Pages/Craft.razor](Components/Pages/Craft.razor) - 新規作成
+  - レシピ一覧表示
+  - カテゴリ別フィルタリング
+  - クラフト実行UI
 
 ---
 
@@ -118,7 +122,6 @@
 - [ ] フレンドシステムUI（Friend.razor）
 - [ ] メールシステムUI（Mail.razor）
 - [ ] 釣りシステムUI（Fishing.razor）
-- [ ] クラフトシステムUI（Craft.razor）
 - [ ] ペット/コンパニオンシステム
 - [ ] 取引所UI改善
 - [ ] その他新規機能

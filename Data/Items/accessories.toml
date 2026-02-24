@@ -3,6 +3,8 @@
 # weight: 装飾品の重量（kg）- 素早さやスタミナ消費に影響
 
 # === リング（Ring）===
+
+# --- リング（Ring）White ---
 [[accessories]]
 id = 1
 name = "銅のリング"
@@ -33,7 +35,136 @@ enhancement_success_rate = 0.85
 repair_cost = 20
 weight = 0.08
 
+[[accessories]]
+id = 3
+name = "金のリング"
+type = "Ring"
+defense = 5
+attack = 8
+magic = 5
+rarity = "White"
+price = 800
+durability = 100
+enhancement_cost = 250
+enhancement_success_rate = 0.8
+repair_cost = 30
+weight = 0.1
+
+# --- リング（Ring）Green ---
+[[accessories]]
+id = 102
+name = "エメラルドリング"
+type = "Ring"
+defense = 8
+attack = 12
+magic = 8
+rarity = "Green"
+price = 1800
+durability = 110
+enhancement_cost = 400
+enhancement_success_rate = 0.75
+repair_cost = 65
+weight = 0.04
+
+# --- リング（Ring）Blue ---
+[[accessories]]
+id = 202
+name = "サファイアリング"
+type = "Ring"
+defense = 12
+attack = 18
+magic = 12
+rarity = "Blue"
+price = 2800
+durability = 120
+enhancement_cost = 550
+enhancement_success_rate = 0.72
+repair_cost = 90
+weight = 0.05
+
+# --- リング（Ring）Purple ---
+[[accessories]]
+id = 302
+name = "精灵のリング"
+type = "Ring"
+defense = 15
+attack = 22
+magic = 15
+rarity = "Purple"
+price = 3500
+durability = 130
+enhancement_cost = _success_rate = 680
+enhancement0.7
+repair_cost = 120
+weight = 0.03
+
+# --- リング（Ring）Red ---
+[[accessories]]
+id = 402
+name = "紅玉のリング"
+type = "Ring"
+defense = 22
+attack = 32
+magic = 22
+rarity = "Red"
+price = 12000
+durability = 160
+enhancement_cost = 1200
+enhancement_success_rate = 0.62
+repair_cost = 250
+weight = 0.06
+
+# --- リング（Ring）Orange ---
+[[accessories]]
+id = 502
+name = "炎帝のリング"
+type = "Ring"
+defense = 35
+attack = 50
+magic = 35
+rarity = "Orange"
+price = 45000
+durability = 200
+enhancement_cost = 4000
+enhancement_success_rate = 0.48
+repair_cost = 900
+weight = 0.04
+
+# --- リング（Ring）Gold ---
+[[accessories]]
+id = 602
+name = "星天使のリング"
+type = "Ring"
+defense = 55
+attack = 75
+magic = 55
+rarity = "Gold"
+price = 180000
+durability = 280
+enhancement_cost = 18000
+enhancement_success_rate = 0.35
+repair_cost = 4000
+weight = 0.03
+
+# --- リング（Ring）Rainbow ---
+[[accessories]]
+id = 702
+name = "宇宙の律法"
+type = "Ring"
+defense = 100
+attack = 150
+magic = 100
+rarity = "Rainbow"
+price = 900000
+durability = 450
+enhancement_cost = 90000
+enhancement_success_rate = 0.18
+repair_cost = 20000
+weight = 0.02
+
 # === アミュレット（Amulet）===
+
+# --- アミュレット（Amulet）White ---
 [[accessories]]
 id = 10
 name = "護りのアミュレット"
@@ -64,7 +195,136 @@ enhancement_success_rate = 0.8
 repair_cost = 25
 weight = 0.15
 
+[[accessories]]
+id = 12
+name = "知性のアミュレット"
+type = "Amulet"
+defense = 1
+attack = 0
+magic = 12
+rarity = "White"
+price = 550
+durability = 70
+enhancement_cost = 160
+enhancement_success_rate = 0.82
+repair_cost = 22
+weight = 0.08
+
+# --- アミュレット（Amulet）Green ---
+[[accessories]]
+id = 112
+name = "森の守護"
+type = "Amulet"
+defense = 10
+attack = 5
+magic = 8
+rarity = "Green"
+price = 1600
+durability = 95
+enhancement_cost = 350
+enhancement_success_rate = 0.78
+repair_cost = 55
+weight = 0.12
+
+# --- アミュレット（Amulet）Blue ---
+[[accessories]]
+id = 212
+name = "大海の守り"
+type = "Amulet"
+defense = 15
+attack = 8
+magic = 12
+rarity = "Blue"
+price = 2500
+durability = 105
+enhancement_cost = 480
+enhancement_success_rate = 0.75
+repair_cost = 80
+weight = 0.1
+
+# --- アミュレット（Amulet）Purple ---
+[[accessories]]
+id = 312
+name = "賢者のアミュレット"
+type = "Amulet"
+defense = 12
+attack = 0
+magic = 28
+rarity = "Purple"
+price = 4000
+durability = 120
+enhancement_cost = 650
+enhancement_success_rate = 0.72
+repair_cost = 110
+weight = 0.06
+
+# --- アミュレット（Amulet）Red ---
+[[accessories]]
+id = 412
+name = "龍の息吹"
+type = "Amulet"
+defense = 20
+attack = 20
+magic = 20
+rarity = "Red"
+price = 15000
+durability = 150
+enhancement_cost = 1500
+enhancement_success_rate = 0.62
+repair_cost = 300
+weight = 0.15
+
+# --- アミュレット（Amulet）Orange ---
+[[accessories]]
+id = 512
+name = "天罰の紋章"
+type = "Amulet"
+defense = 30
+attack = 30
+magic = 40
+rarity = "Orange"
+price = 55000
+durability = 190
+enhancement_cost = 5000
+enhancement_success_rate = 0.48
+repair_cost = 1100
+weight = 0.08
+
+# --- アミュレット（Amulet）Gold ---
+[[accessories]]
+id = 612
+name = "神々の知恵"
+type = "Amulet"
+defense = 45
+attack = 40
+magic = 70
+rarity = "Gold"
+price = 220000
+durability = 270
+enhancement_cost = 22000
+enhancement_success_rate = 0.32
+repair_cost = 5000
+weight = 0.05
+
+# --- アミュレット（Amulet）Rainbow ---
+[[accessories]]
+id = 712
+name = "宇宙の根源"
+type = "Amulet"
+defense = 80
+attack = 80
+magic = 120
+rarity = "Rainbow"
+price = 1200000
+durability = 420
+enhancement_cost = 120000
+enhancement_success_rate = 0.15
+repair_cost = 28000
+weight = 0.03
+
 # === イアリング（Earring）===
+
+# --- イアリング（Earring）White ---
 [[accessories]]
 id = 20
 name = "知識のイアリング"
@@ -95,7 +355,136 @@ enhancement_success_rate = 0.85
 repair_cost = 18
 weight = 0.02
 
+[[accessories]]
+id = 22
+name = "体力のイアリング"
+type = "Earring"
+defense = 3
+attack = 5
+magic = 0
+rarity = "White"
+price = 500
+durability = 80
+enhancement_cost = 160
+enhancement_success_rate = 0.82
+repair_cost = 20
+weight = 0.03
+
+# --- イアリング（Earring）Green ---
+[[accessories]]
+id = 122
+name = "風のイアリング"
+type = "Earring"
+defense = 5
+attack = 8
+magic = 8
+rarity = "Green"
+price = 1400
+durability = 90
+enhancement_cost = 320
+enhancement_success_rate = 0.8
+repair_cost = 45
+weight = 0.02
+
+# --- イアリング（Earring）Blue ---
+[[accessories]]
+id = 222
+name = "冰晶のイアリング"
+type = "Earring"
+defense = 8
+attack = 10
+magic = 15
+rarity = "Blue"
+price = 2200
+durability = 100
+enhancement_cost = 420
+enhancement_success_rate = 0.78
+repair_cost = 65
+weight = 0.02
+
+# --- イアリング（Earring）Purple ---
+[[accessories]]
+id = 322
+name = "幻夢のイアリング"
+type = "Earring"
+defense = 10
+attack = 12
+magic = 22
+rarity = "Purple"
+price = 3200
+durability = 110
+enhancement_cost = 550
+enhancement_success_rate = 0.75
+repair_cost = 90
+weight = 0.015
+
+# --- イアリング（Earring）Red ---
+[[accessories]]
+id = 422
+name = "賢王のイアリング"
+type = "Earring"
+defense = 15
+attack = 20
+magic = 35
+rarity = "Red"
+price = 14000
+durability = 140
+enhancement_cost = 1400
+enhancement_success_rate = 0.65
+repair_cost = 280
+weight = 0.02
+
+# --- イアリング（Earring）Orange ---
+[[accessories]]
+id = 522
+name = "天眼のイアリング"
+type = "Earring"
+defense = 22
+attack = 30
+magic = 50
+rarity = "Orange"
+price = 50000
+durability = 180
+enhancement_cost = 4500
+enhancement_success_rate = 0.5
+repair_cost = 1000
+weight = 0.01
+
+# --- イアリング（Earring）Gold ---
+[[accessories]]
+id = 622
+name = "神々の耳飾"
+type = "Earring"
+defense = 35
+attack = 50
+magic = 80
+rarity = "Gold"
+price = 200000
+durability = 260
+enhancement_cost = 20000
+enhancement_success_rate = 0.32
+repair_cost = 4500
+weight = 0.008
+
+# --- イアリング（Earring）Rainbow ---
+[[accessories]]
+id = 722
+name = "宇宙の聴診"
+type = "Earring"
+defense = 60
+attack = 100
+magic = 150
+rarity = "Rainbow"
+price = 1100000
+durability = 400
+enhancement_cost = 110000
+enhancement_success_rate = 0.15
+repair_cost = 25000
+weight = 0.005
+
 # === ブレスレット（Bracelet）===
+
+# --- ブレスレット（Bracelet）White ---
 [[accessories]]
 id = 30
 name = "体力のブレスレット"
@@ -126,112 +515,419 @@ enhancement_success_rate = 0.8
 repair_cost = 25
 weight = 0.12
 
-# === 高級装飾品（Purple）===
 [[accessories]]
-id = 100
-name = "精灵のリング"
-type = "Ring"
-defense = 8
-attack = 12
-magic = 8
-rarity = "Purple"
-price = 2500
-durability = 100
-enhancement_cost = 500
-enhancement_success_rate = 0.7
-repair_cost = 80
-weight = 0.03
-
-[[accessories]]
-id = 101
-name = "賢者のアミュレット"
-type = "Amulet"
-defense = 5
-attack = 0
-magic = 20
-rarity = "Purple"
-price = 3000
-durability = 120
-enhancement_cost = 600
-enhancement_success_rate = 0.7
-repair_cost = 100
+id = 32
+name = "バランスのブレスレット"
+type = "Bracelet"
+defense = 3
+attack = 4
+magic = 4
+rarity = "White"
+price = 500
+durability = 75
+enhancement_cost = 160
+enhancement_success_rate = 0.82
+repair_cost = 18
 weight = 0.08
 
-# === 稀有装飾品（Red）===
+# --- ブレスレット（Bracelet）Green ---
 [[accessories]]
-id = 200
-name = "龍眼のリング"
-type = "Ring"
-defense = 15
-attack = 25
-magic = 15
-rarity = "Red"
-price = 15000
-durability = 150
-enhancement_cost = 1500
-enhancement_success_rate = 0.6
-repair_cost = 300
+id = 132
+name = "自然の息吹"
+type = "Bracelet"
+defense = 8
+attack = 6
+magic = 8
+rarity = "Green"
+price = 1500
+durability = 100
+enhancement_cost = 350
+enhancement_success_rate = 0.78
+repair_cost = 50
+weight = 0.09
+
+# --- ブレスレット（Bracelet）Blue ---
+[[accessories]]
+id = 232
+name = "流水のブレスレット"
+type = "Bracelet"
+defense = 12
+attack = 8
+magic = 12
+rarity = "Blue"
+price = 2400
+durability = 110
+enhancement_cost = 480
+enhancement_success_rate = 0.75
+repair_cost = 75
 weight = 0.1
 
+# --- ブレスレット（Bracelet）Purple ---
 [[accessories]]
-id = 201
-name = "賢王のイアリング"
-type = "Earring"
-defense = 5
+id = 332
+name = "魔導のブレスレット"
+type = "Bracelet"
+defense = 15
 attack = 10
-magic = 35
-rarity = "Red"
-price = 18000
-durability = 150
-enhancement_cost = 1800
-enhancement_success_rate = 0.55
-repair_cost = 350
-weight = 0.05
+magic = 20
+rarity = "Purple"
+price = 3600
+durability = 120
+enhancement_cost = 620
+enhancement_success_rate = 0.72
+repair_cost = 105
+weight = 0.08
 
-# === 伝説装飾品（Orange）===
+# --- ブレスレット（Bracelet）Red ---
 [[accessories]]
-id = 300
-name = "神的印章"
-type = "Amulet"
-defense = 25
-attack = 30
+id = 432
+name = "烈風のブレスレット"
+type = "Bracelet"
+defense = 22
+attack = 25
+magic = 18
+rarity = "Red"
+price = 13000
+durability = 150
+enhancement_cost = 1300
+enhancement_success_rate = 0.62
+repair_cost = 260
+weight = 0.11
+
+# --- ブレスレット（Bracelet）Orange ---
+[[accessories]]
+id = 532
+name = "天雷のブレスレット"
+type = "Bracelet"
+defense = 32
+attack = 40
 magic = 30
 rarity = "Orange"
-price = 60000
-durability = 200
-enhancement_cost = 6000
-enhancement_success_rate = 0.45
-repair_cost = 1200
-weight = 0.2
+price = 48000
+durability = 190
+enhancement_cost = 4200
+enhancement_success_rate = 0.48
+repair_cost = 950
+weight = 0.07
 
-# === 神話装飾品（Gold）===
+# --- ブレスレット（Bracelet）Gold ---
 [[accessories]]
-id = 400
-name = "星天使のリング"
-type = "Ring"
-defense = 40
-attack = 50
+id = 632
+name = "神々の加護"
+type = "Bracelet"
+defense = 50
+attack = 60
 magic = 50
 rarity = "Gold"
-price = 250000
-durability = 300
-enhancement_cost = 25000
-enhancement_success_rate = 0.35
-repair_cost = 5000
+price = 190000
+durability = 270
+enhancement_cost = 19000
+enhancement_success_rate = 0.32
+repair_cost = 4200
 weight = 0.05
 
-# === 最上位装飾品（Rainbow）===
+# --- ブレスレット（Bracelet）Rainbow ---
 [[accessories]]
-id = 500
-name = "宇宙の統率者"
-type = "Amulet"
-defense = 80
-attack = 100
+id = 732
+name = "宇宙の律動"
+type = "Bracelet"
+defense = 90
+attack = 120
 magic = 100
 rarity = "Rainbow"
 price = 1000000
-durability = 500
+durability = 420
 enhancement_cost = 100000
-enhancement_success_rate = 0.2
-repair_cost = 20000
+enhancement_success_rate = 0.15
+repair_cost = 22000
+weight = 0.03
+
+# === ネックレス（Necklace）===
+
+# --- ネックレス（Necklace）White ---
+[[accessories]]
+id = 40
+name = "銅のネックレス"
+type = "Necklace"
+defense = 2
+attack = 3
+magic = 3
+rarity = "White"
+price = 250
+durability = 50
+enhancement_cost = 90
+enhancement_success_rate = 0.88
+repair_cost = 12
+weight = 0.15
+
+[[accessories]]
+id = 41
+name = "珍珠のネックレス"
+type = "Necklace"
+defense = 4
+attack = 2
+magic = 6
+rarity = "White"
+price = 550
+durability = 70
+enhancement_cost = 170
+enhancement_success_rate = 0.82
+repair_cost = 22
+weight = 0.2
+
+# --- ネックレス（Necklace）Green ---
+[[accessories]]
+id = 142
+name = "翡翠の项链"
+type = "Necklace"
+defense = 8
+attack = 8
+magic = 10
+rarity = "Green"
+price = 1700
+durability = 95
+enhancement_cost = 380
+enhancement_success_rate = 0.76
+repair_cost = 55
+weight = 0.12
+
+# --- 项链（Necklace）Blue ---
+[[accessories]]
+id = 242
+name = "瑠璃の项链"
+type = "Necklace"
+defense = 14
+attack = 12
+magic = 16
+rarity = "Blue"
+price = 2700
+durability = 105
+enhancement_cost = 520
+enhancement_success_rate = 0.73
+repair_cost = 85
+weight = 0.15
+
+# --- 项链（Necklace）Purple ---
+[[accessories]]
+id = 342
+name = "神秘の项链"
+type = "Necklace"
+defense = 18
+attack = 15
+magic = 25
+rarity = "Purple"
+price = 4000
+durability = 115
+enhancement_cost = 680
+enhancement_success_rate = 0.7
+repair_cost = 115
+weight = 0.1
+
+# --- 项链（Necklace）Red ---
+[[accessories]]
+id = 442
+name = "紅蓮の项链"
+type = "Necklace"
+defense = 28
+attack = 30
+magic = 28
+rarity = "Red"
+price = 16000
+durability = 155
+enhancement_cost = 1600
+enhancement_success_rate = 0.6
+repair_cost = 320
+weight = 0.18
+
+# --- 项链（Necklace）Orange ---
+[[accessories]]
+id = 542
+name = "天上の项链"
+type = "Necklace"
+defense = 42
+attack = 45
+magic = 50
+rarity = "Orange"
+price = 60000
+durability = 200
+enhancement_cost = 5500
+enhancement_success_rate = 0.45
+repair_cost = 1200
+weight = 0.08
+
+# --- 项链（Necklace）Gold ---
+[[accessories]]
+id = 642
+name = "神の頸飾"
+type = "Necklace"
+defense = 65
+attack = 70
+magic = 80
+rarity = "Gold"
+price = 250000
+durability = 290
+enhancement_cost = 25000
+enhancement_success_rate = 0.3
+repair_cost = 5500
+weight = 0.05
+
+# --- 项链（Necklace）Rainbow ---
+[[accessories]]
+id = 742
+name = "宇宙の魂"
+type = "Necklace"
+defense = 110
+attack = 140
+magic = 160
+rarity = "Rainbow"
+price = 1400000
+durability = 450
+enhancement_cost = 140000
+enhancement_success_rate = 0.12
+repair_cost = 32000
+weight = 0.02
+
+# ===  Belt）===
+
+# ---  Belt）White ---
+[[accessories]]
+id = 50
+name = "革の Belt"
+type = "Belt"
+defense = 3
+attack = 2
+magic = 0
+rarity = "White"
+price = 200
+durability = 60
+enhancement_cost = 80
+enhancement_success_rate = 0.9
+repair_cost = 10
+weight = 0.2
+
+[[accessories]]
+id = 51
+name = "鉄の Belt"
+type = "Belt"
+defense = 6
+attack = 4
+magic = 0
+rarity = "White"
+price = 450
+durability = 80
+enhancement_cost = 140
+enhancement_success_rate = 0.85
+repair_cost = 18
+weight = 0.4
+
+# ---  Belt）Green ---
+[[accessories]]
+id = 152
+name = "強化 Belt"
+type = "Belt"
+defense = 10
+attack = 8
+magic = 5
+rarity = "Green"
+price = 1300
+durability = 100
+enhancement_cost = 300
+enhancement_success_rate = 0.78
+repair_cost = 45
+weight = 0.3
+
+# ---  Belt）Blue ---
+[[accessories]]
+id = 252
+name = "戦 Belt"
+type = "Belt"
+defense = 15
+attack = 12
+magic = 8
+rarity = "Blue"
+price = 2100
+durability = 110
+enhancement_cost = 420
+enhancement_success_rate = 0.75
+repair_cost = 70
+weight = 0.35
+
+# ---  Belt）Purple ---
+[[accessories]]
+id = 352
+name = "暗殺者の Belt"
+type = "Belt"
+defense = 20
+attack = 18
+magic = 12
+rarity = "Purple"
+price = 3200
+durability = 120
+enhancement_cost = 580
+enhancement_success_rate = 0.72
+repair_cost = 100
+weight = 0.25
+
+# ---  Belt）Red ---
+[[accessories]]
+id = 452
+name = "烈王の Belt"
+type = "Belt"
+defense = 30
+attack = 35
+magic = 20
+rarity = "Red"
+price = 12000
+durability = 160
+enhancement_cost = 1200
+enhancement_success_rate = 0.62
+repair_cost = 240
+weight = 0.45
+
+# ---  Belt）Orange ---
+[[accessories]]
+id = 552
+name = "天征の Belt"
+type = "Belt"
+defense = 45
+attack = 55
+magic = 30
+rarity = "Orange"
+price = 45000
+durability = 200
+enhancement_cost = 4000
+enhancement_success_rate = 0.48
+repair_cost = 900
+weight = 0.3
+
+# ---  Belt）Gold ---
+[[accessories]]
+id = 652
+name = "神威の Belt"
+type = "Belt"
+defense = 70
+attack = 85
+magic = 50
+rarity = "Gold"
+price = 180000
+durability = 290
+enhancement_cost = 18000
+enhancement_success_rate = 0.32
+repair_cost = 4000
+weight = 0.2
+
+# ---  Belt）Rainbow ---
+[[accessories]]
+id = 752
+name = "宇宙の支配"
+type = "Belt"
+defense = 120
+attack = 170
+magic = 100
+rarity = "Rainbow"
+price = 1000000
+durability = 450
+enhancement_cost = 100000
+enhancement_success_rate = 0.15
+repair_cost = 22000
 weight = 0.1
