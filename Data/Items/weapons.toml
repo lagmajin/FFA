@@ -2,7 +2,9 @@
 # ゲーム内で販売・入手可能な武器のベースデータ
 # weight: 武器の重量（kg）- 素早さやスタミナ消費に影響
 
-# === 基本武器（コモン）===
+# === 基本武器（コモン/White）===
+
+# --- 剣（Sword）---
 [[weapons]]
 id = 1
 name = "練習用木剣"
@@ -42,7 +44,7 @@ enhancement_success_rate = 0.8
 repair_cost = 30
 weight = 1.8
 
-# === 斧 ===
+# --- 斧（Axe）---
 [[weapons]]
 id = 10
 name = "手斧"
@@ -69,7 +71,7 @@ enhancement_success_rate = 0.75
 repair_cost = 35
 weight = 3.5
 
-# === 槍 ===
+# --- 槍（Spear）---
 [[weapons]]
 id = 20
 name = "竹枪"
@@ -96,7 +98,7 @@ enhancement_success_rate = 0.8
 repair_cost = 25
 weight = 2.2
 
-# === 刀 ===
+# --- 刀（Katana）---
 [[weapons]]
 id = 30
 name = "竹刀"
@@ -123,7 +125,332 @@ enhancement_success_rate = 0.8
 repair_cost = 30
 weight = 1.2
 
+# --- 弓（Bow）---
+[[weapons]]
+id = 40
+name = "木弓"
+type = "Bow"
+attack = 8
+rarity = "White"
+price = 180
+durability = 50
+enhancement_cost = 100
+enhancement_success_rate = 0.9
+repair_cost = 10
+weight = 0.8
+
+[[weapons]]
+id = 41
+name = "長弓"
+type = "Bow"
+attack = 15
+rarity = "White"
+price = 500
+durability = 80
+enhancement_cost = 180
+enhancement_success_rate = 0.8
+repair_cost = 25
+weight = 1.5
+
+# --- 短剣（Dagger）---
+[[weapons]]
+id = 50
+name = "ナイフ"
+type = "Dagger"
+attack = 6
+rarity = "White"
+price = 120
+durability = 40
+enhancement_cost = 80
+enhancement_success_rate = 0.92
+repair_cost = 8
+weight = 0.3
+
+[[weapons]]
+id = 51
+name = "ダガー"
+type = "Dagger"
+attack = 12
+rarity = "White"
+price = 350
+durability = 70
+enhancement_cost = 150
+enhancement_success_rate = 0.85
+repair_cost = 18
+weight = 0.5
+
+# --- 杖（Staff）---
+[[weapons]]
+id = 60
+name = "木杖"
+type = "Staff"
+attack = 4
+magic = 8
+rarity = "White"
+price = 200
+durability = 40
+enhancement_cost = 100
+enhancement_success_rate = 0.9
+repair_cost = 10
+weight = 1.0
+
+[[weapons]]
+id = 61
+name = "魔法杖"
+type = "Staff"
+attack = 8
+magic = 16
+rarity = "White"
+price = 500
+durability = 60
+enhancement_cost = 200
+enhancement_success_rate = 0.8
+repair_cost = 25
+weight = 1.5
+
+# --- 槌（Hammer）---
+[[weapons]]
+id = 70
+name = "木槌"
+type = "Hammer"
+attack = 10
+rarity = "White"
+price = 250
+durability = 80
+enhancement_cost = 130
+enhancement_success_rate = 0.85
+repair_cost = 15
+weight = 3.0
+
+[[weapons]]
+id = 71
+name = "大槌"
+type = "Hammer"
+attack = 20
+rarity = "White"
+price = 700
+durability = 120
+enhancement_cost = 280
+enhancement_success_rate = 0.75
+repair_cost = 40
+weight = 5.0
+
+# === 稀少武器（Green）===
+
+[[weapons]]
+id = 102
+name = "精鋭の剣"
+type = "Sword"
+attack = 20
+rarity = "Green"
+price = 1200
+durability = 110
+enhancement_cost = 350
+enhancement_success_rate = 0.78
+repair_cost = 60
+weight = 1.6
+
+[[weapons]]
+id = 112
+name = "狼牙斧"
+type = "Axe"
+attack = 24
+rarity = "Green"
+price = 1500
+durability = 110
+enhancement_cost = 400
+enhancement_success_rate = 0.72
+repair_cost = 75
+weight = 3.8
+
+[[weapons]]
+id = 22
+name = "尖槍"
+type = "Spear"
+attack = 20
+rarity = "Green"
+price = 1000
+durability = 100
+enhancement_cost = 300
+enhancement_success_rate = 0.78
+repair_cost = 50
+weight = 2.0
+
+[[weapons]]
+id = 32
+name = "脇差"
+type = "Katana"
+attack = 22
+rarity = "Green"
+price = 1300
+durability = 110
+enhancement_cost = 350
+enhancement_success_rate = 0.78
+repair_cost = 65
+weight = 1.0
+
+[[weapons]]
+id = 42
+name = "弓道弓"
+type = "Bow"
+attack = 20
+rarity = "Green"
+price = 1100
+durability = 90
+enhancement_cost = 300
+enhancement_success_rate = 0.78
+repair_cost = 50
+weight = 1.2
+
+[[weapons]]
+id = 52
+name = "忍びの刃"
+type = "Dagger"
+attack = 18
+rarity = "Green"
+price = 900
+durability = 80
+enhancement_cost = 250
+enhancement_success_rate = 0.82
+repair_cost = 40
+weight = 0.4
+
+[[weapons]]
+id = 62
+name = "エメラルドスタッフ"
+type = "Staff"
+attack = 12
+magic = 24
+rarity = "Green"
+price = 1400
+durability = 70
+enhancement_cost = 350
+enhancement_success_rate = 0.78
+repair_cost = 60
+weight = 1.4
+
+[[weapons]]
+id = 72
+name = "砕骨槌"
+type = "Hammer"
+attack = 28
+rarity = "Green"
+price = 1600
+durability = 130
+enhancement_cost = 420
+enhancement_success_rate = 0.72
+repair_cost = 80
+weight = 5.5
+
+# === 高級武器（Blue）===
+
+[[weapons]]
+id = 103
+name = "侍卫の剣"
+type = "Sword"
+attack = 22
+rarity = "Blue"
+price = 1800
+durability = 115
+enhancement_cost = 450
+enhancement_success_rate = 0.75
+repair_cost = 80
+weight = 1.7
+
+[[weapons]]
+id = 113
+name = "軍斧"
+type = "Axe"
+attack = 26
+rarity = "Blue"
+price = 2000
+durability = 115
+enhancement_cost = 500
+enhancement_success_rate = 0.7
+repair_cost = 90
+weight = 4.0
+
+[[weapons]]
+id = 23
+name = "十字槍"
+type = "Spear"
+attack = 22
+rarity = "Blue"
+price = 1500
+durability = 105
+enhancement_cost = 380
+enhancement_success_rate = 0.75
+repair_cost = 65
+weight = 2.3
+
+[[weapons]]
+id = 33
+name = "正宗"
+type = "Katana"
+attack = 24
+rarity = "Blue"
+price = 1800
+durability = 115
+enhancement_cost = 450
+enhancement_success_rate = 0.75
+repair_cost = 80
+weight = 1.1
+
+[[weapons]]
+id = 43
+name = "強化弓"
+type = "Bow"
+attack = 22
+rarity = "Blue"
+price = 1600
+durability = 95
+enhancement_cost = 400
+enhancement_success_rate = 0.75
+repair_cost = 65
+weight = 1.3
+
+[[weapons]]
+id = 53
+name = "刺客の刃"
+type = "Dagger"
+attack = 20
+rarity = "Blue"
+price = 1300
+durability = 85
+enhancement_cost = 320
+enhancement_success_rate = 0.8
+repair_cost = 55
+weight = 0.45
+
+[[weapons]]
+id = 63
+name = "サファイアスタッフ"
+type = "Staff"
+attack = 14
+magic = 28
+rarity = "Blue"
+price = 2000
+durability = 75
+enhancement_cost = 450
+enhancement_success_rate = 0.75
+repair_cost = 75
+weight = 1.5
+
+[[weapons]]
+id = 73
+name = "破城槌"
+type = "Hammer"
+attack = 32
+rarity = "Blue"
+price = 2200
+durability = 140
+enhancement_cost = 550
+enhancement_success_rate = 0.7
+repair_cost = 100
+weight = 6.0
+
 # === 高級武器（Purple）===
+
 [[weapons]]
 id = 100
 name = "騎士団の剣"
@@ -150,7 +477,87 @@ enhancement_success_rate = 0.7
 repair_cost = 120
 weight = 4.0
 
+[[weapons]]
+id = 24
+name = "蒼穹の枪"
+type = "Spear"
+attack = 25
+rarity = "Purple"
+price = 2100
+durability = 110
+enhancement_cost = 480
+enhancement_success_rate = 0.73
+repair_cost = 90
+weight = 2.5
+
+[[weapons]]
+id = 34
+name = "菊紋刀"
+type = "Katana"
+attack = 27
+rarity = "Purple"
+price = 2300
+durability = 120
+enhancement_cost = 520
+enhancement_success_rate = 0.73
+repair_cost = 100
+weight = 1.2
+
+[[weapons]]
+id = 44
+name = "月光弓"
+type = "Bow"
+attack = 25
+rarity = "Purple"
+price = 2200
+durability = 100
+enhancement_cost = 500
+enhancement_success_rate = 0.73
+repair_cost = 90
+weight = 1.4
+
+[[weapons]]
+id = 54
+name = "漆黒の刃"
+type = "Dagger"
+attack = 23
+rarity = "Purple"
+price = 1800
+durability = 90
+enhancement_cost = 400
+enhancement_success_rate = 0.78
+repair_cost = 70
+weight = 0.5
+
+[[weapons]]
+id = 64
+name = "ルビースタッフ"
+type = "Staff"
+attack = 16
+magic = 32
+rarity = "Purple"
+price = 2800
+durability = 80
+enhancement_cost = 580
+enhancement_success_rate = 0.72
+repair_cost = 100
+weight = 1.6
+
+[[weapons]]
+id = 74
+name = "雷鳴槌"
+type = "Hammer"
+attack = 36
+rarity = "Purple"
+price = 3000
+durability = 150
+enhancement_cost = 680
+enhancement_success_rate = 0.68
+repair_cost = 130
+weight = 6.5
+
 # === 稀有武器（Red）===
+
 [[weapons]]
 id = 200
 name = "龙泉剑"
@@ -177,7 +584,87 @@ enhancement_success_rate = 0.6
 repair_cost = 350
 weight = 5.0
 
+[[weapons]]
+id = 202
+name = "黒曜槍"
+type = "Spear"
+attack = 38
+rarity = "Red"
+price = 9500
+durability = 140
+enhancement_cost = 1400
+enhancement_success_rate = 0.65
+repair_cost = 280
+weight = 2.8
+
+[[weapons]]
+id = 203
+name = "鬼切丸"
+type = "Katana"
+attack = 42
+rarity = "Red"
+price = 11000
+durability = 150
+enhancement_cost = 1600
+enhancement_success_rate = 0.62
+repair_cost = 320
+weight = 1.3
+
+[[weapons]]
+id = 204
+name = "星屑弓"
+type = "Bow"
+attack = 38
+rarity = "Red"
+price = 10000
+durability = 130
+enhancement_cost = 1450
+enhancement_success_rate = 0.65
+repair_cost = 290
+weight = 1.6
+
+[[weapons]]
+id = 205
+name = "血潮の刃"
+type = "Dagger"
+attack = 35
+rarity = "Red"
+price = 8500
+durability = 120
+enhancement_cost = 1200
+enhancement_success_rate = 0.68
+repair_cost = 250
+weight = 0.6
+
+[[weapons]]
+id = 206
+name = "アベンチュリンスタッフ"
+type = "Staff"
+attack = 22
+magic = 45
+rarity = "Red"
+price = 13000
+durability = 100
+enhancement_cost = 1900
+enhancement_success_rate = 0.62
+repair_cost = 380
+weight = 1.8
+
+[[weapons]]
+id = 207
+name = "巨神槌"
+type = "Hammer"
+attack = 50
+rarity = "Red"
+price = 15000
+durability = 180
+enhancement_cost = 2200
+enhancement_success_rate = 0.58
+repair_cost = 420
+weight = 7.5
+
 # === 伝説武器（Orange）===
+
 [[weapons]]
 id = 300
 name = "エクスカリバー"
@@ -204,7 +691,87 @@ enhancement_success_rate = 0.45
 repair_cost = 1200
 weight = 6.0
 
+[[weapons]]
+id = 302
+name = "破天槍"
+type = "Spear"
+attack = 75
+rarity = "Orange"
+price = 48000
+durability = 180
+enhancement_cost = 4600
+enhancement_success_rate = 0.5
+repair_cost = 950
+weight = 3.2
+
+[[weapons]]
+id = 303
+name = "村雨"
+type = "Katana"
+attack = 85
+rarity = "Orange"
+price = 55000
+durability = 200
+enhancement_cost = 5400
+enhancement_success_rate = 0.48
+repair_cost = 1100
+weight = 1.5
+
+[[weapons]]
+id = 304
+name = "月光弦弓"
+type = "Bow"
+attack = 75
+rarity = "Orange"
+price = 52000
+durability = 170
+enhancement_cost = 5000
+enhancement_success_rate = 0.5
+repair_cost = 1000
+weight = 1.8
+
+[[weapons]]
+id = 305
+name = "宵闇の刃"
+type = "Dagger"
+attack = 65
+rarity = "Orange"
+price = 42000
+durability = 150
+enhancement_cost = 4000
+enhancement_success_rate = 0.55
+repair_cost = 850
+weight = 0.7
+
+[[weapons]]
+id = 306
+name = "星辰杖"
+type = "Staff"
+attack = 35
+magic = 70
+rarity = "Orange"
+price = 70000
+durability = 130
+enhancement_cost = 7000
+enhancement_success_rate = 0.45
+repair_cost = 1400
+weight = 2.0
+
+[[weapons]]
+id = 307
+name = "大地砕き"
+type = "Hammer"
+attack = 100
+rarity = "Orange"
+price = 75000
+durability = 220
+enhancement_cost = 7500
+enhancement_success_rate = 0.42
+repair_cost = 1500
+weight = 8.5
+
 # === 神話武器（Gold）===
+
 [[weapons]]
 id = 400
 name = "神剣トライデント"
@@ -218,7 +785,100 @@ enhancement_success_rate = 0.35
 repair_cost = 5000
 weight = 3.0
 
+[[weapons]]
+id = 401
+name = "裁きの斧"
+type = "Axe"
+attack = 170
+rarity = "Gold"
+price = 250000
+durability = 300
+enhancement_cost = 25000
+enhancement_success_rate = 0.3
+repair_cost = 6000
+weight = 7.0
+
+[[weapons]]
+id = 402
+name = "神槍ガングレネード"
+type = "Spear"
+attack = 140
+rarity = "Gold"
+price = 180000
+durability = 280
+enhancement_cost = 18000
+enhancement_success_rate = 0.35
+repair_cost = 4500
+weight = 3.5
+
+[[weapons]]
+id = 403
+name = "天羽羽斬"
+type = "Katana"
+attack = 160
+rarity = "Gold"
+price = 220000
+durability = 300
+enhancement_cost = 22000
+enhancement_success_rate = 0.32
+repair_cost = 5500
+weight = 1.8
+
+[[weapons]]
+id = 404
+name = "太陽神の弓"
+type = "Bow"
+attack = 140
+rarity = "Gold"
+price = 200000
+durability = 260
+enhancement_cost = 20000
+enhancement_success_rate = 0.35
+repair_cost = 5000
+weight = 2.0
+
+[[weapons]]
+id = 405
+name = "黄昏の刃"
+type = "Dagger"
+attack = 120
+rarity = "Gold"
+price = 160000
+durability = 220
+enhancement_cost = 16000
+enhancement_success_rate = 0.4
+repair_cost = 4000
+weight = 0.8
+
+[[weapons]]
+id = 406
+name = "宇宙の_logloss"
+type = "Staff"
+attack = 60
+magic = 120
+rarity = "Gold"
+price = 300000
+durability = 180
+enhancement_cost = 30000
+enhancement_success_rate = 0.3
+repair_cost = 7500
+weight = 2.2
+
+[[weapons]]
+id = 407
+name = "破壊神の鉄槌"
+type = "Hammer"
+attack = 200
+rarity = "Gold"
+price = 350000
+durability = 350
+enhancement_cost = 35000
+enhancement_success_rate = 0.25
+repair_cost = 9000
+weight = 10.0
+
 # === 最上位武器（Rainbow）===
+
 [[weapons]]
 id = 500
 name = "創世の剣"
@@ -231,3 +891,561 @@ enhancement_cost = 100000
 enhancement_success_rate = 0.2
 repair_cost = 25000
 weight = 2.0
+
+[[weapons]]
+id = 501
+name = "混沌の斧"
+type = "Axe"
+attack = 350
+rarity = "Rainbow"
+price = 1500000
+durability = 500
+enhancement_cost = 150000
+enhancement_success_rate = 0.15
+repair_cost = 35000
+weight = 8.0
+
+[[weapons]]
+id = 502
+name = "時空の槍"
+type = "Spear"
+attack = 280
+rarity = "Rainbow"
+price = 900000
+durability = 450
+enhancement_cost = 90000
+enhancement_success_rate = 0.2
+repair_cost = 22000
+weight = 4.0
+
+[[weapons]]
+id = 503
+name = "天照大神の刀"
+type = "Katana"
+attack = 320
+rarity = "Rainbow"
+price = 1200000
+durability = 500
+enhancement_cost = 120000
+enhancement_success_rate = 0.18
+repair_cost = 30000
+weight = 2.0
+
+[[weapons]]
+id = 504
+name = "天罰の弓"
+type = "Bow"
+attack = 280
+rarity = "Rainbow"
+price = 1000000
+durability = 400
+enhancement_cost = 100000
+enhancement_success_rate = 0.2
+repair_cost = 25000
+weight = 2.5
+
+[[weapons]]
+id = 505
+name = "終末の刃"
+type = "Dagger"
+attack = 250
+rarity = "Rainbow"
+price = 800000
+durability = 350
+enhancement_cost = 80000
+enhancement_success_rate = 0.25
+repair_cost = 20000
+weight = 1.0
+
+[[weapons]]
+id = 506
+name = "神降ろしの杖"
+type = "Staff"
+attack = 100
+magic = 250
+rarity = "Rainbow"
+price = 2000000
+durability = 300
+enhancement_cost = 200000
+enhancement_success_rate = 0.12
+repair_cost = 50000
+weight = 2.5
+
+[[weapons]]
+id = 507
+name = "宇宙創造の錘"
+type = "Hammer"
+attack = 450
+rarity = "Rainbow"
+price = 2500000
+durability = 600
+enhancement_cost = 250000
+enhancement_success_rate = 0.1
+repair_cost = 60000
+weight = 15.0
+
+# === 拳（Fist）===
+
+# --- 拳（Fist）White ---
+[[weapons]]
+id = 80
+name = "木拳"
+type = "Fist"
+attack = 6
+rarity = "White"
+price = 100
+durability = 40
+enhancement_cost = 80
+enhancement_success_rate = 0.92
+repair_cost = 8
+weight = 0.2
+
+[[weapons]]
+id = 81
+name = "鉄手套"
+type = "Fist"
+attack = 12
+rarity = "White"
+price = 350
+durability = 70
+enhancement_cost = 150
+enhancement_success_rate = 0.85
+repair_cost = 18
+weight = 0.5
+
+[[weapons]]
+id = 82
+name = "鋼鉄拳"
+type = "Fist"
+attack = 18
+rarity = "White"
+price = 650
+durability = 100
+enhancement_cost = 250
+enhancement_success_rate = 0.78
+repair_cost = 35
+weight = 0.8
+
+# --- 拳（Fist）Green ---
+[[weapons]]
+id = 180
+name = "剛拳"
+type = "Fist"
+attack = 24
+rarity = "Green"
+price = 1600
+durability = 110
+enhancement_cost = 400
+enhancement_success_rate = 0.72
+repair_cost = 75
+weight = 1.0
+
+# --- 拳（Fist）Blue ---
+[[weapons]]
+id = 280
+name = "烈拳"
+type = "Fist"
+attack = 28
+rarity = "Blue"
+price = 2400
+durability = 115
+enhancement_cost = 520
+enhancement_success_rate = 0.7
+repair_cost = 100
+weight = 1.2
+
+# --- 拳（Fist）Purple ---
+[[weapons]]
+id = 380
+name = "闘神の拳"
+type = "Fist"
+attack = 32
+rarity = "Purple"
+price = 3200
+durability = 120
+enhancement_cost = 650
+enhancement_success_rate = 0.68
+repair_cost = 130
+weight = 1.4
+
+# --- 拳（Fist）Red ---
+[[weapons]]
+id = 480
+name = "爆裂拳"
+type = "Fist"
+attack = 45
+rarity = "Red"
+price = 12000
+durability = 150
+enhancement_cost = 1700
+enhancement_success_rate = 0.62
+repair_cost = 320
+weight = 1.6
+
+# --- 拳（Fist）Orange ---
+[[weapons]]
+id = 580
+name = "天拳"
+type = "Fist"
+attack = 85
+rarity = "Orange"
+price = 60000
+durability = 200
+enhancement_cost = 5800
+enhancement_success_rate = 0.48
+repair_cost = 1100
+weight = 1.8
+
+# --- 拳（Fist）Gold ---
+[[weapons]]
+id = 680
+name = "神拳"
+type = "Fist"
+attack = 160
+rarity = "Gold"
+price = 250000
+durability = 300
+enhancement_cost = 24000
+enhancement_success_rate = 0.32
+repair_cost = 5500
+weight = 2.0
+
+# --- 拳（Fist）Rainbow ---
+[[weapons]]
+id = 780
+name = "宇宙拳"
+type = "Fist"
+attack = 320
+rarity = "Rainbow"
+price = 1500000
+durability = 500
+enhancement_cost = 140000
+enhancement_success_rate = 0.15
+repair_cost = 35000
+weight = 2.5
+
+# === 本（Book）===
+
+# --- 本（Book）White ---
+[[weapons]]
+id = 90
+name = "呪術書"
+type = "Book"
+attack = 2
+magic = 10
+rarity = "White"
+price = 150
+durability = 30
+enhancement_cost = 80
+enhancement_success_rate = 0.92
+repair_cost = 8
+weight = 0.3
+
+[[weapons]]
+id = 91
+name = "魔法書"
+type = "Book"
+attack = 4
+magic = 20
+rarity = "White"
+price = 400
+durability = 50
+enhancement_cost = 160
+enhancement_success_rate = 0.85
+repair_cost = 20
+weight = 0.5
+
+[[weapons]]
+id = 92
+name = "秘術書"
+type = "Book"
+attack = 6
+magic = 30
+rarity = "White"
+price = 700
+durability = 70
+enhancement_cost = 260
+enhancement_success_rate = 0.78
+repair_cost = 35
+weight = 0.7
+
+# --- 本（Book）Green ---
+[[weapons]]
+id = 190
+name = "精灵の書"
+type = "Book"
+attack = 10
+magic = 40
+rarity = "Green"
+price = 1800
+durability = 80
+enhancement_cost = 420
+enhancement_success_rate = 0.72
+repair_cost = 80
+weight = 0.9
+
+# --- 本（Book）Blue ---
+[[weapons]]
+id = 290
+name = "賢者の書"
+type = "Book"
+attack = 14
+magic = 50
+rarity = "Blue"
+price = 2600
+durability = 85
+enhancement_cost = 540
+enhancement_success_rate = 0.7
+repair_cost = 110
+weight = 1.1
+
+# --- 本（Book）Purple ---
+[[weapons]]
+id = 390
+name = "禁書の知識"
+type = "Book"
+attack = 18
+magic = 60
+rarity = "Purple"
+price = 3500
+durability = 90
+enhancement_cost = 680
+enhancement_success_rate = 0.68
+repair_cost = 140
+weight = 1.3
+
+# --- 本（Book）Red ---
+[[weapons]]
+id = 490
+name = "魔道書"
+type = "Book"
+attack = 25
+magic = 80
+rarity = "Red"
+price = 14000
+durability = 120
+enhancement_cost = 1800
+enhancement_success_rate = 0.62
+repair_cost = 350
+weight = 1.5
+
+# --- 本（Book）Orange ---
+[[weapons]]
+id = 590
+name = "天書の智慧"
+type = "Book"
+attack = 40
+magic = 120
+rarity = "Orange"
+price = 70000
+durability = 160
+enhancement_cost = 6000
+enhancement_success_rate = 0.48
+repair_cost = 1200
+weight = 1.7
+
+# --- 本（Book）Gold ---
+[[weapons]]
+id = 690
+name = "神々の知恵"
+type = "Book"
+attack = 70
+magic = 200
+rarity = "Gold"
+price = 280000
+durability = 250
+enhancement_cost = 26000
+enhancement_success_rate = 0.32
+repair_cost = 6000
+weight = 1.9
+
+# --- 本（Book）Rainbow ---
+[[weapons]]
+id = 790
+name = "創造の書"
+type = "Book"
+attack = 120
+magic = 400
+rarity = "Rainbow"
+price = 1800000
+durability = 400
+enhancement_cost = 160000
+enhancement_success_rate = 0.15
+repair_cost = 40000
+weight = 2.2
+
+# === オーブ（Orb）===
+
+# --- オーブ（Orb）White ---
+[[weapons]]
+id = 85
+name = "piritオーブ"
+type = "Orb"
+attack = 1
+magic = 12
+rarity = "White"
+price = 180
+durability = 25
+enhancement_cost = 90
+enhancement_success_rate = 0.92
+repair_cost = 9
+weight = 0.4
+
+[[weapons]]
+id = 86
+name = "魔力オーブ"
+type = "Orb"
+attack = 3
+magic = 24
+rarity = "White"
+price = 450
+durability = 45
+enhancement_cost = 170
+enhancement_success_rate = 0.85
+repair_cost = 22
+weight = 0.6
+
+[[weapons]]
+id = 87
+name = "水晶オーブ"
+type = "Orb"
+attack = 5
+magic = 36
+rarity = "White"
+price = 800
+durability = 65
+enhancement_cost = 270
+enhancement_success_rate = 0.78
+repair_cost = 38
+weight = 0.8
+
+# --- オーブ（Orb）Green ---
+[[weapons]]
+id = 185
+name = "精霊オーブ"
+type = "Orb"
+attack = 8
+magic = 48
+rarity = "Green"
+price = 2000
+durability = 75
+enhancement_cost = 440
+enhancement_success_rate = 0.72
+repair_cost = 85
+weight = 1.0
+
+# --- オーブ（Orb）Blue ---
+[[weapons]]
+id = 285
+name = "大海のオーブ"
+type = "Orb"
+attack = 12
+magic = 60
+rarity = "Blue"
+price = 2800
+durability = 80
+enhancement_cost = 560
+enhancement_success_rate = 0.7
+repair_cost = 115
+weight = 1.2
+
+# --- オーブ（Orb）Purple ---
+[[weapons]]
+id = 385
+name = "深淵のオーブ"
+type = "Orb"
+attack = 16
+magic = 72
+rarity = "Purple"
+price = 3800
+durability = 85
+enhancement_cost = 700
+enhancement_success_rate = 0.68
+repair_cost = 145
+weight = 1.4
+
+# --- オーブ（Orb）Red ---
+[[weapons]]
+id = 485
+name = "業火のオーブ"
+type = "Orb"
+attack = 22
+magic = 95
+rarity = "Red"
+price = 15000
+durability = 110
+enhancement_cost = 1900
+enhancement_success_rate = 0.62
+repair_cost = 360
+weight = 1.6
+
+# --- オーブ（Orb）Orange ---
+[[weapons]]
+id = 585
+name = "天上のオーブ"
+type = "Orb"
+attack = 35
+magic = 140
+rarity = "Orange"
+price = 75000
+durability = 150
+enhancement_cost = 6200
+enhancement_success_rate = 0.48
+repair_cost = 1250
+weight = 1.8
+
+# --- オーブ（Orb）Gold ---
+[[weapons]]
+id = 685
+name = "神のオーブ"
+type = "Orb"
+attack = 65
+magic = 230
+rarity = "Gold"
+price = 300000
+durability = 230
+enhancement_cost = 28000
+enhancement_success_rate = 0.32
+repair_cost = 6500
+weight = 2.0
+
+# --- オーブ（Orb）Rainbow ---
+[[weapons]]
+id = 785
+name = "宇宙の核心"
+type = "Orb"
+attack = 110
+magic = 450
+rarity = "Rainbow"
+price = 2000000
+durability = 380
+enhancement_cost = 180000
+enhancement_success_rate = 0.15
+repair_cost = 45000
+weight = 2.3
+
+[[weapons]]
+id = 81
+name = "鉄手套"
+type = "Fist"
+attack = 12
+rarity = "White"
+price = 350
+durability = 70
+enhancement_cost = 150
+enhancement_success_rate = 0.85
+repair_cost = 18
+weight = 0.5
+
+[[weapons]]
+id = 82
+name = "鋼鉄拳"
+type = "Fist"
+attack = 18
+rarity = "White"
+price = 650
+durability = 100
+enhancement_cost = 250
+enhancement_success_rate = 0.78
+repair_cost = 35
+weight = 0.8
