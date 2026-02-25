@@ -1,5 +1,7 @@
 namespace FFA.Models;
 
+using FFA.Services;
+
 /// <summary>
 /// 職業タイプ
 /// </summary>
@@ -22,8 +24,19 @@ public enum Job
     ArchMage,      // 大魔道師
     BeastMaster,   // ビーストマスター
     Duelist,       // 剣豪
-    Grandmaster,   //  GrandMaster
+    Grandmaster,   // GrandMaster
     GraveRobber,   // 墓荒らし
+    // _unique職
+    Samurai,       // 侍
+    Dragoon,       // 竜騎士
+    Sage,          // 賢者
+    Necromancer,   // ネクロマンサー
+    Viking,        // バイキング
+    Mystic,        // 神秘家
+    Gambler,       // ギャンブラー
+    Alchemist,     // 錬金術師
+    Chronomancer,  // 時空魔術師
+    Runemaster,    // ルーンマスター
 }
 
 /// <summary>
@@ -415,6 +428,217 @@ public static class JobDatabase
             IsLocationRestricted = true,
             RequiredLocations = new List<string> { "墓地", "死者の神殿", "闇の深淵", "廃墟の墓所" },
             LocationRestrictionMessage = "死者が眠る場所でのみ転職できます"
+        },
+        // ユニーク職
+        new JobInfo
+        {
+            Job = Job.Samurai,
+            Name = "侍",
+            Description = "古流の剣術を極めた elite戦士。刀からの凄まじいダメージと素早い攻撃が強み。",
+            Icon = "🌸",
+            Color = "#DC143C",
+            Role = "剣士",
+            WeaponType = "刀",
+            BonusStatus = new PlayerStatus { Str = 12, Agi = 8 },
+            Skills = new List<string> { "居合い", "二刀流", "抜刀術" },
+            PassiveSkills = new List<string> { "会心率+5%", "攻撃速度+10%" },
+            NonCombatPassiveSkills = new List<NonCombatPassiveSkill>
+            {
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.DropRateBonus, 10),
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.TravelSpeedBonus, 10)
+            },
+            IsAdvanced = true,
+            RequiredJob = Job.Duelist,
+            RequiredJobLevel = 20
+        },
+        new JobInfo
+        {
+            Job = Job.Dragoon,
+            Name = "竜騎士",
+            Description = "空の王者。龍を Partnerにし、高所からの攻撃で敵を殲滅する。",
+            Icon = "🐉",
+            Color = "#4169E1",
+            Role = "飛行戦士",
+            WeaponType = "槍、弓",
+            BonusStatus = new PlayerStatus { Str = 10, Agi = 10 },
+            Skills = new List<string> { "ジャンプ攻撃", "龍召喚", "上空移動" },
+            PassiveSkills = new List<string> { "対空攻撃+20%", "回避率+8%" },
+            NonCombatPassiveSkills = new List<NonCombatPassiveSkill>
+            {
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.TravelSpeedBonus, 15),
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.ExplorationFindBonus, 8)
+            },
+            IsAdvanced = true,
+            RequiredJob = Job.Ranger,
+            RequiredJobLevel = 20
+        },
+        new JobInfo
+        {
+            Job = Job.Sage,
+            Name = "賢者",
+            Description = "全ての魔法を Masterした知の Master。回復と攻撃の両方を扱える全能 MagicUser。",
+            Icon = "📚",
+            Color = "#9370DB",
+            Role = "万能魔導士",
+            WeaponType = "杖、本",
+            BonusStatus = new PlayerStatus { Int = 15, Vit = 5 },
+            Skills = new List<string> { "全魔法+", "賢者の知恵", "魔法反射" },
+            PassiveSkills = new List<string> { "MP消費-15%", "魔法防御+15%" },
+            NonCombatPassiveSkills = new List<NonCombatPassiveSkill>
+            {
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.MPRegenBonus, 10),
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.StaminaRegenBonus, 15)
+            },
+            IsAdvanced = true,
+            RequiredJob = Job.ArchMage,
+            RequiredJobLevel = 25
+        },
+        new JobInfo
+        {
+            Job = Job.Necromancer,
+            Name = "ネクロマンサー",
+            Description = "死者の力 を操る禁術使い。死体を Familyに、魂を武器とする。",
+            Icon = "💀",
+            Color = "#2F4F4F",
+            Role = "召喚術師",
+            WeaponType = "杖、鎌",
+            BonusStatus = new PlayerStatus { Int = 12, Vit = 8 },
+            Skills = new List<string> { "死者召喚", "魂吸収", "蘇生術" },
+            PassiveSkills = new List<string> { "召喚生物HP+20%", "闇魔法+10%" },
+            NonCombatPassiveSkills = new List<NonCombatPassiveSkill>
+            {
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.DropRateBonus, 20),
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.ExplorationFindBonus, 10)
+            },
+            IsAdvanced = true,
+            RequiredJob = Job.DeathKnight,
+            RequiredJobLevel = 20
+        },
+        new JobInfo
+        {
+            Job = Job.Viking,
+            Name = "バイキング",
+            Description = "北欧の勇士。斧と盾武装し、 Wildな攻撃で敵を粉砕する。",
+            Icon = "🪓",
+            Color = "#8B4513",
+            Role = "戦士",
+            WeaponType = "斧、盾",
+            BonusStatus = new PlayerStatus { Str = 15, Vit = 5 },
+            Skills = new List<string> { "猛斧", "盾防御", "怒りの嵐" },
+            PassiveSkills = new List<string> { "斧攻撃力+15%", "防御力+10%" },
+            NonCombatPassiveSkills = new List<NonCombatPassiveSkill>
+            {
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.DropRateBonus, 15),
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.StaminaRegenBonus, 10)
+            },
+            IsAdvanced = true,
+            RequiredJob = Job.Warrior,
+            RequiredJobLevel = 15
+        },
+        new JobInfo
+        {
+            Job = Job.Mystic,
+            Name = "神秘家",
+            Description = "オカルトの力 を極めた者。 Fortuneと不幸を操る謎めいた存在。",
+            Icon = "🔮",
+            Color = "#9932CC",
+            Role = "支援術師",
+            WeaponType = "杖、オーブ",
+            BonusStatus = new PlayerStatus { Int = 10, Luk = 10 },
+            Skills = new List<string> { "運命の輪", "幸運", "不幸の呪い" },
+            PassiveSkills = new List<string> { "Luck+20%", "全異常耐性+10%" },
+            NonCombatPassiveSkills = new List<NonCombatPassiveSkill>
+            {
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.DropRateBonus, 20),
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.StatusRecoveryBonus, 10)
+            },
+            IsAdvanced = true,
+            RequiredJob = Job.Bard,
+            RequiredJobLevel = 15
+        },
+        new JobInfo
+        {
+            Job = Job.Gambler,
+            Name = "ギャンブラー",
+            Description = "全てを運に委ねる HighRisk・HighReturnの職業。",
+            Icon = "🎰",
+            Color = "#FFD700",
+            Role = "特殊",
+            WeaponType = "カード、サイコロ",
+            BonusStatus = new PlayerStatus { Luk = 15, Agi = 5 },
+            Skills = new List<string> { "必勝", "運命のカード", "ダブル-or Nothing" },
+            PassiveSkills = new List<string> { "ドロップ率+20%", "会心率+10%" },
+            NonCombatPassiveSkills = new List<NonCombatPassiveSkill>
+            {
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.DropRateBonus, 20),
+            },
+            IsAdvanced = true,
+            RequiredJob = Job.Thief,
+            RequiredJobLevel = 10
+        },
+        new JobInfo
+        {
+            Job = Job.Alchemist,
+            Name = "錬金術師",
+            Description = "材料を Goldに変える Master。 craftingと経済のプロ。",
+            Icon = "⚗️",
+            Color = "#20B2AA",
+            Role = "生産",
+            WeaponType = "杖",
+            BonusStatus = new PlayerStatus { Int = 8, Dex = 8, Vit = 4 },
+            Skills = new List<string> { "錬金術", "賢者の石", "item変換" },
+            PassiveSkills = new List<string> { "制作成功率+20%", "採集量+15%" },
+            NonCombatPassiveSkills = new List<NonCombatPassiveSkill>
+            {
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.CraftingSuccessBonus, 20),
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.MiningRareFindBonus, 15),
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.GoldBonus, 10)
+            },
+            IsAdvanced = true,
+            RequiredJob = Job.Monk,
+            RequiredJobLevel = 10
+        },
+        new JobInfo
+        {
+            Job = Job.Chronomancer,
+            Name = "時空魔術師",
+            Description = "時間を操る Master。敵を Slowさせ、自分を Speedupさせる。",
+            Icon = "⏳",
+            Color = "#00CED1",
+            Role = "時間操作",
+            WeaponType = "杖、オーブ",
+            BonusStatus = new PlayerStatus { Int = 12, Agi = 8 },
+            Skills = new List<string> { "時間停止", "スロー", "時間逆流" },
+            PassiveSkills = new List<string> { "行動速度+15%", "CT短縮+20%" },
+            NonCombatPassiveSkills = new List<NonCombatPassiveSkill>
+            {
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.TravelSpeedBonus, 15),
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.StaminaRegenBonus, 20)
+            },
+            IsAdvanced = true,
+            RequiredJob = Job.ArchMage,
+            RequiredJobLevel = 25
+        },
+        new JobInfo
+        {
+            Job = Job.Runemaster,
+            Name = "ルーンマスター",
+            Description = "古代の符文を操る者。符文武器で敵を弱点属性で攻撃する。",
+            Icon = "🧜",
+            Color = "#8A2BE2",
+            Role = "符文戦士",
+            WeaponType = "剣、斧",
+            BonusStatus = new PlayerStatus { Str = 8, Int = 10, Vit = 2 },
+            Skills = new List<string> { "符文付与", "属性解放", "ルーン魔法" },
+            PassiveSkills = new List<string> { "属性攻撃+20%", "武器攻撃+10%" },
+            NonCombatPassiveSkills = new List<NonCombatPassiveSkill>
+            {
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.DropRateBonus, 20),
+                NonCombatPassiveSkillHelper.CreateSkill(NonCombatPassiveType.GoldBonus, 10)
+            },
+            IsAdvanced = true,
+            RequiredJob = Job.DarkKnight,
+            RequiredJobLevel = 20
         }
     };
 
@@ -444,7 +668,12 @@ public static class JobDatabase
     {
         try
         {
-            return Jobs;
+            // 基本職 + Unique職を 병합
+            var allJobs = new List<JobInfo>(Jobs);
+            var uniqueJobService = new UniqueJobService();
+            var uniqueJobs = uniqueJobService.GetAllUniqueJobs();
+            allJobs.AddRange(uniqueJobs);
+            return allJobs;
         }
         catch (Exception ex)
         {

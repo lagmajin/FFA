@@ -232,7 +232,7 @@
     }
 
     <div class="back-section">
-        <button class="back-button" @onclick="GoBack">← 戻る</button>
+        <button class="back-button" @onclick="GoBack">← 街へ戻る</button>
     </div>
 </div>
 
@@ -739,6 +739,6 @@
 
     private void GoBack()
     {
-        Navigation.NavigateTo("/");
+        Navigation.NavigateTo("/town");
     }
 }

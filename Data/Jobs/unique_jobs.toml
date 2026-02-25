@@ -1,0 +1,186 @@
+# Unique職マスターデータ
+# ゲーム内で使用可能なUnique職業のデータ
+
+# === Unique職 ===
+
+# --- 侍（Samurai）---
+[[unique_jobs]]
+job = "Samurai"
+name = "侍"
+description = "古流の剣術を極めたelite戦士。刀からの凄まじいダメージと素早い攻撃が強み。"
+icon = "🌸"
+color = "#DC143C"
+role = "剣士"
+weapon_type = "刀"
+bonus_str = 12
+bonus_agi = 8
+skills = ["居合い", "二刀流", "抜刀術"]
+passive_skills = ["会心率+5%", "攻撃速度+10%"]
+noncombat_passives = ["DropRateBonus:10", "TravelSpeedBonus:10"]
+is_advanced = true
+required_job = "Duelist"
+required_job_level = 20
+
+# --- 竜騎士（Dragoon）---
+[[unique_jobs]]
+job = "Dragoon"
+name = "竜騎士"
+description = "空の王者。龍をPartnerにし、高所からの攻撃で敵を殲滅する。"
+icon = "🐉"
+color = "#4169E1"
+role = "飛行戦士"
+weapon_type = "槍、弓"
+bonus_str = 10
+bonus_agi = 10
+skills = ["ジャンプ攻撃", "龍召喚", "上空移動"]
+passive_skills = ["対空攻撃+20%", "回避率+8%"]
+noncombat_passives = ["TravelSpeedBonus:15", "ExplorationFindBonus:8"]
+is_advanced = true
+required_job = "Ranger"
+required_job_level = 20
+
+# --- 賢者（Sage）---
+[[unique_jobs]]
+job = "Sage"
+name = "賢者"
+description = "全ての魔法をMasterした知のMaster。回復と攻撃の両方を扱える全能MagicUser。"
+icon = "📚"
+color = "#9370DB"
+role = "万能魔導士"
+weapon_type = "杖、本"
+bonus_int = 15
+bonus_vit = 5
+skills = ["全魔法+", "賢者の知恵", "魔法反射"]
+passive_skills = ["MP消費-15%", "魔法防御+15%"]
+noncombat_passives = ["MPRegenBonus:10", "StaminaRegenBonus:15"]
+is_advanced = true
+required_job = "ArchMage"
+required_job_level = 25
+
+# --- ネクロマンサー（Necromancer）---
+[[unique_jobs]]
+job = "Necromancer"
+name = "ネクロマンサー"
+description = "死者の力を操る禁術使い。死体をFamilyに、魂を武器とする。"
+icon = "💀"
+color = "#2F4F4F"
+role = "召喚術師"
+weapon_type = "杖、鎌"
+bonus_int = 12
+bonus_vit = 8
+skills = ["死者召喚", "魂吸収", "蘇生術"]
+passive_skills = ["召喚生物HP+20%", "闇魔法+10%"]
+noncombat_passives = ["DropRateBonus:20", "ExplorationFindBonus:10"]
+is_advanced = true
+required_job = "DeathKnight"
+required_job_level = 20
+
+# --- バイキング（Viking）---
+[[unique_jobs]]
+job = "Viking"
+name = "バイキング"
+description = "北欧の勇士。斧と盾武装し、Wildな攻撃で敵を粉砕する。"
+icon = "🪓"
+color = "#8B4513"
+role = "戦士"
+weapon_type = "斧、盾"
+bonus_str = 15
+bonus_vit = 5
+skills = ["猛斧", "盾防御", "怒りの嵐"]
+passive_skills = ["斧攻撃力+15%", "防御力+10%"]
+noncombat_passives = ["DropRateBonus:15", "StaminaRegenBonus:10"]
+is_advanced = true
+required_job = "Warrior"
+required_job_level = 15
+
+# --- 神秘家（Mystic）---
+[[unique_jobs]]
+job = "Mystic"
+name = "神秘家"
+description = "オカルトの力を極めた者。Fortuneと不幸を操る謎めいた存在。"
+icon = "🔮"
+color = "#9932CC"
+role = "支援術師"
+weapon_type = "杖、オーブ"
+bonus_int = 10
+bonus_luk = 10
+skills = ["運命の輪", "幸運", "不幸の呪い"]
+passive_skills = ["Luck+20%", "全異常耐性+10%"]
+noncombat_passives = ["DropRateBonus:20", "StatusRecoveryBonus:10"]
+is_advanced = true
+required_job = "Bard"
+required_job_level = 15
+
+# --- ギャンブラー（Gambler）---
+[[unique_jobs]]
+job = "Gambler"
+name = "ギャンブラー"
+description = "全てを運に委ねるHighRisk・HighReturnの職業。"
+icon = "🎰"
+color = "#FFD700"
+role = "特殊"
+weapon_type = "カード、サイコロ"
+bonus_luk = 15
+bonus_agi = 5
+skills = ["必勝", "運命のカード", "ダブル-or Nothing"]
+passive_skills = ["ドロップ率+20%", "会心率+10%"]
+noncombat_passives = ["DropRateBonus:20"]
+is_advanced = true
+required_job = "Thief"
+required_job_level = 10
+
+# --- 錬金術師（Alchemist）---
+[[unique_jobs]]
+job = "Alchemist"
+name = "錬金術師"
+description = "材料をGoldに変えるMaster。craftingと経済のプロ。"
+icon = "⚗️"
+color = "#20B2AA"
+role = "生産"
+weapon_type = "杖"
+bonus_int = 8
+bonus_dex = 8
+bonus_vit = 4
+skills = ["錬金術", "賢者の石", "item変換"]
+passive_skills = ["制作成功率+20%", "採集量+15%"]
+noncombat_passives = ["CraftingSuccessBonus:20", "MiningRareFindBonus:15", "GoldBonus:10"]
+is_advanced = true
+required_job = "Monk"
+required_job_level = 10
+
+# --- 時空魔術師（Chronomancer）---
+[[unique_jobs]]
+job = "Chronomancer"
+name = "時空魔術師"
+description = "時間を操るMaster。敵をSlowさせ、自分をSpeedupさせる。"
+icon = "⏳"
+color = "#00CED1"
+role = "時間操作"
+weapon_type = "杖、オーブ"
+bonus_int = 12
+bonus_agi = 8
+skills = ["時間停止", "スロー", "時間逆流"]
+passive_skills = ["行動速度+15%", "CT短縮+20%"]
+noncombat_passives = ["TravelSpeedBonus:15", "StaminaRegenBonus:20"]
+is_advanced = true
+required_job = "ArchMage"
+required_job_level = 25
+
+# --- ルーンマスター（Runemaster）---
+[[unique_jobs]]
+job = "Runemaster"
+name = "ルーンマスター"
+description = "古代の符文を操る者。符文武器で敵を弱点属性で攻撃する。"
+icon = "🧜"
+color = "#8A2BE2"
+role = "符文戦士"
+weapon_type = "剣、斧"
+bonus_str = 8
+bonus_int = 10
+bonus_vit = 2
+skills = ["符文付与", "属性解放", "ルーン魔法"]
+passive_skills = ["属性攻撃+20%", "武器攻撃+10%"]
+noncombat_passives = ["DropRateBonus:20", "GoldBonus:10"]
+is_advanced = true
+required_job = "DarkKnight"
+required_job_level = 20

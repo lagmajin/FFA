@@ -24,19 +24,31 @@
 
 <div class="town-page" style="max-width:1400px; margin:0 auto; padding:16px;">
     @* ヘッダー *@
-    <div class="town-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-        <div>
-            <h1 style="margin:0;">@CurrentTown?.Name</h1>
-            <p style="margin:4px 0 0 0; color:#666;">@CurrentTown?.Description</p>
-        </div>
-        <div style="text-align:right;">
-            <div class="tw-display @TWService.Phase.ToString().ToLower()" style="display:inline-flex; align-items:center; gap:8px; padding:8px 16px; background:#f5f5f5; border-radius:8px;">
-                <span>@GetTimeIcon(TWService.Phase)</span>
-                <span>@FormatTime(TWService.TimeOfDay)</span>
-                <span>@TWService.Weather</span>
+    <div style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);padding:28px 32px;border-radius:16px;margin-bottom:20px;position:relative;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.15);">
+        <div style="position:absolute;top:-50px;right:-50px;width:220px;height:220px;background:rgba(255,255,255,0.04);border-radius:50%;pointer-events:none;"></div>
+        <div style="position:absolute;bottom:-70px;right:100px;width:160px;height:160px;background:rgba(255,255,255,0.025);border-radius:50%;pointer-events:none;"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;position:relative;">
+            <div>
+                <div style="color:rgba(255,255,255,0.45);font-size:11px;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:6px;">@GetTownTypeName(CurrentTown?.Type)@(CurrentTown?.CountryName != null ? $" · {CurrentTown.CountryName}" : "")</div>
+                @if (isLoading)
+                {
+                    <h1 style="margin:0;font-size:2.4rem;font-weight:900;color:rgba(255,255,255,0.3);">読み込み中...</h1>
+                }
+                else
+                {
+                    <h1 style="margin:0;font-size:2.4rem;font-weight:900;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,0.4);">@(CurrentTown?.Name ?? "旅の拠点")</h1>
+                }
+                <p style="margin:8px 0 0 0;color:rgba(255,255,255,0.6);font-size:14px;">@CurrentTown?.Description</p>
             </div>
-            <div style="margin-top:4px; color:#666;">
-                📅 @GetGameDate()
+            <div style="text-align:right;flex-shrink:0;">
+                <div style="display:inline-flex;align-items:center;gap:10px;padding:12px 18px;background:rgba(255,255,255,0.1);border-radius:12px;border:1px solid rgba(255,255,255,0.15);color:#fff;">
+                    <span style="font-size:1.4em;">@GetTimeIcon(TWService.Phase)</span>
+                    <div>
+                        <div style="font-size:1.2rem;font-weight:700;line-height:1;">@FormatTime(TWService.TimeOfDay)</div>
+                        <div style="font-size:12px;opacity:0.75;margin-top:2px;">@TWService.Weather</div>
+                    </div>
+                </div>
+                <div style="margin-top:6px;color:rgba(255,255,255,0.5);font-size:12px;">📅 @GetGameDate()</div>
             </div>
         </div>
     </div>
@@ -66,45 +78,50 @@
             </MudPaper>
 
             @* プレイヤーステータス *@
-            <MudPaper Class="pa-4 mb-4">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-                    <div>
-                        <h3 style="margin:0;">プレイヤー情報</h3>
-                        <span style="color:#666;">@currentUser?.Username</span>
-                    </div>
-                    <div style="display:flex; gap:16px;">
-                        <span>Lv.@currentUser?.Level @GetJobName(currentUser?.Job)</span>
-                        <span>💰 @currentUser?.Gil.ToString("N0")</span>
-                        <span>💎 @currentUser?.Premium</span>
-                    </div>
-                </div>
-                
-                <div class="mb-2">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-                        <span>HP</span>
-                        <span>@currentUser?.HP / @currentUser?.MaxHP</span>
-                    </div>
-                    <MudProgressBar Color="Color.Error" Value="@GetHpPercent()" />
-                </div>
-                
-                <div class="mb-2">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-                        <span>EXP</span>
-                        <span>@currentUser?.Exp / @currentUser?.ExpToNext</span>
-                    </div>
-                    <MudProgressBar Color="Color.Success" Value="@GetExpPercent()" />
-                </div>
-
-                @if (staminaInfo != null && staminaInfo.Status.TryGetValue(StaminaType.Movement, out var moveStamina))
-                {
-                    <div>
-                        <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-                            <span>⚡ 移動スタミナ</span>
-                            <span>@moveStamina.Current / @moveStamina.Max</span>
+            <MudPaper Class="mb-4" Style="overflow:hidden;border-radius:12px!important;">
+                <div style="background:linear-gradient(135deg,#2d3561 0%,#c05c7e 100%);padding:18px 20px;color:#fff;">
+                    <div style="display:flex;align-items:center;gap:14px;">
+                        <div style="width:52px;height:52px;background:rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;border:2px solid rgba(255,255,255,0.25);">@GetJobIcon(currentUser?.Job)</div>
+                        <div style="flex:1;min-width:0;">
+                            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+                                <div>
+                                    <div style="font-size:1.1rem;font-weight:700;white-space:nowrap;">@currentUser?.Username</div>
+                                    <div style="font-size:12px;opacity:0.8;margin-top:1px;">Lv.@currentUser?.Level　@GetJobName(currentUser?.Job)</div>
+                                </div>
+                                <div style="text-align:right;font-size:13px;flex-shrink:0;">
+                                    <div>💰 @currentUser?.Gil.ToString("N0") G</div>
+                                    <div style="opacity:0.75;">💎 @currentUser?.Premium</div>
+                                </div>
+                            </div>
                         </div>
-                        <MudProgressBar Color="Color.Warning" Value="@(moveStamina.RecoveryProgress * 100)" />
                     </div>
-                }
+                </div>
+                <div style="padding:14px 16px;">
+                    <div class="mb-2">
+                        <div style="display:flex;justify-content:space-between;margin-bottom:3px;font-size:12px;">
+                            <span style="color:#e53935;font-weight:600;">❤️ HP</span>
+                            <span style="color:#555;">@currentUser?.HP / @currentUser?.MaxHP</span>
+                        </div>
+                        <MudProgressBar Color="Color.Error" Value="@GetHpPercent()" />
+                    </div>
+                    <div class="mb-2">
+                        <div style="display:flex;justify-content:space-between;margin-bottom:3px;font-size:12px;">
+                            <span style="color:#43a047;font-weight:600;">⭐ EXP</span>
+                            <span style="color:#555;">@currentUser?.Exp / @currentUser?.ExpToNext</span>
+                        </div>
+                        <MudProgressBar Color="Color.Success" Value="@GetExpPercent()" />
+                    </div>
+                    @if (staminaInfo != null && staminaInfo.Status.TryGetValue(StaminaType.Movement, out var moveStamina))
+                    {
+                        <div>
+                            <div style="display:flex;justify-content:space-between;margin-bottom:3px;font-size:12px;">
+                                <span style="color:#f57c00;font-weight:600;">⚡ 移動スタミナ</span>
+                                <span style="color:#555;">@moveStamina.Current / @moveStamina.Max</span>
+                            </div>
+                            <MudProgressBar Color="Color.Warning" Value="@(moveStamina.RecoveryProgress * 100)" />
+                        </div>
+                    }
+                </div>
             </MudPaper>
 
             @* クイックリンク *@
@@ -314,70 +331,41 @@
         </div>
 
         @* 右側: アクションボタン *@
-        <div style="width:220px; flex-shrink:0;">
-            <MudPaper Class="pa-4" style="position:sticky; top:16px;">
-                <h3 style="margin:0 0 16px 0; font-size:16px;">⚡ アクション</h3>
-                <div style="display:flex; flex-direction:column; gap:8px;">
-                    @* マップ移動ボタン *@
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" OnClick="GoToMap" StartIcon="🗺️">
-                        マップ移動
-                    </MudButton>
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" OnClick="GoToField" StartIcon="🌲">
-                        フィールド
-                    </MudButton>
-                    <MudButton Variant="Variant.Filled" Color="Color.Success" FullWidth="true" OnClick="GoToInn" StartIcon="🏨">
-                        宿屋
-                    </MudButton>
-                    <MudButton Variant="Variant.Filled" Color="Color.Warning" FullWidth="true" OnClick="GoToBank" StartIcon="🏦">
-                        銀行
-                    </MudButton>
-                    <MudButton Variant="Variant.Filled" Color="Color.Default" FullWidth="true" OnClick="GoToTavern" StartIcon="🍺">
-                        酒場
-                    </MudButton>
-                    
-                    <MudDivider Class="my-2" />
-                    
-                    <MudButton Variant="Variant.Outlined" Color="Color.Default" FullWidth="true" OnClick="GoToWeaponShop" StartIcon="⚔️">
-                        武器屋
-                    </MudButton>
-                    <MudButton Variant="Variant.Outlined" Color="Color.Default" FullWidth="true" OnClick="GoToArmorShop" StartIcon="🛡️">
-                        防具屋
-                    </MudButton>
-                    <MudButton Variant="Variant.Outlined" Color="Color.Default" FullWidth="true" OnClick="GoToAccessoryShop" StartIcon="💍">
-                        装飾品屋
-                    </MudButton>
-                    <MudButton Variant="Variant.Outlined" Color="Color.Default" FullWidth="true" OnClick="GoToConsumablesShop" StartIcon="🧪">
-                        消耗品屋
-                    </MudButton>
-                    
-                    <MudDivider Class="my-2" />
-                    
-                    <MudButton Variant="Variant.Text" Color="Color.Default" FullWidth="true" OnClick="GoToWeaponManagement" StartIcon="⚒️">
-                        武器管理
-                    </MudButton>
-                    <MudButton Variant="Variant.Text" Color="Color.Default" FullWidth="true" OnClick="GoToArmorManagement" StartIcon="🛡️">
-                        防具管理
-                    </MudButton>
-                    <MudButton Variant="Variant.Text" Color="Color.Default" FullWidth="true" OnClick="GoToAccessoryManagement" StartIcon="💎">
-                        装飾品管理
-                    </MudButton>
-                    
-                    <MudDivider Class="my-2" />
-                    
-                    <MudButton Variant="Variant.Text" Color="Color.Default" FullWidth="true" OnClick="GoToSkillTrees" StartIcon="🌳">
-                        スキルツリー
-                    </MudButton>
-                    <MudButton Variant="Variant.Text" Color="Color.Default" FullWidth="true" OnClick="GoToAbilities" StartIcon="✨">
-                        アビリティ
-                    </MudButton>
-                    
-                    <MudDivider Class="my-2" />
-                    
-                    <MudButton Variant="Variant.Filled" Color="Color.Dark" FullWidth="true" OnClick="GoBack" StartIcon="🏠">
-                        ダッシュボード
-                    </MudButton>
-                </div>
-            </MudPaper>
+        <div style="width:230px; flex-shrink:0;">
+            <div style="position:sticky; top:16px; display:flex; flex-direction:column; gap:10px;">
+                @* 移動・施設 *@
+                <MudPaper Class="pa-3" Style="border-radius:12px!important;">
+                    <div style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#999;margin-bottom:8px;font-weight:700;">移動・施設</div>
+                    <div style="display:flex;flex-direction:column;gap:5px;">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" OnClick="GoToMap" StartIcon="🗺️" Style="border-radius:8px!important;">マップ移動</MudButton>
+                        <MudButton Variant="Variant.Filled" Color="Color.Success" FullWidth="true" OnClick="GoToInn" StartIcon="🏨" Style="border-radius:8px!important;">宿屋</MudButton>
+                        <MudButton Variant="Variant.Filled" Color="Color.Warning" FullWidth="true" OnClick="GoToBank" StartIcon="🏦" Style="border-radius:8px!important;">銀行</MudButton>
+                        <MudButton Variant="Variant.Outlined" Color="Color.Default" FullWidth="true" OnClick="GoToTavern" StartIcon="🍺" Style="border-radius:8px!important;">酒場</MudButton>
+                    </div>
+                </MudPaper>
+                @* ショップ *@
+                <MudPaper Class="pa-3" Style="border-radius:12px!important;">
+                    <div style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#999;margin-bottom:8px;font-weight:700;">ショップ</div>
+                    <div style="display:flex;flex-direction:column;gap:5px;">
+                        <MudButton Variant="Variant.Outlined" Color="Color.Default" FullWidth="true" OnClick="GoToWeaponShop" StartIcon="⚔️" Style="border-radius:8px!important;">武器屋</MudButton>
+                        <MudButton Variant="Variant.Outlined" Color="Color.Default" FullWidth="true" OnClick="GoToArmorShop" StartIcon="🛡️" Style="border-radius:8px!important;">防具屋</MudButton>
+                        <MudButton Variant="Variant.Outlined" Color="Color.Default" FullWidth="true" OnClick="GoToAccessoryShop" StartIcon="💍" Style="border-radius:8px!important;">装飾品屋</MudButton>
+                        <MudButton Variant="Variant.Outlined" Color="Color.Default" FullWidth="true" OnClick="GoToConsumablesShop" StartIcon="🧪" Style="border-radius:8px!important;">消耗品屋</MudButton>
+                    </div>
+                </MudPaper>
+                @* 装備・成長 *@
+                <MudPaper Class="pa-3" Style="border-radius:12px!important;">
+                    <div style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#999;margin-bottom:8px;font-weight:700;">装備・成長</div>
+                    <div style="display:flex;flex-direction:column;gap:2px;">
+                        <MudButton Variant="Variant.Text" Color="Color.Default" FullWidth="true" OnClick="GoToWeaponManagement" StartIcon="⚒️" Size="Size.Small">武器管理</MudButton>
+                        <MudButton Variant="Variant.Text" Color="Color.Default" FullWidth="true" OnClick="GoToArmorManagement" StartIcon="🛡️" Size="Size.Small">防具管理</MudButton>
+                        <MudButton Variant="Variant.Text" Color="Color.Default" FullWidth="true" OnClick="GoToAccessoryManagement" StartIcon="💎" Size="Size.Small">装飾品管理</MudButton>
+                        <MudButton Variant="Variant.Text" Color="Color.Default" FullWidth="true" OnClick="GoToSkillTrees" StartIcon="🌳" Size="Size.Small">スキルツリー</MudButton>
+                        <MudButton Variant="Variant.Text" Color="Color.Default" FullWidth="true" OnClick="GoToAbilities" StartIcon="✨" Size="Size.Small">アビリティ</MudButton>
+                    </div>
+                </MudPaper>
+                <MudButton Variant="Variant.Filled" Color="Color.Dark" FullWidth="true" OnClick="GoBack" StartIcon="🏠" Style="border-radius:10px!important;">ダッシュボード</MudButton>
+            </div>
         </div>
     </div>
 </div>
@@ -402,7 +390,8 @@
     private MapLocation? currentMapLocation;
     private const int MapOffset = 5; // 町の座標(-3~3)をマップ座標(0~10)に変換
     private int currentCountryId = 5; // デフォルトは中立之城
-    
+    private bool isLoading = true;
+
     // チャット
     private List<FFA.Models.ChatMessage> chatMessages = new();
     private FFA.Models.ChatChannel currentChatChannel = FFA.Models.ChatChannel.World;
@@ -484,18 +473,19 @@
         }
 
         // フォールバック3: 全国から最初の首都を使用
-        if (CurrentTown == null)
-        {
-            var allTowns = TownService.GetAllTowns();
-            CurrentTown = allTowns.FirstOrDefault(t => t.Type == "capital") ?? allTowns.FirstOrDefault();
-            if (CurrentTown != null)
+            if (CurrentTown == null)
             {
-                currentCountryId = CurrentTown.CountryId;
-                OtherTowns = TownService.GetTownsByCountryId(CurrentTown.CountryId)
-                    .Where(t => t.Id != CurrentTown.Id).ToList();
+                var allTowns = TownService.GetAllTowns();
+                CurrentTown = allTowns.FirstOrDefault(t => t.Type == "capital") ?? allTowns.FirstOrDefault();
+                if (CurrentTown != null)
+                {
+                    currentCountryId = CurrentTown.CountryId;
+                    OtherTowns = TownService.GetTownsByCountryId(CurrentTown.CountryId)
+                        .Where(t => t.Id != CurrentTown.Id).ToList();
+                }
             }
+            isLoading = false;
         }
-    }
 
     private string GetTownTypeName(string? type)
     {
@@ -777,4 +767,25 @@
     private void GoToFriends() => Navigation.NavigateTo("/friend");
     private void GoToGuild() => Navigation.NavigateTo("/guild");
     private void GoToDailyReward() => Navigation.NavigateTo("/daily-reward");
+
+    private string GetJobIcon(Job? job) => job switch
+    {
+        Job.Warrior => "⚔️",
+        Job.Monk => "👊",
+        Job.WhiteMage => "✨",
+        Job.BlackMage => "🔮",
+        Job.Ranger => "🏹",
+        Job.Paladin => "🛡️",
+        Job.DarkKnight => "💀",
+        Job.Bard => "🎵",
+        Job.Thief => "🗡️",
+        Job.Ninja => "🥷",
+        Job.HolyKnight => "⚜️",
+        Job.DeathKnight => "☠️",
+        Job.ArchMage => "🌟",
+        Job.BeastMaster => "🐉",
+        Job.Duelist => "🤺",
+        Job.Grandmaster => "👑",
+        _ => "🧙"
+    };
 }

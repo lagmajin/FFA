@@ -9,7 +9,7 @@ namespace FFA.Services;
 /// </summary>
 public class EndlessBattleService
 {
-    private readonly LiteDatabase _db;
+    private readonly string _databasePath;
     private readonly Random _random = new();
     private readonly ConcurrentDictionary<string, EndlessBattleSession> _activeSessions = new();
     
@@ -37,9 +37,11 @@ public class EndlessBattleService
         new() { Name = "神獣キマイラ", Icon = "🦁", BaseHP = 850, BaseAttack = 95, BaseDefense = 65, BaseExp = 280, BaseGil = 230, Difficulty = EndlessBattleDifficulty.Extreme },
     };
     
-    public EndlessBattleService(LiteDatabase db)
+    public EndlessBattleService()
     {
-        _db = db;
+        var appDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "App_Data");
+        Directory.CreateDirectory(appDataPath);
+        _databasePath = Path.Combine(appDataPath, "users.db");
     }
     
     /// <summary>
@@ -374,7 +376,8 @@ public class EndlessBattleService
     {
         try
         {
-            var collection = _db.GetCollection<EndlessBattleStats>("endless_battle_stats");
+            using var db = new LiteDatabase(_databasePath);
+            var collection = db.GetCollection<EndlessBattleStats>("endless_battle_stats");
             var stats = collection.FindById(session.UserId) ?? new EndlessBattleStats();
             
             stats.TotalSessions++;
@@ -406,7 +409,8 @@ public class EndlessBattleService
     {
         try
         {
-            var collection = _db.GetCollection<EndlessBattleStats>("endless_battle_stats");
+            using var db = new LiteDatabase(_databasePath);
+            var collection = db.GetCollection<EndlessBattleStats>("endless_battle_stats");
             return collection.FindById(userId) ?? new EndlessBattleStats();
         }
         catch

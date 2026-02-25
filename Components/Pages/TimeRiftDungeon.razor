@@ -1,0 +1,271 @@
+@page "/timespace"
+@rendermode InteractiveServer
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+@inject Services.UserService UserService
+@inject Services.TimeRiftService TimeRiftService
+@inject AuthenticationStateProvider AuthStateProvider
+
+<PageTitle>時空ダンジョン</PageTitle>
+
+<div class="timespace-container">
+    <h1 class="timespace-title">時空ダンジョン</h1>
+    <p class="timespace-subtitle">時間制限チャレンジをクリアしてより良い報酬を得よう！</p>
+
+    @if (!isAuthenticated)
+    {
+        <div class="login-prompt">
+            <p>ログインすると時空ダンジョに挑戦できます。</p>
+            <button class="btn-primary" @onclick='() => Navigation.NavigateTo("/login")'>ログイン</button>
+        </div>
+    }
+    else
+    {
+        @if (currentSession == null)
+        {
+            <!-- ダンジョン選択画面 -->
+            <div class="dungeon-selection">
+                <h2>ダンジョンを選択</h2>
+                
+                <div class="dungeon-cards">
+                    @foreach (var dungeon in availableDungeons)
+                    {
+                        <div class="dungeon-card">
+                            <h3>@dungeon.JapaneseName</h3>
+                            <p class="dungeon-desc">@dungeon.Description</p>
+                            <div class="dungeon-info">
+                                <span class="badge">推奨Lv @dungeon.RecommendedLevel</span>
+                                <span class="badge">制限時間: @TimeSpan.FromSeconds(dungeon.TimeLimitSeconds).ToString(@"mm\:ss")</span>
+                                <span class="badge">@dungeon.MaxFloors 階</span>
+                            </div>
+                            <button class="btn-start" @onclick="() => StartDungeon(dungeon.Id)">挑戦する</button>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- リーダーボード -->
+            <div class="leaderboard-section">
+                <h2>リーダーボード</h2>
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th>順位</th>
+                            <th>プレイヤー</th>
+                            <th>ダンジョン</th>
+                            <th>クリア時間</th>
+                            <th>評価</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var entry in globalLeaderboard.Select((e, i) => new { e, i }))
+                        {
+                            <tr>
+                                <td>@(entry.i + 1)</td>
+                                <td>@entry.e.Username</td>
+                                <td>@entry.e.DungeonName</td>
+                                <td>@TimeSpan.FromSeconds(entry.e.ClearTimeSeconds).ToString(@"mm\:ss")</td>
+                                <td class="rank-@entry.e.Rank">@entry.e.Rank</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <!-- ゲーム進行画面 -->
+            <div class="dungeon-play">
+                <div class="timer-section">
+                    <h2>残り時間</h2>
+                    <div class="timer @((remainingTime <= 30) ? "danger" : "")">
+                        @TimeSpan.FromSeconds(remainingTime).ToString(@"mm\:ss")
+                    </div>
+                </div>
+
+                <div class="progress-section">
+                    <div class="floor-progress">
+                        <p>フロア: @currentSession.CurrentFloor / @currentSession.TotalMonsters</p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: @progressPercent%"></div>
+                        </div>
+                    </div>
+                    <div class="stats-summary">
+                        <p>倒した敵: @currentSession.MonstersDefeated / @currentSession.TotalMonsters</p>
+                        <p>獲得Gil: @currentSession.TotalGil</p>
+                        <p>獲得Exp: @currentSession.TotalExp</p>
+                    </div>
+                </div>
+
+                @if (!battleInProgress)
+                {
+                    <div class="action-section">
+                        <button class="btn-battle" @onclick="ExecuteBattle">戦闘する</button>
+                    </div>
+                }
+                else
+                {
+                    <div class="battle-result">
+                        <p>@battleMessage</p>
+                    </div>
+                }
+
+                @if (currentSession.IsCompleted)
+                {
+                    <div class="completion-modal">
+                        <h2>クリア！</h2>
+                        <p class="rank-display rank-@currentSession.Rank">評価: @currentSession.Rank</p>
+                        <p>クリア時間: @TimeSpan.FromSeconds(currentSession.ClearTimeSeconds).ToString(@"mm\:ss")</p>
+                        <div class="rewards">
+                            <h3>報酬</h3>
+                            <p>Gil: @rewardGil</p>
+                            <p>Exp: @rewardExp</p>
+                            @if (rewardItems.Any())
+                            {
+                                <p>アイテム: @string.Join(", ", rewardItems)</p>
+                            }
+                        </div>
+                        <button class="btn-primary" @onclick="ReturnToSelection">戻る</button>
+                    </div>
+                }
+
+                @if (currentSession.IsTimeOut)
+                {
+                    <div class="timeout-modal">
+                        <h2>時間切れ！</h2>
+                        <p>クリアできませんでした。</p>
+                        <button class="btn-primary" @onclick="ReturnToSelection">戻る</button>
+                    </div>
+                }
+            </div>
+        }
+    }
+</div>
+
+@code {
+    private bool isAuthenticated = false;
+    private string username = "";
+    private List<Models.TimeRiftData> availableDungeons = new();
+    private List<Models.TimeRiftRecord> globalLeaderboard = new();
+    
+    // Session state
+    private Models.TimeRiftPlayerSession currentSession = null;
+    private int remainingTime = 0;
+    private bool battleInProgress = false;
+    private string battleMessage = "";
+    private int rewardGil = 0;
+    private int rewardExp = 0;
+    private List<string> rewardItems = new();
+    
+    private double progressPercent => currentSession != null 
+        ? (double)currentSession.MonstersDefeated / currentSession.TotalMonsters * 100 
+        : 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthStateProvider.GetAuthenticationStateAsync();
+        var authUser = state.User;
+        isAuthenticated = authUser?.Identity?.IsAuthenticated ?? false;
+        
+        if (isAuthenticated)
+        {
+            username = authUser.Identity.Name;
+            LoadData();
+        }
+    }
+
+    private void LoadData()
+    {
+        availableDungeons = TimeRiftService.GetAvailableDungeons();
+        globalLeaderboard = TimeRiftService.GetGlobalLeaderboard(10);
+        
+        currentSession = TimeRiftService.GetSession(username);
+        if (currentSession != null && currentSession.IsActive)
+        {
+            remainingTime = TimeRiftService.GetRemainingTime(username);
+            if (remainingTime <= 0)
+            {
+                TimeRiftService.TimeOutSession(username);
+                CalculateRewards();
+            }
+        }
+    }
+
+    private void StartDungeon(int dungeonId)
+    {
+        currentSession = TimeRiftService.StartSession(username, dungeonId);
+        remainingTime = TimeRiftService.GetRemainingTime(username);
+    }
+
+    private async Task ExecuteBattle()
+    {
+        battleInProgress = true;
+        battleMessage = "戦闘中...";
+        
+        var user = UserService.GetByUsername(username);
+        if (user == null)
+        {
+            battleMessage = "エラー: ユーザーを取得できません";
+            battleInProgress = false;
+            return;
+        }
+        
+        var monsterType = currentSession.DungeonId switch
+        {
+            1 => "Skeleton",
+            2 => "Dragon", 
+            3 => "Demon",
+            _ => "Monster"
+        };
+        
+        var result = await TimeRiftService.ExecuteBattleAsync(user, monsterType);
+        
+        if (result.victory)
+        {
+            currentSession.MonstersDefeated++;
+            currentSession.TotalExp += result.expGained;
+            currentSession.TotalGil += result.gilGained;
+            currentSession.Drops.AddRange(result.drops);
+            battleMessage = $"勝利！ +{result.expGained} Exp, +{result.gilGained} Gil";
+            
+            if (currentSession.MonstersDefeated >= currentSession.TotalMonsters)
+            {
+                TimeRiftService.CompleteSession(username);
+                CalculateRewards();
+            }
+        }
+        else
+        {
+            battleMessage = "敗北しました...";
+        }
+        
+        await Task.Delay(1000);
+        battleInProgress = false;
+        remainingTime = TimeRiftService.GetRemainingTime(username);
+        
+        if (remainingTime <= 0 && currentSession.IsActive)
+        {
+            TimeRiftService.TimeOutSession(username);
+            CalculateRewards();
+        }
+    }
+
+    private void CalculateRewards()
+    {
+        var result = TimeRiftService.CalculateRewards(username);
+        rewardGil = result.gil;
+        rewardExp = result.exp;
+        rewardItems = result.items;
+    }
+
+    private void ReturnToSelection()
+    {
+        TimeRiftService.ClearSession(username);
+        currentSession = null;
+        battleMessage = "";
+        rewardGil = 0;
+        rewardExp = 0;
+        rewardItems = new();
+        LoadData();
+    }
+}

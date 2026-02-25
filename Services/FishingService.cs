@@ -12,20 +12,18 @@ public class FishingService
     private readonly string _databasePath;
     private readonly TimeWeatherService _timeWeatherService;
     private readonly StaminaService _staminaService;
-    private readonly UserService _userService;
     
     private static readonly Random _random = new();
     private const int BaseFishingExpToNext = 50;
     private const int FishingStaminaCost = 1;
 
-    public FishingService(TimeWeatherService timeWeatherService, StaminaService staminaService, UserService userService)
+    public FishingService(TimeWeatherService timeWeatherService, StaminaService staminaService)
     {
         var appDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "App_Data");
         Directory.CreateDirectory(appDataPath);
         _databasePath = Path.Combine(appDataPath, "users.db");
         _timeWeatherService = timeWeatherService;
         _staminaService = staminaService;
-        _userService = userService;
         InitializeData();
     }
 

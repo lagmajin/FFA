@@ -9,13 +9,15 @@ namespace FFA.Services;
 /// </summary>
 public class TownEventService
 {
-    private readonly LiteDatabase _db;
+    private readonly string _databasePath;
     private readonly List<TownEvent> _events;
     private readonly Random _random = new();
     
-    public TownEventService(LiteDatabase db)
+    public TownEventService()
     {
-        _db = db;
+        var appDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "App_Data");
+        Directory.CreateDirectory(appDataPath);
+        _databasePath = Path.Combine(appDataPath, "users.db");
         _events = InitializeEvents();
     }
     
@@ -934,7 +936,8 @@ public class TownEventService
     /// </summary>
     public void SaveHistory(TownEventHistory history)
     {
-        var col = _db.GetCollection<TownEventHistory>("town_event_histories");
+        using var db = new LiteDatabase(_databasePath);
+        var col = db.GetCollection<TownEventHistory>("town_event_histories");
         col.Insert(history);
     }
     
@@ -943,7 +946,8 @@ public class TownEventService
     /// </summary>
     public List<TownEventHistory> GetUserHistory(string username, int limit = 10)
     {
-        var col = _db.GetCollection<TownEventHistory>("town_event_histories");
+        using var db = new LiteDatabase(_databasePath);
+        var col = db.GetCollection<TownEventHistory>("town_event_histories");
         return col.Query()
             .Where(h => h.Username == username)
             .OrderByDescending(h => h.Timestamp)

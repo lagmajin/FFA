@@ -4,6 +4,8 @@ using System.Text;
 using System.IO;
 using FFA.Models;
 
+#pragma warning disable CS0618 // Obsolete警告を無効化
+
 namespace FFA.Services;
 
 public class UserService
@@ -64,27 +66,27 @@ public class UserService
                     break;
                 case Models.Job.Ranger:
                     user.EquippedArmor = new Armor { Name = "Ranger Vest", Defense = 4 };
-                    user.EquippedAccessory1 = new Accessory { Name = "Eagle Feather", Effect = "+2 Agility" };
+                    user.EquippedRing1 = new Accessory { Name = "Eagle Feather", Effect = "+2 Agility" };
                     break;
                 case Models.Job.Paladin:
                     user.EquippedArmor = new Armor { Name = "Holy Plate", Defense = 7 };
-                    user.EquippedAccessory1 = new Accessory { Name = "Sacred Amulet", Effect = "+3 Vitality" };
+                    user.EquippedRing1 = new Accessory { Name = "Sacred Amulet", Effect = "+3 Vitality" };
                     break;
                 case Models.Job.DarkKnight:
                     user.EquippedArmor = new Armor { Name = "Dark Armor", Defense = 6 };
-                    user.EquippedAccessory1 = new Accessory { Name = "Cursed Ring", Effect = "+2 Strength" };
+                    user.EquippedRing1 = new Accessory { Name = "Cursed Ring", Effect = "+2 Strength" };
                     break;
                 case Models.Job.Bard:
                     user.EquippedArmor = new Armor { Name = "Silk Robe", Defense = 2 };
-                    user.EquippedAccessory1 = new Accessory { Name = "Musical Charm", Effect = "+2 Intelligence" };
+                    user.EquippedRing1 = new Accessory { Name = "Musical Charm", Effect = "+2 Intelligence" };
                     break;
                 case Models.Job.Thief:
                     user.EquippedArmor = new Armor { Name = "Shadow Cloth", Defense = 3 };
-                    user.EquippedAccessory1 = new Accessory { Name = "Thief's Mark", Effect = "+3 Luck" };
+                    user.EquippedRing1 = new Accessory { Name = "Thief's Mark", Effect = "+3 Luck" };
                     break;
                 case Models.Job.Ninja:
                     user.EquippedArmor = new Armor { Name = "Ninja Gi", Defense = 4 };
-                    user.EquippedAccessory1 = new Accessory { Name = "Shuriken Pouch", Effect = "+2 Dexterity" };
+                    user.EquippedRing1 = new Accessory { Name = "Shuriken Pouch", Effect = "+2 Dexterity" };
                     break;
             }
             users.Insert(user);

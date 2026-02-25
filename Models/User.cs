@@ -1,3 +1,4 @@
+using System;
 using LiteDB;
 
 namespace FFA.Models;
@@ -26,10 +27,63 @@ public class User
     // Equipped items
     public Weapon? EquippedWeapon { get; set; }
     public Armor? EquippedArmor { get; set; }
+    
+    // 装飾品スロット（タイプ別）
+    // リング: 2個まで
+    public Accessory? EquippedRing1 { get; set; }
+    public Accessory? EquippedRing2 { get; set; }
+    // アミュレット: 1個
+    public Accessory? EquippedAmulet { get; set; }
+    // イアリング: 2個まで
+    public Accessory? EquippedEarring1 { get; set; }
+    public Accessory? EquippedEarring2 { get; set; }
+    // ブレスレット: 1個
+    public Accessory? EquippedBracelet { get; set; }
+    // ネックレス: 1個
+    public Accessory? EquippedNecklace { get; set; }
+    //  Belt: 1個
+    public Accessory? EquippedBelt { get; set; }
+    
+    // 後方互換性のためのプロパティ（非推奨）
+    [Obsolete("代わりにEquippedRing1を使用してください")]
     public Accessory? EquippedAccessory1 { get; set; }
+    [Obsolete("代わりにEquippedRing2を使用してください")]
     public Accessory? EquippedAccessory2 { get; set; }
-    // 後方互換性のためのプロパティ
+    [Obsolete("代わりに各タイプ別スロットを使用してください")]
     public Accessory? EquippedAccessory { get; set; }
+
+    // 装备饰品帮助方法
+    public List<Accessory> GetEquippedAccessories()
+    {
+        var accessories = new List<Accessory>();
+        if (EquippedRing1 != null) accessories.Add(EquippedRing1);
+        if (EquippedRing2 != null) accessories.Add(EquippedRing2);
+        if (EquippedAmulet != null) accessories.Add(EquippedAmulet);
+        if (EquippedEarring1 != null) accessories.Add(EquippedEarring1);
+        if (EquippedEarring2 != null) accessories.Add(EquippedEarring2);
+        if (EquippedBracelet != null) accessories.Add(EquippedBracelet);
+        if (EquippedNecklace != null) accessories.Add(EquippedNecklace);
+        if (EquippedBelt != null) accessories.Add(EquippedBelt);
+        return accessories;
+    }
+
+    // 获取装备饰品的总属性加成
+    public int GetTotalAccessoryStat(string statName)
+    {
+        var accessories = GetEquippedAccessories();
+        int total = 0;
+        foreach (var acc in accessories)
+        {
+            total += statName switch
+            {
+                "Attack" => acc.Attack,
+                "Defense" => acc.Defense,
+                "Magic" => acc.Magic,
+                _ => 0
+            };
+        }
+        return total;
+    }
 
     // Hit points
     public int HP { get; set; } = 100;

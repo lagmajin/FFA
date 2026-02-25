@@ -40,6 +40,7 @@ builder.Services.AddSingleton<ConsumableItemService>();
 builder.Services.AddScoped<CountryService>();
 builder.Services.AddScoped<TownService>();
 builder.Services.AddScoped<MapService>();
+builder.Services.AddScoped<MapMovementEventService>();
 builder.Services.AddScoped<FieldService>();
 builder.Services.AddScoped<MarketService>();
 builder.Services.AddScoped<RankingService>();
@@ -55,6 +56,7 @@ builder.Services.AddScoped<TitleService>();
 // Register AuctionService and CountryWarService
 builder.Services.AddScoped<AuctionService>();
 builder.Services.AddSingleton<CountryWarService>();
+builder.Services.AddScoped<InvestmentService>();
 // Register EndlessBattleService for consecutive battles
 builder.Services.AddScoped<EndlessBattleService>();
 // Register CompanionService for party system

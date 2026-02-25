@@ -7,6 +7,8 @@
     <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
     <!-- Browser Link �𖳌����imixed-scheme cookie �x���̍��{�����j -->
     <UseBrowserLink>false</UseBrowserLink>
+    <!-- 旧API警告を無効化 -->
+    <NoWarn>$(NoWarn);CS0618;CS0414;CS8602;CS8601;CS8625;RZ10012</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

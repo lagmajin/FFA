@@ -1,5 +1,7 @@
 namespace FFA.Models;
 
+#pragma warning disable CS0618 // Obsolete警告を無効化
+
 /// <summary>
 /// ゲームイベント Types
 /// </summary>

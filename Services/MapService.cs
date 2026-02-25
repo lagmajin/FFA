@@ -238,10 +238,11 @@ public class MapService
                 // マップを保存（キーはマップ名）
                 allMaps[map.Name] = map;
                 
-                // 国マップとしても保存
+                // 国マップとしても保存（LoadCountryMaps で既に正しく読み込まれた場合は上書きしない）
                 if (table.ContainsKey("meta") || fileName.Contains("country"))
                 {
-                    if (map.Id > 0) countryMaps[map.Id] = map;
+                    if (map.Id > 0 && !countryMaps.ContainsKey(map.Id))
+                        countryMaps[map.Id] = map;
                 }
             }
             catch (Exception ex)
