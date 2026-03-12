@@ -185,7 +185,7 @@ public class UserService
             var users = db.GetCollection<User>("users");
 
             var user = users.FindOne(u => u.Username == username);
-            if (user != null && VerifyPassword(password, user.PasswordHash))
+            if (user != null && !user.IsSuspended && VerifyPassword(password, user.PasswordHash))
             {
                 // update last active on login
                 user.LastActiveUtc = DateTime.UtcNow;
@@ -452,7 +452,13 @@ public class UserService
         {
             using var db = new LiteDatabase(_databasePath);
             var users = db.GetCollection<User>("users");
-            return users.DeleteMany(u => u.Username == username) > 0;
+            var deleted = users.DeleteMany(u => u.Username == username) > 0;
+            if (deleted)
+            {
+                var logs = db.GetCollection<AdminLog>("adminlogs");
+                logs.Insert(new AdminLog { Action = "DeleteUser", Detail = $"User '{username}' deleted" });
+            }
+            return deleted;
         }
         catch (Exception ex)
         {
@@ -463,6 +469,84 @@ public class UserService
 
     // Change job (転職)
     // Returns true if successful, false otherwise (insufficient gil or user not found)
+    public bool SetUserSuspended(string username, bool suspended, string actor = "system")
+    {
+        try
+        {
+            using var db = new LiteDatabase(_databasePath);
+            var users = db.GetCollection<User>("users");
+            var user = users.FindOne(u => u.Username == username);
+            if (user == null) return false;
+
+            user.IsSuspended = suspended;
+            users.Update(user);
+
+            var logs = db.GetCollection<AdminLog>("adminlogs");
+            logs.Insert(new AdminLog
+            {
+                Action = suspended ? "SuspendUser" : "ResumeUser",
+                Detail = $"Actor='{actor}', Username='{username}'"
+            });
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"UserService.SetUserSuspended error: {ex.Message} - {ex.StackTrace}");
+            return false;
+        }
+    }
+
+    public bool SetChampion(string username, string actor = "system")
+    {
+        try
+        {
+            using var db = new LiteDatabase(_databasePath);
+            var users = db.GetCollection<User>("users");
+            var target = users.FindOne(u => u.Username == username);
+            if (target == null) return false;
+
+            foreach (var u in users.FindAll())
+            {
+                if (u.IsChampion)
+                {
+                    u.IsChampion = false;
+                    users.Update(u);
+                }
+            }
+
+            target.IsChampion = true;
+            users.Update(target);
+
+            var logs = db.GetCollection<AdminLog>("adminlogs");
+            logs.Insert(new AdminLog
+            {
+                Action = "SetChampion",
+                Detail = $"Actor='{actor}', Username='{username}'"
+            });
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"UserService.SetChampion error: {ex.Message} - {ex.StackTrace}");
+            return false;
+        }
+    }
+
+    public IEnumerable<AdminLog> GetAdminLogs(int limit = 100)
+    {
+        try
+        {
+            using var db = new LiteDatabase(_databasePath);
+            var logs = db.GetCollection<AdminLog>("adminlogs");
+            return logs.Find(Query.All(nameof(AdminLog.Timestamp), Query.Descending), 0, limit).ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"UserService.GetAdminLogs error: {ex.Message} - {ex.StackTrace}");
+            return new List<AdminLog>();
+        }
+    }
+
     public bool ChangeJob(string username, Job newJob, int cost = 500)
     {
         try

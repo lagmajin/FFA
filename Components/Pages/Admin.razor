@@ -1,50 +1,157 @@
 @page "/admin"
 @rendermode InteractiveServer
 
+@using FFA.Models
 @using FFA.Services
 @using Microsoft.AspNetCore.Components.Authorization
+@using MudBlazor
 @inject UserService UserService
 @inject KarmaService Karma
 @inject AuthenticationStateProvider AuthStateProvider
 
-<h2>Admin</h2>
+<PageTitle>Admin</PageTitle>
 
 @if (!isAdmin)
 {
-    <p>管理者専用ページです。</p>
+    <MudAlert Severity="Severity.Error" Class="ma-4">このページは管理者専用です。</MudAlert>
 }
 else
 {
-    <div>
-        <h3>Users</h3>
-        <ul>
-            @foreach (var u in users)
-            {
-                <li>@u.Username - <button @onclick="() => DeleteUser(u.Username)">Delete</button> - Karma: @Karma.GetKarma(u.Username)</li>
-            }
-        </ul>
-    </div>
+    <MudPaper Class="pa-4 ma-4">
+        <MudText Typo="Typo.h5">管理コンソール</MudText>
+
+        <MudTextField @bind-Value="searchText"
+                      Label="ユーザー検索"
+                      Placeholder="username"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search"
+                      Class="mt-4 mb-2" />
+
+        <MudTable Items="FilteredUsers" Dense="true" Hover="true" Bordered="true">
+            <HeaderContent>
+                <MudTh>ユーザー</MudTh>
+                <MudTh>Job</MudTh>
+                <MudTh>Lv</MudTh>
+                <MudTh>Gil</MudTh>
+                <MudTh>Karma</MudTh>
+                <MudTh>状態</MudTh>
+                <MudTh>操作</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.Username</MudTd>
+                <MudTd>@context.Job</MudTd>
+                <MudTd>@context.Level</MudTd>
+                <MudTd>@context.Gil.ToString("N0")</MudTd>
+                <MudTd>@Karma.GetKarma(context.Username)</MudTd>
+                <MudTd>
+                    @if (context.IsSuspended)
+                    {
+                        <MudChip T="string" Color="Color.Error" Variant="Variant.Filled">停止中</MudChip>
+                    }
+                    else
+                    {
+                        <MudChip T="string" Color="Color.Success" Variant="Variant.Outlined">有効</MudChip>
+                    }
+                    @if (context.IsChampion)
+                    {
+                        <MudChip T="string" Color="Color.Warning" Variant="Variant.Filled" Class="ml-1">Champion</MudChip>
+                    }
+                </MudTd>
+                <MudTd>
+                    <MudButton Size="Size.Small" Variant="Variant.Outlined" Color="Color.Warning" OnClick="@(() => SetChampion(context.Username))">
+                        Champion
+                    </MudButton>
+                    @if (context.IsSuspended)
+                    {
+                        <MudButton Size="Size.Small" Variant="Variant.Outlined" Color="Color.Success" OnClick="@(() => ResumeUser(context.Username))" Class="ml-1">
+                            再開
+                        </MudButton>
+                    }
+                    else
+                    {
+                        <MudButton Size="Size.Small" Variant="Variant.Outlined" Color="Color.Error" OnClick="@(() => SuspendUser(context.Username))" Class="ml-1">
+                            停止
+                        </MudButton>
+                    }
+                    <MudButton Size="Size.Small" Variant="Variant.Text" Color="Color.Error" OnClick="@(() => DeleteUser(context.Username))" Class="ml-1">
+                        削除
+                    </MudButton>
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+    </MudPaper>
+
+    <MudPaper Class="pa-4 ma-4">
+        <MudText Typo="Typo.h6">管理ログ（最新100件）</MudText>
+        <MudTable Items="logs" Dense="true" Hover="true" Class="mt-2">
+            <HeaderContent>
+                <MudTh>UTC</MudTh>
+                <MudTh>Action</MudTh>
+                <MudTh>Detail</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</MudTd>
+                <MudTd>@context.Action</MudTd>
+                <MudTd>@context.Detail</MudTd>
+            </RowTemplate>
+        </MudTable>
+    </MudPaper>
 }
 
 @code {
-    private bool isAdmin = false;
-    private List<FFA.Models.User> users = new();
+    private bool isAdmin;
+    private string searchText = string.Empty;
+    private List<User> users = new();
+    private List<AdminLog> logs = new();
+    private string actor = "admin";
+
+    private IEnumerable<User> FilteredUsers =>
+        string.IsNullOrWhiteSpace(searchText)
+            ? users
+            : users.Where(u => u.Username.Contains(searchText, StringComparison.OrdinalIgnoreCase));
 
     protected override async Task OnInitializedAsync()
     {
         var state = await AuthStateProvider.GetAuthenticationStateAsync();
         var user = state.User;
         isAdmin = user.IsInRole("Admin");
-        if (isAdmin)
-        {
-            users = UserService.GetAllUsers().ToList();
-        }
+        actor = user.Identity?.Name ?? "admin";
+        if (!isAdmin) return;
+
+        Reload();
+    }
+
+    private void Reload()
+    {
+        users = UserService.GetAllUsers().OrderBy(u => u.Username).ToList();
+        logs = UserService.GetAdminLogs(100).ToList();
     }
 
     private void DeleteUser(string username)
     {
         if (!isAdmin) return;
         UserService.DeleteUser(username);
-        users = UserService.GetAllUsers().ToList();
+        Reload();
+    }
+
+    private void SetChampion(string username)
+    {
+        if (!isAdmin) return;
+        UserService.SetChampion(username, actor);
+        Reload();
+    }
+
+    private void SuspendUser(string username)
+    {
+        if (!isAdmin) return;
+        UserService.SetUserSuspended(username, true, actor);
+        Reload();
+    }
+
+    private void ResumeUser(string username)
+    {
+        if (!isAdmin) return;
+        UserService.SetUserSuspended(username, false, actor);
+        Reload();
     }
 }

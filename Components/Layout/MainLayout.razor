@@ -1,4 +1,4 @@
-﻿@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
 @inherits LayoutComponentBase
@@ -18,7 +18,11 @@
 
         <MudSpacer />
 
-        <div style="display:flex; align-items:center; gap:4px; flex-shrink:0; margin-left:auto;">
+        <div style="display:flex; align-items:center; gap:8px; flex-shrink:0; margin-left:auto;">
+            <div style="display:flex; align-items:center; gap:4px;">
+                <MudButton Href="/about" Variant="Variant.Text" Color="Color.Inherit" StartIcon="@Icons.Material.Filled.Info">About</MudButton>
+                <MudButton Href="/contact" Variant="Variant.Text" Color="Color.Inherit" StartIcon="@Icons.Material.Filled.Mail">Contact</MudButton>
+            </div>
             <AuthorizeView>
                 <Authorized>
                     <MudButton Variant="Variant.Text" Color="Color.Inherit" StartIcon="@Icons.Material.Filled.ExitToApp" OnClick="SignOut">ログアウト</MudButton>

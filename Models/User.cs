@@ -8,6 +8,7 @@ public class User
     public int Id { get; set; }
     public string Username { get; set; } = "";
     public string PasswordHash { get; set; } = "";
+    public bool IsSuspended { get; set; } = false;
     // 所持金（ギル）
     public int Gil { get; set; } = 1000;
     // 銀行に預けているギル

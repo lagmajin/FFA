@@ -1,4 +1,4 @@
-﻿@page "/"
+@page "/"
 @rendermode InteractiveServer
 @using Microsoft.AspNetCore.Components.Authorization
 @using MudBlazor
@@ -10,58 +10,85 @@
 
 <PageTitle>FFA - トップ</PageTitle>
 
-<style>
-  .two-px-border th,
-  .two-px-border td {
-    border: 2px solid #000;
-  }
-</style>
+<div style="max-width:1100px; margin:1rem auto; padding:1rem;">
+    <MudGrid>
+        <MudItem xs="12" md="8">
+            <MudCard Class="pa-4">
+                <MudText Typo="Typo.h4">FFA World</MudText>
+                <MudText Typo="Typo.body1" Class="mt-2">
+                    育成・探索・戦闘を行いながら、ランキング上位とチャンピオンを目指すRPGです。
+                </MudText>
+                <div class="mt-4" style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="HomeLoginClicked">
+                        @(isAuth ? "ダッシュボードへ" : "ログイン")
+                    </MudButton>
+                    @if (!isAuth)
+                    {
+                        <MudButton Variant="Variant.Outlined" Color="Color.Secondary" Href="/register">
+                            新規登録
+                        </MudButton>
+                        <MudButton Variant="Variant.Outlined" Color="Color.Info" OnClick="TestPlay">
+                            テストプレイ
+                        </MudButton>
+                    }
+                </div>
+            </MudCard>
+        </MudItem>
 
-<div style="max-width:1024px; margin:1rem auto; padding:1rem;">
-    <div style="min-height:0; margin-bottom:0; padding-bottom:0;"></div>
-    <table class="two-px-border" style="width: 100%; border-collapse: collapse; border: 2px solid #000;">
-        <thead>
-            <tr>
-                @* 3カラム分を結合 *@
-                <th colspan="3" style="background-color: #eee; text-align: center;">
-                    ０連勝中！
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                @* 2行目からは通常通り3カラム *@
-                <td>
-                    <table class="two-px-border" style="border-collapse: collapse; border: 2px solid #000;">
-                        <tr>
-                            <th>(武器)</th>
-                            
-                        </tr>
-                        <tr>
-                            <td>(防具）</td>
-                            
-                        </tr>
-                        <tr>
-                            <td>(アクセサリー)</td>
-                            
-                        </tr>
-                        <tr>
-                            <td>(アクセサリー)</td>
+        <MudItem xs="12" md="4">
+            <MudCard Class="pa-4">
+                <MudText Typo="Typo.h6">ゲーム統計</MudText>
+                <MudText Typo="Typo.body2" Class="mt-2">総ユーザー: @totalUsers</MudText>
+                <MudText Typo="Typo.body2">ランキング対象: @rankedUsers</MudText>
+                <MudText Typo="Typo.body2">最高レベル: @maxLevel</MudText>
+            </MudCard>
+        </MudItem>
 
-                        </tr>
-                    </table>
-                </td>
-                <td style="background-color: #ffcccc;">名前</td>
-                <td>(名前）</td>
-            </tr>
-            <tr>
-                <td>データA</td>
-                <td>データB</td>
-                <td>データC</td>
-            </tr>
-        </tbody>
-    </table>
+        <MudItem xs="12">
+            <MudCard Class="pa-4">
+                <MudText Typo="Typo.h6">現チャンピオン</MudText>
+                @if (champion == null)
+                {
+                    <MudText Typo="Typo.body2" Class="mt-2">チャンピオンはまだ決まっていません。</MudText>
+                }
+                else
+                {
+                    <MudGrid Class="mt-2">
+                        <MudItem xs="12" md="4"><MudText Typo="Typo.body2">ユーザー: @champion.Username</MudText></MudItem>
+                        <MudItem xs="12" md="4"><MudText Typo="Typo.body2">ジョブ: @champion.Job</MudText></MudItem>
+                        <MudItem xs="12" md="4"><MudText Typo="Typo.body2">レベル: @champion.Level</MudText></MudItem>
+                    </MudGrid>
+                }
+            </MudCard>
+        </MudItem>
 
+        <MudItem xs="12">
+            <MudCard Class="pa-4">
+                <MudText Typo="Typo.h6">ランキング TOP 10</MudText>
+                @if (rankingRows.Count == 0)
+                {
+                    <MudText Typo="Typo.body2" Class="mt-2">ランキングデータがありません。</MudText>
+                }
+                else
+                {
+                    <MudTable Items="@rankingRows.Take(10)" Dense="true" Hover="true" Class="mt-3">
+                        <HeaderContent>
+                            <MudTh>順位</MudTh>
+                            <MudTh>ユーザー</MudTh>
+                            <MudTh>レベル</MudTh>
+                            <MudTh>Gil</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd>@context.Rank</MudTd>
+                            <MudTd>@context.Username</MudTd>
+                            <MudTd>@context.Level</MudTd>
+                            <MudTd>@context.Gil.ToString("N0")</MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                }
+            </MudCard>
+        </MudItem>
+    </MudGrid>
 </div>
 
 @code {

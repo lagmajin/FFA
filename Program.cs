@@ -556,6 +556,7 @@ app.MapGet("/admin/users", (ClaimsPrincipal user, UserService userService) =>
             u.Username,
             u.Level,
             u.Gil,
+            u.IsSuspended,
             u.IsChampion,
             Job = u.Job.ToString()
         })
@@ -581,22 +582,42 @@ app.MapPost("/admin/user/setchampion", async (HttpContext http, UserService user
     var body = await http.Request.ReadFromJsonAsync<Dictionary<string, string>>();
     if (body == null || !body.TryGetValue("username", out var username) || string.IsNullOrEmpty(username))
         return Results.BadRequest();
+    var actor = http.User.Identity?.Name ?? "admin";
+    var ok = userService.SetChampion(username, actor);
+    return ok ? Results.Ok() : Results.NotFound();
+});
 
-    // clear previous champions
-    foreach (var u in userService.GetAllUsers())
-    {
-        if (u.IsChampion)
-        {
-            u.IsChampion = false;
-            userService.UpdateUser(u);
-        }
-    }
+app.MapPost("/admin/user/suspend", async (HttpContext http, UserService userService) =>
+{
+    if (!http.User.IsInRole("Admin")) return Results.Unauthorized();
+    var body = await http.Request.ReadFromJsonAsync<Dictionary<string, string>>();
+    if (body == null || !body.TryGetValue("username", out var username) || string.IsNullOrEmpty(username))
+        return Results.BadRequest();
 
-    var newChampion = userService.GetByUsername(username);
-    if (newChampion == null) return Results.NotFound();
-    newChampion.IsChampion = true;
-    userService.UpdateUser(newChampion);
-    return Results.Ok();
+    var actor = http.User.Identity?.Name ?? "admin";
+    var ok = userService.SetUserSuspended(username, true, actor);
+    return ok ? Results.Ok() : Results.NotFound();
+});
+
+app.MapPost("/admin/user/resume", async (HttpContext http, UserService userService) =>
+{
+    if (!http.User.IsInRole("Admin")) return Results.Unauthorized();
+    var body = await http.Request.ReadFromJsonAsync<Dictionary<string, string>>();
+    if (body == null || !body.TryGetValue("username", out var username) || string.IsNullOrEmpty(username))
+        return Results.BadRequest();
+
+    var actor = http.User.Identity?.Name ?? "admin";
+    var ok = userService.SetUserSuspended(username, false, actor);
+    return ok ? Results.Ok() : Results.NotFound();
+});
+
+app.MapGet("/admin/logs", (ClaimsPrincipal user, UserService userService) =>
+{
+    if (!user.IsInRole("Admin")) return Results.Unauthorized();
+    var logs = userService.GetAdminLogs(100)
+        .Select(l => new { l.Timestamp, l.Action, l.Detail })
+        .ToList();
+    return Results.Ok(logs);
 });
 
 // Ensure there is an initial champion (CPU) if none exists
